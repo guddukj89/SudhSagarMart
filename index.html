@@ -1,25 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SudhSagarMart</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SudhSagarMart - Online Shopping</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f7fb;color:#222}
+header{background:#0757d9;color:white;position:sticky;top:0;z-index:10}
+.top{display:flex;align-items:center;gap:20px;padding:14px 5%;flex-wrap:wrap}
+.logo{font-size:25px;font-weight:bold}
+.search{flex:1;min-width:220px;display:flex}
+.search input{width:100%;padding:12px;border:0;border-radius:8px 0 0 8px;font-size:15px}
+.search button{padding:12px 18px;border:0;background:#ffb000;border-radius:0 8px 8px 0;cursor:pointer}
+.cart{font-weight:bold;cursor:pointer}
+nav{display:flex;gap:25px;padding:10px 5%;background:#0648b5}
+nav a{color:#fff;text-decoration:none;cursor:pointer}
+.hero{background:linear-gradient(120deg,#0757d9,#12a0ff);color:white;padding:45px 6%;text-align:center}
+.hero h1{font-size:38px;margin-bottom:10px}
+.hero p{font-size:18px;margin-bottom:20px}
+.btn{background:#ffb000;color:#111;border:0;padding:12px 22px;border-radius:8px;font-weight:bold;cursor:pointer}
+.container{max-width:1200px;margin:auto;padding:28px 18px}
+h2{margin-bottom:18px}
+.categories{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.cat{background:white;padding:22px 10px;border-radius:12px;text-align:center;box-shadow:0 2px 8px #0001;cursor:pointer;font-weight:bold}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px #0001}
+.pic{height:170px;background:#eaf2ff;display:flex;align-items:center;justify-content:center;font-size:65px}
+.info{padding:14px}
+.info h3{margin-bottom:7px}
+.category{font-size:13px;color:#777;margin-bottom:8px}
+.price{font-size:20px;font-weight:bold;margin:10px 0}
+.add{width:100%;background:#ffb000;border:0;padding:11px;border-radius:7px;cursor:pointer;font-weight:bold}
+.cartbox{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px #0001;margin-top:25px}
+.cartrow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #ddd}
+footer{margin-top:40px;background:#10233f;color:white;padding:30px 6%;text-align:center}
+#message{position:fixed;right:20px;bottom:20px;background:#222;color:white;padding:12px 18px;border-radius:8px;display:none}
+@media(max-width:800px){.categories{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:29px}}
+@media(max-width:500px){.products{grid-template-columns:1fr}.top{gap:10px}nav{gap:14px;overflow:auto}}
+</style>
 </head>
-
 <body>
 
-    <h1>Welcome to SudhSagarMart</h1>
+<header>
+  <div class="top">
+    <div class="logo">🛒 SudhSagarMart</div>
+    <div class="search">
+      <input id="search" placeholder="Search products..." oninput="searchProducts()">
+      <button onclick="searchProducts()">🔍</button>
+    </div>
+    <div class="cart" onclick="document.getElementById('cart').scrollIntoView()">🛒 Cart (<span id="count">0</span>)</div>
+  </div>
+  <nav>
+    <a onclick="showAll()">Home</a>
+    <a href="#categories">Categories</a>
+    <a href="#products">Products</a>
+    <a href="#cart">Cart</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
 
-    <p>Online Shopping Website</p>
+<section class="hero">
+  <h1>Welcome to SudhSagarMart</h1>
+  <p>Online Shopping — Mobile, Electronics, Clothes & Home Products</p>
+  <button class="btn" onclick="document.getElementById('products').scrollIntoView()">Shop Now</button>
+</section>
 
-    <h2>Our Products</h2>
+<main class="container">
+<section id="categories">
+  <h2>Shop by Category</h2>
+  <div class="categories">
+    <div class="cat" onclick="filterCategory('Mobiles')">📱<br>Mobiles</div>
+    <div class="cat" onclick="filterCategory('Electronics')">🔊<br>Electronics</div>
+    <div class="cat" onclick="filterCategory('Clothes')">👕<br>Clothes</div>
+    <div class="cat" onclick="filterCategory('Home Products')">🏠<br>Home Products</div>
+    <div class="cat" onclick="showAll()">🛍️<br>All Products</div>
+  </div>
+</section>
 
-    <ul>
-        <li>Mobile</li>
-        <li>Electronics</li>
-        <li>Clothes</li>
-        <li>Home Products</li>
-    </ul>
+<section id="products" style="margin-top:35px">
+  <h2>Popular Products</h2>
+  <div class="products" id="productList"></div>
+</section>
 
+<section id="cart" class="cartbox">
+  <h2>🛒 Your Cart</h2>
+  <div id="cartItems">Cart is empty.</div>
+  <h3 id="total" style="margin-top:15px">Total: ₹0</h3>
+  <button class="btn" style="margin-top:12px" onclick="checkout()">Place Order</button>
+</section>
+
+<section id="contact" class="cartbox">
+  <h2>Contact Us</h2>
+  <p>📞 Mobile: 9000000000</p>
+  <p>📧 Email: support@sudhsagarmart.com</p>
+  <p>📍 Bihar, India</p>
+</section>
+</main>
+
+<footer>
+  <h3>SudhSagarMart</h3>
+  <p>© 2026 SudhSagarMart. All Rights Reserved.</p>
+</footer>
+<div id="message"></div>
+
+<script>
+const products=[
+ {id:1,name:"Wireless Earbuds",cat:"Electronics",price:799,icon:"🎧"},
+ {id:2,name:"Bluetooth Speaker",cat:"Electronics",price:1299,icon:"🔊"},
+ {id:3,name:"Power Bank",cat:"Electronics",price:999,icon:"🔋"},
+ {id:4,name:"Smartphone",cat:"Mobiles",price:9999,icon:"📱"},
+ {id:5,name:"Mobile Charger",cat:"Electronics",price:499,icon:"🔌"},
+ {id:6,name:"Men T-Shirt",cat:"Clothes",price:599,icon:"👕"},
+ {id:7,name:"Ladies Dress",cat:"Clothes",price:899,icon:"👗"},
+ {id:8,name:"Kitchen Set",cat:"Home Products",price:1299,icon:"🍳"},
+ {id:9,name:"LED Bulb",cat:"Home Products",price:199,icon:"💡"},
+ {id:10,name:"Wall Clock",cat:"Home Products",price:499,icon:"🕐"},
+ {id:11,name:"Smart Watch",cat:"Mobiles",price:1499,icon:"⌚"},
+ {id:12,name:"Mobile Cover",cat:"Mobiles",price:299,icon:"📱"}
+];
+let cart=[];
+
+function render(list=products){
+ const box=document.getElementById("productList");
+ box.innerHTML=list.length?list.map(p=>`
+ <div class="card">
+   <div class="pic">${p.icon}</div>
+   <div class="info">
+    <h3>${p.name}</h3>
+    <div class="category">${p.cat}</div>
+    <div class="price">₹${p.price.toLocaleString('en-IN')}</div>
+    <button class="add" onclick="addCart(${p.id})">Add to Cart</button>
+   </div>
+ </div>`).join(""):"<p>No products found.</p>";
+}
+function addCart(id){
+ const p=products.find(x=>x.id===id);
+ cart.push(p); updateCart();
+ showMsg(p.name+" added to cart");
+}
+function updateCart(){
+ document.getElementById("count").textContent=cart.length;
+ const box=document.getElementById("cartItems");
+ if(!cart.length){box.innerHTML="Cart is empty.";document.getElementById("total").textContent="Total: ₹0";return}
+ box.innerHTML=cart.map((p,i)=>`<div class="cartrow"><span>${p.name}</span><span>₹${p.price} <button onclick="removeCart(${i})">❌</button></span></div>`).join("");
+ const total=cart.reduce((s,p)=>s+p.price,0);
+ document.getElementById("total").textContent="Total: ₹"+total.toLocaleString('en-IN');
+}
+function removeCart(i){cart.splice(i,1);updateCart()}
+function filterCategory(cat){render(products.filter(p=>p.cat===cat));document.getElementById("products").scrollIntoView()}
+function showAll(){render();document.getElementById("products").scrollIntoView()}
+function searchProducts(){
+ const q=document.getElementById("search").value.toLowerCase();
+ render(products.filter(p=>(p.name+" "+p.cat).toLowerCase().includes(q)));
+}
+function checkout(){
+ if(!cart.length){showMsg("Pehle product cart me add karein");return}
+ alert("Order system ready hai. Payment/WhatsApp order feature baad me connect kiya ja sakta hai.");
+}
+function showMsg(t){
+ const m=document.getElementById("message");m.textContent=t;m.style.display="block";
+ setTimeout(()=>m.style.display="none",1800);
+}
+render();
+</script>
 </body>
 </html>
