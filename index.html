@@ -168,6 +168,423 @@ function placeOrder(){
   document.getElementById('orderMessage').innerHTML=
     `<div class="success"><b>Order placed successfully!</b><br>Order No: ${orderNo}<br>Total: ₹${total}<br>Payment: ${method==='upi'?'UPI':method==='cod'?'Cash on Delivery':'Online Gateway'}<br><span class="note">Demo checkout complete. Real online payment ke liye gateway integration required hai.</span></div>`;
 }
+</script><script type="module">
+
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from
+"https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+
+// ===============================
+// 🔥 FIREBASE CONFIG
+// ===============================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+  authDomain: "sudhsagarmart.firebaseapp.com",
+  projectId: "sudhsagarmart",
+  storageBucket: "sudhsagarmart.firebasestorage.app",
+  messagingSenderId: "682379938859",
+  appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e",
+  measurementId: "G-VZY41YWFXP"
+};
+
+
+// Firebase start
+const app = initializeApp(firebaseConfig);
+
+// Firestore database
+const db = getFirestore(app);
+
+console.log("🔥 SudhSagarMart Firebase Connected");
+
+
+// ===============================
+// 🛒 CART
+// ===============================
+
+let cart = [];
+let total = 0;
+
+
+// Cart display
+function renderCart() {
+
+  const count = document.getElementById("count");
+  const totalBox = document.getElementById("total");
+  const box = document.getElementById("cartItems");
+
+  count.textContent = cart.length;
+
+  total = cart.reduce((sum, item) => {
+    return sum + Number(item.price);
+  }, 0);
+
+  totalBox.textContent = total;
+
+  if (cart.length === 0) {
+    box.innerHTML = "Cart empty hai.";
+    return;
+  }
+
+  box.innerHTML = cart.map((item, index) => `
+    
+    <div class="cart-row">
+
+      <span>
+        ${index + 1}. ${item.name} - ₹${item.price}
+      </span>
+
+      <button
+        class="remove"
+        onclick="removeCart(${index})">
+        Remove
+      </button>
+
+    </div>
+
+  `).join("");
+}
+
+
+// ===============================
+// ➕ ADD CART
+// ===============================
+
+window.addCart = function(name, price) {
+
+  cart.push({
+    name: name,
+    price: Number(price)
+  });
+
+  renderCart();
+
+};
+
+
+// ===============================
+// 🛒 BUY NOW
+// ===============================
+
+window.buyNow = function(name, price) {
+
+  cart = [{
+    name: name,
+    price: Number(price)
+  }];
+
+  renderCart();
+
+  openCheckout();
+
+};
+
+
+// ===============================
+// ❌ REMOVE CART
+// ===============================
+
+window.removeCart = function(index) {
+
+  cart.splice(index, 1);
+
+  renderCart();
+
+};
+
+
+// ===============================
+// CHECKOUT OPEN
+// ===============================
+
+window.openCheckout = function() {
+
+  if (cart.length === 0) {
+
+    alert("Pehle product cart me add karein.");
+
+    return;
+  }
+
+  document
+    .getElementById("checkout")
+    .scrollIntoView({
+      behavior: "smooth"
+    });
+
+};
+
+
+// ===============================
+// 💳 PAYMENT CHANGE
+// ===============================
+
+window.paymentChange = function() {
+
+  const method =
+    document.querySelector(
+      'input[name="payment"]:checked'
+    ).value;
+
+  const details =
+    document.getElementById("paymentDetails");
+
+
+  if (method === "upi") {
+
+    details.innerHTML = `
+      <b>UPI ID:</b>
+      <input
+        id="upiId"
+        placeholder="example@upi"
+      >
+    `;
+
+  }
+
+  else if (method === "cod") {
+
+    details.innerHTML = `
+      <b>Cash on Delivery</b>
+      <br>
+      <span class="note">
+        Delivery ke time cash payment karein.
+      </span>
+    `;
+
+  }
+
+  else {
+
+    details.innerHTML = `
+      <b>Online Payment Gateway</b>
+      <br>
+      <span class="note">
+        Payment gateway integration baad me add kiya ja sakta hai.
+      </span>
+    `;
+
+  }
+
+};
+
+
+// ===============================
+// 📦 PLACE ORDER
+// ===============================
+
+window.placeOrder = async function() {
+
+  try {
+
+    // Cart check
+    if (cart.length === 0) {
+
+      alert("Pehle product cart me add karein.");
+
+      return;
+    }
+
+
+    // Customer details
+    const name =
+      document
+        .getElementById("customerName")
+        .value
+        .trim();
+
+    const mobile =
+      document
+        .getElementById("mobile")
+        .value
+        .trim();
+
+    const address =
+      document
+        .getElementById("address")
+        .value
+        .trim();
+
+
+    // Validation
+    if (
+      !name ||
+      !/^[0-9]{10}$/.test(mobile) ||
+      !address
+    ) {
+
+      alert(
+        "Name, 10 digit mobile aur delivery address bhariye."
+      );
+
+      return;
+    }
+
+
+    // Payment method
+    const method =
+      document.querySelector(
+        'input[name="payment"]:checked'
+      ).value;
+
+
+    // UPI validation
+    if (method === "upi") {
+
+      const upi =
+        document
+          .getElementById("upiId")
+          ?.value
+          .trim();
+
+      if (!upi) {
+
+        alert("UPI ID bhariye.");
+
+        return;
+      }
+    }
+
+
+    // Order number
+    const orderNo =
+      "SSM" +
+      Date.now().toString().slice(-8);
+
+
+    // Product list
+    const products = cart.map(item => ({
+
+      name: item.name,
+
+      price: Number(item.price)
+
+    }));
+
+
+    // ===============================
+    // 🔥 FIRESTORE ME ORDER SAVE
+    // ===============================
+
+    const orderData = {
+
+      orderNo: orderNo,
+
+      customerName: name,
+
+      mobile: mobile,
+
+      address: address,
+
+      products: products,
+
+      total: total,
+
+      paymentMethod: method,
+
+      paymentStatus:
+        method === "cod"
+          ? "Pending"
+          : "Pending",
+
+      orderStatus: "Pending",
+
+      createdAt: serverTimestamp()
+
+    };
+
+
+    const docRef = await addDoc(
+      collection(db, "orders"),
+      orderData
+    );
+
+
+    console.log(
+      "Order saved:",
+      docRef.id
+    );
+
+
+    // Success message
+    document.getElementById(
+      "orderMessage"
+    ).innerHTML = `
+
+      <div class="success">
+
+        <b>✅ Order placed successfully!</b>
+
+        <br><br>
+
+        Order No:
+        <b>${orderNo}</b>
+
+        <br>
+
+        Total:
+        <b>₹${total}</b>
+
+        <br>
+
+        Payment:
+        <b>${method.toUpperCase()}</b>
+
+      </div>
+
+    `;
+
+
+    // Empty cart
+    cart = [];
+
+    renderCart();
+
+
+    // Form clear
+    document.getElementById(
+      "customerName"
+    ).value = "";
+
+    document.getElementById(
+      "mobile"
+    ).value = "";
+
+    document.getElementById(
+      "address"
+    ).value = "";
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Order Error:",
+      error
+    );
+
+    alert(
+      "Order save nahi hua.\n\n" +
+      error.message
+    );
+
+  }
+
+};
+
+
+// First cart render
+renderCart();
+
 </script>
 </body>
 </html>
