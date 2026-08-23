@@ -1,80 +1,478 @@
-/* ===== PRODUCT ADD FUNCTION ===== */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudh Sagar Mart - Admin</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f9;color:#222}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0}
+.topbar{height:60px;background:#0878e8;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:20}
+.brand{font-weight:700;font-size:18px}
+.logout{background:#fff;color:#0878e8;padding:9px 15px;border-radius:6px;font-weight:700}
+.layout{display:flex;min-height:calc(100vh - 60px)}
+.sidebar{width:220px;background:#14202c;color:#fff;padding:14px 8px;flex-shrink:0}
+.navbtn{width:100%;text-align:left;background:transparent;color:#fff;padding:12px 12px;border-radius:6px;margin:2px 0}
+.navbtn:hover,.navbtn.active{background:#0878e8}
+.main{flex:1;padding:20px;min-width:0}
+.section{display:none}.section.active{display:block}
+h1{font-size:25px;margin:0 0 18px}
+h2{font-size:18px;margin:0 0 14px}
+.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:#fff;border-radius:10px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.stat small{display:block;color:#666;margin-bottom:8px}.stat strong{font-size:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #d8dde3;border-radius:6px;background:#fff}
+textarea{min-height:80px;resize:vertical}
+.full{grid-column:1/-1}
+.primary{background:#0878e8;color:#fff;padding:10px 15px;border-radius:6px}
+.secondary{background:#eef2f6;color:#222;padding:10px 15px;border-radius:6px}
+.danger{background:#dc3545;color:#fff;padding:7px 10px;border-radius:5px}
+.warn{background:#f0ad00;color:#fff;padding:7px 10px;border-radius:5px}
+.success{background:#18a957;color:#fff;padding:7px 10px;border-radius:5px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14px}
+th{background:#f7f8fa}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:12px;background:#e8f7ed;color:#168646}
+.badge.off{background:#fde9e9;color:#b42318}
+.search{margin-bottom:10px}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0878e8}
+.loginbox{width:min(400px,92%);background:#fff;padding:28px;border-radius:12px;box-shadow:0 10px 35px rgba(0,0,0,.2)}
+.loginbox h1{text-align:center;color:#0878e8}.loginbox input{margin:6px 0}.loginbox button{width:100%;margin-top:8px}
+.demo{text-align:center;color:#777;font-size:13px;margin-top:12px}
+.empty{text-align:center;color:#777;padding:20px}
+@media(max-width:850px){
+ .sidebar{width:175px}.stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+ .layout{display:block}.sidebar{width:100%;display:flex;overflow:auto;gap:4px}.navbtn{min-width:max-content;width:auto}.main{padding:12px}
+ .stats{grid-template-columns:1fr 1fr}.formgrid,.grid2{grid-template-columns:1fr}.full{grid-column:auto}
+}
+</style>
+</head>
+<body>
 
-const productInputs = document.querySelectorAll('#products input');
-const productCategory = document.querySelector('#products select');
-const addProductBtn = document.querySelector('#products button');
+<div id="loginPage" class="login">
+  <div class="loginbox">
+    <h1>🛒 Sudh Sagar Mart</h1>
+    <p style="text-align:center">Admin Panel Login</p>
+    <input id="loginUser" placeholder="Admin Username">
+    <input id="loginPass" type="password" placeholder="Password">
+    <button class="primary" onclick="login()">Login</button>
+    <div class="demo">Demo Login: admin / 1234</div>
+  </div>
+</div>
 
-if (addProductBtn) {
-  addProductBtn.addEventListener('click', function () {
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div class="brand">🛒 <span id="storeTitle">Sudh Sagar Mart</span> - Admin</div>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="navbtn active" onclick="showSection('dashboard',this)">📊 Dashboard</button>
+      <button class="navbtn" onclick="showSection('sellers',this)">🏪 Sellers</button>
+      <button class="navbtn" onclick="showSection('products',this)">📦 Products</button>
+      <button class="navbtn" onclick="showSection('orders',this)">🛍️ Orders</button>
+      <button class="navbtn" onclick="showSection('customers',this)">👥 Customers</button>
+      <button class="navbtn" onclick="showSection('payments',this)">💰 Payments</button>
+      <button class="navbtn" onclick="showSection('categories',this)">📁 Categories</button>
+      <button class="navbtn" onclick="showSection('settings',this)">⚙️ Settings</button>
+    </aside>
 
-    const name = productInputs[0]?.value.trim();
-    const price = productInputs[1]?.value.trim();
-    const oldPrice = productInputs[2]?.value.trim();
-    const stock = productInputs[3]?.value.trim();
-    const category = productCategory?.value || 'General';
-    const seller = productInputs[4]?.value.trim();
+    <main class="main">
 
-    if (!name || !price || !stock || !seller) {
-      alert('Product Name, Price, Stock aur Seller Name bhariye.');
-      return;
-    }
+      <section id="dashboard" class="section active">
+        <h1>Dashboard</h1>
+        <div class="stats">
+          <div class="stat"><small>Total Sales</small><strong id="statSales">₹0</strong></div>
+          <div class="stat"><small>Total Orders</small><strong id="statOrders">0</strong></div>
+          <div class="stat"><small>Total Sellers</small><strong id="statSellers">0</strong></div>
+          <div class="stat"><small>Commission</small><strong id="statCommission">₹0</strong></div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <h2>Quick Actions</h2>
+          <div class="actions">
+            <button class="primary" onclick="showSection('products',document.querySelectorAll('.navbtn')[2])">+ Add Product</button>
+            <button class="primary" onclick="showSection('sellers',document.querySelectorAll('.navbtn')[1])">+ Add Seller</button>
+            <button class="primary" onclick="showSection('orders',document.querySelectorAll('.navbtn')[3])">+ Add Order</button>
+            <button class="primary" onclick="showSection('customers',document.querySelectorAll('.navbtn')[4])">+ Add Customer</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Recent Orders</h2>
+          <div id="recentOrders"></div>
+        </div>
+      </section>
 
-    const product = {
-      id: Date.now(),
-      name: name,
-      price: price,
-      oldPrice: oldPrice,
-      stock: stock,
-      category: category,
-      seller: seller,
-      status: 'Active'
-    };
+      <section id="sellers" class="section">
+        <h1>Seller Management</h1>
+        <div class="card">
+          <h2>Add / Edit Seller</h2>
+          <input type="hidden" id="sellerId">
+          <div class="formgrid">
+            <input id="sellerName" placeholder="Seller Name">
+            <input id="sellerPhone" placeholder="Phone">
+            <input id="sellerEmail" placeholder="Email">
+            <input id="sellerCity" placeholder="City">
+            <input id="sellerCommission" type="number" placeholder="Commission %">
+            <select id="sellerStatus"><option>Active</option><option>Inactive</option></select>
+          </div>
+          <br><button class="primary" onclick="saveSeller()">Save Seller</button>
+          <button class="secondary" onclick="clearSeller()">Clear</button>
+        </div>
+        <div class="card">
+          <input class="search" id="sellerSearch" oninput="renderSellers()" placeholder="Search seller...">
+          <div class="tablewrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>City</th><th>Commission</th><th>Status</th><th>Action</th></tr></thead><tbody id="sellerTable"></tbody></table></div>
+        </div>
+      </section>
 
-    let products = JSON.parse(localStorage.getItem('sudhsagar_products') || '[]');
+      <section id="products" class="section">
+        <h1>Product Management</h1>
+        <div class="card">
+          <h2>Add / Edit Product</h2>
+          <input type="hidden" id="productId">
+          <div class="formgrid">
+            <input id="productName" placeholder="Product Name">
+            <input id="productPrice" type="number" placeholder="Price">
+            <input id="productOldPrice" type="number" placeholder="Old Price">
+            <input id="productStock" type="number" placeholder="Stock">
+            <select id="productCategory"></select>
+            <select id="productSeller"></select>
+            <input id="productImage" placeholder="Image URL (optional)">
+            <select id="productStatus"><option>Active</option><option>Inactive</option></select>
+            <textarea id="productDescription" class="full" placeholder="Product description"></textarea>
+          </div>
+          <br><button class="primary" onclick="saveProduct()">+ Save Product</button>
+          <button class="secondary" onclick="clearProduct()">Clear</button>
+        </div>
+        <div class="card">
+          <input class="search" id="productSearch" oninput="renderProducts()" placeholder="Search product...">
+          <div class="tablewrap"><table><thead><tr><th>Product</th><th>Seller</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Action</th></tr></thead><tbody id="productTable"></tbody></table></div>
+        </div>
+      </section>
 
-    products.push(product);
+      <section id="orders" class="section">
+        <h1>Order Management</h1>
+        <div class="card">
+          <h2>Add / Edit Order</h2>
+          <input type="hidden" id="orderId">
+          <div class="formgrid">
+            <input id="orderCustomer" placeholder="Customer Name">
+            <input id="orderPhone" placeholder="Customer Phone">
+            <input id="orderAmount" type="number" placeholder="Amount">
+            <select id="orderStatus"><option>Processing</option><option>Confirmed</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select>
+            <input id="orderAddress" class="full" placeholder="Delivery Address">
+          </div>
+          <br><button class="primary" onclick="saveOrder()">Save Order</button>
+          <button class="secondary" onclick="clearOrder()">Clear</button>
+        </div>
+        <div class="card">
+          <input class="search" id="orderSearch" oninput="renderOrders()" placeholder="Search order/customer...">
+          <div class="tablewrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Phone</th><th>Amount</th><th>Status</th><th>Address</th><th>Action</th></tr></thead><tbody id="orderTable"></tbody></table></div>
+        </div>
+      </section>
 
-    localStorage.setItem(
-      'sudhsagar_products',
-      JSON.stringify(products)
-    );
+      <section id="customers" class="section">
+        <h1>Customer Management</h1>
+        <div class="card">
+          <h2>Add / Edit Customer</h2>
+          <input type="hidden" id="customerId">
+          <div class="formgrid">
+            <input id="customerName" placeholder="Customer Name">
+            <input id="customerPhone" placeholder="Phone">
+            <input id="customerEmail" placeholder="Email">
+            <input id="customerCity" placeholder="City">
+            <input id="customerAddress" class="full" placeholder="Address">
+          </div>
+          <br><button class="primary" onclick="saveCustomer()">Save Customer</button>
+          <button class="secondary" onclick="clearCustomer()">Clear</button>
+        </div>
+        <div class="card">
+          <input class="search" id="customerSearch" oninput="renderCustomers()" placeholder="Search customer...">
+          <div class="tablewrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>City</th><th>Address</th><th>Action</th></tr></thead><tbody id="customerTable"></tbody></table></div>
+        </div>
+      </section>
 
-    addProductToTable(product);
+      <section id="payments" class="section">
+        <h1>Payment Management</h1>
+        <div class="card">
+          <h2>Add / Edit Payment</h2>
+          <input type="hidden" id="paymentId">
+          <div class="formgrid">
+            <input id="paymentOrder" placeholder="Order ID">
+            <input id="paymentCustomer" placeholder="Customer Name">
+            <input id="paymentAmount" type="number" placeholder="Amount">
+            <select id="paymentMethod"><option>UPI</option><option>Cash on Delivery</option><option>Card</option><option>Net Banking</option></select>
+            <select id="paymentStatus"><option>Paid</option><option>Pending</option><option>Refunded</option><option>Failed</option></select>
+            <input id="paymentTxn" placeholder="Transaction ID">
+          </div>
+          <br><button class="primary" onclick="savePayment()">Save Payment</button>
+          <button class="secondary" onclick="clearPayment()">Clear</button>
+        </div>
+        <div class="card">
+          <div class="tablewrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th><th>Txn ID</th><th>Action</th></tr></thead><tbody id="paymentTable"></tbody></table></div>
+        </div>
+      </section>
 
-    productInputs.forEach(input => input.value = '');
-    
-    if (productCategory) {
-      productCategory.selectedIndex = 0;
-    }
+      <section id="categories" class="section">
+        <h1>Category Management</h1>
+        <div class="card">
+          <h2>Add / Edit Category</h2>
+          <input type="hidden" id="categoryId">
+          <div class="formgrid">
+            <input id="categoryName" placeholder="Category Name">
+            <input id="categoryIcon" placeholder="Icon / Emoji">
+            <select id="categoryStatus"><option>Active</option><option>Inactive</option></select>
+          </div>
+          <br><button class="primary" onclick="saveCategory()">Save Category</button>
+          <button class="secondary" onclick="clearCategory()">Clear</button>
+        </div>
+        <div class="card">
+          <div class="tablewrap"><table><thead><tr><th>Category</th><th>Icon</th><th>Status</th><th>Action</th></tr></thead><tbody id="categoryTable"></tbody></table></div>
+        </div>
+      </section>
 
-    alert('✅ Product successfully added!');
-  });
+      <section id="settings" class="section">
+        <h1>Admin Settings</h1>
+        <div class="card">
+          <h2>Store Settings</h2>
+          <div class="formgrid">
+            <input id="setStoreName" placeholder="Store Name">
+            <input id="setPhone" placeholder="Store Phone">
+            <input id="setEmail" placeholder="Store Email">
+            <input id="setCommission" type="number" placeholder="Default Commission %">
+            <input id="setCurrency" placeholder="Currency Symbol">
+            <input id="setDelivery" type="number" placeholder="Delivery Charge">
+            <textarea id="setAddress" class="full" placeholder="Store Address"></textarea>
+          </div>
+          <br><button class="primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+        <div class="card">
+          <h2>Admin Login</h2>
+          <div class="formgrid">
+            <input id="newAdminUser" placeholder="New Admin Username">
+            <input id="newAdminPass" type="password" placeholder="New Admin Password">
+          </div>
+          <br><button class="primary" onclick="changeAdmin()">Change Login</button>
+        </div>
+        <div class="card">
+          <h2>Data Management</h2>
+          <button class="secondary" onclick="exportData()">Export Backup</button>
+          <button class="danger" onclick="resetDemo()">Reset Demo Data</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const KEY='ssm_admin_data_v2';
+let data={
+ sellers:[
+  {id:'s1',name:'Rahul Fashion',phone:'9876543210',email:'rahul@example.com',city:'Patna',commission:10,status:'Active'},
+  {id:'s2',name:'ABC Electronics',phone:'9876500000',email:'abc@example.com',city:'Patna',commission:8,status:'Active'}
+ ],
+ products:[
+  {id:'p1',name:'Cotton T-Shirt',price:399,oldPrice:499,stock:50,category:'Fashion',seller:'Rahul Fashion',image:'',description:'Cotton T-Shirt',status:'Active'},
+  {id:'p2',name:'Smart Watch',price:999,oldPrice:1299,stock:25,category:'Electronics',seller:'ABC Electronics',image:'',description:'Smart Watch',status:'Active'}
+ ],
+ orders:[
+  {id:'SSM1001',customer:'Rahul Kumar',phone:'9000000001',amount:1299,status:'Delivered',address:'Patna'},
+  {id:'SSM1002',customer:'Ravi Singh',phone:'9000000002',amount:799,status:'Processing',address:'Danapur'}
+ ],
+ customers:[
+  {id:'c1',name:'Rahul Kumar',phone:'9000000001',email:'rahul@gmail.com',city:'Patna',address:'Patna, Bihar'},
+  {id:'c2',name:'Ravi Singh',phone:'9000000002',email:'ravi@gmail.com',city:'Danapur',address:'Danapur, Bihar'}
+ ],
+ payments:[
+  {id:'pay1',order:'SSM1001',customer:'Rahul Kumar',amount:1299,method:'UPI',status:'Paid',txn:'UPI123456'},
+  {id:'pay2',order:'SSM1002',customer:'Ravi Singh',amount:799,method:'Cash on Delivery',status:'Pending',txn:'-'}
+ ],
+ categories:[
+  {id:'cat1',name:'Fashion',icon:'👕',status:'Active'},
+  {id:'cat2',name:'Electronics',icon:'📱',status:'Active'},
+  {id:'cat3',name:'Grocery',icon:'🛒',status:'Active'}
+ ],
+ settings:{storeName:'Sudh Sagar Mart',phone:'',email:'',commission:10,currency:'₹',delivery:0,address:''},
+ admin:{user:'admin',pass:'1234'}
+};
+
+function load(){
+ const saved=localStorage.getItem(KEY);
+ if(saved){try{data=JSON.parse(saved)}catch(e){}}
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));}
+function uid(prefix){return prefix+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function money(v){return (data.settings.currency||'₹')+Number(v||0).toLocaleString('en-IN')}
+function login(){
+ const u=document.getElementById('loginUser').value.trim(),p=document.getElementById('loginPass').value;
+ if(u===data.admin.user&&p===data.admin.pass){
+  sessionStorage.setItem('ssm_login','1');document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='block';init();
+ }else alert('Wrong username or password');
+}
+function logout(){sessionStorage.removeItem('ssm_login');location.reload()}
+function showSection(id,btn){
+ document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.navbtn').forEach(x=>x.classList.remove('active'));
+ if(btn)btn.classList.add('active');
+}
+function init(){
+ document.getElementById('storeTitle').textContent=data.settings.storeName;
+ renderAll();
+}
+function renderAll(){
+ renderDashboard();renderSellers();renderProducts();renderOrders();renderCustomers();renderPayments();renderCategories();loadSettings();fillSelects();
+}
+function renderDashboard(){
+ const sales=data.orders.filter(o=>o.status!=='Cancelled').reduce((a,o)=>a+Number(o.amount||0),0);
+ const comm=sales*Number(data.settings.commission||0)/100;
+ document.getElementById('statSales').textContent=money(sales);
+ document.getElementById('statOrders').textContent=data.orders.length;
+ document.getElementById('statSellers').textContent=data.sellers.length;
+ document.getElementById('statCommission').textContent=money(comm);
+ const rows=data.orders.slice(-5).reverse();
+ document.getElementById('recentOrders').innerHTML=rows.length?`<div class="tablewrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows.map(o=>`<tr><td>#${esc(o.id)}</td><td>${esc(o.customer)}</td><td>${money(o.amount)}</td><td><span class="badge">${esc(o.status)}</span></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No orders</div>';
+}
+function fillSelects(){
+ const cat=document.getElementById('productCategory'),sel=document.getElementById('productSeller');
+ cat.innerHTML='<option value="">Select Category</option>'+data.categories.filter(c=>c.status==='Active').map(c=>`<option>${esc(c.name)}</option>`).join('');
+ sel.innerHTML='<option value="">Select Seller</option>'+data.sellers.filter(s=>s.status==='Active').map(s=>`<option>${esc(s.name)}</option>`).join('');
+}
+function renderSellers(){
+ const q=(document.getElementById('sellerSearch')?.value||'').toLowerCase();
+ const rows=data.sellers.filter(s=>JSON.stringify(s).toLowerCase().includes(q));
+ document.getElementById('sellerTable').innerHTML=rows.length?rows.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.phone)}</td><td>${esc(s.email)}</td><td>${esc(s.city)}</td><td>${esc(s.commission)}%</td><td><span class="badge ${s.status==='Inactive'?'off':''}">${esc(s.status)}</span></td><td><div class="actions"><button class="warn" onclick="editSeller('${s.id}')">Edit</button><button class="danger" onclick="delSeller('${s.id}')">Delete</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No sellers</td></tr>';
+}
+function saveSeller(){
+ const id=document.getElementById('sellerId').value;
+ const obj={id:id||uid('s'),name:document.getElementById('sellerName').value.trim(),phone:document.getElementById('sellerPhone').value.trim(),email:document.getElementById('sellerEmail').value.trim(),city:document.getElementById('sellerCity').value.trim(),commission:Number(document.getElementById('sellerCommission').value||0),status:document.getElementById('sellerStatus').value};
+ if(!obj.name){alert('Seller Name required');return}
+ if(id){const i=data.sellers.findIndex(x=>x.id===id);data.sellers[i]=obj}else data.sellers.push(obj);
+ save();clearSeller();renderAll();alert('Seller saved');
+}
+function editSeller(id){const s=data.sellers.find(x=>x.id===id);if(!s)return;document.getElementById('sellerId').value=s.id;document.getElementById('sellerName').value=s.name;document.getElementById('sellerPhone').value=s.phone;document.getElementById('sellerEmail').value=s.email;document.getElementById('sellerCity').value=s.city;document.getElementById('sellerCommission').value=s.commission;document.getElementById('sellerStatus').value=s.status}
+function delSeller(id){if(confirm('Delete seller?')){data.sellers=data.sellers.filter(x=>x.id!==id);save();renderAll()}}
+function clearSeller(){['sellerId','sellerName','sellerPhone','sellerEmail','sellerCity','sellerCommission'].forEach(id=>document.getElementById(id).value='');document.getElementById('sellerStatus').value='Active'}
+
+function renderProducts(){
+ const q=(document.getElementById('productSearch')?.value||'').toLowerCase();
+ const rows=data.products.filter(p=>JSON.stringify(p).toLowerCase().includes(q));
+ document.getElementById('productTable').innerHTML=rows.length?rows.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.seller)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td>${esc(p.stock)}</td><td><span class="badge ${p.status==='Inactive'?'off':''}">${esc(p.status)}</span></td><td><div class="actions"><button class="warn" onclick="editProduct('${p.id}')">Edit</button><button class="danger" onclick="delProduct('${p.id}')">Delete</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No products</td></tr>';
+}
+function saveProduct(){
+ const id=document.getElementById('productId').value;
+ const obj={id:id||uid('p'),name:document.getElementById('productName').value.trim(),price:Number(document.getElementById('productPrice').value||0),oldPrice:Number(document.getElementById('productOldPrice').value||0),stock:Number(document.getElementById('productStock').value||0),category:document.getElementById('productCategory').value,seller:document.getElementById('productSeller').value,image:document.getElementById('productImage').value.trim(),description:document.getElementById('productDescription').value.trim(),status:document.getElementById('productStatus').value};
+ if(!obj.name||!obj.price||!obj.stock){alert('Product Name, Price and Stock required');return}
+ if(id){const i=data.products.findIndex(x=>x.id===id);data.products[i]=obj}else data.products.push(obj);
+ save();clearProduct();renderAll();alert('Product saved successfully');
+}
+function editProduct(id){const p=data.products.find(x=>x.id===id);if(!p)return;fillSelects();document.getElementById('productId').value=p.id;document.getElementById('productName').value=p.name;document.getElementById('productPrice').value=p.price;document.getElementById('productOldPrice').value=p.oldPrice;document.getElementById('productStock').value=p.stock;document.getElementById('productCategory').value=p.category;document.getElementById('productSeller').value=p.seller;document.getElementById('productImage').value=p.image;document.getElementById('productDescription').value=p.description;document.getElementById('productStatus').value=p.status}
+function delProduct(id){if(confirm('Delete product?')){data.products=data.products.filter(x=>x.id!==id);save();renderAll()}}
+function clearProduct(){['productId','productName','productPrice','productOldPrice','productStock','productImage','productDescription'].forEach(id=>document.getElementById(id).value='');document.getElementById('productStatus').value='Active';fillSelects()}
+
+function renderOrders(){
+ const q=(document.getElementById('orderSearch')?.value||'').toLowerCase();
+ const rows=data.orders.filter(o=>JSON.stringify(o).toLowerCase().includes(q));
+ document.getElementById('orderTable').innerHTML=rows.length?rows.map(o=>`<tr><td>#${esc(o.id)}</td><td>${esc(o.customer)}</td><td>${esc(o.phone)}</td><td>${money(o.amount)}</td><td><span class="badge ${o.status==='Cancelled'?'off':''}">${esc(o.status)}</span></td><td>${esc(o.address)}</td><td><div class="actions"><button class="warn" onclick="editOrder('${o.id}')">Edit</button><button class="danger" onclick="delOrder('${o.id}')">Delete</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No orders</td></tr>';
+}
+function saveOrder(){
+ const old=document.getElementById('orderId').value;
+ const obj={id:old||('SSM'+String(Date.now()).slice(-6)),customer:document.getElementById('orderCustomer').value.trim(),phone:document.getElementById('orderPhone').value.trim(),amount:Number(document.getElementById('orderAmount').value||0),status:document.getElementById('orderStatus').value,address:document.getElementById('orderAddress').value.trim()};
+ if(!obj.customer||!obj.amount){alert('Customer and Amount required');return}
+ if(old){const i=data.orders.findIndex(x=>x.id===old);data.orders[i]=obj}else data.orders.push(obj);
+ save();clearOrder();renderAll();alert('Order saved');
+}
+function editOrder(id){const o=data.orders.find(x=>x.id===id);if(!o)return;document.getElementById('orderId').value=o.id;document.getElementById('orderCustomer').value=o.customer;document.getElementById('orderPhone').value=o.phone;document.getElementById('orderAmount').value=o.amount;document.getElementById('orderStatus').value=o.status;document.getElementById('orderAddress').value=o.address}
+function delOrder(id){if(confirm('Delete order?')){data.orders=data.orders.filter(x=>x.id!==id);save();renderAll()}}
+function clearOrder(){['orderId','orderCustomer','orderPhone','orderAmount','orderAddress'].forEach(id=>document.getElementById(id).value='');document.getElementById('orderStatus').value='Processing'}
+
+function renderCustomers(){
+ const q=(document.getElementById('customerSearch')?.value||'').toLowerCase();
+ const rows=data.customers.filter(c=>JSON.stringify(c).toLowerCase().includes(q));
+ document.getElementById('customerTable').innerHTML=rows.length?rows.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.city)}</td><td>${esc(c.address)}</td><td><div class="actions"><button class="warn" onclick="editCustomer('${c.id}')">Edit</button><button class="danger" onclick="delCustomer('${c.id}')">Delete</button></div></td></tr>`).join(''):'<tr><td colspan="6" class="empty">No customers</td></tr>';
+}
+function saveCustomer(){
+ const id=document.getElementById('customerId').value;
+ const obj={id:id||uid('c'),name:document.getElementById('customerName').value.trim(),phone:document.getElementById('customerPhone').value.trim(),email:document.getElementById('customerEmail').value.trim(),city:document.getElementById('customerCity').value.trim(),address:document.getElementById('customerAddress').value.trim()};
+ if(!obj.name||!obj.phone){alert('Name and Phone required');return}
+ if(id){const i=data.customers.findIndex(x=>x.id===id);data.customers[i]=obj}else data.customers.push(obj);
+ save();clearCustomer();renderAll();alert('Customer saved');
+}
+function editCustomer(id){const c=data.customers.find(x=>x.id===id);if(!c)return;document.getElementById('customerId').value=c.id;document.getElementById('customerName').value=c.name;document.getElementById('customerPhone').value=c.phone;document.getElementById('customerEmail').value=c.email;document.getElementById('customerCity').value=c.city;document.getElementById('customerAddress').value=c.address}
+function delCustomer(id){if(confirm('Delete customer?')){data.customers=data.customers.filter(x=>x.id!==id);save();renderAll()}}
+function clearCustomer(){['customerId','customerName','customerPhone','customerEmail','customerCity','customerAddress'].forEach(id=>document.getElementById(id).value='')}
+
+function renderPayments(){
+ document.getElementById('paymentTable').innerHTML=data.payments.length?data.payments.map(p=>`<tr><td>${esc(p.order)}</td><td>${esc(p.customer)}</td><td>${money(p.amount)}</td><td>${esc(p.method)}</td><td><span class="badge ${p.status==='Failed'?'off':''}">${esc(p.status)}</span></td><td>${esc(p.txn)}</td><td><div class="actions"><button class="warn" onclick="editPayment('${p.id}')">Edit</button><button class="danger" onclick="delPayment('${p.id}')">Delete</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No payments</td></tr>';
+}
+function savePayment(){
+ const id=document.getElementById('paymentId').value;
+ const obj={id:id||uid('pay'),order:document.getElementById('paymentOrder').value.trim(),customer:document.getElementById('paymentCustomer').value.trim(),amount:Number(document.getElementById('paymentAmount').value||0),method:document.getElementById('paymentMethod').value,status:document.getElementById('paymentStatus').value,txn:document.getElementById('paymentTxn').value.trim()||'-'};
+ if(!obj.order||!obj.amount){alert('Order ID and Amount required');return}
+ if(id){const i=data.payments.findIndex(x=>x.id===id);data.payments[i]=obj}else data.payments.push(obj);
+ save();clearPayment();renderAll();alert('Payment saved');
+}
+function editPayment(id){const p=data.payments.find(x=>x.id===id);if(!p)return;document.getElementById('paymentId').value=p.id;document.getElementById('paymentOrder').value=p.order;document.getElementById('paymentCustomer').value=p.customer;document.getElementById('paymentAmount').value=p.amount;document.getElementById('paymentMethod').value=p.method;document.getElementById('paymentStatus').value=p.status;document.getElementById('paymentTxn').value=p.txn}
+function delPayment(id){if(confirm('Delete payment?')){data.payments=data.payments.filter(x=>x.id!==id);save();renderAll()}}
+function clearPayment(){['paymentId','paymentOrder','paymentCustomer','paymentAmount','paymentTxn'].forEach(id=>document.getElementById(id).value='');document.getElementById('paymentMethod').value='UPI';document.getElementById('paymentStatus').value='Paid'}
+
+function renderCategories(){
+ document.getElementById('categoryTable').innerHTML=data.categories.length?data.categories.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.icon)}</td><td><span class="badge ${c.status==='Inactive'?'off':''}">${esc(c.status)}</span></td><td><div class="actions"><button class="warn" onclick="editCategory('${c.id}')">Edit</button><button class="danger" onclick="delCategory('${c.id}')">Delete</button></div></td></tr>`).join(''):'<tr><td colspan="4" class="empty">No categories</td></tr>';
+}
+function saveCategory(){
+ const id=document.getElementById('categoryId').value;
+ const obj={id:id||uid('cat'),name:document.getElementById('categoryName').value.trim(),icon:document.getElementById('categoryIcon').value.trim()||'📦',status:document.getElementById('categoryStatus').value};
+ if(!obj.name){alert('Category name required');return}
+ if(id){const i=data.categories.findIndex(x=>x.id===id);data.categories[i]=obj}else data.categories.push(obj);
+ save();clearCategory();renderAll();alert('Category saved');
+}
+function editCategory(id){const c=data.categories.find(x=>x.id===id);if(!c)return;document.getElementById('categoryId').value=c.id;document.getElementById('categoryName').value=c.name;document.getElementById('categoryIcon').value=c.icon;document.getElementById('categoryStatus').value=c.status}
+function delCategory(id){if(confirm('Delete category?')){data.categories=data.categories.filter(x=>x.id!==id);save();renderAll()}}
+function clearCategory(){['categoryId','categoryName','categoryIcon'].forEach(id=>document.getElementById(id).value='');document.getElementById('categoryStatus').value='Active'}
+
+function loadSettings(){
+ const s=data.settings;
+ document.getElementById('setStoreName').value=s.storeName||'';
+ document.getElementById('setPhone').value=s.phone||'';
+ document.getElementById('setEmail').value=s.email||'';
+ document.getElementById('setCommission').value=s.commission||0;
+ document.getElementById('setCurrency').value=s.currency||'₹';
+ document.getElementById('setDelivery').value=s.delivery||0;
+ document.getElementById('setAddress').value=s.address||'';
+}
+function saveSettings(){
+ data.settings={storeName:document.getElementById('setStoreName').value.trim()||'Sudh Sagar Mart',phone:document.getElementById('setPhone').value.trim(),email:document.getElementById('setEmail').value.trim(),commission:Number(document.getElementById('setCommission').value||0),currency:document.getElementById('setCurrency').value.trim()||'₹',delivery:Number(document.getElementById('setDelivery').value||0),address:document.getElementById('setAddress').value.trim()};
+ save();renderAll();alert('Settings saved');
+}
+function changeAdmin(){
+ const u=document.getElementById('newAdminUser').value.trim(),p=document.getElementById('newAdminPass').value;
+ if(!u||p.length<4){alert('Username required and password must be at least 4 characters');return}
+ data.admin={user:u,pass:p};save();document.getElementById('newAdminUser').value='';document.getElementById('newAdminPass').value='';alert('Admin login changed');
+}
+function exportData(){
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sudh-sagar-mart-backup.json';a.click();URL.revokeObjectURL(a.href);
+}
+function resetDemo(){
+ if(confirm('This will restore demo data. Continue?')){localStorage.removeItem(KEY);location.reload()}
 }
 
-function addProductToTable(product) {
-
-  const table = document.querySelector('#products table');
-
-  if (!table) return;
-
-  let tbody = table.querySelector('tbody');
-
-  if (!tbody) {
-    tbody = document.createElement('tbody');
-    table.appendChild(tbody);
-  }
-
-  const row = document.createElement('tr');
-
-  row.innerHTML = `
-    <td>${product.name}</td>
-    <td>${product.seller}</td>
-    <td>₹${product.price}</td>
-    <td>${product.stock}</td>
-    <td>
-      <span class="badge success">Active</span>
-    </td>
-  `;
-
-  tbody.appendChild(row);
+load();
+if(sessionStorage.getItem('ssm_login')==='1'){
+ document.getElementById('loginPage').style.display='none';
+ document.getElementById('app').style.display='block';
+ init();
 }
+</script>
+</body>
+</html>
