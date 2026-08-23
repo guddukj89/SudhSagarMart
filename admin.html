@@ -1,7 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"> 
+ <script><script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+  authDomain: "sudhsagarmart.firebaseapp.com",
+  projectId: "sudhsagarmart",
+  storageBucket: "sudhsagarmart.firebasestorage.app",
+  messagingSenderId: "682379938859",
+  appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e",
+  measurementId: "G-VZY41YWFXP"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+console.log("Firebase Connected");
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sudh Sagar Mart - Admin</title>
 <style>
