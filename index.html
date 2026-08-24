@@ -220,7 +220,8 @@ const products=[
 let cart=JSON.parse(localStorage.getItem('ssm_cart')||'[]');
 let wishlist=JSON.parse(localStorage.getItem('ssm_wishlist')||'[]');
 let orders=JSON.parse(localStorage.getItem('ssm_orders')||'[]');
-let user=JSON.parse(localStorage.getItem('ssm_user')||'null');
+let user=null;
+let firebaseReady=false;
 let cards=JSON.parse(localStorage.getItem('ssm_cards')||'[]');
 let address=localStorage.getItem('ssm_address')||'';
 
@@ -228,7 +229,6 @@ function save(){
  localStorage.setItem('ssm_cart',JSON.stringify(cart));
  localStorage.setItem('ssm_wishlist',JSON.stringify(wishlist));
  localStorage.setItem('ssm_orders',JSON.stringify(orders));
- localStorage.setItem('ssm_user',JSON.stringify(user));
  localStorage.setItem('ssm_cards',JSON.stringify(cards));
 }
 function money(n){return Number(n).toLocaleString('en-IN')}
@@ -292,11 +292,12 @@ function renderAccount(){
  let a=document.getElementById('authView'),v=document.getElementById('accountView');
  if(!user){
   v.classList.add('hidden');a.classList.remove('hidden');
-  a.innerHTML=`<div class="tabs"><button class="tab active" onclick="authForm('login',this)">Login</button><button class="tab" onclick="authForm('register',this)">Create Account</button></div><div id="authForm"></div>`;
-  authForm('login',document.querySelector('#authView .tab'));
+  a.innerHTML=`<div class="tabs"><button class="tab active" onclick="authForm('phoneLogin',this)">📱 Mobile OTP</button><button class="tab" onclick="authForm('login',this)">Email Login</button><button class="tab" onclick="authForm('phoneRegister',this)">Create Account</button></div><div id="authForm"></div>`;
+  authForm('phoneLogin',document.querySelector('#authView .tab'));
  }else{
   a.classList.add('hidden');v.classList.remove('hidden');
-  v.innerHTML=`<p>Welcome, <b>${esc(user.name)}</b> <span class="badge">Verified Demo Account</span></p>
+  const displayName=user.displayName||user.phoneNumber||((user.email||'Customer').split('@')[0]);
+  v.innerHTML=`<p>Welcome, <b>${esc(displayName)}</b> <span class="badge">Firebase Account</span></p>
   <div class="tabs">
    <button class="tab active" onclick="accountPanel('profile',this)">Profile</button>
    <button class="tab" onclick="accountPanel('orders',this)">My Orders</button>
@@ -309,37 +310,70 @@ function renderAccount(){
   </div><div id="accountPanel"></div>`;
   accountPanel('profile',document.querySelector('#accountView .tab'));
  }
- document.getElementById('loginLabel').textContent=user?user.name.slice(0,12):'Login';
+ const label=user?(user.displayName||user.phoneNumber||((user.email||'Customer').split('@')[0])).slice(0,12):'Login';
+ document.getElementById('loginLabel').textContent=label;
 }
 function authForm(type,btn){
  document.querySelectorAll('#authView .tab').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');
+ const isPhone=type==='phoneLogin'||type==='phoneRegister';
+ if(isPhone){
+  document.getElementById('authForm').innerHTML=`
+   ${type==='phoneRegister'?'<label>Name<input id="otpName" placeholder="Your name"></label>':''}
+   <label>Mobile Number<input id="otpPhone" maxlength="10" inputmode="numeric" placeholder="10 digit mobile number"></label>
+   <div id="recaptcha-container" style="margin:10px 0"></div>
+   <button class="btn blue full" onclick="sendOTP('${type}')">📲 Send OTP</button>
+   <div id="otpVerifyBox" class="hidden" style="margin-top:12px">
+    <label>OTP<input id="otpCode" maxlength="6" inputmode="numeric" placeholder="6 digit OTP"></label>
+    <button class="btn green full" onclick="verifyOTP('${type}')">✅ Verify OTP & Login</button>
+   </div>
+   <p class="note">Mobile par Firebase OTP aayega. Pehli baar OTP verify karne par Firebase account automatically create ho sakta hai.</p>`;
+  return;
+ }
  document.getElementById('authForm').innerHTML=type==='login'?`
  <label>Email<input id="loginEmail" type="email" placeholder="customer@email.com"></label>
  <label>Password<input id="loginPass" type="password" placeholder="Password"></label>
  <button class="btn blue full" onclick="login()">Login</button>
- <p class="note">Demo account browser me save hota hai. Real authentication ke liye Firebase/backend connect karna hoga.</p>`:
+ <button class="btn gray full" style="margin-top:8px" onclick="forgotPassword()">Forgot Password</button>
+ <p class="note">Email login bhi Firebase Authentication se secure tarike se hoga.</p>`:
  `<label>Name<input id="regName" placeholder="Your name"></label>
  <label>Email<input id="regEmail" type="email" placeholder="customer@email.com"></label>
  <label>Mobile<input id="regMobile" maxlength="10" placeholder="10 digit mobile"></label>
  <label>Password<input id="regPass" type="password" minlength="6" placeholder="Minimum 6 characters"></label>
  <button class="btn green full" onclick="register()">Create Account</button>`;
 }
-function register(){
+async function sendOTP(type){
+ let phone=document.getElementById('otpPhone')?.value.trim();
+ if(!/^[0-9]{10}$/.test(phone)){toast('10 digit mobile number bhariye');return}
+ let name=type==='phoneRegister'?(document.getElementById('otpName')?.value.trim()||'Customer'):'Customer';
+ try{await waitFirebase();await window.firebaseSendOTP('+91'+phone);window.pendingOtpName=name;document.getElementById('otpVerifyBox').classList.remove('hidden');toast('OTP mobile par bhej diya gaya 📲')}catch(e){toast(e.message||'OTP nahi bheja gaya')}}
+async function verifyOTP(type){
+ let code=document.getElementById('otpCode')?.value.trim();
+ if(!/^\d{6}$/.test(code)){toast('6 digit OTP bhariye');return}
+ try{await waitFirebase();await window.firebaseVerifyOTP(code,window.pendingOtpName||'Customer');toast('OTP verified — Login successful ✅')}catch(e){toast(e.message||'OTP verify nahi hua')}}
+function waitFirebase(){
+ return new Promise((resolve,reject)=>{const started=Date.now();(function check(){if(firebaseReady&&window.firebaseRegister&&window.firebaseSendOTP) return resolve();if(Date.now()-started>10000)return reject(new Error('Firebase load nahi hua. Internet check kijiye.'));setTimeout(check,100)})()});
+}
+async function register(){
  let name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),mobile=document.getElementById('regMobile').value.trim(),pass=document.getElementById('regPass').value;
- if(!name||!email||!/^\d{10}$/.test(mobile)||pass.length<6){toast('Sabhi details sahi bhariye');return}
- user={name,email,mobile,password:pass};save();toast('Account created');renderAccount();
+ if(!name||!email||!/^[0-9]{10}$/.test(mobile)||pass.length<6){toast('Sabhi details sahi bhariye');return}
+ try{await waitFirebase();await window.firebaseRegister(name,email,mobile,pass);toast('Account created successfully ✅')}catch(e){toast(e.message||'Account create nahi hua')}
 }
-function login(){
+async function login(){
  let e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value;
- let saved=JSON.parse(localStorage.getItem('ssm_user')||'null');
- if(saved&&saved.email===e&&saved.password===p){user=saved;save();toast('Login successful');renderAccount()}
- else toast('Email ya password galat hai');
+ if(!e||!p){toast('Email aur password bhariye');return}
+ try{await waitFirebase();await window.firebaseLogin(e,p);toast('Login successful ✅')}catch(e){toast(e.message||'Login failed')}
 }
-function logout(){user=null;save();renderAccount();toast('Logout successful')}
+async function forgotPassword(){
+ let e=document.getElementById('loginEmail').value.trim();if(!e){toast('Pehle email enter kijiye');return}
+ try{await waitFirebase();await window.firebaseForgotPassword(e);toast('Password reset email bhej diya gaya ✅')}catch(e){toast(e.message||'Reset email nahi gaya')}
+}
+async function logout(){
+ try{await waitFirebase();await window.firebaseLogout();toast('Logout successful')}catch(e){toast(e.message||'Logout failed')}
+}
 function accountPanel(type,btn){
  document.querySelectorAll('#accountView .tab').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');
  let p=document.getElementById('accountPanel');
- if(type==='profile')p.innerHTML=`<div class="panel"><h3>👤 Profile</h3><p><b>Name:</b> ${esc(user.name)}</p><p><b>Email:</b> ${esc(user.email)}</p><p><b>Mobile:</b> ${esc(user.mobile)}</p><button class="btn red" onclick="logout()">Logout</button></div>`;
+ if(type==='profile'){const nm=user.displayName||((user.email||'Customer').split('@')[0]);const mob=localStorage.getItem('ssm_mobile_'+user.uid)||'Not added';p.innerHTML=`<div class="panel"><h3>👤 Profile</h3><p><b>Name:</b> ${esc(nm)}</p><p><b>Email:</b> ${esc(user.email)}</p><p><b>Mobile:</b> ${esc(mob)}</p><button class="btn red" onclick="logout()">Logout</button></div>`;}
  if(type==='orders')p.innerHTML=`<div class="panel"><h3>📦 My Orders</h3>${orders.length?orders.map(o=>`<div class="item"><b>${o.id}</b> <span class="badge">${o.status}</span><br>${o.date}<br>₹${money(o.total)} • ${o.items.length} item(s)</div>`).join(''):'<div class="empty">Abhi koi order nahi hai.</div>'}</div>`;
  if(type==='wishlist')p.innerHTML=`<div class="panel"><h3>❤️ Wishlist</h3>${wishlist.length?products.filter(x=>wishlist.includes(x.id)).map(x=>`<div class="item"><b>${x.name}</b> — ₹${money(x.price)} <button class="btn blue" onclick="addCart(${x.id})">Add Cart</button></div>`).join(''):'<div class="empty">Wishlist empty hai.</div>'}</div>`;
  if(type==='addresses')p.innerHTML=`<div class="panel"><h3>📍 Saved Address</h3><textarea id="savedAddr">${esc(address)}</textarea><button class="btn blue full" onclick="saveAddr()">Save Address</button></div>`;
@@ -354,13 +388,13 @@ function accountPanel(type,btn){
  <button class="menuitem" onclick="toast('Language setting ready')"><b>🌐 Language</b><small>Hindi / English</small></button>
  </div>
  <div class="dangerbox" style="margin-top:14px"><b>⚠️ Account data</b><p>Local demo data clear karne par account, cart, wishlist aur saved cards remove ho jayenge.</p><button class="btn red" onclick="clearAll()">Clear All Local Data</button></div></div>`;
- if(type==='security')p.innerHTML=`<div class="panel"><h3>🔐 Security Center</h3><p><span class="badge">Password Protected</span></p><h4>Change Password</h4><label>Current Password<input id="oldPass" type="password"></label><label>New Password<input id="newPass" type="password" minlength="6"></label><label>Confirm New Password<input id="newPass2" type="password"></label><button class="btn blue full" onclick="changePassword()">Change Password</button><hr><p>🔒 Password code me nahi dikhaya jata. Production me Firebase Authentication/backend use karein.</p></div>`;
+ if(type==='security')p.innerHTML=`<div class="panel"><h3>🔐 Security Center</h3><p><span class="badge">Password Protected</span></p><h4>Change Password</h4><label>Current Password<input id="oldPass" type="password"></label><label>New Password<input id="newPass" type="password" minlength="6"></label><label>Confirm New Password<input id="newPass2" type="password"></label><button class="btn blue full" onclick="changePassword()">Change Password</button><hr><p>🔒 Firebase Authentication password ko securely handle karta hai. Current password verify karke hi naya password set hoga.</p></div>`;
  if(type==='help')p.innerHTML=`<div class="panel"><h3>🆘 Helpdesk</h3><div class="menu"><button class="menuitem" onclick="showHelpText('help');openHelp()"><b>📞 Helpline</b><small>1800-000-0000</small></button><button class="menuitem" onclick="openAIHelp()"><b>🤖 AI Helpdesk</b><small>Chat support</small></button><button class="menuitem" onclick="showHelpText('return');openHelp()"><b>↩️ Return & Refund</b><small>Support information</small></button><button class="menuitem" onclick="showHelpText('security');openHelp()"><b>🔐 Security Help</b><small>Account security</small></button></div></div>`;
 }
-function changePassword(){
+async function changePassword(){
  let a=document.getElementById('oldPass').value,b=document.getElementById('newPass').value,c=document.getElementById('newPass2').value;
- if(a!==user.password||b.length<6||b!==c){toast('Password details sahi nahi hain');return}
- user.password=b;save();toast('Password changed successfully');accountPanel('security');
+ if(!a||b.length<6||b!==c){toast('Password details sahi nahi hain');return}
+ try{await waitFirebase();await window.firebaseChangePassword(a,b);toast('Password changed successfully ✅');accountPanel('security')}catch(e){toast(e.message||'Password change failed')}
 }
 function saveAddr(){address=document.getElementById('savedAddr').value.trim();localStorage.setItem('ssm_address',address);toast('Address saved')}
 function addCard(){
@@ -395,7 +429,27 @@ function sendAI(){
 }
 
 renderCategories();renderProducts();renderCart();paymentChange();
-if(user)document.getElementById('loginLabel').textContent=user.name.slice(0,12);
+
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const firebaseConfig={apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",authDomain:"sudhsagarmart.firebaseapp.com",projectId:"sudhsagarmart",storageBucket:"sudhsagarmart.firebasestorage.app",messagingSenderId:"682379938859",appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e",measurementId:"G-VZY41YWFXP"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app);
+let recaptchaVerifier=null,confirmationResult=null;
+window.firebaseRegister=async(name,email,mobile,password)=>{const c=await createUserWithEmailAndPassword(auth,email,password);await updateProfile(c.user,{displayName:name});localStorage.setItem('ssm_mobile_'+c.user.uid,mobile);user=c.user;renderAccount()};
+window.firebaseLogin=async(email,password)=>{const c=await signInWithEmailAndPassword(auth,email,password);user=c.user;renderAccount()};
+window.firebaseSendOTP=async(phone)=>{
+ if(recaptchaVerifier){try{recaptchaVerifier.clear()}catch(e){} recaptchaVerifier=null}
+ recaptchaVerifier=new RecaptchaVerifier(auth,'recaptcha-container',{size:'normal',callback:()=>{},'expired-callback':()=>{toast('reCAPTCHA expire ho gaya, OTP dobara bhejiye')}});
+ await recaptchaVerifier.render();
+ confirmationResult=await signInWithPhoneNumber(auth,phone,recaptchaVerifier);
+};
+window.firebaseVerifyOTP=async(code,name)=>{if(!confirmationResult)throw new Error('Pehle Send OTP dabaiye.');const result=await confirmationResult.confirm(code);if(name&&name!=='Customer'&&!result.user.displayName)await updateProfile(result.user,{displayName:name});localStorage.setItem('ssm_mobile_'+result.user.uid,result.user.phoneNumber||'');user=result.user;renderAccount();confirmationResult=null;if(recaptchaVerifier){try{recaptchaVerifier.clear()}catch(e){}recaptchaVerifier=null}};
+window.firebaseForgotPassword=async(email)=>sendPasswordResetEmail(auth,email);
+window.firebaseLogout=async()=>{await signOut(auth);user=null;renderAccount()};
+window.firebaseChangePassword=async(currentPassword,newPassword)=>{if(!auth.currentUser||!auth.currentUser.email)throw new Error('Phone OTP account me email-password login nahi hai.');const cred=EmailAuthProvider.credential(auth.currentUser.email,currentPassword);await reauthenticateWithCredential(auth.currentUser,cred);await updatePassword(auth.currentUser,newPassword)};
+onAuthStateChanged(auth,fbUser=>{user=fbUser;firebaseReady=true;renderAccount()});
 </script>
 </body>
 </html>
