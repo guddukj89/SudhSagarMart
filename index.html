@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SudhSagarMart - Online Shopping</title>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
 <style>
 *{box-sizing:border-box}
 
@@ -15,9 +20,7 @@ background:#f5f7fb;
 color:#222
 }
 
-button,input,textarea,select{
-font:inherit
-}
+button,input,textarea,select{font:inherit}
 
 header{
 background:#1557d6;
@@ -90,14 +93,11 @@ margin:0 0 8px;
 font-size:31px
 }
 
-h2{
-margin-top:25px
-}
+h2{margin-top:25px}
 
 .categories{
 display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(125px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(125px,1fr));
 gap:12px
 }
 
@@ -111,9 +111,7 @@ cursor:pointer;
 transition:.2s
 }
 
-.category:hover{
-transform:translateY(-2px)
-}
+.category:hover{transform:translateY(-2px)}
 
 .emoji{
 font-size:34px;
@@ -129,15 +127,11 @@ margin-top:4px
 
 .products{
 display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(210px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
 gap:15px
 }
 
-.card,
-.cart,
-.checkout,
-.panel{
+.card,.cart,.checkout,.panel{
 background:#fff;
 border-radius:12px;
 padding:16px;
@@ -173,11 +167,7 @@ gap:8px;
 flex-direction:column
 }
 
-.add,
-.buy,
-.primary,
-.danger,
-.secondary{
+.add,.buy,.primary,.danger,.secondary{
 width:100%;
 border:0;
 padding:11px;
@@ -186,30 +176,12 @@ font-weight:bold;
 cursor:pointer
 }
 
-.add{
-background:#f0a900;
-color:#fff
-}
+.add{background:#f0a900;color:#fff}
+.buy,.primary{background:#16a34a;color:#fff}
+.secondary{background:#e9eef8;color:#1557d6}
+.danger{background:#dc2626;color:#fff}
 
-.buy,
-.primary{
-background:#16a34a;
-color:#fff
-}
-
-.secondary{
-background:#e9eef8;
-color:#1557d6
-}
-
-.danger{
-background:#dc2626;
-color:#fff
-}
-
-.cart{
-margin-top:25px
-}
+.cart{margin-top:25px}
 
 .cart-row{
 display:flex;
@@ -229,9 +201,21 @@ padding:6px 9px;
 cursor:pointer
 }
 
-.checkout{
-margin-top:25px
+.qty{
+display:flex;
+align-items:center;
+gap:6px
 }
+
+.qty button{
+border:0;
+background:#e9eef8;
+padding:5px 9px;
+border-radius:5px;
+cursor:pointer
+}
+
+.checkout{margin-top:25px}
 
 .checkout-grid{
 display:grid;
@@ -252,8 +236,7 @@ border-radius:7px;
 margin-top:6px
 }
 
-.checkout textarea,
-.panel textarea{
+.checkout textarea,.panel textarea{
 min-height:80px;
 resize:vertical
 }
@@ -279,6 +262,15 @@ margin-top:12px;
 color:#166534
 }
 
+.error{
+background:#fef2f2;
+border:1px solid #fca5a5;
+padding:12px;
+border-radius:8px;
+margin-top:10px;
+color:#991b1b
+}
+
 .account-bar{
 display:flex;
 gap:8px;
@@ -297,9 +289,7 @@ justify-content:center;
 padding:15px
 }
 
-.modal.show{
-display:flex
-}
+.modal.show{display:flex}
 
 .modal-box{
 background:#fff;
@@ -370,24 +360,16 @@ padding:25px;
 text-align:center
 }
 
+.otp-box{
+margin-top:12px
+}
+
 @media(max-width:700px){
-
-.hero h1{
-font-size:25px
-}
-
-.categories{
-grid-template-columns:repeat(3,1fr)
-}
-
-.checkout-grid{
-grid-template-columns:1fr
-}
-
-.logo{
-font-size:20px
-}
-
+.hero h1{font-size:25px}
+.categories{grid-template-columns:repeat(3,1fr)}
+.checkout-grid{grid-template-columns:1fr}
+.logo{font-size:20px}
+.cart-row{flex-direction:column;align-items:flex-start}
 }
 </style>
 </head>
@@ -398,9 +380,7 @@ font-size:20px
 
 <div class="top">
 
-<div class="logo">
-🛒 SudhSagarMart
-</div>
+<div class="logo">🛒 SudhSagarMart</div>
 
 <input
 id="search"
@@ -408,46 +388,23 @@ class="search"
 placeholder="Search products..."
 oninput="searchProducts()">
 
-<button
-class="header-btn"
-onclick="openAccount()">
+<button class="header-btn" onclick="openAccount()">
 👤 <span id="accountLabel">Login</span>
 </button>
 
-<button
-class="header-btn"
-onclick="goCart()">
+<button class="header-btn" onclick="goCart()">
 🛒 Cart (<span id="count">0</span>)
 </button>
 
 </div>
 
 <nav>
-
 <a href="#home">Home</a>
-
-<a href="#categories">
-Categories
-</a>
-
-<a href="#products">
-Products
-</a>
-
-<a href="#cart">
-Cart
-</a>
-
-<a href="#checkout">
-Checkout
-</a>
-
-<a
-href="#"
-onclick="openAccount();return false">
-⚙️ My Account
-</a>
-
+<a href="#categories">Categories</a>
+<a href="#products">Products</a>
+<a href="#cart">Cart</a>
+<a href="#checkout">Checkout</a>
+<a href="#" onclick="openAccount();return false">⚙️ My Account</a>
 </nav>
 
 </header>
@@ -455,386 +412,216 @@ onclick="openAccount();return false">
 
 <main id="home">
 
-
 <section class="hero">
-
-<h1>
-Sudh Sagar Mart
-</h1>
-
+<h1>Sudh Sagar Mart</h1>
 <p>
 Online Shopping — products, orders,
 account, wishlist aur settings ek jagah.
 </p>
-
 </section>
 
 
-<h2 id="categories">
-All Categories
-</h2>
-
+<h2 id="categories">All Categories</h2>
 
 <div class="categories">
 
-
-<div
-class="category"
-onclick="showCategory('Fashion')">
-
+<div class="category" onclick="showCategory('Fashion')">
 <span class="emoji">👕</span>
-
 <b>Fashion</b>
-
-<small>
-Clothes & Style
-</small>
-
+<small>Clothes & Style</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Electronics')">
-
+<div class="category" onclick="showCategory('Electronics')">
 <span class="emoji">📱</span>
-
 <b>Electronics</b>
-
-<small>
-Gadgets
-</small>
-
+<small>Gadgets</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Mobiles')">
-
+<div class="category" onclick="showCategory('Mobiles')">
 <span class="emoji">📱</span>
-
 <b>Mobiles</b>
-
-<small>
-Phones
-</small>
-
+<small>Phones</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Home')">
-
+<div class="category" onclick="showCategory('Home')">
 <span class="emoji">🏠</span>
-
 <b>Home</b>
-
-<small>
-Home Items
-</small>
-
+<small>Home Items</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Grocery')">
-
+<div class="category" onclick="showCategory('Grocery')">
 <span class="emoji">🛒</span>
-
 <b>Grocery</b>
-
-<small>
-Daily Needs
-</small>
-
+<small>Daily Needs</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Beauty')">
-
+<div class="category" onclick="showCategory('Beauty')">
 <span class="emoji">💄</span>
-
 <b>Beauty</b>
-
-<small>
-Beauty & Care
-</small>
-
+<small>Beauty & Care</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Footwear')">
-
+<div class="category" onclick="showCategory('Footwear')">
 <span class="emoji">👟</span>
-
 <b>Footwear</b>
-
-<small>
-Shoes
-</small>
-
+<small>Shoes</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Appliances')">
-
+<div class="category" onclick="showCategory('Appliances')">
 <span class="emoji">🧊</span>
-
 <b>Appliances</b>
-
-<small>
-Home Appliances
-</small>
-
+<small>Home Appliances</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Kitchen')">
-
+<div class="category" onclick="showCategory('Kitchen')">
 <span class="emoji">🍳</span>
-
 <b>Kitchen</b>
-
-<small>
-Kitchen Items
-</small>
-
+<small>Kitchen Items</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Kids')">
-
+<div class="category" onclick="showCategory('Kids')">
 <span class="emoji">🧸</span>
-
 <b>Kids</b>
-
-<small>
-Toys & Kids
-</small>
-
+<small>Toys & Kids</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Sports')">
-
+<div class="category" onclick="showCategory('Sports')">
 <span class="emoji">⚽</span>
-
 <b>Sports</b>
-
-<small>
-Sports Items
-</small>
-
+<small>Sports Items</small>
 </div>
 
-
-<div
-class="category"
-onclick="showCategory('Automotive')">
-
+<div class="category" onclick="showCategory('Automotive')">
 <span class="emoji">🏍️</span>
-
 <b>Automotive</b>
-
-<small>
-Bike & Car
-</small>
+<small>Bike & Car</small>
+</div>
 
 </div>
 
 
-</div>
+<h2 id="products">Products</h2>
+
+<div class="products" id="productList">
 
 
-<h2 id="products">
-Products
-</h2>
-
-
-<div
-class="products"
-id="productList">
-
-
-<div
-class="card product"
+<div class="card product"
 data-name="Cotton T Shirt"
 data-category="Fashion">
 
-<div class="pic">
-👕
-</div>
+<div class="pic">👕</div>
 
-<h3>
-Cotton T-Shirt
-</h3>
+<h3>Cotton T-Shirt</h3>
 
 <div class="price">
-₹399
-<span class="old">
-₹599
-</span>
+₹399 <span class="old">₹599</span>
 </div>
 
 <div class="actions">
 
-<button
-class="add"
+<button class="add"
 onclick="addCart('Cotton T-Shirt',399)">
 Add to Cart
 </button>
 
-<button
-class="buy"
+<button class="buy"
 onclick="buyNow('Cotton T-Shirt',399)">
 Buy Now
 </button>
 
 </div>
-
 </div>
 
 
-<div
-class="card product"
+<div class="card product"
 data-name="Smart Watch"
 data-category="Electronics">
 
-<div class="pic">
-⌚
-</div>
+<div class="pic">⌚</div>
 
-<h3>
-Smart Watch
-</h3>
+<h3>Smart Watch</h3>
 
 <div class="price">
-₹999
-<span class="old">
-₹1,499
-</span>
+₹999 <span class="old">₹1,499</span>
 </div>
 
 <div class="actions">
 
-<button
-class="add"
+<button class="add"
 onclick="addCart('Smart Watch',999)">
 Add to Cart
 </button>
 
-<button
-class="buy"
+<button class="buy"
 onclick="buyNow('Smart Watch',999)">
 Buy Now
 </button>
 
 </div>
-
 </div>
 
 
-<div
-class="card product"
+<div class="card product"
 data-name="Bluetooth Earphone"
 data-category="Electronics">
 
-<div class="pic">
-🎧
-</div>
+<div class="pic">🎧</div>
 
-<h3>
-Bluetooth Earphone
-</h3>
+<h3>Bluetooth Earphone</h3>
 
 <div class="price">
-₹699
-<span class="old">
-₹999
-</span>
+₹699 <span class="old">₹999</span>
 </div>
 
 <div class="actions">
 
-<button
-class="add"
+<button class="add"
 onclick="addCart('Bluetooth Earphone',699)">
 Add to Cart
 </button>
 
-<button
-class="buy"
+<button class="buy"
 onclick="buyNow('Bluetooth Earphone',699)">
 Buy Now
 </button>
 
 </div>
-
 </div>
 
 
-<div
-class="card product"
+<div class="card product"
 data-name="Running Shoes"
 data-category="Footwear">
 
-<div class="pic">
-👟
-</div>
+<div class="pic">👟</div>
 
-<h3>
-Running Shoes
-</h3>
+<h3>Running Shoes</h3>
 
 <div class="price">
-₹1,299
-<span class="old">
-₹1,799
-</span>
+₹1,299 <span class="old">₹1,799</span>
 </div>
 
 <div class="actions">
 
-<button
-class="add"
+<button class="add"
 onclick="addCart('Running Shoes',1299)">
 Add to Cart
 </button>
 
-<button
-class="buy"
+<button class="buy"
 onclick="buyNow('Running Shoes',1299)">
 Buy Now
 </button>
 
 </div>
-
 </div>
-
 
 </div>
 
 
 <div class="cart" id="cart">
 
-<h2>
-🛒 Your Cart
-</h2>
+<h2>🛒 Your Cart</h2>
 
 <div id="cartItems">
 Cart empty hai.
@@ -844,22 +631,16 @@ Cart empty hai.
 Total: ₹<span id="total">0</span>
 </h3>
 
-<button
-class="primary"
-onclick="openCheckout()">
+<button class="primary" onclick="openCheckout()">
 Proceed to Buy / Checkout
 </button>
 
 </div>
 
 
-<div
-class="checkout"
-id="checkout">
+<div class="checkout" id="checkout">
 
-<h2>
-💳 Checkout & Payment
-</h2>
+<h2>💳 Checkout & Payment</h2>
 
 <div class="checkout-grid">
 
@@ -867,27 +648,18 @@ id="checkout">
 
 <label>
 Customer Name
-
-<input
-id="customerName"
-placeholder="Apna naam">
-
+<input id="customerName" placeholder="Apna naam">
 </label>
-
 
 <label>
 Mobile Number
-
-<input
-id="mobile"
+<input id="mobile"
 type="tel"
 maxlength="10"
 placeholder="10 digit mobile number">
-
 </label>
 
 </div>
-
 
 <div>
 
@@ -896,8 +668,7 @@ Delivery Address
 
 <textarea
 id="address"
-placeholder="Pura delivery address">
-</textarea>
+placeholder="Pura delivery address"></textarea>
 
 </label>
 
@@ -906,16 +677,11 @@ placeholder="Pura delivery address">
 </div>
 
 
-<h3>
-Payment Method
-</h3>
-
+<h3>Payment Method</h3>
 
 <div class="payment-box">
 
-
 <label>
-
 <input
 type="radio"
 name="payment"
@@ -924,14 +690,11 @@ checked
 onchange="paymentChanged()">
 
 📱 UPI Payment
-
 </label>
 
 <br>
 
-
 <label>
-
 <input
 type="radio"
 name="payment"
@@ -939,14 +702,11 @@ value="cod"
 onchange="paymentChanged()">
 
 🚚 Cash on Delivery
-
 </label>
 
 <br>
 
-
 <label>
-
 <input
 type="radio"
 name="payment"
@@ -954,12 +714,9 @@ value="gateway"
 onchange="paymentChanged()">
 
 💳 Online Payment Gateway
-
 </label>
 
-
-<div
-id="paymentDetails"
+<div id="paymentDetails"
 class="note"
 style="margin-top:10px">
 
@@ -971,31 +728,18 @@ placeholder="example@upi">
 
 </div>
 
-
 </div>
-
 
 <p class="note">
-
-Real online payment receive karne ke liye
-Razorpay/Cashfree jaise merchant gateway ko
-server-side verification ke saath connect karna hoga.
-
+Real online payment ke liye merchant payment gateway
+aur server-side verification connect karna hoga.
 </p>
 
-
-<button
-class="primary"
-onclick="placeOrder()">
-
+<button class="primary" onclick="placeOrder()">
 Place Order
-
 </button>
 
-
-<div id="orderMessage">
-</div>
-
+<div id="orderMessage"></div>
 
 </div>
 
@@ -1003,135 +747,89 @@ Place Order
 
 
 <footer>
-
 © 2026 SudhSagarMart —
 Shopping • Orders • Account • Settings
-
 </footer>
 
 
-<!-- ACCOUNT MODAL -->
+<!-- ACCOUNT -->
 
-<div
-class="modal"
-id="accountModal">
+<div class="modal" id="accountModal">
 
 <div class="modal-box">
 
-<button
-class="close"
-onclick="closeAccount()">
-×
-</button>
+<button class="close" onclick="closeAccount()">×</button>
 
-
-<h2>
-👤 My Account
-</h2>
-
+<h2>👤 My Account</h2>
 
 <div id="authArea">
 
-<p class="note">
-
-Customer apne account se login karega.
-Yahan tumhara naam permanently save nahi hai.
-
-</p>
-
-
 <div class="tabs">
 
-<button
-class="tab active"
+<button class="tab active"
 id="loginTab"
 onclick="showAuth('login')">
-
 Login
-
 </button>
 
-
-<button
-class="tab"
+<button class="tab"
 id="registerTab"
 onclick="showAuth('register')">
-
 Create Account
-
 </button>
 
 </div>
 
-
-<div id="authForm">
-</div>
+<div id="authForm"></div>
 
 </div>
 
 
-<div
-id="userArea"
-style="display:none">
+<div id="userArea" style="display:none">
 
 <div class="account-bar">
 
-<b id="userName">
-Customer
-</b>
+<b id="userName">Customer</b>
 
-<span
-class="badge"
-id="userEmail">
-</span>
+<span class="badge" id="userPhone"></span>
 
 </div>
 
-
 <div class="tabs">
 
-<button
-class="tab active"
+<button class="tab active"
 onclick="showPanel('profile',this)">
 Profile
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('orders',this)">
 My Orders
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('wishlist',this)">
 Wishlist
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('addresses',this)">
 Addresses
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('settings',this)">
 ⚙️ Settings
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('security',this)">
 🔐 Security
 </button>
 
 </div>
 
-
-<div id="panelContent">
-</div>
-
+<div id="panelContent"></div>
 
 </div>
 
@@ -1142,41 +840,90 @@ onclick="showPanel('security',this)">
 
 <script>
 
-let cart =
+/* =====================================================
+   FIREBASE CONFIG
+   =====================================================
+
+   IMPORTANT:
+   Neeche apne Firebase Web App ka config paste karo.
+*/
+
+const firebaseConfig = {
+
+apiKey: "PASTE_YOUR_API_KEY",
+
+authDomain: "sudhsagarmart.firebaseapp.com",
+
+projectId: "sudhsagarmart",
+
+storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+
+messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+
+appId: "PASTE_YOUR_APP_ID"
+
+};
+
+
+/* Firebase start */
+
+let firebaseReady=false;
+let auth=null;
+let db=null;
+
+try{
+
+firebase.initializeApp(firebaseConfig);
+
+auth=firebase.auth();
+
+db=firebase.firestore();
+
+firebaseReady=true;
+
+}catch(error){
+
+console.error(error);
+
+}
+
+
+/* =====================================================
+   CART
+   ===================================================== */
+
+let cart=
 JSON.parse(
 localStorage.getItem("ssm_cart") || "[]"
 );
 
-let total = 0;
+let total=0;
 
-let currentUser = null;
+let currentUser=null;
+
+let confirmationResult=null;
 
 
 function renderCart(){
 
 document.getElementById("count")
-.textContent = cart.length;
-
-
-total =
-cart.reduce(
-(s,x)=>s + Number(x.price),
-0
+.textContent=cart.reduce(
+(s,x)=>s+Number(x.qty||1),0
 );
 
+total=cart.reduce(
+(s,x)=>s+(Number(x.price)*Number(x.qty||1)),0
+);
 
 document.getElementById("total")
-.textContent = total;
+.textContent=total;
 
 
-const box =
-document.getElementById("cartItems");
-
+const box=document.getElementById("cartItems");
 
 if(!cart.length){
 
-box.innerHTML =
-"Cart empty hai.";
+box.innerHTML="Cart empty hai.";
 
 localStorage.setItem(
 "ssm_cart",
@@ -1184,32 +931,41 @@ localStorage.setItem(
 );
 
 return;
-
 }
 
 
-box.innerHTML =
-cart.map(
-(x,i)=>`
+box.innerHTML=cart.map((x,i)=>`
 
 <div class="cart-row">
 
-<span>
-${i+1}. ${x.name} — ₹${x.price}
-</span>
+<div>
 
-<button
-class="remove"
+<b>${escapeHtml(x.name)}</b>
+
+<br>
+
+₹${x.price} × ${x.qty||1}
+
+</div>
+
+<div class="qty">
+
+<button onclick="changeQty(${i},-1)">−</button>
+
+<b>${x.qty||1}</b>
+
+<button onclick="changeQty(${i},1)">+</button>
+
+<button class="remove"
 onclick="removeCart(${i})">
-
 Remove
-
 </button>
 
 </div>
 
-`
-).join("");
+</div>
+
+`).join("");
 
 
 localStorage.setItem(
@@ -1222,18 +978,44 @@ JSON.stringify(cart)
 
 function addCart(name,price){
 
+const found=cart.find(x=>x.name===name);
+
+if(found){
+
+found.qty=(found.qty||1)+1;
+
+}else{
+
 cart.push({
 name:name,
-price:price
+price:price,
+qty:1
 });
+
+}
 
 renderCart();
 
-document
-.getElementById("cart")
-.scrollIntoView({
-behavior:"smooth"
-});
+document.getElementById("cart")
+.scrollIntoView({behavior:"smooth"});
+
+}
+
+
+function changeQty(index,value){
+
+if(!cart[index]) return;
+
+cart[index].qty=
+Number(cart[index].qty||1)+value;
+
+if(cart[index].qty<=0){
+
+cart.splice(index,1);
+
+}
+
+renderCart();
 
 }
 
@@ -1243,7 +1025,8 @@ function buyNow(name,price){
 cart=[
 {
 name:name,
-price:price
+price:price,
+qty:1
 }
 ];
 
@@ -1265,11 +1048,8 @@ renderCart();
 
 function goCart(){
 
-document
-.getElementById("cart")
-.scrollIntoView({
-behavior:"smooth"
-});
+document.getElementById("cart")
+.scrollIntoView({behavior:"smooth"});
 
 }
 
@@ -1278,45 +1058,35 @@ function openCheckout(){
 
 if(!cart.length){
 
-alert(
-"Pehle product cart me add karein."
-);
+alert("Pehle product cart me add karein.");
 
 return;
 
 }
 
-document
-.getElementById("checkout")
-.scrollIntoView({
-behavior:"smooth"
-});
+document.getElementById("checkout")
+.scrollIntoView({behavior:"smooth"});
 
 }
 
 
+/* =====================================================
+   SEARCH
+   ===================================================== */
+
 function searchProducts(){
 
-let q =
-document
-.getElementById("search")
-.value
-.toLowerCase();
+let q=document.getElementById("search")
+.value.toLowerCase();
 
+document.querySelectorAll(".product")
+.forEach(p=>{
 
-document
-.querySelectorAll(".product")
-.forEach(
-p => {
-
-p.style.display =
-p.dataset.name
-.toLowerCase()
+p.style.display=
+p.dataset.name.toLowerCase()
 .includes(q)
-?
-"block"
-:
-"none";
+?"block"
+:"none";
 
 });
 
@@ -1325,41 +1095,24 @@ p.dataset.name
 
 function showCategory(category){
 
-document
-.getElementById("search")
+document.getElementById("search")
 .value="";
-
 
 let found=false;
 
+document.querySelectorAll(".product")
+.forEach(p=>{
 
-document
-.querySelectorAll(".product")
-.forEach(
-p=>{
+let match=p.dataset.category===category;
 
-let match =
-p.dataset.category===category;
+p.style.display=match?"block":"none";
 
-p.style.display =
-match
-?
-"block"
-:
-"none";
-
-if(match)
-found=true;
+if(match) found=true;
 
 });
 
-
-document
-.getElementById("products")
-.scrollIntoView({
-behavior:"smooth"
-});
-
+document.getElementById("products")
+.scrollIntoView({behavior:"smooth"});
 
 if(!found){
 
@@ -1373,19 +1126,19 @@ category+
 }
 
 
+/* =====================================================
+   PAYMENT
+   ===================================================== */
+
 function paymentChanged(){
 
-const method =
-document
-.querySelector(
+const method=
+document.querySelector(
 'input[name="payment"]:checked'
 ).value;
 
-
-const details =
-document.getElementById(
-"paymentDetails"
-);
+const details=
+document.getElementById("paymentDetails");
 
 
 if(method==="upi"){
@@ -1406,9 +1159,7 @@ else if(method==="cod"){
 
 details.innerHTML=`
 
-<b>
-Cash on Delivery
-</b>
+<b>Cash on Delivery</b>
 
 <br>
 
@@ -1424,15 +1175,13 @@ else{
 
 details.innerHTML=`
 
-<b>
-Online Gateway
-</b>
+<b>Online Gateway</b>
 
 <br>
 
 <span class="note">
-Gateway ko merchant setup ke baad
-connect karein.
+Payment gateway setup hone ke baad yahan payment
+process connect kiya jayega.
 </span>
 
 `;
@@ -1442,553 +1191,304 @@ connect karein.
 }
 
 
+/* =====================================================
+   ACCOUNT MODAL
+   ===================================================== */
+
 function openAccount(){
 
-document
-.getElementById("accountModal")
+document.getElementById("accountModal")
 .classList.add("show");
 
+if(currentUser){
 
-if(currentUser)
 renderUserArea();
 
-else
+}else{
+
 showAuth("login");
+
+}
 
 }
 
 
 function closeAccount(){
 
-document
-.getElementById("accountModal")
+document.getElementById("accountModal")
 .classList.remove("show");
 
 }
 
 
+/* =====================================================
+   PHONE LOGIN
+   ===================================================== */
+
 function showAuth(type){
 
-document
-.getElementById("loginTab")
-.classList
-.toggle(
-"active",
-type==="login"
-);
+document.getElementById("loginTab")
+.classList.toggle("active",type==="login");
+
+document.getElementById("registerTab")
+.classList.toggle("active",type==="register");
 
 
-document
-.getElementById("registerTab")
-.classList
-.toggle(
-"active",
-type==="register"
-);
+const form=document.getElementById("authForm");
 
 
-document
-.getElementById("authForm")
-.innerHTML =
+if(type==="login"){
 
-type==="login"
+form.innerHTML=`
 
-?
-
-`
+<h3>📱 Mobile Login</h3>
 
 <label>
-
-Email
-
-<input
-id="authEmail"
-type="email"
-placeholder="customer@email.com">
-
-</label>
-
-
-<label>
-
-Password
+Mobile Number
 
 <input
-id="authPassword"
-type="password"
-placeholder="Password">
-
+id="authPhone"
+type="tel"
+maxlength="10"
+placeholder="10 digit mobile number">
 </label>
 
+<div id="recaptcha-container"
+style="margin-top:10px">
+</div>
 
 <button
 class="primary"
 style="margin-top:12px"
-onclick="loginCustomer()">
+onclick="sendOTP()">
 
-Login
+Send OTP
 
 </button>
 
+<div id="otpArea"></div>
 
 <p class="note">
-
-Password kisi ke saath share na karein.
-
+OTP tumhare mobile number par Firebase ke through aayega.
 </p>
 
-`
+`;
 
-:
+}else{
 
-`
+form.innerHTML=`
+
+<h3>Create Customer Account</h3>
 
 <label>
-
 Customer Name
 
 <input
 id="authName"
 placeholder="Aapka naam">
-
 </label>
-
 
 <label>
-
-Email
-
-<input
-id="authEmail"
-type="email"
-placeholder="customer@email.com">
-
-</label>
-
-
-<label>
-
-Password
+Mobile Number
 
 <input
-id="authPassword"
-type="password"
-minlength="6"
-placeholder="Minimum 6 characters">
-
+id="authPhone"
+type="tel"
+maxlength="10"
+placeholder="10 digit mobile number">
 </label>
 
+<div id="recaptcha-container"
+style="margin-top:10px">
+</div>
 
 <button
 class="primary"
 style="margin-top:12px"
-onclick="registerCustomer()">
+onclick="sendOTP('register')">
 
-Create Account
-
-</button>
-
-`;
-
-}
-
-
-function renderUserArea(){
-
-document
-.getElementById("authArea")
-.style.display="none";
-
-
-document
-.getElementById("userArea")
-.style.display="block";
-
-
-document
-.getElementById("accountLabel")
-.textContent =
-(
-currentUser.displayName ||
-"Account"
-).slice(0,14);
-
-
-document
-.getElementById("userName")
-.textContent =
-currentUser.displayName ||
-"Customer";
-
-
-document
-.getElementById("userEmail")
-.textContent =
-currentUser.email || "";
-
-
-showPanel(
-"profile",
-document.querySelector(
-"#userArea .tab"
-)
-);
-
-}
-
-
-function renderLoggedOut(){
-
-document
-.getElementById("authArea")
-.style.display="block";
-
-
-document
-.getElementById("userArea")
-.style.display="none";
-
-
-document
-.getElementById("accountLabel")
-.textContent="Login";
-
-
-showAuth("login");
-
-}
-
-
-function showPanel(type,btn){
-
-document
-.querySelectorAll(
-"#userArea .tab"
-)
-.forEach(
-x=>x.classList.remove("active")
-);
-
-
-if(btn)
-btn.classList.add("active");
-
-
-const p =
-document.getElementById(
-"panelContent"
-);
-
-
-if(type==="profile"){
-
-p.innerHTML=`
-
-<div class="panel">
-
-<h3>
-Profile
-</h3>
-
-<p>
-<b>Name:</b>
-${escapeHtml(
-currentUser.displayName ||
-"Customer"
-)}
-</p>
-
-<p>
-<b>Email:</b>
-${escapeHtml(
-currentUser.email || ""
-)}
-</p>
-
-<button
-class="secondary"
-onclick="logoutCustomer()">
-
-Logout
+Send OTP & Create Account
 
 </button>
 
-</div>
+<div id="otpArea"></div>
 
 `;
 
 }
 
+}
 
-if(type==="orders"){
 
-p.innerHTML=`
+/* =====================================================
+   SEND OTP
+   ===================================================== */
 
-<div class="panel">
+function sendOTP(mode="login"){
 
-<h3>
-📦 My Orders
-</h3>
+if(!firebaseReady){
 
-<div id="ordersList">
-Orders loading...
-</div>
+showError(
+"Firebase configuration abhi complete nahi hai."
+);
 
-</div>
-
-`;
+return;
 
 }
 
 
-if(type==="wishlist"){
+const input=document.getElementById("authPhone");
 
-p.innerHTML=`
+let phone=(input.value||"").replace(/\D/g,"");
 
-<div class="panel">
+if(phone.length!==10){
 
-<h3>
-❤️ Wishlist
-</h3>
+showError("10 digit mobile number dalein.");
 
-<p class="note">
-
-Wishlist section ready hai.
-
-</p>
-
-</div>
-
-`;
+return;
 
 }
 
+phone="+91"+phone;
 
-if(type==="addresses"){
 
-p.innerHTML=`
+try{
 
-<div class="panel">
+if(window.recaptchaVerifier){
 
-<h3>
-📍 Saved Addresses
-</h3>
+window.recaptchaVerifier.clear();
 
-<textarea
-id="savedAddress"
-placeholder="Apna saved delivery address">
-</textarea>
+}
+
+window.recaptchaVerifier=
+new firebase.auth.RecaptchaVerifier(
+"recaptcha-container",
+{
+size:"normal"
+}
+);
+
+
+auth.signInWithPhoneNumber(
+phone,
+window.recaptchaVerifier
+)
+.then(result=>{
+
+confirmationResult=result;
+
+document.getElementById("otpArea")
+.innerHTML=`
+
+<div class="otp-box">
+
+<label>
+OTP
+
+<input
+id="otp"
+type="tel"
+maxlength="6"
+placeholder="6 digit OTP">
+</label>
 
 <button
 class="primary"
 style="margin-top:10px"
-onclick="saveAddress()">
+onclick="verifyOTP('${mode}')">
 
-Save Address
-
-</button>
-
-<div id="addressMsg">
-</div>
-
-</div>
-
-`;
-
-}
-
-
-if(type==="settings"){
-
-p.innerHTML=`
-
-<div class="panel">
-
-<h3>
-⚙️ Settings
-</h3>
-
-
-<div class="setting-row">
-
-<span>
-Order notifications
-</span>
-
-<input
-id="notifyToggle"
-type="checkbox"
-checked>
-
-</div>
-
-
-<div class="setting-row">
-
-<span>
-Save cart on this device
-</span>
-
-<input
-type="checkbox"
-checked>
-
-</div>
-
-
-<div class="setting-row">
-
-<span>
-Language
-</span>
-
-<select>
-
-<option>
-Hindi
-</option>
-
-<option>
-English
-</option>
-
-</select>
-
-</div>
-
-
-<button
-class="danger"
-style="margin-top:15px"
-onclick="clearLocalData()">
-
-Clear device data
+Verify OTP
 
 </button>
 
 </div>
 
-`;
-
-}
-
-
-if(type==="security"){
-
-p.innerHTML=`
-
-<div class="panel">
-
-<h3>
-🔐 Security
-</h3>
-
-<p>
-Customer account Firebase Authentication
-se protected rahega.
-</p>
-
-<p class="note">
-
-Password website code me store nahi hota.
-
-</p>
-
-<button
-class="secondary"
-onclick="resetPassword()">
-
-Reset Password Email
-
-</button>
-
-</div>
+<div id="otpMessage"></div>
 
 `;
 
-}
+})
+.catch(error=>{
 
+console.error(error);
 
-if(type==="orders")
-loadOrders();
-
-}
-
-
-function escapeHtml(s){
-
-return String(s).replace(
-/[&<>"']/g,
-m=>({
-
-"&":"&amp;",
-"<":"&lt;",
-">":"&gt;",
-'"':"&quot;",
-"'":"&#039;"
-
-}[m])
+showError(
+"OTP send nahi hua: "+
+error.message
 );
 
-}
+});
 
+}catch(error){
 
-function saveAddress(){
-
-localStorage.setItem(
-"ssm_address",
-document.getElementById(
-"savedAddress"
-).value
-);
-
-
-document.getElementById(
-"addressMsg"
-).innerHTML=
-
-`
-
-<div class="success">
-
-Address saved on this device.
-
-</div>
-
-`;
-
-}
-
-
-function clearLocalData(){
-
-if(
-confirm(
-"Is device ka saved cart/address clear karna hai?"
-)
-){
-
-localStorage.removeItem(
-"ssm_cart"
-);
-
-localStorage.removeItem(
-"ssm_address"
-);
-
-cart=[];
-
-renderCart();
-
-alert(
-"Device data clear ho gaya."
-);
+showError(error.message);
 
 }
 
 }
 
 
-renderCart();
+/* =====================================================
+   VERIFY OTP
+   ===================================================== */
 
-</script>
+function verifyOTP(mode){
+
+const otp=
+document.getElementById("otp")
+.value.trim();
+
+if(!confirmationResult){
+
+showError("Pehle OTP send karein.");
+
+return;
+
+}
+
+if(otp.length!==6){
+
+showError("6 digit OTP dalein.");
+
+return;
+
+}
+
+
+confirmationResult.confirm(otp)
+.then(result=>{
+
+currentUser=result.user;
+
+const name=
+document.getElementById("authName")?
+document.getElementById("authName").value.trim()
+:"";
+
+
+saveUserProfile(
+result.user,
+name,
+mode
+);
+
+renderUserArea();
+
+})
+.catch(error=>{
+
+console.error(error);
+
+showError(
+"OTP galat hai ya expire ho gaya: "+
+error.message
+);
+
+});
+
+}
+
+
+/* =====================================================
+   USER PROFILE
+   ==================
