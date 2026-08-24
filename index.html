@@ -3,450 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SudhSagarMart - Online Shopping</title>
+<title>SudhSagarMart</title>
 
 <style>
 *{box-sizing:border-box}
-
-body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#f5f7fb;
-color:#222
-}
-
-button,input,textarea,select{
-font:inherit
-}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#222}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
 
 header{
-background:#1557d6;
-color:#fff;
-padding:10px 4%;
-position:sticky;
-top:0;
-z-index:20
+background:#1557d6;color:white;padding:10px 4%;
+position:sticky;top:0;z-index:20
 }
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.logo{font-size:21px;font-weight:bold;white-space:nowrap}
+.search{flex:1;min-width:160px;padding:10px;border:0;border-radius:7px}
+.header-btn{background:white;color:#1557d6;border:0;border-radius:7px;padding:9px 11px;font-weight:bold}
 
-.top{
-display:flex;
-align-items:center;
-gap:10px;
-flex-wrap:wrap
-}
+nav{margin-top:8px;display:flex;gap:15px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none;font-weight:bold;font-size:14px}
 
-.logo{
-font-size:22px;
-font-weight:800;
-white-space:nowrap
-}
-
-.search{
-flex:1;
-min-width:180px;
-padding:11px;
-border:0;
-border-radius:8px;
-outline:0
-}
-
-.header-btn{
-background:#fff;
-color:#1557d6;
-border:0;
-border-radius:8px;
-padding:9px 12px;
-font-weight:700;
-cursor:pointer
-}
-
-nav{
-margin-top:9px;
-display:flex;
-gap:16px;
-flex-wrap:wrap
-}
-
-nav a{
-color:#fff;
-text-decoration:none;
-font-weight:700;
-cursor:pointer
-}
-
-main{
-max-width:1250px;
-margin:auto;
-padding:18px 12px
-}
+main{max-width:1250px;margin:auto;padding:15px}
 
 .hero{
-background:linear-gradient(120deg,#1557d6,#2878ef);
-color:#fff;
-padding:24px;
-border-radius:14px
+background:linear-gradient(120deg,#1557d6,#0878ee);
+color:white;padding:23px;border-radius:14px
 }
+.hero h1{margin:0 0 7px;font-size:29px}
 
-.hero h1{
-margin:0 0 8px;
-font-size:30px
-}
+h2{margin:22px 0 12px}
 
 .categories{
 display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(115px,1fr));
-gap:11px
+grid-template-columns:repeat(auto-fit,minmax(115px,1fr));
+gap:10px
 }
-
 .category{
-background:#fff;
-border-radius:12px;
-padding:13px 6px;
-text-align:center;
-box-shadow:0 2px 9px #ddd;
-cursor:pointer;
-transition:.2s
+background:white;border-radius:11px;padding:13px 7px;
+text-align:center;box-shadow:0 2px 9px #ddd
 }
-
-.category:hover{
-transform:translateY(-2px)
-}
-
-.emoji{
-font-size:32px;
-display:block;
-margin-bottom:5px
-}
-
-.category small{
-display:block;
-color:#666;
-margin-top:4px
-}
+.category:hover{transform:translateY(-2px)}
+.emoji{font-size:30px;display:block;margin-bottom:5px}
+.category small{display:block;color:#666;margin-top:4px}
 
 .products{
 display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(205px,1fr));
-gap:14px
+grid-template-columns:repeat(auto-fit,minmax(205px,1fr));
+gap:13px
 }
 
-.card,
-.cart,
-.checkout,
-.panel{
-background:#fff;
-border-radius:12px;
-padding:15px;
+.card,.cart,.checkout,.panel{
+background:white;border-radius:12px;padding:14px;
 box-shadow:0 2px 10px #ddd
 }
 
 .pic{
-height:145px;
-background:#eef4ff;
-border-radius:10px;
-display:flex;
-align-items:center;
-justify-content:center;
+height:145px;background:#eef4ff;border-radius:9px;
+display:flex;align-items:center;justify-content:center;
 font-size:58px
 }
 
-.price{
-font-size:20px;
-font-weight:bold;
-margin:9px 0
+.price{font-size:19px;font-weight:bold;margin:8px 0}
+.old{font-size:12px;color:#888;text-decoration:line-through;margin-left:5px}
+
+.actions{display:flex;gap:7px;flex-direction:column}
+
+.add,.buy,.wish,.primary,.danger,.secondary{
+width:100%;border:0;padding:10px;border-radius:7px;font-weight:bold
 }
 
-.old{
-font-size:13px;
-color:#888;
-text-decoration:line-through;
-margin-left:5px
-}
+.add{background:#f0a900;color:white}
+.buy,.primary{background:#16a34a;color:white}
+.wish{background:#ffe5e7;color:#dc2626}
+.wish.active{background:#dc2626;color:white}
+.secondary{background:#e9eef8;color:#1557d6}
+.danger{background:#dc2626;color:white}
 
-.actions{
-display:flex;
-gap:7px;
-flex-direction:column
-}
-
-.add,
-.buy,
-.primary,
-.danger,
-.secondary,
-.wish{
-width:100%;
-border:0;
-padding:10px;
-border-radius:7px;
-font-weight:bold;
-cursor:pointer
-}
-
-.add{
-background:#f0a900;
-color:#fff
-}
-
-.buy,
-.primary{
-background:#16a34a;
-color:#fff
-}
-
-.secondary{
-background:#e9eef8;
-color:#1557d6
-}
-
-.danger{
-background:#dc2626;
-color:#fff
-}
-
-.wish{
-background:#fee2e2;
-color:#b91c1c
-}
-
-.cart{
-margin-top:24px
-}
-
+.cart{margin-top:22px}
 .cart-row{
-display:flex;
-justify-content:space-between;
-gap:8px;
-align-items:center;
-padding:9px 0;
-border-bottom:1px solid #eee
+display:flex;justify-content:space-between;gap:8px;
+align-items:center;padding:10px 0;border-bottom:1px solid #eee
+}
+
+.qty{display:flex;gap:6px;align-items:center}
+.qty button{
+border:0;background:#e9eef8;border-radius:5px;padding:4px 8px
 }
 
 .remove{
-border:0;
-background:#dc2626;
-color:#fff;
-border-radius:5px;
-padding:6px 9px;
-cursor:pointer
+border:0;background:#dc2626;color:white;
+border-radius:5px;padding:6px 9px
 }
 
-.qty{
-display:flex;
-align-items:center;
-gap:6px
-}
-
-.qty button{
-border:0;
-background:#e9eef8;
-padding:4px 9px;
-border-radius:5px;
-cursor:pointer
-}
-
-.checkout{
-margin-top:24px
-}
+.checkout{margin-top:22px}
 
 .checkout-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px
+display:grid;grid-template-columns:1fr 1fr;gap:12px
 }
 
-.checkout input,
-.checkout textarea,
-.checkout select,
-.panel input,
-.panel textarea,
-.panel select{
-width:100%;
-padding:10px;
-border:1px solid #ccc;
-border-radius:7px;
-margin-top:5px
+label{display:block;margin-bottom:10px;font-weight:600}
+
+input,textarea,select{
+width:100%;padding:10px;border:1px solid #ccc;
+border-radius:7px;margin-top:5px
 }
 
-.checkout textarea,
-.panel textarea{
-min-height:80px;
-resize:vertical
-}
+textarea{min-height:80px;resize:vertical}
 
 .payment-box{
-border:1px solid #ddd;
-border-radius:8px;
-padding:12px;
-margin-top:8px
+border:1px solid #ddd;border-radius:8px;padding:12px
 }
 
-.note{
-font-size:13px;
-color:#666
-}
+.note{font-size:12px;color:#666}
 
 .success{
-background:#ecfdf5;
-border:1px solid #86efac;
-padding:13px;
-border-radius:8px;
-margin-top:10px;
-color:#166534
-}
-
-.error{
-background:#fef2f2;
-border:1px solid #fca5a5;
-padding:13px;
-border-radius:8px;
-margin-top:10px;
-color:#991b1b
-}
-
-.account-bar{
-display:flex;
-gap:8px;
-align-items:center;
-flex-wrap:wrap
+background:#ecfdf5;border:1px solid #86efac;
+padding:12px;border-radius:8px;margin-top:10px;color:#166534
 }
 
 .modal{
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.55);
-z-index:50;
-align-items:center;
-justify-content:center;
-padding:12px
+display:none;position:fixed;inset:0;
+background:rgba(0,0,0,.58);z-index:50;
+align-items:center;justify-content:center;padding:12px
 }
 
-.modal.show{
-display:flex
-}
+.modal.show{display:flex}
 
 .modal-box{
-background:#fff;
-width:min(620px,100%);
-max-height:92vh;
-overflow:auto;
-border-radius:14px;
-padding:18px
+background:white;width:min(650px,100%);
+max-height:92vh;overflow:auto;
+border-radius:14px;padding:18px
 }
 
 .close{
-float:right;
-border:0;
-background:#eee;
-border-radius:50%;
-width:34px;
-height:34px;
-cursor:pointer
+float:right;border:0;background:#eee;
+border-radius:50%;width:34px;height:34px
 }
 
 .tabs{
-display:flex;
-gap:6px;
-flex-wrap:wrap;
-margin:12px 0
+display:flex;gap:7px;flex-wrap:wrap;margin:12px 0
 }
 
 .tab{
-border:0;
-padding:9px 11px;
-border-radius:8px;
-background:#eef2ff;
-cursor:pointer
+border:0;padding:9px 11px;
+border-radius:8px;background:#eef2ff
 }
 
-.tab.active{
-background:#1557d6;
-color:#fff
-}
+.tab.active{background:#1557d6;color:white}
 
 .setting-row{
-display:flex;
-justify-content:space-between;
-gap:15px;
-align-items:center;
-padding:12px 0;
-border-bottom:1px solid #eee
-}
-
-.list-item{
-padding:11px 0;
-border-bottom:1px solid #eee
-}
-
-.badge{
-display:inline-block;
-padding:4px 8px;
-border-radius:20px;
-background:#e0e7ff;
-color:#3730a3;
-font-size:12px
-}
-
-footer{
-margin-top:30px;
-background:#17202a;
-color:#fff;
-padding:22px;
-text-align:center
-}
-
-.product.hidden{
-display:none!important
-}
-
-.small-btn{
-border:0;
-border-radius:6px;
-padding:7px 9px;
-cursor:pointer;
-background:#eef2ff;
-color:#1557d6
+display:flex;justify-content:space-between;
+gap:15px;align-items:center;
+padding:12px 0;border-bottom:1px solid #eee
 }
 
 .order-card{
-border:1px solid #ddd;
-border-radius:9px;
-padding:11px;
-margin:9px 0
+border:1px solid #ddd;border-radius:9px;
+padding:10px;margin:8px 0
 }
 
-.empty{
-text-align:center;
-color:#777;
-padding:20px
+.badge{
+display:inline-block;padding:4px 8px;
+border-radius:20px;background:#e0e7ff;
+color:#3730a3;font-size:12px
+}
+
+.empty{text-align:center;padding:15px;color:#666}
+
+footer{
+margin-top:30px;background:#17202a;color:white;
+padding:22px;text-align:center
 }
 
 @media(max-width:700px){
-
-.hero h1{
-font-size:24px
+.hero h1{font-size:24px}
+.checkout-grid{grid-template-columns:1fr}
+.logo{font-size:18px}
+.products{grid-template-columns:repeat(2,1fr)}
+.pic{height:120px;font-size:48px}
 }
 
-.checkout-grid{
-grid-template-columns:1fr
-}
-
-.logo{
-font-size:19px
-}
-
-.categories{
-grid-template-columns:repeat(3,1fr)
-}
-
-nav{
-gap:10px;
-font-size:13px
-}
-
+@media(max-width:420px){
+.products{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -467,566 +205,78 @@ class="search"
 placeholder="Search products..."
 oninput="searchProducts()">
 
-<button
-class="header-btn"
-onclick="openAccount()">
+<button class="header-btn" onclick="openAccount()">
 👤 <span id="accountLabel">Login</span>
 </button>
 
-<button
-class="header-btn"
-onclick="goCart()">
+<button class="header-btn" onclick="goCart()">
 🛒 Cart (<span id="count">0</span>)
 </button>
 
 </div>
 
 <nav>
-
-<a onclick="home()">Home</a>
-
-<a onclick="scrollToId('categories')">
-Categories
-</a>
-
-<a onclick="scrollToId('products')">
-Products
-</a>
-
-<a onclick="goCart()">
-Cart
-</a>
-
-<a onclick="openCheckout()">
-Checkout
-</a>
-
-<a onclick="openAccount()">
+<a href="#home">Home</a>
+<a href="#categories">Categories</a>
+<a href="#products">Products</a>
+<a href="#cart">Cart</a>
+<a href="#checkout">Checkout</a>
+<a href="#" onclick="openAccount();return false">
 ⚙️ My Account
 </a>
-
 </nav>
 
 </header>
 
 
-<main>
+<main id="home">
 
 <section class="hero">
 
-<h1>
-Sudh Sagar Mart
-</h1>
+<h1>Sudh Sagar Mart</h1>
 
 <p>
-Online Shopping — products, orders,
-account, wishlist aur settings ek jagah.
+Online Shopping — Products, Cart, Orders,
+Wishlist, Account aur Settings.
 </p>
 
 </section>
 
 
-<h2 id="categories">
-All Categories
-</h2>
+<h2 id="categories">All Categories</h2>
 
+<div class="categories" id="categoryList"></div>
 
-<div class="categories">
 
-<div class="category"
-onclick="showCategory('Fashion')">
-<span class="emoji">👕</span>
-<b>Fashion</b>
-<small>Clothes & Style</small>
-</div>
+<h2 id="products">Products</h2>
 
-<div class="category"
-onclick="showCategory('Electronics')">
-<span class="emoji">📱</span>
-<b>Electronics</b>
-<small>Gadgets</small>
-</div>
+<div class="products" id="productList"></div>
 
-<div class="category"
-onclick="showCategory('Mobiles')">
-<span class="emoji">📱</span>
-<b>Mobiles</b>
-<small>Phones</small>
-</div>
 
-<div class="category"
-onclick="showCategory('Home')">
-<span class="emoji">🏠</span>
-<b>Home</b>
-<small>Home Items</small>
-</div>
+<!-- CART -->
 
-<div class="category"
-onclick="showCategory('Grocery')">
-<span class="emoji">🛒</span>
-<b>Grocery</b>
-<small>Daily Needs</small>
-</div>
+<div class="cart" id="cart">
 
-<div class="category"
-onclick="showCategory('Beauty')">
-<span class="emoji">💄</span>
-<b>Beauty</b>
-<small>Beauty & Care</small>
-</div>
+<h2>🛒 Your Cart</h2>
 
-<div class="category"
-onclick="showCategory('Footwear')">
-<span class="emoji">👟</span>
-<b>Footwear</b>
-<small>Shoes</small>
-</div>
-
-<div class="category"
-onclick="showCategory('Appliances')">
-<span class="emoji">🧊</span>
-<b>Appliances</b>
-<small>Home Appliances</small>
-</div>
-
-<div class="category"
-onclick="showCategory('Kitchen')">
-<span class="emoji">🍳</span>
-<b>Kitchen</b>
-<small>Kitchen Items</small>
-</div>
-
-<div class="category"
-onclick="showCategory('Kids')">
-<span class="emoji">🧸</span>
-<b>Kids</b>
-<small>Toys & Kids</small>
-</div>
-
-<div class="category"
-onclick="showCategory('Sports')">
-<span class="emoji">⚽</span>
-<b>Sports</b>
-<small>Sports Items</small>
-</div>
-
-<div class="category"
-onclick="showCategory('Automotive')">
-<span class="emoji">🏍️</span>
-<b>Automotive</b>
-<small>Bike & Car</small>
-</div>
-
-</div>
-
-
-<h2 id="products">
-Products
-</h2>
-
-
-<div
-class="products"
-id="productList">
-
-
-<div
-class="card product"
-data-name="Cotton T Shirt"
-data-category="Fashion">
-
-<div class="pic">
-👕
-</div>
-
-<h3>
-Cotton T-Shirt
-</h3>
-
-<div class="price">
-₹399
-<span class="old">
-₹599
-</span>
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart('Cotton T-Shirt',399)">
-Add to Cart
-</button>
-
-<button
-class="buy"
-onclick="buyNow('Cotton T-Shirt',399)">
-Buy Now
-</button>
-
-<button
-class="wish"
-onclick="toggleWishlist('Cotton T-Shirt',399)">
-❤️ Wishlist
-</button>
-
-</div>
-
-</div>
-
-
-<div
-class="card product"
-data-name="Smart Watch"
-data-category="Electronics">
-
-<div class="pic">
-⌚
-</div>
-
-<h3>
-Smart Watch
-</h3>
-
-<div class="price">
-₹999
-<span class="old">
-₹1,499
-</span>
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart('Smart Watch',999)">
-Add to Cart
-</button>
-
-<button
-class="buy"
-onclick="buyNow('Smart Watch',999)">
-Buy Now
-</button>
-
-<button
-class="wish"
-onclick="toggleWishlist('Smart Watch',999)">
-❤️ Wishlist
-</button>
-
-</div>
-
-</div>
-
-
-<div
-class="card product"
-data-name="Bluetooth Earphone"
-data-category="Electronics">
-
-<div class="pic">
-🎧
-</div>
-
-<h3>
-Bluetooth Earphone
-</h3>
-
-<div class="price">
-₹699
-<span class="old">
-₹999
-</span>
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart('Bluetooth Earphone',699)">
-Add to Cart
-</button>
-
-<button
-class="buy"
-onclick="buyNow('Bluetooth Earphone',699)">
-Buy Now
-</button>
-
-<button
-class="wish"
-onclick="toggleWishlist('Bluetooth Earphone',699)">
-❤️ Wishlist
-</button>
-
-</div>
-
-</div>
-
-
-<div
-class="card product"
-data-name="Running Shoes"
-data-category="Footwear">
-
-<div class="pic">
-👟
-</div>
-
-<h3>
-Running Shoes
-</h3>
-
-<div class="price">
-₹1,299
-<span class="old">
-₹1,799
-</span>
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart('Running Shoes',1299)">
-Add to Cart
-</button>
-
-<button
-class="buy"
-onclick="buyNow('Running Shoes',1299)">
-Buy Now
-</button>
-
-<button
-class="wish"
-onclick="toggleWishlist('Running Shoes',1299)">
-❤️ Wishlist
-</button>
-
-</div>
-
-</div>
-
-
-<div
-class="card product"
-data-name="Kitchen Pan"
-data-category="Kitchen">
-
-<div class="pic">
-🍳
-</div>
-
-<h3>
-Kitchen Pan
-</h3>
-
-<div class="price">
-₹499
-<span class="old">
-₹699
-</span>
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart('Kitchen Pan',499)">
-Add to Cart
-</button>
-
-<button
-class="buy"
-onclick="buyNow('Kitchen Pan',499)">
-Buy Now
-</button>
-
-<button
-class="wish"
-onclick="toggleWishlist('Kitchen Pan',499)">
-❤️ Wishlist
-</button>
-
-</div>
-
-</div>
-
-
-<div
-class="card product"
-data-name="Football"
-data-category="Sports">
-
-<div class="pic">
-⚽
-</div>
-
-<h3>
-Football
-</h3>
-
-<div class="price">
-₹599
-<span class="old">
-₹799
-</span>
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart('Football',599)">
-Add to Cart
-</button>
-
-<button
-class="buy"
-onclick="buyNow('Football',599)">
-Buy Now
-</button>
-
-<button
-class="wish"
-onclick="toggleWishlist('Football',599)">
-❤️ Wishlist
-</button>
-
-</div>
-
-</div>
-
-
-<div
-class="card product"
-data-name="Mobile Phone"
-data-category="Mobiles">
-
-<div class="pic">
-📱
-</div>
-
-<h3>
-Mobile Phone
-</h3>
-
-<div class="price">
-₹9,999
-<span class="old">
-₹11,999
-</span>
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart('Mobile Phone',9999)">
-Add to Cart
-</button>
-
-<button
-class="buy"
-onclick="buyNow('Mobile Phone',9999)">
-Buy Now
-</button>
-
-<button
-class="wish"
-onclick="toggleWishlist('Mobile Phone',9999)">
-❤️ Wishlist
-</button>
-
-</div>
-
-</div>
-
-
-<div
-class="card product"
-data-name="Kids Teddy Bear"
-data-category="Kids">
-
-<div class="pic">
-🧸
-</div>
-
-<h3>
-Teddy Bear
-</h3>
-
-<div class="price">
-₹349
-<span class="old">
-₹499
-</span>
-</div>
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart('Teddy Bear',349)">
-Add to Cart
-</button>
-
-<button
-class="buy"
-onclick="buyNow('Teddy Bear',349)">
-Buy Now
-</button>
-
-<button
-class="wish"
-onclick="toggleWishlist('Teddy Bear',349)">
-❤️ Wishlist
-</button>
-
-</div>
-
-</div>
-
-
-</div>
-
-
-<div
-class="cart"
-id="cart">
-
-<h2>
-🛒 Your Cart
-</h2>
-
-<div id="cartItems">
-Cart empty hai.
-</div>
+<div id="cartItems"></div>
 
 <h3>
 Total: ₹<span id="total">0</span>
 </h3>
 
-<button
-class="primary"
-onclick="openCheckout()">
-
+<button class="primary" onclick="openCheckout()">
 Proceed to Buy / Checkout
-
 </button>
 
 </div>
 
 
-<div
-class="checkout"
-id="checkout">
+<!-- CHECKOUT -->
 
-<h2>
-💳 Checkout & Payment
-</h2>
+<div class="checkout" id="checkout">
+
+<h2>💳 Checkout & Payment</h2>
 
 <div class="checkout-grid">
 
@@ -1034,23 +284,16 @@ id="checkout">
 
 <label>
 Customer Name
-
-<input
-id="customerName"
-placeholder="Apna naam">
-
+<input id="customerName" placeholder="Apna naam">
 </label>
-
 
 <label>
 Mobile Number
-
 <input
 id="mobile"
 type="tel"
 maxlength="10"
 placeholder="10 digit mobile number">
-
 </label>
 
 </div>
@@ -1060,11 +303,9 @@ placeholder="10 digit mobile number">
 
 <label>
 Delivery Address
-
 <textarea
 id="address"
 placeholder="Pura delivery address"></textarea>
-
 </label>
 
 </div>
@@ -1072,10 +313,7 @@ placeholder="Pura delivery address"></textarea>
 </div>
 
 
-<h3>
-Payment Method
-</h3>
-
+<h3>Payment Method</h3>
 
 <div class="payment-box">
 
@@ -1088,10 +326,7 @@ checked
 onchange="paymentChanged()">
 
 📱 UPI Payment
-
 </label>
-
-<br>
 
 
 <label>
@@ -1102,10 +337,7 @@ value="cod"
 onchange="paymentChanged()">
 
 🚚 Cash on Delivery
-
 </label>
-
-<br>
 
 
 <label>
@@ -1116,45 +348,25 @@ value="gateway"
 onchange="paymentChanged()">
 
 💳 Online Payment Gateway
-
 </label>
 
 
-<div
-id="paymentDetails"
-class="note"
-style="margin-top:10px">
-
-UPI ID:
-
-<input
-id="upiId"
-placeholder="example@upi">
-
-</div>
+<div id="paymentDetails"></div>
 
 </div>
 
 
 <p class="note">
-
-Demo mode: Order browser me save hoga.
-Real UPI/payment ke liye payment gateway connect karna hoga.
-
+Real online payment ke liye Razorpay/Cashfree
+gateway ko baad me connect karna hoga.
 </p>
 
 
-<button
-class="primary"
-onclick="placeOrder()">
-
+<button class="primary" onclick="placeOrder()">
 Place Order
-
 </button>
 
-
-<div id="orderMessage">
-</div>
+<div id="orderMessage"></div>
 
 </div>
 
@@ -1169,23 +381,18 @@ Shopping • Orders • Account • Settings
 </footer>
 
 
-<div
-class="modal"
-id="accountModal">
+<!-- ACCOUNT -->
+
+<div class="modal" id="accountModal">
 
 <div class="modal-box">
 
-<button
-class="close"
-onclick="closeAccount()">
-×
-</button>
+<button class="close" onclick="closeAccount()">×</button>
+
+<h2>👤 My Account</h2>
 
 
-<h2>
-👤 My Account
-</h2>
-
+<!-- LOGIN / REGISTER -->
 
 <div id="authArea">
 
@@ -1195,82 +402,62 @@ onclick="closeAccount()">
 class="tab active"
 id="loginTab"
 onclick="showAuth('login')">
-
 Login
-
 </button>
-
 
 <button
 class="tab"
 id="registerTab"
 onclick="showAuth('register')">
-
 Create Account
-
 </button>
 
 </div>
 
-
-<div id="authForm">
-</div>
+<div id="authForm"></div>
 
 </div>
 
 
-<div
-id="userArea"
-style="display:none">
+<!-- USER AREA -->
 
-<div class="account-bar">
+<div id="userArea" style="display:none">
 
-<b id="userName">
-Customer
-</b>
-
-<span
-class="badge"
-id="userEmail">
-</span>
-
-</div>
+<p>
+<b id="userName">Customer</b>
+<br>
+<span class="badge" id="userEmail"></span>
+</p>
 
 
 <div class="tabs">
 
-<button
-class="tab active"
+<button class="tab active"
 onclick="showPanel('profile',this)">
 Profile
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('orders',this)">
 My Orders
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('wishlist',this)">
 Wishlist
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('addresses',this)">
 Addresses
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('settings',this)">
 ⚙️ Settings
 </button>
 
-<button
-class="tab"
+<button class="tab"
 onclick="showPanel('security',this)">
 🔐 Security
 </button>
@@ -1278,8 +465,7 @@ onclick="showPanel('security',this)">
 </div>
 
 
-<div id="panelContent">
-</div>
+<div id="panelContent"></div>
 
 </div>
 
@@ -1290,197 +476,461 @@ onclick="showPanel('security',this)">
 
 <script>
 
-const KEY_USERS="ssm_users";
-const KEY_USER="ssm_current_user";
-const KEY_CART="ssm_cart";
-const KEY_ORDERS="ssm_orders";
-const KEY_WISH="ssm_wishlist";
-const KEY_ADDRESS="ssm_address";
+/* =========================
+PRODUCT DATA
+========================= */
+
+const PRODUCTS=[
+
+{
+id:1,
+name:"Cotton T-Shirt",
+price:399,
+old:599,
+cat:"Fashion",
+icon:"👕"
+},
+
+{
+id:2,
+name:"Smart Watch",
+price:999,
+old:1499,
+cat:"Electronics",
+icon:"⌚"
+},
+
+{
+id:3,
+name:"Bluetooth Earphone",
+price:699,
+old:999,
+cat:"Electronics",
+icon:"🎧"
+},
+
+{
+id:4,
+name:"Running Shoes",
+price:1299,
+old:1799,
+cat:"Footwear",
+icon:"👟"
+},
+
+{
+id:5,
+name:"Kitchen Pan",
+price:499,
+old:699,
+cat:"Kitchen",
+icon:"🍳"
+},
+
+{
+id:6,
+name:"Football",
+price:599,
+old:799,
+cat:"Sports",
+icon:"⚽"
+},
+
+{
+id:7,
+name:"Mobile Phone",
+price:9999,
+old:11999,
+cat:"Mobiles",
+icon:"📱"
+},
+
+{
+id:8,
+name:"Teddy Bear",
+price:349,
+old:499,
+cat:"Kids",
+icon:"🧸"
+},
+
+{
+id:9,
+name:"Mixer Grinder",
+price:1899,
+old:2299,
+cat:"Appliances",
+icon:"🧊"
+},
+
+{
+id:10,
+name:"Face Care Kit",
+price:549,
+old:799,
+cat:"Beauty",
+icon:"💄"
+},
+
+{
+id:11,
+name:"Grocery Pack",
+price:799,
+old:899,
+cat:"Grocery",
+icon:"🛒"
+},
+
+{
+id:12,
+name:"Bike Helmet",
+price:899,
+old:1199,
+cat:"Automotive",
+icon:"🏍️"
+},
+
+{
+id:13,
+name:"Home Lamp",
+price:699,
+old:999,
+cat:"Home",
+icon:"🏠"
+}
+
+];
 
 
-let cart=
+const CATS=[
+
+["Fashion","👕","Clothes & Style"],
+["Electronics","📱","Gadgets"],
+["Mobiles","📱","Phones"],
+["Home","🏠","Home Items"],
+["Grocery","🛒","Daily Needs"],
+["Beauty","💄","Beauty & Care"],
+["Footwear","👟","Shoes"],
+["Appliances","🧊","Home Appliances"],
+["Kitchen","🍳","Kitchen Items"],
+["Kids","🧸","Toys & Kids"],
+["Sports","⚽","Sports Items"],
+["Automotive","🏍️","Bike & Car"]
+
+];
+
+
+/* =========================
+LOCAL DATA
+========================= */
+
+let cart =
+JSON.parse(localStorage.getItem("ssm_cart") || "[]");
+
+let wishlist =
+JSON.parse(localStorage.getItem("ssm_wishlist") || "[]");
+
+let users =
+JSON.parse(localStorage.getItem("ssm_users") || "[]");
+
+let orders =
+JSON.parse(localStorage.getItem("ssm_orders") || "[]");
+
+let currentUser =
 JSON.parse(
-localStorage.getItem(KEY_CART)||"[]"
+localStorage.getItem("ssm_currentUser") || "null"
 );
 
 
-let currentUser=
-JSON.parse(
-localStorage.getItem(KEY_USER)||"null"
-);
+/* =========================
+HELPERS
+========================= */
 
-
-function getUsers(){
-
-return JSON.parse(
-localStorage.getItem(KEY_USERS)||"[]"
-);
-
-}
-
-
-function saveUsers(x){
+function save(key,value){
 
 localStorage.setItem(
-KEY_USERS,
-JSON.stringify(x)
+key,
+JSON.stringify(value)
 );
 
 }
 
 
-function getOrders(){
+function money(number){
 
-return JSON.parse(
-localStorage.getItem(KEY_ORDERS)||"[]"
-);
-
-}
-
-
-function saveOrders(x){
-
-localStorage.setItem(
-KEY_ORDERS,
-JSON.stringify(x)
-);
+return Number(number)
+.toLocaleString("en-IN");
 
 }
 
 
-function getWish(){
+function esc(text){
 
-return JSON.parse(
-localStorage.getItem(KEY_WISH)||"[]"
-);
-
-}
-
-
-function saveWish(x){
-
-localStorage.setItem(
-KEY_WISH,
-JSON.stringify(x)
-);
-
-}
-
-
-function esc(s){
-
-return String(s??"")
+return String(text || "")
 .replace(
 /[&<>"']/g,
 m=>({
+
 "&":"&amp;",
 "<":"&lt;",
 ">":"&gt;",
 '"':"&quot;",
 "'":"&#039;"
+
 }[m])
 );
 
 }
 
 
-function money(n){
+/* =========================
+CATEGORIES
+========================= */
 
-return Number(n)
-.toLocaleString("en-IN");
+function renderCategories(){
+
+document.getElementById("categoryList")
+.innerHTML=
+
+CATS.map(c=>`
+
+<div
+class="category"
+onclick="showCategory('${c[0]}')">
+
+<span class="emoji">
+${c[1]}
+</span>
+
+<b>${c[0]}</b>
+
+<small>
+${c[2]}
+</small>
+
+</div>
+
+`).join("");
 
 }
 
 
-function scrollToId(id){
+/* =========================
+PRODUCTS
+========================= */
 
-document
-.getElementById(id)
-?.scrollIntoView({
-behavior:"smooth"
+function renderProducts(list=PRODUCTS){
+
+document.getElementById("productList")
+.innerHTML=
+
+list.length
+
+?
+
+list.map(p=>`
+
+<div class="card">
+
+<div class="pic">
+${p.icon}
+</div>
+
+<h3>
+${esc(p.name)}
+</h3>
+
+<div class="price">
+
+₹${money(p.price)}
+
+<span class="old">
+₹${money(p.old)}
+</span>
+
+</div>
+
+
+<div class="actions">
+
+<button
+class="add"
+onclick="addCart(${p.id})">
+
+Add to Cart
+
+</button>
+
+
+<button
+class="buy"
+onclick="buyNow(${p.id})">
+
+Buy Now
+
+</button>
+
+
+<button
+class="wish ${
+wishlist.includes(p.id)
+?
+"active"
+:
+""
+}"
+onclick="toggleWishlist(${p.id})">
+
+${
+wishlist.includes(p.id)
+?
+"❤️ Remove Wishlist"
+:
+"❤️ Wishlist"
+}
+
+</button>
+
+</div>
+
+</div>
+
+`).join("")
+
+:
+
+"<div class='empty'>Product nahi mila.</div>";
+
+}
+
+
+/* =========================
+CART
+========================= */
+
+function addCart(id){
+
+const product =
+PRODUCTS.find(p=>p.id===id);
+
+if(!product)return;
+
+
+const item =
+cart.find(x=>x.id===id);
+
+
+if(item){
+
+item.qty++;
+
+}
+
+else{
+
+cart.push({
+
+id:product.id,
+name:product.name,
+price:product.price,
+qty:1
+
 });
 
 }
 
 
-function home(){
+save("ssm_cart",cart);
 
-window.scrollTo({
-top:0,
-behavior:"smooth"
-});
+renderCart();
 
-}
-
-
-function goCart(){
-
-scrollToId("cart");
+alert("Product cart me add ho gaya.");
 
 }
 
 
-function openCheckout(){
+function buyNow(id){
 
-if(!cart.length){
+addCart(id);
 
-alert(
-"Pehle product cart me add karein."
+openCheckout();
+
+}
+
+
+function changeQty(id,amount){
+
+const item =
+cart.find(x=>x.id===id);
+
+if(!item)return;
+
+
+item.qty += amount;
+
+
+if(item.qty<=0){
+
+cart =
+cart.filter(x=>x.id!==id);
+
+}
+
+
+save("ssm_cart",cart);
+
+renderCart();
+
+}
+
+
+function removeCart(id){
+
+cart =
+cart.filter(x=>x.id!==id);
+
+save("ssm_cart",cart);
+
+renderCart();
+
+}
+
+
+function cartTotal(){
+
+return cart.reduce(
+(sum,x)=>
+sum + x.price*x.qty,
+0
 );
-
-goCart();
-
-return;
-
-}
-
-scrollToId("checkout");
 
 }
 
 
 function renderCart(){
 
-document
-.getElementById("count")
+document.getElementById("count")
 .textContent=
+
 cart.reduce(
-(s,x)=>s+Number(x.qty||1),
+(sum,x)=>sum+x.qty,
 0
 );
 
 
-let total=
-cart.reduce(
-(s,x)=>
-s+
-Number(x.price)*
-(x.qty||1),
-0
-);
-
-
-document
-.getElementById("total")
+document.getElementById("total")
 .textContent=
-money(total);
+money(cartTotal());
 
 
-const box=
-document.getElementById(
-"cartItems"
-);
+const box =
+document.getElementById("cartItems");
 
 
 if(!cart.length){
 
 box.innerHTML=
-'<div class="empty">Cart empty hai.</div>';
-
-localStorage.setItem(
-KEY_CART,
-"[]"
-);
+"<div class='empty'>Cart empty hai.</div>";
 
 return;
 
@@ -1488,22 +938,25 @@ return;
 
 
 box.innerHTML=
-cart.map(
-(x,i)=>`
+
+cart.map(x=>`
 
 <div class="cart-row">
 
 <div>
 
-<b>
-${esc(x.name)}
-</b>
+<b>${esc(x.name)}</b>
 
 <br>
 
 ₹${money(x.price)}
-×
-${x.qty||1}
+× ${x.qty}
+
+=
+
+<b>
+₹${money(x.price*x.qty)}
+</b>
 
 </div>
 
@@ -1511,22 +964,20 @@ ${x.qty||1}
 <div class="qty">
 
 <button
-onclick="changeQty(${i},-1)">
+onclick="changeQty(${x.id},-1)">
 −
 </button>
 
-<b>
-${x.qty||1}
-</b>
+<b>${x.qty}</b>
 
 <button
-onclick="changeQty(${i},1)">
+onclick="changeQty(${x.id},1)">
 +
 </button>
 
 <button
 class="remove"
-onclick="removeCart(${i})">
+onclick="removeCart(${x.id})">
 
 Remove
 
@@ -1536,125 +987,49 @@ Remove
 
 </div>
 
-`
-).join("");
-
-
-localStorage.setItem(
-KEY_CART,
-JSON.stringify(cart)
-);
+`).join("");
 
 }
 
 
-function addCart(name,price){
+function goCart(){
 
-let x=
-cart.find(
-a=>a.name===name
-);
-
-
-if(x){
-
-x.qty=
-(x.qty||1)+1;
-
-}
-else{
-
-cart.push({
-name:name,
-price:price,
-qty:1
+document
+.getElementById("cart")
+.scrollIntoView({
+behavior:"smooth"
 });
 
 }
 
 
-renderCart();
-
-alert(
-name+
-" cart me add ho gaya."
-);
-
-goCart();
-
-}
-
-
-function buyNow(name,price){
-
-cart=[
-{
-name:name,
-price:price,
-qty:1
-}
-];
-
-renderCart();
-
-openCheckout();
-
-}
-
-
-function changeQty(i,n){
-
-cart[i].qty=
-(cart[i].qty||1)+n;
-
-
-if(cart[i].qty<=0){
-
-cart.splice(i,1);
-
-}
-
-
-renderCart();
-
-}
-
-
-function removeCart(i){
-
-cart.splice(i,1);
-
-renderCart();
-
-}
-
+/* =========================
+SEARCH
+========================= */
 
 function searchProducts(){
 
-let q=
+const q =
 document
 .getElementById("search")
 .value
+.toLowerCase();
+
+
+renderProducts(
+
+PRODUCTS.filter(p=>
+
+(
+p.name+
+" "+
+p.cat
+)
 .toLowerCase()
-.trim();
+.includes(q)
 
+)
 
-document
-.querySelectorAll(".product")
-.forEach(
-p=>{
-
-let ok=
-p.dataset.name
-.toLowerCase()
-.includes(q);
-
-p.classList.toggle(
-"hidden",
-q && !ok
-);
-
-}
 );
 
 }
@@ -1667,56 +1042,102 @@ document
 .value="";
 
 
-let found=0;
+renderProducts(
+
+PRODUCTS.filter(
+p=>p.cat===category
+)
+
+);
 
 
 document
-.querySelectorAll(".product")
-.forEach(
-p=>{
-
-let ok=
-p.dataset.category===
-category;
-
-p.classList.toggle(
-"hidden",
-!ok
-);
-
-if(ok)
-found++;
+.getElementById("products")
+.scrollIntoView({
+behavior:"smooth"
+});
 
 }
-);
 
 
-scrollToId("products");
+/* =========================
+WISHLIST
+========================= */
 
+function toggleWishlist(id){
 
-if(!found){
+if(!currentUser){
 
 alert(
-category+
-" category ke products abhi available nahi hain."
+"Wishlist ke liye pehle Login/Create Account karein."
 );
 
+openAccount();
+
+return;
+
 }
+
+
+if(wishlist.includes(id)){
+
+wishlist =
+wishlist.filter(x=>x!==id);
+
+}
+
+else{
+
+wishlist.push(id);
+
+}
+
+
+save(
+"ssm_wishlist",
+wishlist
+);
+
+renderProducts();
+
+}
+
+
+/* =========================
+CHECKOUT
+========================= */
+
+function openCheckout(){
+
+if(!cart.length){
+
+alert(
+"Pehle product cart me add karein."
+);
+
+return;
+
+}
+
+
+document
+.getElementById("checkout")
+.scrollIntoView({
+behavior:"smooth"
+});
 
 }
 
 
 function paymentChanged(){
 
-let method=
-document
-.querySelector(
+const method =
+document.querySelector(
 'input[name="payment"]:checked'
-)
-.value;
+).value;
 
 
-let d=
+const box =
 document.getElementById(
 "paymentDetails"
 );
@@ -1724,24 +1145,27 @@ document.getElementById(
 
 if(method==="upi"){
 
-d.innerHTML=`
+box.innerHTML=`
 
-UPI ID:
+<label>
+
+UPI ID
 
 <input
 id="upiId"
 placeholder="example@upi">
 
+</label>
+
 `;
 
 }
+
 else if(method==="cod"){
 
-d.innerHTML=`
+box.innerHTML=`
 
-<b>
-Cash on Delivery
-</b>
+<b>🚚 Cash on Delivery</b>
 
 <br>
 
@@ -1752,19 +1176,17 @@ Delivery ke time cash payment.
 `;
 
 }
+
 else{
 
-d.innerHTML=`
+box.innerHTML=`
 
-<b>
-Online Payment Gateway
-</b>
+<b>💳 Online Payment Gateway</b>
 
 <br>
 
 <span class="note">
-Demo gateway selected.
-Real payment baad me connect hoga.
+Gateway abhi demo mode me hai.
 </span>
 
 `;
@@ -1774,57 +1196,49 @@ Real payment baad me connect hoga.
 }
 
 
+/* =========================
+PLACE ORDER
+========================= */
+
 function placeOrder(){
 
 if(!cart.length){
 
-alert(
-"Cart empty hai."
-);
+alert("Cart empty hai.");
 
 return;
 
 }
 
 
-let name=
+const name =
 document
 .getElementById("customerName")
-.value
-.trim();
+.value.trim();
 
 
-let mobile=
+const mobile =
 document
 .getElementById("mobile")
-.value
-.trim();
+.value.trim();
 
 
-let address=
+const address =
 document
 .getElementById("address")
-.value
-.trim();
+.value.trim();
 
 
 if(!name){
 
-alert(
-"Customer name bhariye."
-);
+alert("Customer name bhariye.");
 
 return;
 
 }
 
 
-if(
-!/
-^[0-9]{10}$
-/
-.test(mobile)
-){
+if(!/^[0-9]{10}$/.test(mobile)){
 
 alert(
 "10 digit mobile number bhariye."
@@ -1846,29 +1260,19 @@ return;
 }
 
 
-let payment=
-document
-.querySelector(
+const method =
+document.querySelector(
 'input[name="payment"]:checked'
-)
-.value;
+).value;
 
 
-let total=
-cart.reduce(
-(s,x)=>
-s+
-Number(x.price)*
-(x.qty||1),
-0
-);
-
-
-let order={
+const order={
 
 id:
 "SSM"+
-Date.now(),
+Date.now()
+.toString()
+.slice(-8),
 
 date:
 new Date()
@@ -1880,81 +1284,96 @@ mobile:mobile,
 
 address:address,
 
-payment:payment,
+method:method,
 
-total:total,
+total:cartTotal(),
 
-items:[
-...cart
-],
-
-status:
-"Order Placed",
+items:
+cart.map(x=>({...x})),
 
 email:
-currentUser?
-currentUser.email:
+currentUser
+?
+currentUser.email
+:
 ""
 
 };
 
 
-let orders=
-getOrders();
-
-
 orders.unshift(order);
 
-saveOrders(orders);
+save(
+"ssm_orders",
+orders
+);
 
 
 cart=[];
 
+save(
+"ssm_cart",
+cart
+);
+
 renderCart();
 
 
-document
-.getElementById(
+document.getElementById(
 "orderMessage"
-)
-.innerHTML=
-
-`
+).innerHTML=`
 
 <div class="success">
 
 <b>
-✅ Order successfully placed!
+✅ Order Successfully Placed!
 </b>
 
-<br>
+<br><br>
 
 Order ID:
-${order.id}
+<b>${order.id}</b>
 
 <br>
 
 Total:
-₹${money(total)}
+<b>₹${money(order.total)}</b>
 
 <br>
 
-Status:
-Order Placed
+Payment:
+${method.toUpperCase()}
 
 </div>
 
 `;
 
+
+document.getElementById(
+"customerName"
+).value="";
+
+
+document.getElementById(
+"mobile"
+).value="";
+
+
+document.getElementById(
+"address"
+).value="";
+
 }
 
+
+/* =========================
+ACCOUNT
+========================= */
 
 function openAccount(){
 
 document
-.getElementById(
-"accountModal"
-)
+.getElementById("accountModal")
 .classList
 .add("show");
 
@@ -1964,6 +1383,7 @@ if(currentUser){
 renderUserArea();
 
 }
+
 else{
 
 showAuth("login");
@@ -1976,4 +1396,367 @@ showAuth("login");
 function closeAccount(){
 
 document
-.getElementByI
+.getElementById("accountModal")
+.classList
+.remove("show");
+
+}
+
+
+/* =========================
+LOGIN / REGISTER
+========================= */
+
+function showAuth(type){
+
+document
+.getElementById("loginTab")
+.classList
+.toggle(
+"active",
+type==="login"
+);
+
+
+document
+.getElementById("registerTab")
+.classList
+.toggle(
+"active",
+type==="register"
+);
+
+
+if(type==="login"){
+
+document
+.getElementById("authForm")
+.innerHTML=`
+
+<label>
+
+Email
+
+<input
+id="authEmail"
+type="email"
+placeholder="customer@email.com">
+
+</label>
+
+
+<label>
+
+Password
+
+<input
+id="authPassword"
+type="password"
+placeholder="Password">
+
+</label>
+
+
+<button
+class="primary"
+onclick="loginCustomer()">
+
+Login
+
+</button>
+
+`;
+
+}
+
+else{
+
+document
+.getElementById("authForm")
+.innerHTML=`
+
+<label>
+
+Customer Name
+
+<input
+id="authName"
+placeholder="Aapka naam">
+
+</label>
+
+
+<label>
+
+Email
+
+<input
+id="authEmail"
+type="email"
+placeholder="customer@email.com">
+
+</label>
+
+
+<label>
+
+Password
+
+<input
+id="authPassword"
+type="password"
+minlength="6"
+placeholder="Minimum 6 characters">
+
+</label>
+
+
+<button
+class="primary"
+onclick="registerCustomer()">
+
+Create Account
+
+</button>
+
+`;
+
+}
+
+}
+
+
+/* CREATE ACCOUNT */
+
+function registerCustomer(){
+
+const name =
+document
+.getElementById("authName")
+.value.trim();
+
+
+const email =
+document
+.getElementById("authEmail")
+.value.trim()
+.toLowerCase();
+
+
+const password =
+document
+.getElementById("authPassword")
+.value;
+
+
+if(!name || !email || !password){
+
+alert(
+"Sabhi fields bhariye."
+);
+
+return;
+
+}
+
+
+if(password.length<6){
+
+alert(
+"Password minimum 6 characters ka hona chahiye."
+);
+
+return;
+
+}
+
+
+if(
+users.some(
+u=>u.email===email
+)
+){
+
+alert(
+"Is email se account already bana hua hai."
+);
+
+return;
+
+}
+
+
+const user={
+
+id:Date.now(),
+
+displayName:name,
+
+email:email,
+
+password:password
+
+};
+
+
+users.push(user);
+
+save(
+"ssm_users",
+users
+);
+
+
+currentUser={
+
+id:user.id,
+
+displayName:user.displayName,
+
+email:user.email
+
+};
+
+
+save(
+"ssm_currentUser",
+currentUser
+);
+
+
+renderUserArea();
+
+alert(
+"Account create ho gaya."
+);
+
+}
+
+
+/* LOGIN */
+
+function loginCustomer(){
+
+const email =
+document
+.getElementById("authEmail")
+.value
+.trim()
+.toLowerCase();
+
+
+const password =
+document
+.getElementById("authPassword")
+.value;
+
+
+const user =
+users.find(
+u=>
+u.email===email &&
+u.password===password
+);
+
+
+if(!user){
+
+alert(
+"Email ya password galat hai."
+);
+
+return;
+
+}
+
+
+currentUser={
+
+id:user.id,
+
+displayName:user.displayName,
+
+email:user.email
+
+};
+
+
+save(
+"ssm_currentUser",
+currentUser
+);
+
+
+renderUserArea();
+
+}
+
+
+/* LOGOUT */
+
+function logoutCustomer(){
+
+currentUser=null;
+
+localStorage.removeItem(
+"ssm_currentUser"
+);
+
+
+renderLoggedOut();
+
+}
+
+
+function renderLoggedOut(){
+
+document
+.getElementById("authArea")
+.style.display="block";
+
+
+document
+.getElementById("userArea")
+.style.display="none";
+
+
+document
+.getElementById("accountLabel")
+.textContent="Login";
+
+
+showAuth("login");
+
+}
+
+
+/* =========================
+USER AREA
+========================= */
+
+function renderUserArea(){
+
+document
+.getElementById("authArea")
+.style.display="none";
+
+
+document
+.getElementById("userArea")
+.style.display="block";
+
+
+document
+.getElementById("accountLabel")
+.textContent=
+(
+currentUser.displayName ||
+"Account"
+)
+.slice(0,12);
+
+
+document
+.getElementById("userName")
+.textContent=
+curre
