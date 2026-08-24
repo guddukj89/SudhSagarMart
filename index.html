@@ -1760,3 +1760,8 @@ document
 .getElementById("userName")
 .textContent=
 curre
+
+  <script> from pathlib import Path
+path = Path("/mnt/data/SudhSagarMart_WORKING_index.html")
+path.write_text(html, encoding="utf-8")
+print(path)
