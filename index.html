@@ -1,201 +1,1579 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SudhSagarMart - Home</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Sudh Sagar Mart - Online Shopping</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:#f5f6f8;
+    color:#222;
+}
+
+button{
+    cursor:pointer;
+}
+
+header{
+    background:#0878d1;
+    color:white;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    box-shadow:0 2px 8px #999;
+}
+
+.top{
+    max-width:1250px;
+    margin:auto;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.search{
+    flex:1;
+}
+
+.search input{
+    width:100%;
+    padding:12px 18px;
+    border:0;
+    border-radius:25px;
+    outline:none;
+}
+
+.cartBtn,
+.accountBtn{
+    border:0;
+    background:white;
+    color:#0878d1;
+    padding:11px 15px;
+    border-radius:22px;
+    font-weight:bold;
+}
+
+.nav{
+    max-width:1250px;
+    margin:auto;
+    padding:0 16px 10px;
+    display:flex;
+    gap:20px;
+    overflow:auto;
+}
+
+.nav a{
+    color:white;
+    text-decoration:none;
+    white-space:nowrap;
+}
+
+.hero{
+    max-width:1250px;
+    margin:18px auto;
+    padding:40px 25px;
+    border-radius:15px;
+    background:linear-gradient(120deg,#0878d1,#00a5f5);
+    color:white;
+}
+
+.hero h1{
+    font-size:36px;
+    margin-bottom:10px;
+}
+
+.hero p{
+    margin-bottom:20px;
+}
+
+.shop{
+    border:0;
+    padding:12px 25px;
+    border-radius:25px;
+    color:#0878d1;
+    background:white;
+    font-weight:bold;
+}
+
+.container{
+    max-width:1250px;
+    margin:auto;
+    padding:0 16px 50px;
+}
+
+.categories{
+    display:flex;
+    gap:10px;
+    overflow:auto;
+    padding:10px 0 20px;
+}
+
+.category{
+    background:white;
+    border:1px solid #ddd;
+    border-radius:22px;
+    padding:10px 18px;
+    white-space:nowrap;
+}
+
+.category.active{
+    background:#0878d1;
+    color:white;
+}
+
+.title{
+    display:flex;
+    justify-content:space-between;
+    margin:10px 0 15px;
+}
+
+.products{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+}
+
+.product{
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 8px #ddd;
+}
+
+.product img{
+    width:100%;
+    height:200px;
+    object-fit:cover;
+}
+
+.info{
+    padding:14px;
+}
+
+.name{
+    font-weight:bold;
+    font-size:17px;
+    min-height:40px;
+}
+
+.categoryName{
+    color:#777;
+    font-size:13px;
+}
+
+.price{
+    color:#0878d1;
+    font-weight:bold;
+    font-size:21px;
+    margin:8px 0;
+}
+
+.old{
+    color:#999;
+    font-size:13px;
+    text-decoration:line-through;
+}
+
+.add{
+    width:100%;
+    padding:11px;
+    border:0;
+    border-radius:7px;
+    background:#0878d1;
+    color:white;
+    font-weight:bold;
+}
+
+.add:hover{
+    background:#0567b2;
+}
+
+/* CART */
+
+.overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#0008;
+    z-index:2000;
+}
+
+.overlay.show{
+    display:block;
+}
+
+.cart{
+    position:fixed;
+    right:-450px;
+    top:0;
+    width:430px;
+    max-width:100%;
+    height:100vh;
+    background:white;
+    z-index:2100;
+    transition:.3s;
+    overflow:auto;
+}
+
+.cart.open{
+    right:0;
+}
+
+.cartHead{
+    background:#0878d1;
+    color:white;
+    padding:18px;
+    display:flex;
+    justify-content:space-between;
+}
+
+.close{
+    background:transparent;
+    border:0;
+    color:white;
+    font-size:28px;
+}
+
+.cartBody{
+    padding:15px;
+}
+
+.cartItem{
+    display:flex;
+    gap:10px;
+    padding:12px 0;
+    border-bottom:1px solid #ddd;
+}
+
+.cartItem img{
+    width:70px;
+    height:70px;
+    object-fit:cover;
+    border-radius:7px;
+}
+
+.cartInfo{
+    flex:1;
+}
+
+.qty{
+    display:flex;
+    gap:7px;
+    align-items:center;
+    margin-top:7px;
+}
+
+.qty button{
+    width:28px;
+    height:28px;
+    border:1px solid #ccc;
+    background:white;
+}
+
+.remove{
+    color:red;
+    border:0 !important;
+    background:white !important;
+}
+
+.cartBottom{
+    position:sticky;
+    bottom:0;
+    background:white;
+    padding:15px;
+    border-top:1px solid #ddd;
+}
+
+.total{
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+.checkoutBtn{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:7px;
+    background:#1b9b4b;
+    color:white;
+    font-weight:bold;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#0008;
+    z-index:3000;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modalBox{
+    background:white;
+    width:520px;
+    max-width:100%;
+    max-height:90vh;
+    overflow:auto;
+    padding:20px;
+    border-radius:12px;
+}
+
+.modalBox h2{
+    margin-bottom:15px;
+}
+
+.modalBox input,
+.modalBox textarea,
+.modalBox select{
+    width:100%;
+    padding:12px;
+    margin:6px 0;
+    border:1px solid #ccc;
+    border-radius:7px;
+}
+
+.primary{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:7px;
+    background:#0878d1;
+    color:white;
+    font-weight:bold;
+    margin-top:8px;
+}
+
+.secondary{
+    background:#666;
+}
+
+.order{
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:12px;
+    margin:10px 0;
+}
+
+.empty{
+    text-align:center;
+    padding:40px;
+    color:#777;
+}
+
+footer{
+    background:#222;
+    color:white;
+    text-align:center;
+    padding:30px 15px;
+}
+
+footer a{
+    color:white;
+    text-decoration:none;
+    margin:0 8px;
+}
+
+@media(max-width:950px){
+    .products{
+        grid-template-columns:repeat(3,1fr);
+    }
+}
+
+@media(max-width:650px){
+
+    .top{
+        flex-wrap:wrap;
+    }
+
+    .logo{
+        font-size:20px;
+    }
+
+    .search{
+        order:3;
+        width:100%;
+        flex-basis:100%;
+    }
+
+    .products{
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+    }
+
+    .product img{
+        height:150px;
+    }
+
+    .hero h1{
+        font-size:28px;
+    }
+
+    .cart{
+        width:100%;
+    }
+}
+</style>
 </head>
+
 <body>
-  <header>
-    <nav>
-      <h1>SudhSagarMart</h1>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="products.html">Products</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
 
-  <section class="hero">
-    <h2>Welcome to SudhSagarMart</h2>
-    <p>Pure Masala & Wheat Products by AGV</p>
-    <a href="products.html" class="btn">Shop Now</a>
-  </section>
+<!-- HEADER -->
 
-  <footer>
-    <p>© 2026 SudhSagarMart | Follow us on 
-      <a href="#">Facebook</a> | <a href="#">Instagram</a>
-    </p>
-  </footer>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SudhSagarMart - Products</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <nav>
-      <h1>SudhSagarMart</h1>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="products.html">Products</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+<header>
 
-  <section>
-    <h2>Our Products</h2>
-    <div class="product-card">
-      <img src="images/masala.jpg" alt="AGV Masala">
-      <h3>AGV Masala</h3>
-      <p>₹120 / 500g</p>
-      <button>Add to Cart</button>
-    </div>
-    <div class="product-card">
-      <img src="images/wheat.jpg" alt="AGV Wheat">
-      <h3>AGV Wheat</h3>
-      <p>₹45 / Kg</p>
-      <button>Add to Cart</button>
-    </div>
-  </section>
+<div class="top">
 
-  <footer>
-    <p>© 2026 SudhSagarMart</p>
-  </footer>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SudhSagarMart - About Us</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <nav>
-      <h1>SudhSagarMart</h1>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="products.html">Products</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+<div class="logo">
+Sudh Sagar Mart
+</div>
 
-  <section>
-    <h2>About Us</h2>
-    <p>SudhSagarMart is your trusted source for pure masala and wheat products. We believe in quality, tradition, and customer satisfaction.</p>
-  </section>
+<div class="search">
+<input
+id="search"
+type="text"
+placeholder="Search products..."
+oninput="showProducts()">
+</div>
 
-  <footer>
-    <p>© 2026 SudhSagarMart</p>
-  </footer>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SudhSagarMart - Contact</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <nav>
-      <h1>SudhSagarMart</h1>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="products.html">Products</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+<button
+class="cartBtn"
+onclick="openCart()">
 
-  <section>
-    <h2>Contact Us</h2>
-    <form>
-      <input type="text" placeholder="Your Name" required>
-      <input type="email" placeholder="Your Email" required>
-      <textarea placeholder="Your Message"></textarea>
-      <button type="submit">Send</button>
-    </form>
-  </section>
+🛒 Cart
+(<span id="cartCount">0</span>)
 
-  <footer>
-    <p>© 2026 SudhSagarMart</p>
-  </footer>
+</button>
+
+<button
+class="accountBtn"
+onclick="openAccount()">
+
+👤 Account
+
+</button>
+
+</div>
+
+<div class="nav">
+
+<a href="#home">Home</a>
+
+<a href="#products">Products</a>
+
+<a href="#" onclick="openOrders()">
+My Orders
+</a>
+
+<a href="seller.html">
+Seller Panel
+</a>
+
+<a href="admin.html">
+Company Panel
+</a>
+
+</div>
+
+</header>
+
+
+<!-- HERO -->
+
+<section class="hero" id="home">
+
+<h1>
+Welcome to Sudh Sagar Mart
+</h1>
+
+<p>
+Grocery, Masala, Food aur Daily Use Products
+</p>
+
+<button
+class="shop"
+onclick="document.getElementById('products').scrollIntoView()">
+
+Shop Now
+
+</button>
+
+</section>
+
+
+<!-- MAIN -->
+
+<div class="container">
+
+<div class="categories">
+
+<button
+class="category active"
+onclick="setCategory('All',this)">
+All
+</button>
+
+<button
+class="category"
+onclick="setCategory('Grocery',this)">
+Grocery
+</button>
+
+<button
+class="category"
+onclick="setCategory('Masala',this)">
+Masala
+</button>
+
+<button
+class="category"
+onclick="setCategory('Food',this)">
+Food
+</button>
+
+<button
+class="category"
+onclick="setCategory('Other',this)">
+Other
+</button>
+
+</div>
+
+
+<div class="title">
+
+<h2 id="products">
+Products
+</h2>
+
+<span id="productCount">
+</span>
+
+</div>
+
+
+<div
+class="products"
+id="productList">
+</div>
+
+</div>
+
+
+<!-- CART -->
+
+<div
+class="overlay"
+id="overlay"
+onclick="closeCart()">
+</div>
+
+
+<div
+class="cart"
+id="cartPanel">
+
+<div class="cartHead">
+
+<b>
+🛒 My Cart
+</b>
+
+<button
+class="close"
+onclick="closeCart()">
+×
+</button>
+
+</div>
+
+
+<div
+class="cartBody"
+id="cartItems">
+</div>
+
+
+<div class="cartBottom">
+
+<div class="total">
+
+Total:
+₹<span id="cartTotal">0</span>
+
+</div>
+
+<button
+class="checkoutBtn"
+onclick="checkout()">
+
+Proceed to Checkout
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ACCOUNT -->
+
+<div
+class="modal"
+id="accountModal">
+
+<div class="modalBox">
+
+<h2>
+Customer Account
+</h2>
+
+<input
+id="accountName"
+placeholder="Full Name">
+
+<input
+id="accountPhone"
+placeholder="Mobile Number">
+
+<input
+id="accountEmail"
+placeholder="Email">
+
+<button
+class="primary"
+onclick="saveAccount()">
+
+Save Account
+
+</button>
+
+<button
+class="primary secondary"
+onclick="closeModal('accountModal')">
+
+Close
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- CHECKOUT -->
+
+<div
+class="modal"
+id="checkoutModal">
+
+<div class="modalBox">
+
+<h2>
+Checkout
+</h2>
+
+<p>
+Order Total:
+<b>
+₹<span id="checkoutTotal">0</span>
+</b>
+</p>
+
+<input
+id="customerName"
+placeholder="Full Name">
+
+<input
+id="customerPhone"
+placeholder="Mobile Number">
+
+<textarea
+id="customerAddress"
+rows="4"
+placeholder="Complete Address">
+</textarea>
+
+<input
+id="customerPincode"
+placeholder="Pincode">
+
+<select id="paymentMethod">
+
+<option value="cod">
+Cash on Delivery
+</option>
+
+<option value="razorpay">
+Razorpay Online Payment
+</option>
+
+</select>
+
+<button
+class="primary"
+onclick="placeOrder()">
+
+Place Order
+
+</button>
+
+<button
+class="primary secondary"
+onclick="closeModal('checkoutModal')">
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ORDERS -->
+
+<div
+class="modal"
+id="ordersModal">
+
+<div class="modalBox">
+
+<h2>
+My Orders
+</h2>
+
+<div id="ordersList">
+</div>
+
+<button
+class="primary secondary"
+onclick="closeModal('ordersModal')">
+
+Close
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+<h3>
+Sudh Sagar Mart
+</h3>
+
+<p>
+Online Shopping Marketplace
+</p>
+
+<br>
+
+<a href="#home">
+Home
+</a>
+
+<a href="seller.html">
+Seller
+</a>
+
+<a href="admin.html">
+Company
+</a>
+
+<p style="margin-top:15px">
+© 2026 Sudh Sagar Mart
+</p>
+
+</footer>
+
+
+<script>
+
+/* ============================
+   PRODUCTS
+============================ */
+
+const products = [
+
+{
+id:"P001",
+name:"Premium Masala",
+category:"Masala",
+price:100,
+oldPrice:120,
+stock:50,
+image:"https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=700&q=80"
+},
+
+{
+id:"P002",
+name:"Basmati Rice 5 KG",
+category:"Grocery",
+price:450,
+oldPrice:500,
+stock:30,
+image:"https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=700&q=80"
+},
+
+{
+id:"P003",
+name:"Wheat Flour 5 KG",
+category:"Grocery",
+price:260,
+oldPrice:290,
+stock:40,
+image:"https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=700&q=80"
+},
+
+{
+id:"P004",
+name:"Cooking Oil 1 L",
+category:"Grocery",
+price:145,
+oldPrice:165,
+stock:50,
+image:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=700&q=80"
+},
+
+{
+id:"P005",
+name:"Tea 250 Gram",
+category:"Food",
+price:120,
+oldPrice:140,
+stock:50,
+image:"https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=700&q=80"
+},
+
+{
+id:"P006",
+name:"Sugar 1 KG",
+category:"Grocery",
+price:55,
+oldPrice:65,
+stock:100,
+image:"https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?auto=format&fit=crop&w=700&q=80"
+},
+
+{
+id:"P007",
+name:"Red Chilli Powder",
+category:"Masala",
+price:90,
+oldPrice:105,
+stock:60,
+image:"https://images.unsplash.com/photo-1596040032279-5b8c1f5f1a9d?auto=format&fit=crop&w=700&q=80"
+},
+
+{
+id:"P008",
+name:"Turmeric Powder",
+category:"Masala",
+price:85,
+oldPrice:100,
+stock:60,
+image:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=700&q=80"
+}
+
+];
+
+
+/* ============================
+   VARIABLES
+============================ */
+
+let selectedCategory="All";
+
+let cart=
+JSON.parse(
+localStorage.getItem("ssm_cart") || "[]"
+);
+
+let orders=
+JSON.parse(
+localStorage.getItem("ssm_orders") || "[]"
+);
+
+
+/* ============================
+   PRODUCTS SHOW
+============================ */
+
+function showProducts(){
+
+let search=
+document.getElementById("search")
+.value
+.toLowerCase();
+
+let list=
+products.filter(function(product){
+
+let categoryOK=
+selectedCategory==="All" ||
+product.category===selectedCategory;
+
+let searchOK=
+product.name
+.toLowerCase()
+.includes(search);
+
+return categoryOK && searchOK;
+
+});
+
+
+document.getElementById("productCount")
+.innerText=
+list.length+" Products";
+
+
+document.getElementById("productList")
+.innerHTML=
+list.map(function(product){
+
+return `
+
+<div class="product">
+
+<img
+src="${product.image}"
+alt="${product.name}">
+
+<div class="info">
+
+<div class="categoryName">
+${product.category}
+</div>
+
+<div class="name">
+${product.name}
+</div>
+
+<div class="price">
+
+₹${product.price}
+
+<span class="old">
+₹${product.oldPrice}
+</span>
+
+</div>
+
+<div class="categoryName">
+Stock: ${product.stock}
+</div>
+
+<br>
+
+<button
+class="add"
+onclick="addToCart('${product.id}')">
+
+🛒 Add to Cart
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+/* ============================
+   CATEGORY
+============================ */
+
+function setCategory(category,button){
+
+selectedCategory=category;
+
+document
+.querySelectorAll(".category")
+.forEach(function(btn){
+
+btn.classList.remove("active");
+
+});
+
+button.classList.add("active");
+
+showProducts();
+
+}
+
+
+/* ============================
+   CART
+============================ */
+
+function addToCart(id){
+
+let item=
+cart.find(function(x){
+return x.id===id;
+});
+
+
+if(item){
+
+item.quantity++;
+
+}else{
+
+cart.push({
+id:id,
+quantity:1
+});
+
+}
+
+
+saveCart();
+
+renderCart();
+
+openCart();
+
+}
+
+
+function saveCart(){
+
+localStorage.setItem(
+"ssm_cart",
+JSON.stringify(cart)
+);
+
+}
+
+
+function renderCart(){
+
+let html="";
+
+let total=0;
+
+let count=0;
+
+
+cart.forEach(function(item,index){
+
+let product=
+products.find(
+function(p){
+return p.id===item.id;
+});
+
+
+if(!product)return;
+
+
+let amount=
+product.price*item.quantity;
+
+
+total+=amount;
+
+count+=item.quantity;
+
+
+html+=`
+
+<div class="cartItem">
+
+<img
+src="${product.image}">
+
+<div class="cartInfo">
+
+<b>
+${product.name}
+</b>
+
+<p>
+₹${product.price}
+</p>
+
+<div class="qty">
+
+<button
+onclick="changeQuantity(${index},-1)">
+−
+</button>
+
+<b>
+${item.quantity}
+</b>
+
+<button
+onclick="changeQuantity(${index},1)">
++
+</button>
+
+<button
+class="remove"
+onclick="removeCart(${index})">
+
+Remove
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+
+if(cart.length===0){
+
+html=
+`<div class="empty">
+Cart khali hai.
+</div>`;
+
+}
+
+
+document.getElementById("cartItems")
+.innerHTML=html;
+
+
+document.getElementById("cartTotal")
+.innerText=
+total.toLocaleString("en-IN");
+
+
+document.getElementById("cartCount")
+.innerText=count;
+
+}
+
+
+function changeQuantity(index,value){
+
+cart[index].quantity+=value;
+
+
+if(cart[index].quantity<=0){
+
+cart.splice(index,1);
+
+}
+
+
+saveCart();
+
+renderCart();
+
+}
+
+
+function removeCart(index){
+
+cart.splice(index,1);
+
+saveCart();
+
+renderCart();
+
+}
+
+
+/* ============================
+   CART OPEN
+============================ */
+
+function openCart(){
+
+document
+.getElementById("cartPanel")
+.classList.add("open");
+
+document
+.getElementById("overlay")
+.classList.add("show");
+
+}
+
+
+function closeCart(){
+
+document
+.getElementById("cartPanel")
+.classList.remove("open");
+
+document
+.getElementById("overlay")
+.classList.remove("show");
+
+}
+
+
+/* ============================
+   CHECKOUT
+============================ */
+
+function checkout(){
+
+if(cart.length===0){
+
+alert("Cart empty hai.");
+
+return;
+
+}
+
+
+let total=
+calculateTotal();
+
+
+document
+.getElementById("checkoutTotal")
+.innerText=
+total.toLocaleString("en-IN");
+
+
+closeCart();
+
+document
+.getElementById("checkoutModal")
+.classList.add("show");
+
+}
+
+
+function calculateTotal(){
+
+let total=0;
+
+
+cart.forEach(function(item){
+
+let product=
+products.find(
+function(p){
+return p.id===item.id;
+});
+
+
+if(product){
+
+total+=
+product.price*
+item.quantity;
+
+}
+
+});
+
+
+return total;
+
+}
+
+
+/* ============================
+   PLACE ORDER
+============================ */
+
+function placeOrder(){
+
+let name=
+document
+.getElementById("customerName")
+.value.trim();
+
+
+let phone=
+document
+.getElementById("customerPhone")
+.value.trim();
+
+
+let address=
+document
+.getElementById("customerAddress")
+.value.trim();
+
+
+let pincode=
+document
+.getElementById("customerPincode")
+.value.trim();
+
+
+let payment=
+document
+.getElementById("paymentMethod")
+.value;
+
+
+if(
+!name ||
+!phone ||
+!address ||
+!pincode
+){
+
+alert(
+"Name, Mobile, Address aur Pincode bharein."
+);
+
+return;
+
+}
+
+
+let order={
+
+orderId:
+"SSM"+Date.now(),
+
+date:
+new Date().toLocaleString("en-IN"),
+
+customer:{
+name:name,
+phone:phone,
+address:address,
+pincode:pincode
+},
+
+items:cart,
+
+total:
+calculateTotal(),
+
+paymentMethod:
+payment,
+
+paymentStatus:
+payment==="cod"
+?"COD"
+:"PAYMENT_PENDING",
+
+status:
+"Order Received"
+
+};
+
+
+orders.unshift(order);
+
+
+localStorage.setItem(
+"ssm_orders",
+JSON.stringify(orders)
+);
+
+
+if(payment==="razorpay"){
+
+alert(
+"Razorpay ke liye secure backend/order API connect karna hoga. Order abhi PAYMENT_PENDING me save hua hai."
+);
+
+}else{
+
+alert(
+"Order successfully place ho gaya.\nOrder ID: "+
+order.orderId
+);
+
+}
+
+
+cart=[];
+
+saveCart();
+
+renderCart();
+
+closeModal("checkoutModal");
+
+}
+
+
+/* ============================
+   ACCOUNT
+============================ */
+
+function openAccount(){
+
+document
+.getElementById("accountModal")
+.classList.add("show");
+
+}
+
+
+function saveAccount(){
+
+let account={
+
+name:
+document.getElementById("accountName").value,
+
+phone:
+document.getElementById("accountPhone").value,
+
+email:
+document.getElementById("accountEmail").value
+
+};
+
+
+localStorage.setItem(
+"ssm_customer",
+JSON.stringify(account)
+);
+
+
+alert("Customer account save ho gaya.");
+
+closeModal("accountModal");
+
+}
+
+
+/* ============================
+   ORDERS
+============================ */
+
+function openOrders(){
+
+let html="";
+
+
+if(orders.length===0){
+
+html=
+`<div class="empty">
+Abhi koi order nahi hai.
+</div>`;
+
+}else{
+
+
+orders.forEach(function(order){
+
+html+=`
+
+<div class="order">
+
+<b>
+Order ID:
+${order.orderId}
+</b>
+
+<br><br>
+
+Date:
+${order.date}
+
+<br>
+
+Amount:
+<b>
+₹${order.total}
+</b>
+
+<br>
+
+Payment:
+${order.paymentStatus}
+
+<br>
+
+Status:
+<b>
+${order.status}
+</b>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+document
+.getElementById("ordersList")
+.innerHTML=html;
+
+
+document
+.getElementById("ordersModal")
+.classList.add("show");
+
+}
+
+
+/* ============================
+   CLOSE MODAL
+============================ */
+
+function closeModal(id){
+
+document
+.getElementById(id)
+.classList.remove("show");
+
+}
+
+
+/* ============================
+   START
+============================ */
+
+showProducts();
+
+renderCart();
+
+</script>
+
 </body>
 </html>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-header {
-  background: #ff6600;
-  color: white;
-  padding: 10px;
-}
-
-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-}
-
-nav a {
-  color: white;
-  text-decoration: none;
-}
-
-.hero {
-  text-align: center;
-  padding: 60px;
-  background: url('images/banner.jpg') no-repeat center center/cover;
-  color: white;
-}
-
-.btn {
-  background: #ff6600;
-  color: white;
-  padding: 10px 20px;
-  text-decoration: none;
-}
-
-.product-card {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin: 10px;
-  display: inline-block;
-  width: 200px;
-  text-align: center;
-  box-shadow: 2px 2px 5px #ccc;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  width: 300px;
-  margin: auto;
-}
-
-form input, form textarea, form button {
-  margin: 5px 0;
-  padding: 10px;
-}
-
-
-
