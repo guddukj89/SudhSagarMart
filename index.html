@@ -493,6 +493,22 @@ window.firebaseForgotPassword=async(email)=>sendPasswordResetEmail(auth,email);
 window.firebaseLogout=async()=>{await signOut(auth);user=null;renderAccount()};
 window.firebaseChangePassword=async(currentPassword,newPassword)=>{if(!auth.currentUser||!auth.currentUser.email)throw new Error('Phone OTP account me email-password login nahi hai.');const cred=EmailAuthProvider.credential(auth.currentUser.email,currentPassword);await reauthenticateWithCredential(auth.currentUser,cred);await updatePassword(auth.currentUser,newPassword)};
 onAuthStateChanged(auth,fbUser=>{user=fbUser;firebaseReady=true;renderAccount()});
+</script><script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+    authDomain: "sudhsagarmart.firebaseapp.com",
+    projectId: "sudhsagarmart",
+    storageBucket: "sudhsagarmart.firebasestorage.app",
+    messagingSenderId: "682379938859",
+    appId: "1:682379938859:web:c58609e79da3ec00e72e6e",
+    measurementId: "G-PCFM1V926Y"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 </script>
 </body>
 </html>
