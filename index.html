@@ -7,65 +7,74 @@
 <title>Sudh Sagar Mart</title>
 
 <style>
+
 *{
   box-sizing:border-box;
   margin:0;
   padding:0;
-  font-family:Arial,sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
   background:#f6f6f8;
-  color:#333;
+  color:#222;
 }
 
+/* HEADER */
+
 header{
-  background:#ffffff;
-  border-bottom:1px solid #ddd;
+  background:#fff;
   position:sticky;
   top:0;
   z-index:100;
+  border-bottom:1px solid #ddd;
 }
 
-.top{
+.topbar{
   display:flex;
   align-items:center;
   gap:12px;
-  padding:12px 18px;
+  padding:10px 18px;
 }
 
-.logo{
-  font-size:25px;
-  font-weight:bold;
-  color:#9c087e;
-  white-space:nowrap;
-}
-
-.menuBtn{
+.menu{
   font-size:25px;
   cursor:pointer;
   display:none;
 }
 
-.search{
-  flex:1;
-  border:1px solid #aaa;
-  border-radius:7px;
-  padding:12px;
-  font-size:15px;
+.logo{
+  font-size:25px;
+  font-weight:bold;
+  color:#8e0878;
+  white-space:nowrap;
 }
 
-.iconBtn{
+.searchBox{
+  flex:1;
+  position:relative;
+}
+
+.searchBox input{
+  width:100%;
+  padding:13px 18px;
+  border:1px solid #aaa;
+  border-radius:8px;
+  outline:none;
+  font-size:14px;
+}
+
+.headerIcon{
   border:0;
   background:white;
-  font-size:24px;
+  font-size:23px;
   cursor:pointer;
 }
 
 .nav{
   display:flex;
-  gap:25px;
-  padding:0 18px 12px;
+  gap:28px;
+  padding:0 18px 11px;
   font-size:14px;
 }
 
@@ -73,120 +82,167 @@ header{
   cursor:pointer;
 }
 
+/* LOCATION */
+
 .location{
   background:#fff;
   border-top:1px solid #eee;
   border-bottom:1px solid #eee;
-  padding:13px 18px;
+  padding:12px 18px;
   cursor:pointer;
-  color:#444;
 }
 
 .location strong{
-  color:#9c087e;
+  color:#8e0878;
 }
+
+/* DELIVERY */
+
+.delivery{
+  background:#fff5df;
+  padding:10px 18px;
+  color:#333;
+  font-size:14px;
+}
+
+.delivery b{
+  color:#168000;
+}
+
+/* CATEGORY */
 
 .categories{
   display:flex;
   overflow-x:auto;
-  gap:20px;
-  background:white;
-  padding:15px;
+  gap:18px;
+  padding:14px;
+  background:#fff;
 }
 
-.cat{
-  min-width:80px;
+.category{
+  min-width:82px;
   text-align:center;
   cursor:pointer;
 }
 
-.catImg{
-  width:65px;
-  height:65px;
-  margin:auto;
+.categoryIcon{
+  width:62px;
+  height:62px;
   border-radius:50%;
-  background:#f1e7ef;
+  background:#f2e5ef;
   display:flex;
   justify-content:center;
   align-items:center;
-  font-size:30px;
+  margin:auto;
+  font-size:29px;
 }
 
-.cat p{
+.category p{
   margin-top:7px;
   font-size:12px;
 }
 
+/* HERO */
+
 .hero{
-  margin:15px;
-  border-radius:12px;
-  padding:30px 22px;
-  background:linear-gradient(120deg,#9c087e,#d72eb3);
+  margin:14px;
+  border-radius:14px;
+  padding:28px 22px;
   color:white;
+  background:linear-gradient(120deg,#8e0878,#d728ae);
 }
 
 .hero h1{
-  font-size:27px;
+  font-size:28px;
   margin-bottom:10px;
 }
 
 .hero p{
-  margin-bottom:18px;
+  line-height:1.5;
+  margin-bottom:17px;
 }
 
-.shop{
+.shopBtn{
+  background:#fff;
+  color:#8e0878;
   border:0;
-  background:white;
-  color:#9c087e;
-  padding:11px 22px;
-  border-radius:20px;
+  padding:11px 23px;
+  border-radius:22px;
   font-weight:bold;
+  cursor:pointer;
 }
+
+/* CHIPS */
 
 .chips{
   display:flex;
   overflow-x:auto;
   gap:8px;
-  padding:5px 15px 15px;
+  padding:4px 14px 15px;
 }
 
 .chip{
   white-space:nowrap;
-  padding:9px 15px;
   border:1px solid #ddd;
-  border-radius:20px;
   background:#fff;
+  border-radius:20px;
+  padding:9px 15px;
+  cursor:pointer;
 }
 
 .chip.active{
-  background:#9c087e;
-  color:white;
+  background:#8e0878;
+  color:#fff;
 }
 
+/* TITLE */
+
 .sectionTitle{
-  padding:10px 15px;
+  padding:12px 15px;
   font-size:23px;
-  font-weight:bold;
 }
+
+.resultCount{
+  padding:0 15px 8px;
+  color:#777;
+  font-size:13px;
+}
+
+/* PRODUCTS */
 
 .products{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:12px;
-  padding:15px;
+  padding:12px 15px;
 }
 
 .product{
-  background:white;
-  border-radius:9px;
-  overflow:hidden;
+  background:#fff;
   border:1px solid #ddd;
+  border-radius:10px;
+  overflow:hidden;
+  position:relative;
 }
 
-.product img{
+.productImg{
   width:100%;
   height:210px;
   object-fit:cover;
+}
+
+.heart{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:34px;
+  height:34px;
+  border:0;
+  background:white;
+  border-radius:50%;
+  font-size:19px;
+  cursor:pointer;
+  box-shadow:0 1px 5px #aaa;
 }
 
 .info{
@@ -204,7 +260,7 @@ header{
 }
 
 .price{
-  color:#087ea4;
+  color:#087fa5;
   font-size:18px;
   font-weight:bold;
 }
@@ -216,51 +272,25 @@ header{
   margin-left:5px;
 }
 
-.cartBtn{
+.stock{
+  color:#777;
+  font-size:12px;
+  margin-top:5px;
+}
+
+.addBtn{
   width:100%;
-  border:0;
-  background:#9c087e;
-  color:white;
-  padding:11px;
-  border-radius:5px;
   margin-top:9px;
-}
-
-.drawer{
-  position:fixed;
-  top:0;
-  left:-330px;
-  width:330px;
-  height:100%;
-  background:white;
-  z-index:500;
-  transition:.3s;
-  box-shadow:2px 0 10px #555;
-  overflow-y:auto;
-}
-
-.drawer.open{
-  left:0;
-}
-
-.drawerHead{
-  padding:25px 20px;
-  border-bottom:1px solid #ddd;
-}
-
-.drawerHead h2{
-  color:#9c087e;
-}
-
-.drawerItem{
-  padding:16px 20px;
-  border-bottom:1px solid #eee;
+  padding:11px;
+  border:0;
+  background:#8e0878;
+  color:#fff;
+  border-radius:6px;
   cursor:pointer;
+  font-weight:bold;
 }
 
-.drawerItem:hover{
-  background:#f7f7f7;
-}
+/* DRAWER */
 
 .overlay{
   display:none;
@@ -274,14 +304,52 @@ header{
   display:block;
 }
 
+.drawer{
+  position:fixed;
+  left:-340px;
+  top:0;
+  width:320px;
+  height:100%;
+  background:#fff;
+  z-index:500;
+  transition:.3s;
+  overflow-y:auto;
+  box-shadow:3px 0 15px #555;
+}
+
+.drawer.open{
+  left:0;
+}
+
+.drawerHead{
+  padding:25px 20px;
+  border-bottom:1px solid #ddd;
+}
+
+.drawerHead h2{
+  color:#8e0878;
+}
+
+.drawerItem{
+  padding:16px 20px;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+}
+
+.drawerItem:hover{
+  background:#f7f7f7;
+}
+
+/* MODAL */
+
 .modal{
   display:none;
   position:fixed;
   inset:0;
-  z-index:600;
-  background:rgba(0,0,0,.45);
-  justify-content:center;
+  background:rgba(0,0,0,.5);
+  z-index:700;
   align-items:center;
+  justify-content:center;
 }
 
 .modal.show{
@@ -289,15 +357,23 @@ header{
 }
 
 .modalBox{
-  background:white;
   width:92%;
-  max-width:450px;
-  border-radius:12px;
+  max-width:460px;
+  max-height:90vh;
+  overflow-y:auto;
+  background:#fff;
+  border-radius:13px;
   padding:22px;
 }
 
+.close{
+  float:right;
+  font-size:25px;
+  cursor:pointer;
+}
+
 .modalBox h2{
-  margin-bottom:15px;
+  margin-bottom:17px;
 }
 
 .modalBox input,
@@ -307,39 +383,70 @@ header{
   padding:12px;
   margin:7px 0;
   border:1px solid #bbb;
-  border-radius:6px;
+  border-radius:7px;
+  outline:none;
 }
 
-.saveBtn{
+.primaryBtn{
   width:100%;
-  background:#9c087e;
-  color:white;
-  border:0;
   padding:13px;
-  border-radius:6px;
+  background:#8e0878;
+  color:#fff;
+  border:0;
+  border-radius:7px;
   margin-top:10px;
-}
-
-.closeBtn{
-  float:right;
-  font-size:22px;
   cursor:pointer;
+  font-weight:bold;
 }
 
-.account{
+/* CART */
+
+.cartItem{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #ddd;
+  padding:12px 0;
+}
+
+.qty{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.qty button{
+  width:30px;
+  height:30px;
+  border:1px solid #aaa;
+  background:#fff;
+  border-radius:5px;
+}
+
+.total{
+  margin-top:15px;
+  padding-top:15px;
+  border-top:2px solid #ddd;
+  font-size:19px;
+  font-weight:bold;
+}
+
+/* ACCOUNT */
+
+.accountBox{
   display:none;
   position:fixed;
   top:65px;
-  right:10px;
+  right:12px;
   width:320px;
-  background:white;
+  background:#fff;
   z-index:300;
-  box-shadow:0 3px 15px #999;
   border-radius:10px;
+  box-shadow:0 3px 18px #999;
   overflow:hidden;
 }
 
-.account.show{
+.accountBox.show{
   display:block;
 }
 
@@ -354,22 +461,56 @@ header{
   cursor:pointer;
 }
 
+/* QUICK BOX */
+
+.quick{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  padding:10px 15px;
+}
+
+.quickCard{
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:15px 8px;
+  text-align:center;
+}
+
+.quickCard div{
+  font-size:27px;
+}
+
+.quickCard p{
+  font-size:12px;
+  margin-top:7px;
+}
+
+/* FOOTER */
+
 footer{
   background:#202020;
-  color:white;
+  color:#fff;
   text-align:center;
   padding:35px 15px;
   margin-top:30px;
 }
 
+footer p{
+  margin-top:8px;
+}
+
+/* MOBILE */
+
 @media(max-width:700px){
 
-  .top{
-    padding:10px;
-    gap:8px;
+  .topbar{
+    padding:9px;
+    gap:7px;
   }
 
-  .menuBtn{
+  .menu{
     display:block;
   }
 
@@ -377,15 +518,31 @@ footer{
     font-size:19px;
   }
 
-  .search{
-    width:100%;
-    padding:9px;
+  .searchBox input{
+    padding:10px;
+  }
+
+  .headerIcon{
+    font-size:20px;
   }
 
   .nav{
-    padding:0 12px 9px;
-    gap:15px;
+    padding:0 10px 9px;
+    gap:16px;
     font-size:12px;
+  }
+
+  .categories{
+    gap:15px;
+  }
+
+  .hero{
+    margin:8px;
+    padding:24px 18px;
+  }
+
+  .hero h1{
+    font-size:24px;
   }
 
   .products{
@@ -394,50 +551,62 @@ footer{
     gap:8px;
   }
 
-  .product img{
+  .productImg{
     height:180px;
   }
 
-  .hero{
-    margin:8px;
+  .sectionTitle{
+    font-size:21px;
+  }
+
+  .quick{
+    grid-template-columns:repeat(2,1fr);
+    padding:8px;
   }
 
   .drawer{
     width:310px;
   }
 }
+
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
+
 <header>
 
-<div class="top">
+<div class="topbar">
 
-<div class="menuBtn" onclick="openMenu()">☰</div>
+<div class="menu" onclick="openMenu()">☰</div>
 
 <div class="logo">Sudh Sagar Mart</div>
 
+<div class="searchBox">
 <input
-class="search"
 id="search"
-placeholder="Search for Sarees, Kurtis, Grocery, Cosmetics, etc."
+type="text"
+placeholder="Search products, grocery, fashion, electronics..."
 onkeyup="searchProducts()">
+</div>
 
-<button class="iconBtn">♡</button>
+<button class="headerIcon" onclick="showWishlist()">♡</button>
 
-<button class="iconBtn" onclick="showCart()">🛒</button>
+<button class="headerIcon" onclick="showCart()">🛒</button>
 
-<button class="iconBtn" onclick="openAccount()">👤</button>
+<button class="headerIcon" onclick="openAccount()">👤</button>
 
 </div>
 
 <div class="nav">
+
 <span onclick="home()">Home</span>
 <span onclick="allProducts()">Categories</span>
-<span onclick="myOrders()">My Orders</span>
-<span onclick="help()">Help</span>
+<span onclick="showOrders()">My Orders</span>
+<span onclick="openHelp()">Help</span>
+
 </div>
 
 <div class="location" onclick="openLocation()">
@@ -446,28 +615,87 @@ onkeyup="searchProducts()">
 
 </header>
 
+<!-- DELIVERY -->
 
-<!-- CATEGORY BAR -->
+<div class="delivery">
+⚡ <b>10-minute delivery</b> available in selected service areas
+</div>
+
+<!-- CATEGORIES -->
 
 <div class="categories">
 
-<div class="cat"><div class="catImg">👗</div><p>Women Fashion</p></div>
-<div class="cat"><div class="catImg">👔</div><p>Men Fashion</p></div>
-<div class="cat"><div class="catImg">🧸</div><p>Kids & Toys</p></div>
-<div class="cat"><div class="catImg">👟</div><p>Footwear</p></div>
-<div class="cat"><div class="catImg">💄</div><p>Beauty</p></div>
-<div class="cat"><div class="catImg">🌾</div><p>Grocery</p></div>
-<div class="cat"><div class="catImg">📱</div><p>Electronics</p></div>
-<div class="cat"><div class="catImg">🏠</div><p>Home & Kitchen</p></div>
-<div class="cat"><div class="catImg">💍</div><p>Jewellery</p></div>
-<div class="cat"><div class="catImg">🎒</div><p>Bags & Luggage</p></div>
-<div class="cat"><div class="catImg">🏋️</div><p>Sports</p></div>
-<div class="cat"><div class="catImg">🚗</div><p>Automotive</p></div>
-<div class="cat"><div class="catImg">🐶</div><p>Pet Supplies</p></div>
-<div class="cat"><div class="catImg">📚</div><p>Stationery</p></div>
-
+<div class="category" onclick="filterCategory('Women Fashion')">
+<div class="categoryIcon">👗</div>
+<p>Women Fashion</p>
 </div>
 
+<div class="category" onclick="filterCategory('Men Fashion')">
+<div class="categoryIcon">👔</div>
+<p>Men Fashion</p>
+</div>
+
+<div class="category" onclick="filterCategory('Kids & Toys')">
+<div class="categoryIcon">🧸</div>
+<p>Kids & Toys</p>
+</div>
+
+<div class="category" onclick="filterCategory('Footwear')">
+<div class="categoryIcon">👟</div>
+<p>Footwear</p>
+</div>
+
+<div class="category" onclick="filterCategory('Beauty')">
+<div class="categoryIcon">💄</div>
+<p>Beauty</p>
+</div>
+
+<div class="category" onclick="filterCategory('Grocery')">
+<div class="categoryIcon">🛒</div>
+<p>Grocery</p>
+</div>
+
+<div class="category" onclick="filterCategory('Electronics')">
+<div class="categoryIcon">📱</div>
+<p>Electronics</p>
+</div>
+
+<div class="category" onclick="filterCategory('Home & Kitchen')">
+<div class="categoryIcon">🏠</div>
+<p>Home & Kitchen</p>
+</div>
+
+<div class="category" onclick="filterCategory('Jewellery')">
+<div class="categoryIcon">💍</div>
+<p>Jewellery</p>
+</div>
+
+<div class="category" onclick="filterCategory('Bags & Luggage')">
+<div class="categoryIcon">🎒</div>
+<p>Bags & Luggage</p>
+</div>
+
+<div class="category" onclick="filterCategory('Sports')">
+<div class="categoryIcon">🏋️</div>
+<p>Sports</p>
+</div>
+
+<div class="category" onclick="filterCategory('Automotive')">
+<div class="categoryIcon">🚗</div>
+<p>Automotive</p>
+</div>
+
+<div class="category" onclick="filterCategory('Pet Supplies')">
+<div class="categoryIcon">🐶</div>
+<p>Pet Supplies</p>
+</div>
+
+<div class="category" onclick="filterCategory('Stationery')">
+<div class="categoryIcon">📚</div>
+<p>Stationery</p>
+</div>
+
+</div>
 
 <!-- HERO -->
 
@@ -476,179 +704,362 @@ onkeyup="searchProducts()">
 <h1>Welcome to Sudh Sagar Mart</h1>
 
 <p>
-Fashion, Grocery, Beauty, Electronics,
-Home & Kitchen and many more.
+Fresh Grocery, Fashion, Beauty, Electronics,
+Home & Kitchen and many more products.
 </p>
 
-<button class="shop" onclick="allProducts()">Shop Now</button>
+<button class="shopBtn" onclick="allProducts()">
+Shop Now
+</button>
 
 </section>
 
+<!-- QUICK SERVICES -->
 
-<!-- CATEGORY FILTER -->
+<div class="quick">
+
+<div class="quickCard">
+<div>⚡</div>
+<p>Fast Delivery</p>
+</div>
+
+<div class="quickCard">
+<div>🛡️</div>
+<p>Secure Shopping</p>
+</div>
+
+<div class="quickCard">
+<div>💳</div>
+<p>Easy Payment</p>
+</div>
+
+<div class="quickCard">
+<div>🔄</div>
+<p>Easy Returns</p>
+</div>
+
+</div>
+
+<!-- FILTER -->
 
 <div class="chips">
 
-<button class="chip active" onclick="filterCategory('All')">All</button>
-<button class="chip" onclick="filterCategory('Women Fashion')">Women Fashion</button>
-<button class="chip" onclick="filterCategory('Men Fashion')">Men Fashion</button>
-<button class="chip" onclick="filterCategory('Kids & Toys')">Kids & Toys</button>
-<button class="chip" onclick="filterCategory('Footwear')">Footwear</button>
-<button class="chip" onclick="filterCategory('Beauty')">Beauty</button>
-<button class="chip" onclick="filterCategory('Grocery')">Grocery</button>
-<button class="chip" onclick="filterCategory('Electronics')">Electronics</button>
-<button class="chip" onclick="filterCategory('Home & Kitchen')">Home & Kitchen</button>
+<button class="chip active"
+onclick="filterCategory('All',this)">
+All
+</button>
+
+<button class="chip"
+onclick="filterCategory('Women Fashion',this)">
+Women
+</button>
+
+<button class="chip"
+onclick="filterCategory('Men Fashion',this)">
+Men
+</button>
+
+<button class="chip"
+onclick="filterCategory('Kids & Toys',this)">
+Kids
+</button>
+
+<button class="chip"
+onclick="filterCategory('Footwear',this)">
+Footwear
+</button>
+
+<button class="chip"
+onclick="filterCategory('Beauty',this)">
+Beauty
+</button>
+
+<button class="chip"
+onclick="filterCategory('Grocery',this)">
+Grocery
+</button>
+
+<button class="chip"
+onclick="filterCategory('Electronics',this)">
+Electronics
+</button>
+
+<button class="chip"
+onclick="filterCategory('Home & Kitchen',this)">
+Home
+</button>
 
 </div>
-
 
 <h2 class="sectionTitle">Products For You</h2>
 
+<div class="resultCount" id="resultCount">
+Products available
+</div>
+
+<!-- PRODUCTS -->
+
 <div class="products" id="products">
 
+<!-- 1 -->
+
 <div class="product" data-category="Grocery">
 
-<img src="https://images.unsplash.com/photo-1586201375761-83865001e31c">
+<button class="heart"
+onclick="wishlist('Basmati Rice 5 KG')">
+♡
+</button>
+
+<img class="productImg"
+src="https://images.unsplash.com/photo-1586201375761-83865001e31c">
 
 <div class="info">
+
 <div class="categoryName">Grocery</div>
+
 <h3>Basmati Rice 5 KG</h3>
+
 <span class="price">₹450</span>
 <span class="old">₹500</span>
-<button class="cartBtn" onclick="addCart('Basmati Rice 5 KG',450)">
+
+<div class="stock">In stock</div>
+
+<button class="addBtn"
+onclick="addCart('Basmati Rice 5 KG',450)">
 🛒 Add to Cart
 </button>
-</div>
 
 </div>
+</div>
 
+<!-- 2 -->
 
 <div class="product" data-category="Grocery">
 
-<img src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5">
+<button class="heart"
+onclick="wishlist('Cooking Oil 1 L')">
+♡
+</button>
+
+<img class="productImg"
+src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5">
 
 <div class="info">
+
 <div class="categoryName">Grocery</div>
+
 <h3>Cooking Oil 1 L</h3>
+
 <span class="price">₹145</span>
 <span class="old">₹165</span>
-<button class="cartBtn" onclick="addCart('Cooking Oil 1 L',145)">
+
+<div class="stock">In stock</div>
+
+<button class="addBtn"
+onclick="addCart('Cooking Oil 1 L',145)">
 🛒 Add to Cart
 </button>
-</div>
 
 </div>
+</div>
 
+<!-- 3 -->
 
 <div class="product" data-category="Women Fashion">
 
-<img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c">
+<button class="heart"
+onclick="wishlist('Designer Saree')">
+♡
+</button>
+
+<img class="productImg"
+src="https://images.unsplash.com/photo-1610030469983-98e550d6193c">
 
 <div class="info">
+
 <div class="categoryName">Women Fashion</div>
+
 <h3>Designer Saree</h3>
+
 <span class="price">₹599</span>
 <span class="old">₹899</span>
-<button class="cartBtn" onclick="addCart('Designer Saree',599)">
+
+<div class="stock">In stock</div>
+
+<button class="addBtn"
+onclick="addCart('Designer Saree',599)">
 🛒 Add to Cart
 </button>
-</div>
 
 </div>
+</div>
 
+<!-- 4 -->
 
 <div class="product" data-category="Men Fashion">
 
-<img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab">
+<button class="heart"
+onclick="wishlist('Men Cotton T-Shirt')">
+♡
+</button>
+
+<img class="productImg"
+src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab">
 
 <div class="info">
+
 <div class="categoryName">Men Fashion</div>
+
 <h3>Men Cotton T-Shirt</h3>
+
 <span class="price">₹299</span>
 <span class="old">₹499</span>
-<button class="cartBtn" onclick="addCart('Men Cotton T-Shirt',299)">
+
+<div class="stock">In stock</div>
+
+<button class="addBtn"
+onclick="addCart('Men Cotton T-Shirt',299)">
 🛒 Add to Cart
 </button>
-</div>
 
 </div>
+</div>
 
+<!-- 5 -->
 
 <div class="product" data-category="Footwear">
 
-<img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff">
+<button class="heart"
+onclick="wishlist('Sports Shoes')">
+♡
+</button>
+
+<img class="productImg"
+src="https://images.unsplash.com/photo-1542291026-7eec264c27ff">
 
 <div class="info">
+
 <div class="categoryName">Footwear</div>
+
 <h3>Sports Shoes</h3>
+
 <span class="price">₹799</span>
 <span class="old">₹1200</span>
-<button class="cartBtn" onclick="addCart('Sports Shoes',799)">
+
+<div class="stock">In stock</div>
+
+<button class="addBtn"
+onclick="addCart('Sports Shoes',799)">
 🛒 Add to Cart
 </button>
-</div>
 
 </div>
+</div>
 
+<!-- 6 -->
 
 <div class="product" data-category="Beauty">
 
-<img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348">
+<button class="heart"
+onclick="wishlist('Beauty Care Kit')">
+♡
+</button>
+
+<img class="productImg"
+src="https://images.unsplash.com/photo-1596462502278-27bfdc403348">
 
 <div class="info">
+
 <div class="categoryName">Beauty</div>
+
 <h3>Beauty Care Kit</h3>
+
 <span class="price">₹399</span>
 <span class="old">₹599</span>
-<button class="cartBtn" onclick="addCart('Beauty Care Kit',399)">
+
+<div class="stock">In stock</div>
+
+<button class="addBtn"
+onclick="addCart('Beauty Care Kit',399)">
 🛒 Add to Cart
 </button>
-</div>
 
 </div>
+</div>
 
+<!-- 7 -->
 
 <div class="product" data-category="Electronics">
 
-<img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e">
+<button class="heart"
+onclick="wishlist('Wireless Headphones')">
+♡
+</button>
+
+<img class="productImg"
+src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e">
 
 <div class="info">
+
 <div class="categoryName">Electronics</div>
+
 <h3>Wireless Headphones</h3>
+
 <span class="price">₹699</span>
 <span class="old">₹999</span>
-<button class="cartBtn" onclick="addCart('Wireless Headphones',699)">
+
+<div class="stock">In stock</div>
+
+<button class="addBtn"
+onclick="addCart('Wireless Headphones',699)">
 🛒 Add to Cart
 </button>
-</div>
 
 </div>
+</div>
 
+<!-- 8 -->
 
 <div class="product" data-category="Home & Kitchen">
 
-<img src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f">
+<button class="heart"
+onclick="wishlist('Kitchen Set')">
+♡
+</button>
+
+<img class="productImg"
+src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f">
 
 <div class="info">
+
 <div class="categoryName">Home & Kitchen</div>
+
 <h3>Kitchen Set</h3>
+
 <span class="price">₹899</span>
 <span class="old">₹1299</span>
-<button class="cartBtn" onclick="addCart('Kitchen Set',899)">
+
+<div class="stock">In stock</div>
+
+<button class="addBtn"
+onclick="addCart('Kitchen Set',899)">
 🛒 Add to Cart
 </button>
+
+</div>
 </div>
 
 </div>
 
-</div>
-
+<!-- FOOTER -->
 
 <footer>
 
 <h3>Sudh Sagar Mart</h3>
 
-<p>Online Shopping Marketplace</p>
+<p>Your Online Shopping Marketplace</p>
+
+<p>Fast Delivery • Secure Shopping • Easy Returns</p>
 
 <br>
 
@@ -661,9 +1072,15 @@ Home & Kitchen and many more.
 </footer>
 
 
-<!-- SIDE MENU -->
+<!-- OVERLAY -->
 
-<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+<div class="overlay"
+id="overlay"
+onclick="closeMenu()">
+</div>
+
+
+<!-- DRAWER -->
 
 <div class="drawer" id="drawer">
 
@@ -677,27 +1094,59 @@ Shopping Menu
 
 </div>
 
-<div class="drawerItem" onclick="home()">🏠 Home</div>
+<div class="drawerItem"
+onclick="home()">
+🏠 Home
+</div>
 
-<div class="drawerItem" onclick="allProducts()">🛍️ All Products</div>
+<div class="drawerItem"
+onclick="allProducts()">
+🛍️ All Products
+</div>
 
-<div class="drawerItem" onclick="openAccount()">👤 My Account</div>
+<div class="drawerItem"
+onclick="openAccount()">
+👤 My Account
+</div>
 
-<div class="drawerItem" onclick="myOrders()">📦 My Orders</div>
+<div class="drawerItem"
+onclick="showOrders()">
+📦 My Orders
+</div>
 
-<div class="drawerItem">❤️ My Wishlist</div>
+<div class="drawerItem"
+onclick="showWishlist()">
+❤️ My Wishlist
+</div>
 
-<div class="drawerItem" onclick="openLocation()">📍 My Addresses</div>
+<div class="drawerItem"
+onclick="openLocation()">
+📍 My Addresses
+</div>
 
-<div class="drawerItem" onclick="openSettings()">⚙️ Settings</div>
+<div class="drawerItem"
+onclick="openSettings()">
+⚙️ Settings
+</div>
 
-<div class="drawerItem" onclick="help()">❓ Help & Support</div>
+<div class="drawerItem"
+onclick="openHelp()">
+❓ Help & Support
+</div>
 
-<div class="drawerItem">⚖️ Legal & Policies</div>
+<div class="drawerItem">
+⚖️ Legal & Policies
+</div>
 
-<div class="drawerItem">🏪 Become a Supplier</div>
+<div class="drawerItem"
+onclick="supplier()">
+🏪 Become a Supplier
+</div>
 
-<div class="drawerItem">🗑️ Delete Account</div>
+<div class="drawerItem"
+onclick="deleteAccount()">
+🗑️ Delete Account
+</div>
 
 </div>
 
@@ -708,24 +1157,63 @@ Shopping Menu
 
 <div class="modalBox">
 
-<span class="closeBtn" onclick="closeLocation()">×</span>
+<span class="close"
+onclick="closeLocation()">×</span>
 
 <h2>📍 Add Delivery Location</h2>
 
-<input id="name" placeholder="Full Name">
+<input id="customerName"
+placeholder="Full Name">
 
-<input id="mobile" placeholder="Mobile Number">
+<input id="customerMobile"
+placeholder="Mobile Number">
 
-<textarea id="address" placeholder="House / Flat / Street / Village"></textarea>
+<textarea
+id="customerAddress"
+placeholder="House / Flat / Street / Village"></textarea>
 
-<input id="city" placeholder="City">
+<input
+id="customerCity"
+placeholder="City">
 
-<input id="state" placeholder="State">
+<input
+id="customerState"
+placeholder="State">
 
-<input id="pincode" placeholder="Pincode">
+<input
+id="customerPincode"
+placeholder="Pincode">
 
-<button class="saveBtn" onclick="saveLocation()">
+<button class="primaryBtn"
+onclick="saveLocation()">
 Save Delivery Address
+</button>
+
+</div>
+
+</div>
+
+
+<!-- CART MODAL -->
+
+<div class="modal" id="cartModal">
+
+<div class="modalBox">
+
+<span class="close"
+onclick="closeCart()">×</span>
+
+<h2>🛒 My Cart</h2>
+
+<div id="cartList"></div>
+
+<div class="total">
+Total: ₹<span id="cartTotal">0</span>
+</div>
+
+<button class="primaryBtn"
+onclick="checkout()">
+Proceed to Checkout
 </button>
 
 </div>
@@ -735,54 +1223,140 @@ Save Delivery Address
 
 <!-- ACCOUNT -->
 
-<div class="account" id="account">
+<div class="accountBox"
+id="accountBox">
 
 <div class="accountHead">
 
 <h2>👤 Account</h2>
 
-<p style="margin-top:8px">Guest User</p>
+<p style="margin-top:8px">
+Guest User
+</p>
 
 </div>
 
-<div class="accountItem">Profile</div>
+<div class="accountItem">
+Profile
+</div>
 
-<div class="accountItem">My Orders</div>
+<div class="accountItem"
+onclick="showOrders()">
+📦 My Orders
+</div>
 
-<div class="accountItem">My Wishlist</div>
+<div class="accountItem"
+onclick="showWishlist()">
+❤️ My Wishlist
+</div>
 
-<div class="accountItem" onclick="openLocation()">📍 Delivery Addresses</div>
+<div class="accountItem"
+onclick="openLocation()">
+📍 Delivery Addresses
+</div>
 
-<div class="accountItem" onclick="openSettings()">⚙️ Settings</div>
+<div class="accountItem"
+onclick="openSettings()">
+⚙️ Settings
+</div>
 
-<div class="accountItem">❓ Help & Support</div>
+<div class="accountItem"
+onclick="openHelp()">
+❓ Help & Support
+</div>
 
-<div class="accountItem">⚖️ Legal & Policies</div>
+<div class="accountItem">
+⚖️ Legal & Policies
+</div>
 
 </div>
 
 
 <!-- SETTINGS -->
 
-<div class="modal" id="settingsModal">
+<div class="modal"
+id="settingsModal">
 
 <div class="modalBox">
 
-<span class="closeBtn" onclick="closeSettings()">×</span>
+<span class="close"
+onclick="closeSettings()">×</span>
 
 <h2>⚙️ Settings</h2>
 
-<div class="accountItem">🔔 Notifications</div>
+<div class="accountItem">
+🔔 Notifications
+</div>
 
-<div class="accountItem">🌐 Language</div>
+<div class="accountItem">
+🌐 Language
+</div>
 
-<div class="accountItem">🔐 Privacy</div>
+<div class="accountItem">
+🔐 Privacy
+</div>
 
-<div class="accountItem">🔑 Change Password</div>
+<div class="accountItem">
+🔑 Change Password
+</div>
 
-<div class="accountItem">📱 Login & Security</div>
+<div class="accountItem">
+📱 Login & Security
+</div>
 
-<div class="accountItem">📄 Terms & Conditions</div>
+<div class="accountItem">
+📄 Terms & Conditions
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CHECKOUT -->
+
+<div class="modal"
+id="checkoutModal">
+
+<div class="modalBox">
+
+<span class="close"
+onclick="closeCheckout()">×</span>
+
+<h2>🧾 Checkout</h2>
+
+<input
+id="checkoutName"
+placeholder="Full Name">
+
+<input
+id="checkoutMobile"
+placeholder="Mobile Number">
+
+<textarea
+id="checkoutAddress"
+placeholder="Delivery Address"></textarea>
+
+<select id="payment">
+
+<option value="">
+Select Payment Method
+</option>
+
+<option>
+Cash on Delivery
+</option>
+
+<option>
+UPI / Online Payment
+</option>
+
+</select>
+
+<button class="primaryBtn"
+onclick="placeOrder()">
+Place Order
+</button>
 
 </div>
 
@@ -792,23 +1366,33 @@ Save Delivery Address
 <script>
 
 let cart=[];
+let wishlistItems=[];
+let orders=[];
 
 
 /* MENU */
 
 function openMenu(){
 
-document.getElementById("drawer").classList.add("open");
+document
+.getElementById("drawer")
+.classList.add("open");
 
-document.getElementById("overlay").classList.add("show");
+document
+.getElementById("overlay")
+.classList.add("show");
 
 }
 
 function closeMenu(){
 
-document.getElementById("drawer").classList.remove("open");
+document
+.getElementById("drawer")
+.classList.remove("open");
 
-document.getElementById("overlay").classList.remove("show");
+document
+.getElementById("overlay")
+.classList.remove("show");
 
 }
 
@@ -817,197 +1401,15 @@ document.getElementById("overlay").classList.remove("show");
 
 function openAccount(){
 
-document.getElementById("account").classList.toggle("show");
+closeMenu();
+
+document
+.getElementById("accountBox")
+.classList.toggle("show");
 
 }
 
 
 /* LOCATION */
 
-function openLocation(){
-
-closeMenu();
-
-document.getElementById("locationModal").classList.add("show");
-
-}
-
-function closeLocation(){
-
-document.getElementById("locationModal").classList.remove("show");
-
-}
-
-function saveLocation(){
-
-let city=document.getElementById("city").value;
-
-let pincode=document.getElementById("pincode").value;
-
-if(!city || !pincode){
-
-alert("Please enter City and Pincode");
-
-return;
-
-}
-
-document.getElementById("locationText").innerText=
-city+" - "+pincode;
-
-closeLocation();
-
-alert("Delivery address saved successfully");
-
-}
-
-
-/* CATEGORY */
-
-function filterCategory(category){
-
-let products=document.querySelectorAll(".product");
-
-products.forEach(product=>{
-
-if(category==="All" ||
-product.dataset.category===category){
-
-product.style.display="block";
-
-}else{
-
-product.style.display="none";
-
-}
-
-});
-
-}
-
-
-/* SEARCH */
-
-function searchProducts(){
-
-let search=document
-.getElementById("search")
-.value
-.toLowerCase();
-
-let products=document.querySelectorAll(".product");
-
-products.forEach(product=>{
-
-let text=product.innerText.toLowerCase();
-
-product.style.display=
-text.includes(search) ? "block" : "none";
-
-});
-
-}
-
-
-/* CART */
-
-function addCart(name,price){
-
-cart.push({
-name:name,
-price:price
-});
-
-alert(name+" added to cart");
-
-}
-
-function showCart(){
-
-if(cart.length===0){
-
-alert("Your cart is empty");
-
-return;
-
-}
-
-let text="Your Cart:\n\n";
-
-let total=0;
-
-cart.forEach((item,i)=>{
-
-text+=(i+1)+". "+item.name+
-" - ₹"+item.price+"\n";
-
-total+=item.price;
-
-});
-
-text+="\nTotal: ₹"+total;
-
-alert(text);
-
-}
-
-
-/* OTHER */
-
-function allProducts(){
-
-closeMenu();
-
-window.scrollTo({
-top:document.querySelector(".products").offsetTop-80,
-behavior:"smooth"
-});
-
-}
-
-function home(){
-
-closeMenu();
-
-window.scrollTo({
-top:0,
-behavior:"smooth"
-});
-
-}
-
-function myOrders(){
-
-alert("My Orders section will show customer orders here.");
-
-}
-
-function help(){
-
-alert("Sudh Sagar Mart Help & Support\n\nCustomer support will be available here.");
-
-}
-
-
-/* SETTINGS */
-
-function openSettings(){
-
-closeMenu();
-
-document.getElementById("settingsModal")
-.classList.add("show");
-
-}
-
-function closeSettings(){
-
-document.getElementById("settingsModal")
-.classList.remove("show");
-
-}
-
-</script>
-
-</body>
-</html>
+function openLocation()
