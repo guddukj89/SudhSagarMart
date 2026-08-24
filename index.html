@@ -1,553 +1,59 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SudhSagarMart — Online Shopping</title>
-<style>
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;color:#212121}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.header{position:sticky;top:0;z-index:100;background:#2874f0;color:#fff;box-shadow:0 2px 8px #bbb}
-.top{max-width:1280px;margin:auto;padding:10px 14px;display:flex;gap:10px;align-items:center}
-.logo{font-size:22px;font-weight:800;white-space:nowrap}
-.logo small{display:block;font-size:11px;font-style:italic;color:#ffe500}
-.search{flex:1;border:0;border-radius:3px;padding:12px 14px;outline:none;min-width:120px}
-.headbtn{border:0;border-radius:4px;padding:10px 12px;background:#fff;color:#2874f0;font-weight:700;white-space:nowrap}
-.nav{max-width:1280px;margin:auto;padding:0 14px 10px;display:flex;gap:18px;overflow:auto}
-.nav a{color:#fff;text-decoration:none;font-weight:700;white-space:nowrap}
-main{max-width:1280px;margin:auto;padding:16px}
-.hero{background:linear-gradient(120deg,#2874f0,#0d47c7);color:#fff;border-radius:8px;padding:28px;margin-bottom:18px}
-.hero h1{margin:0 0 8px;font-size:30px}
-.hero p{margin:5px 0}
-.section{margin:20px 0}
-.section h2{font-size:22px;margin:0 0 12px}
-.categories{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
-.cat{background:#fff;border-radius:6px;padding:14px 6px;text-align:center;box-shadow:0 1px 5px #ddd;transition:.15s}
-.cat:hover{transform:translateY(-2px);box-shadow:0 3px 10px #ccc}
-.cat .ico{font-size:32px}.cat b{display:block;margin-top:7px}.cat small{color:#777}
-.products{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.card{background:#fff;border-radius:7px;padding:12px;box-shadow:0 1px 5px #ddd;position:relative}
-.pic{height:190px;border-radius:5px;background:#f1f5ff;display:flex;align-items:center;justify-content:center;font-size:76px}
-.card h3{font-size:16px;margin:10px 0 5px}
-.rating{color:#0b8a3e;font-size:13px;font-weight:700}
-.price{font-size:20px;font-weight:800;margin:7px 0}
-.old{text-decoration:line-through;color:#888;font-size:13px;margin-left:5px;font-weight:400}
-.off{color:#0b8a3e;font-size:13px;margin-left:4px}
-.row{display:flex;gap:8px}
-.btn{border:0;border-radius:4px;padding:10px 12px;font-weight:700}
-.btn.blue{background:#2874f0;color:#fff}.btn.yellow{background:#ff9f00;color:#fff}.btn.green{background:#0b9f43;color:#fff}
-.btn.gray{background:#edf1f7;color:#2874f0}.btn.red{background:#d93025;color:#fff}
-.full{width:100%}
-.cartbox,.checkout,.panel,.info{background:#fff;border-radius:8px;box-shadow:0 1px 6px #ddd;padding:18px}
-.cartrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eee}
-.total{font-size:22px;font-weight:800;text-align:right;margin:14px 0}
-.checkoutgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-label{font-weight:700;display:block;margin:9px 0}
-input,select,textarea{width:100%;padding:11px;border:1px solid #cfcfcf;border-radius:5px;background:#fff}
-textarea{min-height:90px;resize:vertical}
-.payment{border:1px solid #ddd;padding:12px;border-radius:6px;margin-top:10px}
-.payment label{font-weight:400}
-.empty{text-align:center;color:#777;padding:30px}
-.footer{background:#17202a;color:#fff;margin-top:30px;padding:28px;text-align:center}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;padding:12px;align-items:center;justify-content:center}
-.modal.show{display:flex}
-.modalbox{background:#fff;border-radius:10px;width:min(850px,100%);max-height:92vh;overflow:auto;padding:20px}
-.close{float:right;border:0;background:#eee;width:34px;height:34px;border-radius:50%;font-size:20px}
-.tabs{display:flex;gap:7px;overflow:auto;margin:14px 0}
-.tab{border:0;background:#edf2ff;color:#2874f0;padding:10px 13px;border-radius:5px;white-space:nowrap;font-weight:700}
-.tab.active{background:#2874f0;color:#fff}
-.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.menuitem{border:1px solid #ddd;border-radius:7px;padding:14px;background:#fff;text-align:left}
-.menuitem b{display:block;margin-bottom:4px}.menuitem small{color:#777}
-.list{border-top:1px solid #eee}.item{padding:13px 0;border-bottom:1px solid #eee}
-.badge{display:inline-block;background:#e7f7ed;color:#087c39;padding:4px 8px;border-radius:20px;font-size:12px}
-.dangerbox{background:#fff1f0;border:1px solid #ffc7c2;padding:12px;border-radius:6px}
-.chat{height:330px;border:1px solid #ddd;border-radius:7px;display:flex;flex-direction:column}
-.messages{flex:1;overflow:auto;padding:10px;background:#f7f8fa}
-.msg{max-width:80%;padding:9px 11px;border-radius:9px;margin:6px 0;line-height:1.35}
-.bot{background:#fff;border:1px solid #ddd}.me{background:#2874f0;color:#fff;margin-left:auto}
-.chatbar{display:flex;gap:7px;padding:8px;border-top:1px solid #ddd}.chatbar input{flex:1}
-.toast{position:fixed;right:15px;bottom:15px;background:#222;color:#fff;padding:12px 16px;border-radius:6px;z-index:1000;display:none}
-.toast.show{display:block}
-.hidden{display:none!important}
-@media(max-width:900px){.categories{grid-template-columns:repeat(4,1fr)}.products{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:650px){.top{flex-wrap:wrap}.logo{font-size:18px}.search{order:3;flex-basis:100%}.categories{grid-template-columns:repeat(3,1fr)}.products{grid-template-columns:repeat(2,1fr)}.checkoutgrid{grid-template-columns:1fr}.pic{height:145px;font-size:58px}.menu{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SudhSagarMart - Home</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <header>
+    <nav>
+      <h1>SudhSagarMart</h1>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
 
-<header class="header">
-  <div class="top">
-    <div class="logo">🛒 SudhSagarMart<small>Shop Smart • Live Better</small></div>
-    <input id="search" class="search" placeholder="Search products, brands and more" oninput="searchProducts()">
-    <button class="headbtn" onclick="openAccount()">👤 <span id="loginLabel">Login</span></button>
-    <button class="headbtn" onclick="scrollToId('cart')">🛒 Cart (<span id="cartCount">0</span>)</button>
-  </div>
-  <div class="nav">
-    <a href="#home">Home</a><a href="#categories">Categories</a><a href="#products">Products</a>
-    <a href="#cart">Cart</a><a href="#checkout">Checkout</a>
-    <a href="#" onclick="openAccount();return false">My Account</a>
-    <a href="#" onclick="openHelp();return false">Help</a>
-  </div>
-</header>
-
-<main id="home">
   <section class="hero">
-    <h1>Sudh Sagar Mart</h1>
-    <p>Online shopping — products, cart, orders, wishlist, account, security aur helpdesk ek hi jagah.</p>
-    <p><b>Fast delivery • Easy returns • Secure shopping</b></p>
+    <h2>Welcome to SudhSagarMart</h2>
+    <p>Pure Masala & Wheat Products by AGV</p>
+    <a href="products.html" class="btn">Shop Now</a>
   </section>
 
-  <section class="section" id="categories">
-    <h2>All Categories</h2>
-    <div class="categories" id="categoryList"></div>
-  </section>
-
-  <section class="section" id="products">
-    <h2>Products</h2>
-    <div class="products" id="productList"></div>
-  </section>
-
-  <section class="section" id="cart">
-    <div class="cartbox">
-      <h2>🛒 My Cart</h2>
-      <div id="cartItems"></div>
-      <div class="total">Total: ₹<span id="cartTotal">0</span></div>
-      <div class="row">
-        <button class="btn gray" onclick="clearCart()">Clear Cart</button>
-        <button class="btn green full" onclick="openCheckout()">Proceed to Checkout</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="checkout">
-    <div class="checkout">
-      <h2>💳 Checkout & Payment</h2>
-      <div class="checkoutgrid">
-        <div>
-          <label>Customer Name<input id="custName" placeholder="Apna naam"></label>
-          <label>Mobile Number<input id="custMobile" maxlength="10" inputmode="numeric" placeholder="10 digit mobile number"></label>
-          <label>Email<input id="custEmail" type="email" placeholder="customer@email.com"></label>
-        </div>
-        <div>
-          <label>Delivery Address<textarea id="custAddress" placeholder="Pura delivery address"></textarea></label>
-          <label>PIN Code<input id="custPin" maxlength="6" inputmode="numeric" placeholder="6 digit PIN"></label>
-        </div>
-      </div>
-      <h3>Payment Method</h3>
-      <div class="payment">
-        <label><input type="radio" name="pay" value="cod" checked onchange="paymentChange()"> 🚚 Cash on Delivery</label>
-        <label><input type="radio" name="pay" value="upi" onchange="paymentChange()"> 📱 UPI</label>
-        <label><input type="radio" name="pay" value="card" onchange="paymentChange()"> 💳 Saved/New Card</label>
-        <div id="paymentExtra"></div>
-      </div>
-      <p class="note">Demo checkout hai. Real payment receive karne ke liye merchant gateway + server-side verification zaroori hai.</p>
-      <button class="btn green full" onclick="placeOrder()">Place Order</button>
-      <div id="orderMsg"></div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer">
-  © 2026 SudhSagarMart • Shopping • Orders • Wishlist • Security • Helpdesk
-  <br><br>
-  <button class="btn gray" onclick="openHelp()">Help & Support</button>
-</footer>
-
-<div id="accountModal" class="modal">
- <div class="modalbox">
-  <button class="close" onclick="closeModal('accountModal')">×</button>
-  <h2>👤 My Account</h2>
-  <div id="authView"></div>
-  <div id="accountView" class="hidden"></div>
- </div>
-</div>
-
-<div id="helpModal" class="modal">
- <div class="modalbox">
-  <button class="close" onclick="closeModal('helpModal')">×</button>
-  <h2>🆘 Help & Support</h2>
-  <div class="menu">
-   <button class="menuitem" onclick="showHelpText('help')"><b>📞 Customer Helpdesk</b><small>Orders, returns, delivery support</small></button>
-   <button class="menuitem" onclick="showHelpText('security')"><b>🔐 Security Help</b><small>Account and security assistance</small></button>
-   <button class="menuitem" onclick="openAIHelp()"><b>🤖 AI Helpdesk</b><small>Common questions ka instant answer</small></button>
-   <button class="menuitem" onclick="showHelpText('return')"><b>↩️ Return & Refund</b><small>Return process aur refund information</small></button>
-  </div>
-  <div id="helpText" class="info" style="margin-top:14px">
-   <b>Customer Care</b><p>Helpline: <a href="tel:+918000000000">1800-000-0000</a></p><p>Email: support@sudhsagarmart.example</p><small>Apna real helpline/email yahan baad me change kar dena.</small>
-  </div>
- </div>
-</div>
-
-<div id="aiModal" class="modal">
- <div class="modalbox">
-  <button class="close" onclick="closeModal('aiModal')">×</button>
-  <h2>🤖 SudhSagar AI Helpdesk</h2>
-  <div class="chat">
-   <div id="messages" class="messages"><div class="msg bot">Namaste! Main SudhSagarMart AI Helpdesk hoon. Order, delivery, return, payment ya account ke baare me poochhiye.</div></div>
-   <div class="chatbar"><input id="aiInput" placeholder="Apna sawal likhiye..." onkeydown="if(event.key==='Enter')sendAI()"><button class="btn blue" onclick="sendAI()">Send</button></div>
-  </div>
- </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<script>
-const categories=[
- ['Fashion','👕','Clothes & Style'],['Electronics','📱','Gadgets'],['Mobiles','📱','Phones'],['Home','🏠','Home Items'],
- ['Grocery','🛒','Daily Needs'],['Beauty','💄','Beauty & Care'],['Footwear','👟','Shoes'],['Appliances','🧊','Home Appliances'],
- ['Kitchen','🍳','Kitchen Items'],['Kids','🧸','Toys & Kids'],['Sports','⚽','Sports Items'],['Automotive','🏍️','Bike & Car']
-];
-
-const products=[
- {id:1,name:'Cotton T-Shirt',cat:'Fashion',price:399,old:599,icon:'👕',rating:'4.3'},
- {id:2,name:'Smart Watch',cat:'Electronics',price:999,old:1499,icon:'⌚',rating:'4.2'},
- {id:3,name:'Bluetooth Earphone',cat:'Electronics',price:699,old:999,icon:'🎧',rating:'4.1'},
- {id:4,name:'Running Shoes',cat:'Footwear',price:1299,old:1799,icon:'👟',rating:'4.4'},
- {id:5,name:'Kitchen Pan',cat:'Kitchen',price:499,old:699,icon:'🍳',rating:'4.5'},
- {id:6,name:'Football',cat:'Sports',price:599,old:799,icon:'⚽',rating:'4.2'},
- {id:7,name:'Mobile Phone',cat:'Mobiles',price:9999,old:11999,icon:'📱',rating:'4.0'},
- {id:8,name:'Teddy Bear',cat:'Kids',price:349,old:499,icon:'🧸',rating:'4.6'},
- {id:9,name:'Mixer Grinder',cat:'Appliances',price:2299,old:2999,icon:'🔌',rating:'4.3'},
- {id:10,name:'Face Care Kit',cat:'Beauty',price:799,old:1099,icon:'💄',rating:'4.1'},
- {id:11,name:'Grocery Combo Pack',cat:'Grocery',price:899,old:1099,icon:'🛒',rating:'4.4'},
- {id:12,name:'Car Cleaning Kit',cat:'Automotive',price:649,old:899,icon:'🚗',rating:'4.2'}
-];
-
-let cart=JSON.parse(localStorage.getItem('ssm_cart')||'[]');
-let wishlist=JSON.parse(localStorage.getItem('ssm_wishlist')||'[]');
-let orders=JSON.parse(localStorage.getItem('ssm_orders')||'[]');
-let user=null;
-let firebaseReady=false;
-let cards=JSON.parse(localStorage.getItem('ssm_cards')||'[]');
-let address=localStorage.getItem('ssm_address')||'';
-
-function save(){
- localStorage.setItem('ssm_cart',JSON.stringify(cart));
- localStorage.setItem('ssm_wishlist',JSON.stringify(wishlist));
- localStorage.setItem('ssm_orders',JSON.stringify(orders));
- localStorage.setItem('ssm_cards',JSON.stringify(cards));
-}
-function money(n){return Number(n).toLocaleString('en-IN')}
-function toast(t){let x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
-function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'})}
-
-function renderCategories(){
- document.getElementById('categoryList').innerHTML=categories.map(c=>`
- <button class="cat" onclick="filterCategory('${c[0]}')"><span class="ico">${c[1]}</span><b>${c[0]}</b><small>${c[2]}</small></button>`).join('');
-}
-function renderProducts(list=products){
- document.getElementById('productList').innerHTML=list.length?list.map(p=>{
-  let wish=wishlist.includes(p.id);
-  let off=Math.round((1-p.price/p.old)*100);
-  return `<div class="card">
-   <div class="pic">${p.icon}</div>
-   <h3>${p.name}</h3><div class="rating">★ ${p.rating} • Assured</div>
-   <div class="price">₹${money(p.price)} <span class="old">₹${money(p.old)}</span><span class="off">${off}% off</span></div>
-   <div class="row"><button class="btn yellow full" onclick="addCart(${p.id})">Add to Cart</button><button class="btn green full" onclick="buyNow(${p.id})">Buy Now</button></div>
-   <button class="btn ${wish?'red':'gray'} full" style="margin-top:7px" onclick="toggleWish(${p.id})">${wish?'❤️ Wishlisted':'♡ Wishlist'}</button>
-  </div>`;
- }).join(''):'<div class="empty">Is category me product nahi mila.</div>';
-}
-function filterCategory(cat){renderProducts(products.filter(p=>p.cat===cat));scrollToId('products');}
-function searchProducts(){
- let q=document.getElementById('search').value.toLowerCase().trim();
- renderProducts(products.filter(p=>(p.name+' '+p.cat).toLowerCase().includes(q)));
-}
-function addCart(id){let p=products.find(x=>x.id===id);cart.push({id:p.id,name:p.name,price:p.price});save();renderCart();toast(p.name+' cart me add ho gaya');}
-function buyNow(id){addCart(id);openCheckout()}
-function removeCart(i){cart.splice(i,1);save();renderCart()}
-function clearCart(){cart=[];save();renderCart();toast('Cart clear ho gaya')}
-function renderCart(){
- document.getElementById('cartCount').textContent=cart.length;
- let box=document.getElementById('cartItems');
- if(!cart.length){box.innerHTML='<div class="empty">Cart empty hai. Product add kijiye.</div>';}
- else box.innerHTML=cart.map((x,i)=>`<div class="cartrow"><div><b>${i+1}. ${x.name}</b><br>₹${money(x.price)}</div><button class="btn red" onclick="removeCart(${i})">Remove</button></div>`).join('');
- document.getElementById('cartTotal').textContent=money(cart.reduce((s,x)=>s+x.price,0));
-}
-function openCheckout(){if(!cart.length){toast('Pehle product cart me add kijiye');scrollToId('products');return}scrollToId('checkout')}
-function paymentChange(){
- let v=document.querySelector('input[name=pay]:checked').value, el=document.getElementById('paymentExtra');
- if(v==='upi')if(v==='upi'){
-  const amount = cart.reduce((s,x)=>s+x.price,0);
-  const upiId = '6201188344-2@ybl';
-  const merchantName = 'SudhSagarMart';
-
-  const upiLink =
-    `upi://pay?pa=${encodeURIComponent(upiId)}` +
-    `&pn=${encodeURIComponent(merchantName)}` +
-    `&am=${amount.toFixed(2)}` +
-    `&cu=INR`;
-
-  const qrUrl =
-    `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
-
-  el.innerHTML = `
-    <div style="text-align:center;padding:15px">
-      <h3>📱 UPI Payment</h3>
-
-      <p>Scan karke payment karein</p>
-
-      <img src="${qrUrl}"
-           alt="SudhSagarMart UPI QR"
-           style="width:250px;height:250px;border:8px solid #fff;box-shadow:0 2px 10px #ccc;border-radius:8px">
-
-      <p style="margin:10px 0 5px">
-        <b>Amount: ₹${money(amount)}</b>
-      </p>
-
-      <p style="font-size:13px;color:#666">
-        UPI ID: <b>${upiId}</b>
-      </p>
-
-      <a href="${upiLink}"
-         class="btn green"
-         style="display:inline-block;text-decoration:none;margin-top:8px">
-         📲 Pay Now with UPI
-      </a>
-
-      <p style="font-size:12px;color:#777;margin-top:10px">
-        QR scan karke payment complete karein.
-      </p>
-    </div>
-  `;
-}
- else if(v==='card')el.innerHTML=`<label>Saved Card<select id="cardSelect"><option value="">New card</option>${cards.map((c,i)=>`<option value="${i}">${c.number} — ${c.name}</option>`).join('')}</select></label><div id="newCard"></div>`;
- else el.innerHTML='<p>Delivery ke time cash payment.</p>';
-}
-function placeOrder(){
- if(!cart.length){toast('Cart empty hai');return}
- let name=document.getElementById('custName').value.trim(),mobile=document.getElementById('custMobile').value.trim(),addr=document.getElementById('custAddress').value.trim(),pin=document.getElementById('custPin').value.trim();
- if(!name||!/^\d{10}$/.test(mobile)||!addr||!/^\d{6}$/.test(pin)){toast('Name, 10 digit mobile, address aur 6 digit PIN bhariye');return}
- let total=cart.reduce((s,x)=>s+x.price,0);
- let o={id:'SSM'+Date.now(),date:new Date().toLocaleString('en-IN'),items:[...cart],total,status:'Order Placed',name,mobile,addr,pin};
- orders.unshift(o);cart=[];save();renderCart();
- document.getElementById('orderMsg').innerHTML=`<div class="info"><b>✅ Order placed successfully!</b><p>Order ID: <b>${o.id}</b></p><p>Total: ₹${money(total)}</p></div>`;
- toast('Order placed');
-}
-function toggleWish(id){let i=wishlist.indexOf(id);if(i>=0)wishlist.splice(i,1);else wishlist.push(id);save();renderProducts();toast(i>=0?'Wishlist se remove':'Wishlist me add')}
-function openAccount(){document.getElementById('accountModal').classList.add('show');renderAccount()}
-function closeModal(id){document.getElementById(id).classList.remove('show')}
-function renderAccount(){
- let a=document.getElementById('authView'),v=document.getElementById('accountView');
- if(!user){
-  v.classList.add('hidden');a.classList.remove('hidden');
-  a.innerHTML=`<div class="tabs"><button class="tab active" onclick="authForm('phoneLogin',this)">📱 Mobile OTP</button><button class="tab" onclick="authForm('login',this)">Email Login</button><button class="tab" onclick="authForm('phoneRegister',this)">Create Account</button></div><div id="authForm"></div>`;
-  authForm('phoneLogin',document.querySelector('#authView .tab'));
- }else{
-  a.classList.add('hidden');v.classList.remove('hidden');
-  const displayName=user.displayName||user.phoneNumber||((user.email||'Customer').split('@')[0]);
-  v.innerHTML=`<p>Welcome, <b>${esc(displayName)}</b> <span class="badge">Firebase Account</span></p>
-  <div class="tabs">
-   <button class="tab active" onclick="accountPanel('profile',this)">Profile</button>
-   <button class="tab" onclick="accountPanel('orders',this)">My Orders</button>
-   <button class="tab" onclick="accountPanel('wishlist',this)">Wishlist</button>
-   <button class="tab" onclick="accountPanel('addresses',this)">Addresses</button>
-   <button class="tab" onclick="accountPanel('cards',this)">Saved Cards</button>
-   <button class="tab" onclick="accountPanel('settings',this)">⚙️ Settings</button>
-   <button class="tab" onclick="accountPanel('security',this)">🔐 Security</button>
-   <button class="tab" onclick="accountPanel('help',this)">🆘 Helpdesk</button>
-  </div><div id="accountPanel"></div>`;
-  accountPanel('profile',document.querySelector('#accountView .tab'));
- }
- const label=user?(user.displayName||user.phoneNumber||((user.email||'Customer').split('@')[0])).slice(0,12):'Login';
- document.getElementById('loginLabel').textContent=label;
-}
-function authForm(type,btn){
- document.querySelectorAll('#authView .tab').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');
- const isPhone=type==='phoneLogin'||type==='phoneRegister';
- if(isPhone){
-  document.getElementById('authForm').innerHTML=`
-   ${type==='phoneRegister'?'<label>Name<input id="otpName" placeholder="Your name"></label>':''}
-   <label>Mobile Number<input id="otpPhone" maxlength="10" inputmode="numeric" placeholder="10 digit mobile number"></label>
-   <div id="recaptcha-container" style="margin:10px 0"></div>
-   <button class="btn blue full" onclick="sendOTP('${type}')">📲 Send OTP</button>
-   <div id="otpVerifyBox" class="hidden" style="margin-top:12px">
-    <label>OTP<input id="otpCode" maxlength="6" inputmode="numeric" placeholder="6 digit OTP"></label>
-    <button class="btn green full" onclick="verifyOTP('${type}')">✅ Verify OTP & Login</button>
-   </div>
-   <p class="note">Mobile par Firebase OTP aayega. Pehli baar OTP verify karne par Firebase account automatically create ho sakta hai.</p>`;
-  return;
- }
- document.getElementById('authForm').innerHTML=type==='login'?`
- <label>Email<input id="loginEmail" type="email" placeholder="customer@email.com"></label>
- <label>Password<input id="loginPass" type="password" placeholder="Password"></label>
- <button class="btn blue full" onclick="login()">Login</button>
- <button class="btn gray full" style="margin-top:8px" onclick="forgotPassword()">Forgot Password</button>
- <p class="note">Email login bhi Firebase Authentication se secure tarike se hoga.</p>`:
- `<label>Name<input id="regName" placeholder="Your name"></label>
- <label>Email<input id="regEmail" type="email" placeholder="customer@email.com"></label>
- <label>Mobile<input id="regMobile" maxlength="10" placeholder="10 digit mobile"></label>
- <label>Password<input id="regPass" type="password" minlength="6" placeholder="Minimum 6 characters"></label>
- <button class="btn green full" onclick="register()">Create Account</button>`;
-}
-async function sendOTP(type){
- let phone=document.getElementById('otpPhone')?.value.trim();
- if(!/^[0-9]{10}$/.test(phone)){toast('10 digit mobile number bhariye');return}
- let name=type==='phoneRegister'?(document.getElementById('otpName')?.value.trim()||'Customer'):'Customer';
- try{await waitFirebase();await window.firebaseSendOTP('+91'+phone);window.pendingOtpName=name;document.getElementById('otpVerifyBox').classList.remove('hidden');toast('OTP mobile par bhej diya gaya 📲')}catch(e){toast(e.message||'OTP nahi bheja gaya')}}
-async function verifyOTP(type){
- let code=document.getElementById('otpCode')?.value.trim();
- if(!/^\d{6}$/.test(code)){toast('6 digit OTP bhariye');return}
- try{await waitFirebase();await window.firebaseVerifyOTP(code,window.pendingOtpName||'Customer');toast('OTP verified — Login successful ✅')}catch(e){toast(e.message||'OTP verify nahi hua')}}
-function waitFirebase(){
- return new Promise((resolve,reject)=>{const started=Date.now();(function check(){if(firebaseReady&&window.firebaseRegister&&window.firebaseSendOTP) return resolve();if(Date.now()-started>10000)return reject(new Error('Firebase load nahi hua. Internet check kijiye.'));setTimeout(check,100)})()});
-}
-async function register(){
- let name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),mobile=document.getElementById('regMobile').value.trim(),pass=document.getElementById('regPass').value;
- if(!name||!email||!/^[0-9]{10}$/.test(mobile)||pass.length<6){toast('Sabhi details sahi bhariye');return}
- try{await waitFirebase();await window.firebaseRegister(name,email,mobile,pass);toast('Account created successfully ✅')}catch(e){toast(e.message||'Account create nahi hua')}
-}
-async function login(){
- let e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value;
- if(!e||!p){toast('Email aur password bhariye');return}
- try{await waitFirebase();await window.firebaseLogin(e,p);toast('Login successful ✅')}catch(e){toast(e.message||'Login failed')}
-}
-async function forgotPassword(){
- let e=document.getElementById('loginEmail').value.trim();if(!e){toast('Pehle email enter kijiye');return}
- try{await waitFirebase();await window.firebaseForgotPassword(e);toast('Password reset email bhej diya gaya ✅')}catch(e){toast(e.message||'Reset email nahi gaya')}
-}
-async function logout(){
- try{await waitFirebase();await window.firebaseLogout();toast('Logout successful')}catch(e){toast(e.message||'Logout failed')}
-}
-function accountPanel(type,btn){
- document.querySelectorAll('#accountView .tab').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');
- let p=document.getElementById('accountPanel');
- if(type==='profile'){const nm=user.displayName||((user.email||'Customer').split('@')[0]);const mob=localStorage.getItem('ssm_mobile_'+user.uid)||'Not added';p.innerHTML=`<div class="panel"><h3>👤 Profile</h3><p><b>Name:</b> ${esc(nm)}</p><p><b>Email:</b> ${esc(user.email)}</p><p><b>Mobile:</b> ${esc(mob)}</p><button class="btn red" onclick="logout()">Logout</button></div>`;}
- if(type==='orders')p.innerHTML=`<div class="panel"><h3>📦 My Orders</h3>${orders.length?orders.map(o=>`<div class="item"><b>${o.id}</b> <span class="badge">${o.status}</span><br>${o.date}<br>₹${money(o.total)} • ${o.items.length} item(s)</div>`).join(''):'<div class="empty">Abhi koi order nahi hai.</div>'}</div>`;
- if(type==='wishlist')p.innerHTML=`<div class="panel"><h3>❤️ Wishlist</h3>${wishlist.length?products.filter(x=>wishlist.includes(x.id)).map(x=>`<div class="item"><b>${x.name}</b> — ₹${money(x.price)} <button class="btn blue" onclick="addCart(${x.id})">Add Cart</button></div>`).join(''):'<div class="empty">Wishlist empty hai.</div>'}</div>`;
- if(type==='addresses')p.innerHTML=`<div class="panel"><h3>📍 Saved Address</h3><textarea id="savedAddr">${esc(address)}</textarea><button class="btn blue full" onclick="saveAddr()">Save Address</button></div>`;
- if(type==='cards')p.innerHTML=`<div class="panel"><h3>💳 Saved Cards</h3><p class="note">Demo me full card number store nahi kiya jata; sirf last 4 digits dikhaye jaate hain.</p>${cards.length?cards.map((c,i)=>`<div class="item">💳 <b>${esc(c.number)}</b> • ${esc(c.name)} <button class="btn red" onclick="deleteCard(${i})">Remove</button></div>`).join(''):'<div class="empty">Koi saved card nahi.</div>'}<hr><h4>Add Card</h4><input id="cardNum" maxlength="19" placeholder="Card number"><input id="cardName" placeholder="Name on card" style="margin-top:8px"><button class="btn green full" style="margin-top:8px" onclick="addCard()">Save Card</button></div>`;
- if(type==='settings')p.innerHTML=`<div class="panel"><h3>⚙️ Settings</h3>
- <div class="menu">
- <button class="menuitem" onclick="accountPanel('security')"><b>🔐 Security</b><small>Password, login security</small></button>
- <button class="menuitem" onclick="accountPanel('cards')"><b>💳 Saved Cards</b><small>Manage saved payment cards</small></button>
- <button class="menuitem" onclick="showHelpText('help');openHelp()"><b>📞 Helpline</b><small>Customer support</small></button>
- <button class="menuitem" onclick="openAIHelp()"><b>🤖 AI Helpdesk</b><small>Instant assistance</small></button>
- <button class="menuitem" onclick="toast('Notifications preference saved')"><b>🔔 Notifications</b><small>Order updates and offers</small></button>
- <button class="menuitem" onclick="toast('Language setting ready')"><b>🌐 Language</b><small>Hindi / English</small></button>
- </div>
- <div class="dangerbox" style="margin-top:14px"><b>⚠️ Account data</b><p>Local demo data clear karne par account, cart, wishlist aur saved cards remove ho jayenge.</p><button class="btn red" onclick="clearAll()">Clear All Local Data</button></div></div>`;
- if(type==='security')p.innerHTML=`<div class="panel"><h3>🔐 Security Center</h3><p><span class="badge">Password Protected</span></p><h4>Change Password</h4><label>Current Password<input id="oldPass" type="password"></label><label>New Password<input id="newPass" type="password" minlength="6"></label><label>Confirm New Password<input id="newPass2" type="password"></label><button class="btn blue full" onclick="changePassword()">Change Password</button><hr><p>🔒 Firebase Authentication password ko securely handle karta hai. Current password verify karke hi naya password set hoga.</p></div>`;
- if(type==='help')p.innerHTML=`<div class="panel"><h3>🆘 Helpdesk</h3><div class="menu"><button class="menuitem" onclick="showHelpText('help');openHelp()"><b>📞 Helpline</b><small>1800-000-0000</small></button><button class="menuitem" onclick="openAIHelp()"><b>🤖 AI Helpdesk</b><small>Chat support</small></button><button class="menuitem" onclick="showHelpText('return');openHelp()"><b>↩️ Return & Refund</b><small>Support information</small></button><button class="menuitem" onclick="showHelpText('security');openHelp()"><b>🔐 Security Help</b><small>Account security</small></button></div></div>`;
-}
-async function changePassword(){
- let a=document.getElementById('oldPass').value,b=document.getElementById('newPass').value,c=document.getElementById('newPass2').value;
- if(!a||b.length<6||b!==c){toast('Password details sahi nahi hain');return}
- try{await waitFirebase();await window.firebaseChangePassword(a,b);toast('Password changed successfully ✅');accountPanel('security')}catch(e){toast(e.message||'Password change failed')}
-}
-function saveAddr(){address=document.getElementById('savedAddr').value.trim();localStorage.setItem('ssm_address',address);toast('Address saved')}
-function addCard(){
- let n=document.getElementById('cardNum').value.replace(/\s/g,''),name=document.getElementById('cardName').value.trim();
- if(!/^\d{12,19}$/.test(n)||!name){toast('Card details sahi bhariye');return}
- cards.push({number:'•••• •••• •••• '+n.slice(-4),name});save();toast('Card saved');accountPanel('cards');
-}
-function deleteCard(i){cards.splice(i,1);save();accountPanel('cards');toast('Card removed')}
-function clearAll(){if(confirm('Sab local demo data delete karna hai?')){localStorage.clear();location.reload()}}
-function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-
-function openHelp(){document.getElementById('helpModal').classList.add('show')}
-function showHelpText(t){
- let x=document.getElementById('helpText');
- if(t==='help')x.innerHTML='<b>📞 Customer Helpdesk</b><p>Helpline: <a href="tel:+918000000000">1800-000-0000</a></p><p>Email: support@sudhsagarmart.example</p>';
- if(t==='security')x.innerHTML='<b>🔐 Security Help</b><p>Password change, account login aur suspicious activity ke liye support se contact karein.</p>';
- if(t==='return')x.innerHTML='<b>↩️ Return & Refund</b><p>Order details me return/refund request ka option production version me add kiya ja sakta hai.</p>';
-}
-function openAIHelp(){document.getElementById('aiModal').classList.add('show')}
-function sendAI(){
- let input=document.getElementById('aiInput'),q=input.value.trim();if(!q)return;
- let box=document.getElementById('messages');box.innerHTML+=`<div class="msg me">${esc(q)}</div>`;
- let l=q.toLowerCase(),ans='Main aapki help kar sakta hoon. Order ID, delivery, return, payment ya account ke baare me poochhiye.';
- if(l.includes('order'))ans='My Account → My Orders me aapke placed orders dikhte hain.';
- else if(l.includes('delivery'))ans='Delivery ka status My Orders section me dekha ja sakta hai.';
- else if(l.includes('return')||l.includes('refund'))ans='Return/refund ke liye Helpdesk se support le sakte hain.';
- else if(l.includes('password'))ans='My Account → Security → Change Password se password badal sakte hain.';
- else if(l.includes('card'))ans='My Account → Saved Cards se card add/remove kar sakte hain.';
- else if(l.includes('payment'))ans='Checkout me COD, UPI aur Saved/New Card options available hain.';
- else if(l.includes('cart'))ans='Product par Add to Cart dabaiye, phir Cart se checkout kijiye.';
- box.innerHTML+=`<div class="msg bot">${ans}</div>`;box.scrollTop=box.scrollHeight;input.value='';
-}
-
-renderCategories();renderProducts();renderCart();paymentChange();
-
-</script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-const firebaseConfig={apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",authDomain:"sudhsagarmart.firebaseapp.com",projectId:"sudhsagarmart",storageBucket:"sudhsagarmart.firebasestorage.app",messagingSenderId:"682379938859",appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e",measurementId:"G-VZY41YWFXP"};
-const app=initializeApp(firebaseConfig),auth=getAuth(app);
-let recaptchaVerifier=null,confirmationResult=null;
-window.firebaseRegister=async(name,email,mobile,password)=>{const c=await createUserWithEmailAndPassword(auth,email,password);await updateProfile(c.user,{displayName:name});localStorage.setItem('ssm_mobile_'+c.user.uid,mobile);user=c.user;renderAccount()};
-window.firebaseLogin=async(email,password)=>{const c=await signInWithEmailAndPassword(auth,email,password);user=c.user;renderAccount()};
-window.firebaseSendOTP=async(phone)=>{
- if(recaptchaVerifier){try{recaptchaVerifier.clear()}catch(e){} recaptchaVerifier=null}
- recaptchaVerifier=new RecaptchaVerifier(auth,'recaptcha-container',{size:'normal',callback:()=>{},'expired-callback':()=>{toast('reCAPTCHA expire ho gaya, OTP dobara bhejiye')}});
- await recaptchaVerifier.render();
- confirmationResult=await signInWithPhoneNumber(auth,phone,recaptchaVerifier);
-};
-window.firebaseVerifyOTP=async(code,name)=>{if(!confirmationResult)throw new Error('Pehle Send OTP dabaiye.');const result=await confirmationResult.confirm(code);if(name&&name!=='Customer'&&!result.user.displayName)await updateProfile(result.user,{displayName:name});localStorage.setItem('ssm_mobile_'+result.user.uid,result.user.phoneNumber||'');user=result.user;renderAccount();confirmationResult=null;if(recaptchaVerifier){try{recaptchaVerifier.clear()}catch(e){}recaptchaVerifier=null}};
-window.firebaseForgotPassword=async(email)=>sendPasswordResetEmail(auth,email);
-window.firebaseLogout=async()=>{await signOut(auth);user=null;renderAccount()};
-window.firebaseChangePassword=async(currentPassword,newPassword)=>{if(!auth.currentUser||!auth.currentUser.email)throw new Error('Phone OTP account me email-password login nahi hai.');const cred=EmailAuthProvider.credential(auth.currentUser.email,currentPassword);await reauthenticateWithCredential(auth.currentUser,cred);await updatePassword(auth.currentUser,newPassword)};
-onAuthStateChanged(auth,fbUser=>{user=fbUser;firebaseReady=true;renderAccount()});
-</script><script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
-    authDomain: "sudhsagarmart.firebaseapp.com",
-    projectId: "sudhsagarmart",
-    storageBucket: "sudhsagarmart.firebasestorage.app",
-    messagingSenderId: "682379938859",
-    appId: "1:682379938859:web:c58609e79da3ec00e72e6e",
-    measurementId: "G-PCFM1V926Y"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-</script>
+  <footer>
+    <p>© 2026 SudhSagarMart | Follow us on 
+      <a href="#">Facebook</a> | <a href="#">Instagram</a>
+    </p>
+  </footer>
 </body>
 </html>
-<div id="toast" class="toast"></div>
-
-<script>
-const categories=[
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SudhSagarMart - AGV Products</title>
+  <title>SudhSagarMart - Products</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Navigation Bar -->
   <header>
     <nav>
       <h1>SudhSagarMart</h1>
       <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#products">Products</a></li>
-        <li><a href="#about">About Us</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- Hero Section -->
-  <section id="home" class="hero">
-    <h2>Welcome to SudhSagarMart</h2>
-    <p>Pure Masala & Wheat Products by AGV</p>
-    <a href="#products" class="btn">Shop Now</a>
-  </section>
-
-  <!-- Product Showcase -->
-  <section id="products">
+  <section>
     <h2>Our Products</h2>
     <div class="product-card">
       <img src="images/masala.jpg" alt="AGV Masala">
@@ -563,15 +69,65 @@ const categories=[
     </div>
   </section>
 
-  <!-- About Us -->
-  <section id="about">
+  <footer>
+    <p>© 2026 SudhSagarMart</p>
+  </footer>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SudhSagarMart - About Us</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <h1>SudhSagarMart</h1>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section>
     <h2>About Us</h2>
     <p>SudhSagarMart is your trusted source for pure masala and wheat products. 
        We believe in quality, tradition, and customer satisfaction.</p>
   </section>
 
-  <!-- Contact Form -->
-  <section id="contact">
+  <footer>
+    <p>© 2026 SudhSagarMart</p>
+  </footer>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SudhSagarMart - Contact</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <h1>SudhSagarMart</h1>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section>
     <h2>Contact Us</h2>
     <form>
       <input type="text" placeholder="Your Name" required>
@@ -581,13 +137,9 @@ const categories=[
     </form>
   </section>
 
-  <!-- Footer -->
   <footer>
-    <p>© 2026 SudhSagarMart | Follow us on 
-      <a href="#">Facebook</a> | <a href="#">Instagram</a>
-    </p>
+    <p>© 2026 SudhSagarMart</p>
   </footer>
-
 </body>
 </html>
 body {
