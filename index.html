@@ -3,1765 +3,399 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SudhSagarMart</title>
-
+<title>SudhSagarMart — Online Shopping</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#222}
-button,input,textarea,select{font:inherit}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;color:#212121}
+button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-
-header{
-background:#1557d6;color:white;padding:10px 4%;
-position:sticky;top:0;z-index:20
-}
-.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.logo{font-size:21px;font-weight:bold;white-space:nowrap}
-.search{flex:1;min-width:160px;padding:10px;border:0;border-radius:7px}
-.header-btn{background:white;color:#1557d6;border:0;border-radius:7px;padding:9px 11px;font-weight:bold}
-
-nav{margin-top:8px;display:flex;gap:15px;flex-wrap:wrap}
-nav a{color:white;text-decoration:none;font-weight:bold;font-size:14px}
-
-main{max-width:1250px;margin:auto;padding:15px}
-
-.hero{
-background:linear-gradient(120deg,#1557d6,#0878ee);
-color:white;padding:23px;border-radius:14px
-}
-.hero h1{margin:0 0 7px;font-size:29px}
-
-h2{margin:22px 0 12px}
-
-.categories{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(115px,1fr));
-gap:10px
-}
-.category{
-background:white;border-radius:11px;padding:13px 7px;
-text-align:center;box-shadow:0 2px 9px #ddd
-}
-.category:hover{transform:translateY(-2px)}
-.emoji{font-size:30px;display:block;margin-bottom:5px}
-.category small{display:block;color:#666;margin-top:4px}
-
-.products{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(205px,1fr));
-gap:13px
-}
-
-.card,.cart,.checkout,.panel{
-background:white;border-radius:12px;padding:14px;
-box-shadow:0 2px 10px #ddd
-}
-
-.pic{
-height:145px;background:#eef4ff;border-radius:9px;
-display:flex;align-items:center;justify-content:center;
-font-size:58px
-}
-
-.price{font-size:19px;font-weight:bold;margin:8px 0}
-.old{font-size:12px;color:#888;text-decoration:line-through;margin-left:5px}
-
-.actions{display:flex;gap:7px;flex-direction:column}
-
-.add,.buy,.wish,.primary,.danger,.secondary{
-width:100%;border:0;padding:10px;border-radius:7px;font-weight:bold
-}
-
-.add{background:#f0a900;color:white}
-.buy,.primary{background:#16a34a;color:white}
-.wish{background:#ffe5e7;color:#dc2626}
-.wish.active{background:#dc2626;color:white}
-.secondary{background:#e9eef8;color:#1557d6}
-.danger{background:#dc2626;color:white}
-
-.cart{margin-top:22px}
-.cart-row{
-display:flex;justify-content:space-between;gap:8px;
-align-items:center;padding:10px 0;border-bottom:1px solid #eee
-}
-
-.qty{display:flex;gap:6px;align-items:center}
-.qty button{
-border:0;background:#e9eef8;border-radius:5px;padding:4px 8px
-}
-
-.remove{
-border:0;background:#dc2626;color:white;
-border-radius:5px;padding:6px 9px
-}
-
-.checkout{margin-top:22px}
-
-.checkout-grid{
-display:grid;grid-template-columns:1fr 1fr;gap:12px
-}
-
-label{display:block;margin-bottom:10px;font-weight:600}
-
-input,textarea,select{
-width:100%;padding:10px;border:1px solid #ccc;
-border-radius:7px;margin-top:5px
-}
-
-textarea{min-height:80px;resize:vertical}
-
-.payment-box{
-border:1px solid #ddd;border-radius:8px;padding:12px
-}
-
-.note{font-size:12px;color:#666}
-
-.success{
-background:#ecfdf5;border:1px solid #86efac;
-padding:12px;border-radius:8px;margin-top:10px;color:#166534
-}
-
-.modal{
-display:none;position:fixed;inset:0;
-background:rgba(0,0,0,.58);z-index:50;
-align-items:center;justify-content:center;padding:12px
-}
-
+.header{position:sticky;top:0;z-index:100;background:#2874f0;color:#fff;box-shadow:0 2px 8px #bbb}
+.top{max-width:1280px;margin:auto;padding:10px 14px;display:flex;gap:10px;align-items:center}
+.logo{font-size:22px;font-weight:800;white-space:nowrap}
+.logo small{display:block;font-size:11px;font-style:italic;color:#ffe500}
+.search{flex:1;border:0;border-radius:3px;padding:12px 14px;outline:none;min-width:120px}
+.headbtn{border:0;border-radius:4px;padding:10px 12px;background:#fff;color:#2874f0;font-weight:700;white-space:nowrap}
+.nav{max-width:1280px;margin:auto;padding:0 14px 10px;display:flex;gap:18px;overflow:auto}
+.nav a{color:#fff;text-decoration:none;font-weight:700;white-space:nowrap}
+main{max-width:1280px;margin:auto;padding:16px}
+.hero{background:linear-gradient(120deg,#2874f0,#0d47c7);color:#fff;border-radius:8px;padding:28px;margin-bottom:18px}
+.hero h1{margin:0 0 8px;font-size:30px}
+.hero p{margin:5px 0}
+.section{margin:20px 0}
+.section h2{font-size:22px;margin:0 0 12px}
+.categories{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
+.cat{background:#fff;border-radius:6px;padding:14px 6px;text-align:center;box-shadow:0 1px 5px #ddd;transition:.15s}
+.cat:hover{transform:translateY(-2px);box-shadow:0 3px 10px #ccc}
+.cat .ico{font-size:32px}.cat b{display:block;margin-top:7px}.cat small{color:#777}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:#fff;border-radius:7px;padding:12px;box-shadow:0 1px 5px #ddd;position:relative}
+.pic{height:190px;border-radius:5px;background:#f1f5ff;display:flex;align-items:center;justify-content:center;font-size:76px}
+.card h3{font-size:16px;margin:10px 0 5px}
+.rating{color:#0b8a3e;font-size:13px;font-weight:700}
+.price{font-size:20px;font-weight:800;margin:7px 0}
+.old{text-decoration:line-through;color:#888;font-size:13px;margin-left:5px;font-weight:400}
+.off{color:#0b8a3e;font-size:13px;margin-left:4px}
+.row{display:flex;gap:8px}
+.btn{border:0;border-radius:4px;padding:10px 12px;font-weight:700}
+.btn.blue{background:#2874f0;color:#fff}.btn.yellow{background:#ff9f00;color:#fff}.btn.green{background:#0b9f43;color:#fff}
+.btn.gray{background:#edf1f7;color:#2874f0}.btn.red{background:#d93025;color:#fff}
+.full{width:100%}
+.cartbox,.checkout,.panel,.info{background:#fff;border-radius:8px;box-shadow:0 1px 6px #ddd;padding:18px}
+.cartrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eee}
+.total{font-size:22px;font-weight:800;text-align:right;margin:14px 0}
+.checkoutgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{font-weight:700;display:block;margin:9px 0}
+input,select,textarea{width:100%;padding:11px;border:1px solid #cfcfcf;border-radius:5px;background:#fff}
+textarea{min-height:90px;resize:vertical}
+.payment{border:1px solid #ddd;padding:12px;border-radius:6px;margin-top:10px}
+.payment label{font-weight:400}
+.empty{text-align:center;color:#777;padding:30px}
+.footer{background:#17202a;color:#fff;margin-top:30px;padding:28px;text-align:center}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;padding:12px;align-items:center;justify-content:center}
 .modal.show{display:flex}
-
-.modal-box{
-background:white;width:min(650px,100%);
-max-height:92vh;overflow:auto;
-border-radius:14px;padding:18px
-}
-
-.close{
-float:right;border:0;background:#eee;
-border-radius:50%;width:34px;height:34px
-}
-
-.tabs{
-display:flex;gap:7px;flex-wrap:wrap;margin:12px 0
-}
-
-.tab{
-border:0;padding:9px 11px;
-border-radius:8px;background:#eef2ff
-}
-
-.tab.active{background:#1557d6;color:white}
-
-.setting-row{
-display:flex;justify-content:space-between;
-gap:15px;align-items:center;
-padding:12px 0;border-bottom:1px solid #eee
-}
-
-.order-card{
-border:1px solid #ddd;border-radius:9px;
-padding:10px;margin:8px 0
-}
-
-.badge{
-display:inline-block;padding:4px 8px;
-border-radius:20px;background:#e0e7ff;
-color:#3730a3;font-size:12px
-}
-
-.empty{text-align:center;padding:15px;color:#666}
-
-footer{
-margin-top:30px;background:#17202a;color:white;
-padding:22px;text-align:center
-}
-
-@media(max-width:700px){
-.hero h1{font-size:24px}
-.checkout-grid{grid-template-columns:1fr}
-.logo{font-size:18px}
-.products{grid-template-columns:repeat(2,1fr)}
-.pic{height:120px;font-size:48px}
-}
-
-@media(max-width:420px){
-.products{grid-template-columns:1fr 1fr}
-}
+.modalbox{background:#fff;border-radius:10px;width:min(850px,100%);max-height:92vh;overflow:auto;padding:20px}
+.close{float:right;border:0;background:#eee;width:34px;height:34px;border-radius:50%;font-size:20px}
+.tabs{display:flex;gap:7px;overflow:auto;margin:14px 0}
+.tab{border:0;background:#edf2ff;color:#2874f0;padding:10px 13px;border-radius:5px;white-space:nowrap;font-weight:700}
+.tab.active{background:#2874f0;color:#fff}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.menuitem{border:1px solid #ddd;border-radius:7px;padding:14px;background:#fff;text-align:left}
+.menuitem b{display:block;margin-bottom:4px}.menuitem small{color:#777}
+.list{border-top:1px solid #eee}.item{padding:13px 0;border-bottom:1px solid #eee}
+.badge{display:inline-block;background:#e7f7ed;color:#087c39;padding:4px 8px;border-radius:20px;font-size:12px}
+.dangerbox{background:#fff1f0;border:1px solid #ffc7c2;padding:12px;border-radius:6px}
+.chat{height:330px;border:1px solid #ddd;border-radius:7px;display:flex;flex-direction:column}
+.messages{flex:1;overflow:auto;padding:10px;background:#f7f8fa}
+.msg{max-width:80%;padding:9px 11px;border-radius:9px;margin:6px 0;line-height:1.35}
+.bot{background:#fff;border:1px solid #ddd}.me{background:#2874f0;color:#fff;margin-left:auto}
+.chatbar{display:flex;gap:7px;padding:8px;border-top:1px solid #ddd}.chatbar input{flex:1}
+.toast{position:fixed;right:15px;bottom:15px;background:#222;color:#fff;padding:12px 16px;border-radius:6px;z-index:1000;display:none}
+.toast.show{display:block}
+.hidden{display:none!important}
+@media(max-width:900px){.categories{grid-template-columns:repeat(4,1fr)}.products{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.top{flex-wrap:wrap}.logo{font-size:18px}.search{order:3;flex-basis:100%}.categories{grid-template-columns:repeat(3,1fr)}.products{grid-template-columns:repeat(2,1fr)}.checkoutgrid{grid-template-columns:1fr}.pic{height:145px;font-size:58px}.menu{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
 
-<header>
-
-<div class="top">
-
-<div class="logo">
-🛒 SudhSagarMart
-</div>
-
-<input
-id="search"
-class="search"
-placeholder="Search products..."
-oninput="searchProducts()">
-
-<button class="header-btn" onclick="openAccount()">
-👤 <span id="accountLabel">Login</span>
-</button>
-
-<button class="header-btn" onclick="goCart()">
-🛒 Cart (<span id="count">0</span>)
-</button>
-
-</div>
-
-<nav>
-<a href="#home">Home</a>
-<a href="#categories">Categories</a>
-<a href="#products">Products</a>
-<a href="#cart">Cart</a>
-<a href="#checkout">Checkout</a>
-<a href="#" onclick="openAccount();return false">
-⚙️ My Account
-</a>
-</nav>
-
+<header class="header">
+  <div class="top">
+    <div class="logo">🛒 SudhSagarMart<small>Shop Smart • Live Better</small></div>
+    <input id="search" class="search" placeholder="Search products, brands and more" oninput="searchProducts()">
+    <button class="headbtn" onclick="openAccount()">👤 <span id="loginLabel">Login</span></button>
+    <button class="headbtn" onclick="scrollToId('cart')">🛒 Cart (<span id="cartCount">0</span>)</button>
+  </div>
+  <div class="nav">
+    <a href="#home">Home</a><a href="#categories">Categories</a><a href="#products">Products</a>
+    <a href="#cart">Cart</a><a href="#checkout">Checkout</a>
+    <a href="#" onclick="openAccount();return false">My Account</a>
+    <a href="#" onclick="openHelp();return false">Help</a>
+  </div>
 </header>
 
-
 <main id="home">
+  <section class="hero">
+    <h1>Sudh Sagar Mart</h1>
+    <p>Online shopping — products, cart, orders, wishlist, account, security aur helpdesk ek hi jagah.</p>
+    <p><b>Fast delivery • Easy returns • Secure shopping</b></p>
+  </section>
 
-<section class="hero">
+  <section class="section" id="categories">
+    <h2>All Categories</h2>
+    <div class="categories" id="categoryList"></div>
+  </section>
 
-<h1>Sudh Sagar Mart</h1>
+  <section class="section" id="products">
+    <h2>Products</h2>
+    <div class="products" id="productList"></div>
+  </section>
 
-<p>
-Online Shopping — Products, Cart, Orders,
-Wishlist, Account aur Settings.
-</p>
+  <section class="section" id="cart">
+    <div class="cartbox">
+      <h2>🛒 My Cart</h2>
+      <div id="cartItems"></div>
+      <div class="total">Total: ₹<span id="cartTotal">0</span></div>
+      <div class="row">
+        <button class="btn gray" onclick="clearCart()">Clear Cart</button>
+        <button class="btn green full" onclick="openCheckout()">Proceed to Checkout</button>
+      </div>
+    </div>
+  </section>
 
-</section>
-
-
-<h2 id="categories">All Categories</h2>
-
-<div class="categories" id="categoryList"></div>
-
-
-<h2 id="products">Products</h2>
-
-<div class="products" id="productList"></div>
-
-
-<!-- CART -->
-
-<div class="cart" id="cart">
-
-<h2>🛒 Your Cart</h2>
-
-<div id="cartItems"></div>
-
-<h3>
-Total: ₹<span id="total">0</span>
-</h3>
-
-<button class="primary" onclick="openCheckout()">
-Proceed to Buy / Checkout
-</button>
-
-</div>
-
-
-<!-- CHECKOUT -->
-
-<div class="checkout" id="checkout">
-
-<h2>💳 Checkout & Payment</h2>
-
-<div class="checkout-grid">
-
-<div>
-
-<label>
-Customer Name
-<input id="customerName" placeholder="Apna naam">
-</label>
-
-<label>
-Mobile Number
-<input
-id="mobile"
-type="tel"
-maxlength="10"
-placeholder="10 digit mobile number">
-</label>
-
-</div>
-
-
-<div>
-
-<label>
-Delivery Address
-<textarea
-id="address"
-placeholder="Pura delivery address"></textarea>
-</label>
-
-</div>
-
-</div>
-
-
-<h3>Payment Method</h3>
-
-<div class="payment-box">
-
-<label>
-<input
-type="radio"
-name="payment"
-value="upi"
-checked
-onchange="paymentChanged()">
-
-📱 UPI Payment
-</label>
-
-
-<label>
-<input
-type="radio"
-name="payment"
-value="cod"
-onchange="paymentChanged()">
-
-🚚 Cash on Delivery
-</label>
-
-
-<label>
-<input
-type="radio"
-name="payment"
-value="gateway"
-onchange="paymentChanged()">
-
-💳 Online Payment Gateway
-</label>
-
-
-<div id="paymentDetails"></div>
-
-</div>
-
-
-<p class="note">
-Real online payment ke liye Razorpay/Cashfree
-gateway ko baad me connect karna hoga.
-</p>
-
-
-<button class="primary" onclick="placeOrder()">
-Place Order
-</button>
-
-<div id="orderMessage"></div>
-
-</div>
-
+  <section class="section" id="checkout">
+    <div class="checkout">
+      <h2>💳 Checkout & Payment</h2>
+      <div class="checkoutgrid">
+        <div>
+          <label>Customer Name<input id="custName" placeholder="Apna naam"></label>
+          <label>Mobile Number<input id="custMobile" maxlength="10" inputmode="numeric" placeholder="10 digit mobile number"></label>
+          <label>Email<input id="custEmail" type="email" placeholder="customer@email.com"></label>
+        </div>
+        <div>
+          <label>Delivery Address<textarea id="custAddress" placeholder="Pura delivery address"></textarea></label>
+          <label>PIN Code<input id="custPin" maxlength="6" inputmode="numeric" placeholder="6 digit PIN"></label>
+        </div>
+      </div>
+      <h3>Payment Method</h3>
+      <div class="payment">
+        <label><input type="radio" name="pay" value="cod" checked onchange="paymentChange()"> 🚚 Cash on Delivery</label>
+        <label><input type="radio" name="pay" value="upi" onchange="paymentChange()"> 📱 UPI</label>
+        <label><input type="radio" name="pay" value="card" onchange="paymentChange()"> 💳 Saved/New Card</label>
+        <div id="paymentExtra"></div>
+      </div>
+      <p class="note">Demo checkout hai. Real payment receive karne ke liye merchant gateway + server-side verification zaroori hai.</p>
+      <button class="btn green full" onclick="placeOrder()">Place Order</button>
+      <div id="orderMsg"></div>
+    </div>
+  </section>
 </main>
 
-
-<footer>
-
-© 2026 SudhSagarMart —
-Shopping • Orders • Account • Settings
-
+<footer class="footer">
+  © 2026 SudhSagarMart • Shopping • Orders • Wishlist • Security • Helpdesk
+  <br><br>
+  <button class="btn gray" onclick="openHelp()">Help & Support</button>
 </footer>
 
-
-<!-- ACCOUNT -->
-
-<div class="modal" id="accountModal">
-
-<div class="modal-box">
-
-<button class="close" onclick="closeAccount()">×</button>
-
-<h2>👤 My Account</h2>
-
-
-<!-- LOGIN / REGISTER -->
-
-<div id="authArea">
-
-<div class="tabs">
-
-<button
-class="tab active"
-id="loginTab"
-onclick="showAuth('login')">
-Login
-</button>
-
-<button
-class="tab"
-id="registerTab"
-onclick="showAuth('register')">
-Create Account
-</button>
-
+<div id="accountModal" class="modal">
+ <div class="modalbox">
+  <button class="close" onclick="closeModal('accountModal')">×</button>
+  <h2>👤 My Account</h2>
+  <div id="authView"></div>
+  <div id="accountView" class="hidden"></div>
+ </div>
 </div>
 
-<div id="authForm"></div>
-
+<div id="helpModal" class="modal">
+ <div class="modalbox">
+  <button class="close" onclick="closeModal('helpModal')">×</button>
+  <h2>🆘 Help & Support</h2>
+  <div class="menu">
+   <button class="menuitem" onclick="showHelpText('help')"><b>📞 Customer Helpdesk</b><small>Orders, returns, delivery support</small></button>
+   <button class="menuitem" onclick="showHelpText('security')"><b>🔐 Security Help</b><small>Account and security assistance</small></button>
+   <button class="menuitem" onclick="openAIHelp()"><b>🤖 AI Helpdesk</b><small>Common questions ka instant answer</small></button>
+   <button class="menuitem" onclick="showHelpText('return')"><b>↩️ Return & Refund</b><small>Return process aur refund information</small></button>
+  </div>
+  <div id="helpText" class="info" style="margin-top:14px">
+   <b>Customer Care</b><p>Helpline: <a href="tel:+918000000000">1800-000-0000</a></p><p>Email: support@sudhsagarmart.example</p><small>Apna real helpline/email yahan baad me change kar dena.</small>
+  </div>
+ </div>
 </div>
 
-
-<!-- USER AREA -->
-
-<div id="userArea" style="display:none">
-
-<p>
-<b id="userName">Customer</b>
-<br>
-<span class="badge" id="userEmail"></span>
-</p>
-
-
-<div class="tabs">
-
-<button class="tab active"
-onclick="showPanel('profile',this)">
-Profile
-</button>
-
-<button class="tab"
-onclick="showPanel('orders',this)">
-My Orders
-</button>
-
-<button class="tab"
-onclick="showPanel('wishlist',this)">
-Wishlist
-</button>
-
-<button class="tab"
-onclick="showPanel('addresses',this)">
-Addresses
-</button>
-
-<button class="tab"
-onclick="showPanel('settings',this)">
-⚙️ Settings
-</button>
-
-<button class="tab"
-onclick="showPanel('security',this)">
-🔐 Security
-</button>
-
+<div id="aiModal" class="modal">
+ <div class="modalbox">
+  <button class="close" onclick="closeModal('aiModal')">×</button>
+  <h2>🤖 SudhSagar AI Helpdesk</h2>
+  <div class="chat">
+   <div id="messages" class="messages"><div class="msg bot">Namaste! Main SudhSagarMart AI Helpdesk hoon. Order, delivery, return, payment ya account ke baare me poochhiye.</div></div>
+   <div class="chatbar"><input id="aiInput" placeholder="Apna sawal likhiye..." onkeydown="if(event.key==='Enter')sendAI()"><button class="btn blue" onclick="sendAI()">Send</button></div>
+  </div>
+ </div>
 </div>
 
-
-<div id="panelContent"></div>
-
-</div>
-
-</div>
-
-</div>
-
+<div id="toast" class="toast"></div>
 
 <script>
-
-/* =========================
-PRODUCT DATA
-========================= */
-
-const PRODUCTS=[
-
-{
-id:1,
-name:"Cotton T-Shirt",
-price:399,
-old:599,
-cat:"Fashion",
-icon:"👕"
-},
-
-{
-id:2,
-name:"Smart Watch",
-price:999,
-old:1499,
-cat:"Electronics",
-icon:"⌚"
-},
-
-{
-id:3,
-name:"Bluetooth Earphone",
-price:699,
-old:999,
-cat:"Electronics",
-icon:"🎧"
-},
-
-{
-id:4,
-name:"Running Shoes",
-price:1299,
-old:1799,
-cat:"Footwear",
-icon:"👟"
-},
-
-{
-id:5,
-name:"Kitchen Pan",
-price:499,
-old:699,
-cat:"Kitchen",
-icon:"🍳"
-},
-
-{
-id:6,
-name:"Football",
-price:599,
-old:799,
-cat:"Sports",
-icon:"⚽"
-},
-
-{
-id:7,
-name:"Mobile Phone",
-price:9999,
-old:11999,
-cat:"Mobiles",
-icon:"📱"
-},
-
-{
-id:8,
-name:"Teddy Bear",
-price:349,
-old:499,
-cat:"Kids",
-icon:"🧸"
-},
-
-{
-id:9,
-name:"Mixer Grinder",
-price:1899,
-old:2299,
-cat:"Appliances",
-icon:"🧊"
-},
-
-{
-id:10,
-name:"Face Care Kit",
-price:549,
-old:799,
-cat:"Beauty",
-icon:"💄"
-},
-
-{
-id:11,
-name:"Grocery Pack",
-price:799,
-old:899,
-cat:"Grocery",
-icon:"🛒"
-},
-
-{
-id:12,
-name:"Bike Helmet",
-price:899,
-old:1199,
-cat:"Automotive",
-icon:"🏍️"
-},
-
-{
-id:13,
-name:"Home Lamp",
-price:699,
-old:999,
-cat:"Home",
-icon:"🏠"
-}
-
+const categories=[
+ ['Fashion','👕','Clothes & Style'],['Electronics','📱','Gadgets'],['Mobiles','📱','Phones'],['Home','🏠','Home Items'],
+ ['Grocery','🛒','Daily Needs'],['Beauty','💄','Beauty & Care'],['Footwear','👟','Shoes'],['Appliances','🧊','Home Appliances'],
+ ['Kitchen','🍳','Kitchen Items'],['Kids','🧸','Toys & Kids'],['Sports','⚽','Sports Items'],['Automotive','🏍️','Bike & Car']
 ];
 
-
-const CATS=[
-
-["Fashion","👕","Clothes & Style"],
-["Electronics","📱","Gadgets"],
-["Mobiles","📱","Phones"],
-["Home","🏠","Home Items"],
-["Grocery","🛒","Daily Needs"],
-["Beauty","💄","Beauty & Care"],
-["Footwear","👟","Shoes"],
-["Appliances","🧊","Home Appliances"],
-["Kitchen","🍳","Kitchen Items"],
-["Kids","🧸","Toys & Kids"],
-["Sports","⚽","Sports Items"],
-["Automotive","🏍️","Bike & Car"]
-
+const products=[
+ {id:1,name:'Cotton T-Shirt',cat:'Fashion',price:399,old:599,icon:'👕',rating:'4.3'},
+ {id:2,name:'Smart Watch',cat:'Electronics',price:999,old:1499,icon:'⌚',rating:'4.2'},
+ {id:3,name:'Bluetooth Earphone',cat:'Electronics',price:699,old:999,icon:'🎧',rating:'4.1'},
+ {id:4,name:'Running Shoes',cat:'Footwear',price:1299,old:1799,icon:'👟',rating:'4.4'},
+ {id:5,name:'Kitchen Pan',cat:'Kitchen',price:499,old:699,icon:'🍳',rating:'4.5'},
+ {id:6,name:'Football',cat:'Sports',price:599,old:799,icon:'⚽',rating:'4.2'},
+ {id:7,name:'Mobile Phone',cat:'Mobiles',price:9999,old:11999,icon:'📱',rating:'4.0'},
+ {id:8,name:'Teddy Bear',cat:'Kids',price:349,old:499,icon:'🧸',rating:'4.6'},
+ {id:9,name:'Mixer Grinder',cat:'Appliances',price:2299,old:2999,icon:'🔌',rating:'4.3'},
+ {id:10,name:'Face Care Kit',cat:'Beauty',price:799,old:1099,icon:'💄',rating:'4.1'},
+ {id:11,name:'Grocery Combo Pack',cat:'Grocery',price:899,old:1099,icon:'🛒',rating:'4.4'},
+ {id:12,name:'Car Cleaning Kit',cat:'Automotive',price:649,old:899,icon:'🚗',rating:'4.2'}
 ];
 
+let cart=JSON.parse(localStorage.getItem('ssm_cart')||'[]');
+let wishlist=JSON.parse(localStorage.getItem('ssm_wishlist')||'[]');
+let orders=JSON.parse(localStorage.getItem('ssm_orders')||'[]');
+let user=JSON.parse(localStorage.getItem('ssm_user')||'null');
+let cards=JSON.parse(localStorage.getItem('ssm_cards')||'[]');
+let address=localStorage.getItem('ssm_address')||'';
 
-/* =========================
-LOCAL DATA
-========================= */
-
-let cart =
-JSON.parse(localStorage.getItem("ssm_cart") || "[]");
-
-let wishlist =
-JSON.parse(localStorage.getItem("ssm_wishlist") || "[]");
-
-let users =
-JSON.parse(localStorage.getItem("ssm_users") || "[]");
-
-let orders =
-JSON.parse(localStorage.getItem("ssm_orders") || "[]");
-
-let currentUser =
-JSON.parse(
-localStorage.getItem("ssm_currentUser") || "null"
-);
-
-
-/* =========================
-HELPERS
-========================= */
-
-function save(key,value){
-
-localStorage.setItem(
-key,
-JSON.stringify(value)
-);
-
+function save(){
+ localStorage.setItem('ssm_cart',JSON.stringify(cart));
+ localStorage.setItem('ssm_wishlist',JSON.stringify(wishlist));
+ localStorage.setItem('ssm_orders',JSON.stringify(orders));
+ localStorage.setItem('ssm_user',JSON.stringify(user));
+ localStorage.setItem('ssm_cards',JSON.stringify(cards));
 }
-
-
-function money(number){
-
-return Number(number)
-.toLocaleString("en-IN");
-
-}
-
-
-function esc(text){
-
-return String(text || "")
-.replace(
-/[&<>"']/g,
-m=>({
-
-"&":"&amp;",
-"<":"&lt;",
-">":"&gt;",
-'"':"&quot;",
-"'":"&#039;"
-
-}[m])
-);
-
-}
-
-
-/* =========================
-CATEGORIES
-========================= */
+function money(n){return Number(n).toLocaleString('en-IN')}
+function toast(t){let x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
+function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'})}
 
 function renderCategories(){
-
-document.getElementById("categoryList")
-.innerHTML=
-
-CATS.map(c=>`
-
-<div
-class="category"
-onclick="showCategory('${c[0]}')">
-
-<span class="emoji">
-${c[1]}
-</span>
-
-<b>${c[0]}</b>
-
-<small>
-${c[2]}
-</small>
-
-</div>
-
-`).join("");
-
+ document.getElementById('categoryList').innerHTML=categories.map(c=>`
+ <button class="cat" onclick="filterCategory('${c[0]}')"><span class="ico">${c[1]}</span><b>${c[0]}</b><small>${c[2]}</small></button>`).join('');
 }
-
-
-/* =========================
-PRODUCTS
-========================= */
-
-function renderProducts(list=PRODUCTS){
-
-document.getElementById("productList")
-.innerHTML=
-
-list.length
-
-?
-
-list.map(p=>`
-
-<div class="card">
-
-<div class="pic">
-${p.icon}
-</div>
-
-<h3>
-${esc(p.name)}
-</h3>
-
-<div class="price">
-
-₹${money(p.price)}
-
-<span class="old">
-₹${money(p.old)}
-</span>
-
-</div>
-
-
-<div class="actions">
-
-<button
-class="add"
-onclick="addCart(${p.id})">
-
-Add to Cart
-
-</button>
-
-
-<button
-class="buy"
-onclick="buyNow(${p.id})">
-
-Buy Now
-
-</button>
-
-
-<button
-class="wish ${
-wishlist.includes(p.id)
-?
-"active"
-:
-""
-}"
-onclick="toggleWishlist(${p.id})">
-
-${
-wishlist.includes(p.id)
-?
-"❤️ Remove Wishlist"
-:
-"❤️ Wishlist"
+function renderProducts(list=products){
+ document.getElementById('productList').innerHTML=list.length?list.map(p=>{
+  let wish=wishlist.includes(p.id);
+  let off=Math.round((1-p.price/p.old)*100);
+  return `<div class="card">
+   <div class="pic">${p.icon}</div>
+   <h3>${p.name}</h3><div class="rating">★ ${p.rating} • Assured</div>
+   <div class="price">₹${money(p.price)} <span class="old">₹${money(p.old)}</span><span class="off">${off}% off</span></div>
+   <div class="row"><button class="btn yellow full" onclick="addCart(${p.id})">Add to Cart</button><button class="btn green full" onclick="buyNow(${p.id})">Buy Now</button></div>
+   <button class="btn ${wish?'red':'gray'} full" style="margin-top:7px" onclick="toggleWish(${p.id})">${wish?'❤️ Wishlisted':'♡ Wishlist'}</button>
+  </div>`;
+ }).join(''):'<div class="empty">Is category me product nahi mila.</div>';
 }
-
-</button>
-
-</div>
-
-</div>
-
-`).join("")
-
-:
-
-"<div class='empty'>Product nahi mila.</div>";
-
-}
-
-
-/* =========================
-CART
-========================= */
-
-function addCart(id){
-
-const product =
-PRODUCTS.find(p=>p.id===id);
-
-if(!product)return;
-
-
-const item =
-cart.find(x=>x.id===id);
-
-
-if(item){
-
-item.qty++;
-
-}
-
-else{
-
-cart.push({
-
-id:product.id,
-name:product.name,
-price:product.price,
-qty:1
-
-});
-
-}
-
-
-save("ssm_cart",cart);
-
-renderCart();
-
-alert("Product cart me add ho gaya.");
-
-}
-
-
-function buyNow(id){
-
-addCart(id);
-
-openCheckout();
-
-}
-
-
-function changeQty(id,amount){
-
-const item =
-cart.find(x=>x.id===id);
-
-if(!item)return;
-
-
-item.qty += amount;
-
-
-if(item.qty<=0){
-
-cart =
-cart.filter(x=>x.id!==id);
-
-}
-
-
-save("ssm_cart",cart);
-
-renderCart();
-
-}
-
-
-function removeCart(id){
-
-cart =
-cart.filter(x=>x.id!==id);
-
-save("ssm_cart",cart);
-
-renderCart();
-
-}
-
-
-function cartTotal(){
-
-return cart.reduce(
-(sum,x)=>
-sum + x.price*x.qty,
-0
-);
-
-}
-
-
-function renderCart(){
-
-document.getElementById("count")
-.textContent=
-
-cart.reduce(
-(sum,x)=>sum+x.qty,
-0
-);
-
-
-document.getElementById("total")
-.textContent=
-money(cartTotal());
-
-
-const box =
-document.getElementById("cartItems");
-
-
-if(!cart.length){
-
-box.innerHTML=
-"<div class='empty'>Cart empty hai.</div>";
-
-return;
-
-}
-
-
-box.innerHTML=
-
-cart.map(x=>`
-
-<div class="cart-row">
-
-<div>
-
-<b>${esc(x.name)}</b>
-
-<br>
-
-₹${money(x.price)}
-× ${x.qty}
-
-=
-
-<b>
-₹${money(x.price*x.qty)}
-</b>
-
-</div>
-
-
-<div class="qty">
-
-<button
-onclick="changeQty(${x.id},-1)">
-−
-</button>
-
-<b>${x.qty}</b>
-
-<button
-onclick="changeQty(${x.id},1)">
-+
-</button>
-
-<button
-class="remove"
-onclick="removeCart(${x.id})">
-
-Remove
-
-</button>
-
-</div>
-
-</div>
-
-`).join("");
-
-}
-
-
-function goCart(){
-
-document
-.getElementById("cart")
-.scrollIntoView({
-behavior:"smooth"
-});
-
-}
-
-
-/* =========================
-SEARCH
-========================= */
-
+function filterCategory(cat){renderProducts(products.filter(p=>p.cat===cat));scrollToId('products');}
 function searchProducts(){
-
-const q =
-document
-.getElementById("search")
-.value
-.toLowerCase();
-
-
-renderProducts(
-
-PRODUCTS.filter(p=>
-
-(
-p.name+
-" "+
-p.cat
-)
-.toLowerCase()
-.includes(q)
-
-)
-
-);
-
+ let q=document.getElementById('search').value.toLowerCase().trim();
+ renderProducts(products.filter(p=>(p.name+' '+p.cat).toLowerCase().includes(q)));
 }
-
-
-function showCategory(category){
-
-document
-.getElementById("search")
-.value="";
-
-
-renderProducts(
-
-PRODUCTS.filter(
-p=>p.cat===category
-)
-
-);
-
-
-document
-.getElementById("products")
-.scrollIntoView({
-behavior:"smooth"
-});
-
+function addCart(id){let p=products.find(x=>x.id===id);cart.push({id:p.id,name:p.name,price:p.price});save();renderCart();toast(p.name+' cart me add ho gaya');}
+function buyNow(id){addCart(id);openCheckout()}
+function removeCart(i){cart.splice(i,1);save();renderCart()}
+function clearCart(){cart=[];save();renderCart();toast('Cart clear ho gaya')}
+function renderCart(){
+ document.getElementById('cartCount').textContent=cart.length;
+ let box=document.getElementById('cartItems');
+ if(!cart.length){box.innerHTML='<div class="empty">Cart empty hai. Product add kijiye.</div>';}
+ else box.innerHTML=cart.map((x,i)=>`<div class="cartrow"><div><b>${i+1}. ${x.name}</b><br>₹${money(x.price)}</div><button class="btn red" onclick="removeCart(${i})">Remove</button></div>`).join('');
+ document.getElementById('cartTotal').textContent=money(cart.reduce((s,x)=>s+x.price,0));
 }
-
-
-/* =========================
-WISHLIST
-========================= */
-
-function toggleWishlist(id){
-
-if(!currentUser){
-
-alert(
-"Wishlist ke liye pehle Login/Create Account karein."
-);
-
-openAccount();
-
-return;
-
+function openCheckout(){if(!cart.length){toast('Pehle product cart me add kijiye');scrollToId('products');return}scrollToId('checkout')}
+function paymentChange(){
+ let v=document.querySelector('input[name=pay]:checked').value, el=document.getElementById('paymentExtra');
+ if(v==='upi')el.innerHTML='<label>UPI ID<input id="upi" placeholder="example@upi"></label>';
+ else if(v==='card')el.innerHTML=`<label>Saved Card<select id="cardSelect"><option value="">New card</option>${cards.map((c,i)=>`<option value="${i}">${c.number} — ${c.name}</option>`).join('')}</select></label><div id="newCard"></div>`;
+ else el.innerHTML='<p>Delivery ke time cash payment.</p>';
 }
-
-
-if(wishlist.includes(id)){
-
-wishlist =
-wishlist.filter(x=>x!==id);
-
-}
-
-else{
-
-wishlist.push(id);
-
-}
-
-
-save(
-"ssm_wishlist",
-wishlist
-);
-
-renderProducts();
-
-}
-
-
-/* =========================
-CHECKOUT
-========================= */
-
-function openCheckout(){
-
-if(!cart.length){
-
-alert(
-"Pehle product cart me add karein."
-);
-
-return;
-
-}
-
-
-document
-.getElementById("checkout")
-.scrollIntoView({
-behavior:"smooth"
-});
-
-}
-
-
-function paymentChanged(){
-
-const method =
-document.querySelector(
-'input[name="payment"]:checked'
-).value;
-
-
-const box =
-document.getElementById(
-"paymentDetails"
-);
-
-
-if(method==="upi"){
-
-box.innerHTML=`
-
-<label>
-
-UPI ID
-
-<input
-id="upiId"
-placeholder="example@upi">
-
-</label>
-
-`;
-
-}
-
-else if(method==="cod"){
-
-box.innerHTML=`
-
-<b>🚚 Cash on Delivery</b>
-
-<br>
-
-<span class="note">
-Delivery ke time cash payment.
-</span>
-
-`;
-
-}
-
-else{
-
-box.innerHTML=`
-
-<b>💳 Online Payment Gateway</b>
-
-<br>
-
-<span class="note">
-Gateway abhi demo mode me hai.
-</span>
-
-`;
-
-}
-
-}
-
-
-/* =========================
-PLACE ORDER
-========================= */
-
 function placeOrder(){
+ if(!cart.length){toast('Cart empty hai');return}
+ let name=document.getElementById('custName').value.trim(),mobile=document.getElementById('custMobile').value.trim(),addr=document.getElementById('custAddress').value.trim(),pin=document.getElementById('custPin').value.trim();
+ if(!name||!/^\d{10}$/.test(mobile)||!addr||!/^\d{6}$/.test(pin)){toast('Name, 10 digit mobile, address aur 6 digit PIN bhariye');return}
+ let total=cart.reduce((s,x)=>s+x.price,0);
+ let o={id:'SSM'+Date.now(),date:new Date().toLocaleString('en-IN'),items:[...cart],total,status:'Order Placed',name,mobile,addr,pin};
+ orders.unshift(o);cart=[];save();renderCart();
+ document.getElementById('orderMsg').innerHTML=`<div class="info"><b>✅ Order placed successfully!</b><p>Order ID: <b>${o.id}</b></p><p>Total: ₹${money(total)}</p></div>`;
+ toast('Order placed');
+}
+function toggleWish(id){let i=wishlist.indexOf(id);if(i>=0)wishlist.splice(i,1);else wishlist.push(id);save();renderProducts();toast(i>=0?'Wishlist se remove':'Wishlist me add')}
+function openAccount(){document.getElementById('accountModal').classList.add('show');renderAccount()}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function renderAccount(){
+ let a=document.getElementById('authView'),v=document.getElementById('accountView');
+ if(!user){
+  v.classList.add('hidden');a.classList.remove('hidden');
+  a.innerHTML=`<div class="tabs"><button class="tab active" onclick="authForm('login',this)">Login</button><button class="tab" onclick="authForm('register',this)">Create Account</button></div><div id="authForm"></div>`;
+  authForm('login',document.querySelector('#authView .tab'));
+ }else{
+  a.classList.add('hidden');v.classList.remove('hidden');
+  v.innerHTML=`<p>Welcome, <b>${esc(user.name)}</b> <span class="badge">Verified Demo Account</span></p>
+  <div class="tabs">
+   <button class="tab active" onclick="accountPanel('profile',this)">Profile</button>
+   <button class="tab" onclick="accountPanel('orders',this)">My Orders</button>
+   <button class="tab" onclick="accountPanel('wishlist',this)">Wishlist</button>
+   <button class="tab" onclick="accountPanel('addresses',this)">Addresses</button>
+   <button class="tab" onclick="accountPanel('cards',this)">Saved Cards</button>
+   <button class="tab" onclick="accountPanel('settings',this)">⚙️ Settings</button>
+   <button class="tab" onclick="accountPanel('security',this)">🔐 Security</button>
+   <button class="tab" onclick="accountPanel('help',this)">🆘 Helpdesk</button>
+  </div><div id="accountPanel"></div>`;
+  accountPanel('profile',document.querySelector('#accountView .tab'));
+ }
+ document.getElementById('loginLabel').textContent=user?user.name.slice(0,12):'Login';
+}
+function authForm(type,btn){
+ document.querySelectorAll('#authView .tab').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');
+ document.getElementById('authForm').innerHTML=type==='login'?`
+ <label>Email<input id="loginEmail" type="email" placeholder="customer@email.com"></label>
+ <label>Password<input id="loginPass" type="password" placeholder="Password"></label>
+ <button class="btn blue full" onclick="login()">Login</button>
+ <p class="note">Demo account browser me save hota hai. Real authentication ke liye Firebase/backend connect karna hoga.</p>`:
+ `<label>Name<input id="regName" placeholder="Your name"></label>
+ <label>Email<input id="regEmail" type="email" placeholder="customer@email.com"></label>
+ <label>Mobile<input id="regMobile" maxlength="10" placeholder="10 digit mobile"></label>
+ <label>Password<input id="regPass" type="password" minlength="6" placeholder="Minimum 6 characters"></label>
+ <button class="btn green full" onclick="register()">Create Account</button>`;
+}
+function register(){
+ let name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),mobile=document.getElementById('regMobile').value.trim(),pass=document.getElementById('regPass').value;
+ if(!name||!email||!/^\d{10}$/.test(mobile)||pass.length<6){toast('Sabhi details sahi bhariye');return}
+ user={name,email,mobile,password:pass};save();toast('Account created');renderAccount();
+}
+function login(){
+ let e=document.getElementById('loginEmail').value.trim(),p=document.getElementById('loginPass').value;
+ let saved=JSON.parse(localStorage.getItem('ssm_user')||'null');
+ if(saved&&saved.email===e&&saved.password===p){user=saved;save();toast('Login successful');renderAccount()}
+ else toast('Email ya password galat hai');
+}
+function logout(){user=null;save();renderAccount();toast('Logout successful')}
+function accountPanel(type,btn){
+ document.querySelectorAll('#accountView .tab').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');
+ let p=document.getElementById('accountPanel');
+ if(type==='profile')p.innerHTML=`<div class="panel"><h3>👤 Profile</h3><p><b>Name:</b> ${esc(user.name)}</p><p><b>Email:</b> ${esc(user.email)}</p><p><b>Mobile:</b> ${esc(user.mobile)}</p><button class="btn red" onclick="logout()">Logout</button></div>`;
+ if(type==='orders')p.innerHTML=`<div class="panel"><h3>📦 My Orders</h3>${orders.length?orders.map(o=>`<div class="item"><b>${o.id}</b> <span class="badge">${o.status}</span><br>${o.date}<br>₹${money(o.total)} • ${o.items.length} item(s)</div>`).join(''):'<div class="empty">Abhi koi order nahi hai.</div>'}</div>`;
+ if(type==='wishlist')p.innerHTML=`<div class="panel"><h3>❤️ Wishlist</h3>${wishlist.length?products.filter(x=>wishlist.includes(x.id)).map(x=>`<div class="item"><b>${x.name}</b> — ₹${money(x.price)} <button class="btn blue" onclick="addCart(${x.id})">Add Cart</button></div>`).join(''):'<div class="empty">Wishlist empty hai.</div>'}</div>`;
+ if(type==='addresses')p.innerHTML=`<div class="panel"><h3>📍 Saved Address</h3><textarea id="savedAddr">${esc(address)}</textarea><button class="btn blue full" onclick="saveAddr()">Save Address</button></div>`;
+ if(type==='cards')p.innerHTML=`<div class="panel"><h3>💳 Saved Cards</h3><p class="note">Demo me full card number store nahi kiya jata; sirf last 4 digits dikhaye jaate hain.</p>${cards.length?cards.map((c,i)=>`<div class="item">💳 <b>${esc(c.number)}</b> • ${esc(c.name)} <button class="btn red" onclick="deleteCard(${i})">Remove</button></div>`).join(''):'<div class="empty">Koi saved card nahi.</div>'}<hr><h4>Add Card</h4><input id="cardNum" maxlength="19" placeholder="Card number"><input id="cardName" placeholder="Name on card" style="margin-top:8px"><button class="btn green full" style="margin-top:8px" onclick="addCard()">Save Card</button></div>`;
+ if(type==='settings')p.innerHTML=`<div class="panel"><h3>⚙️ Settings</h3>
+ <div class="menu">
+ <button class="menuitem" onclick="accountPanel('security')"><b>🔐 Security</b><small>Password, login security</small></button>
+ <button class="menuitem" onclick="accountPanel('cards')"><b>💳 Saved Cards</b><small>Manage saved payment cards</small></button>
+ <button class="menuitem" onclick="showHelpText('help');openHelp()"><b>📞 Helpline</b><small>Customer support</small></button>
+ <button class="menuitem" onclick="openAIHelp()"><b>🤖 AI Helpdesk</b><small>Instant assistance</small></button>
+ <button class="menuitem" onclick="toast('Notifications preference saved')"><b>🔔 Notifications</b><small>Order updates and offers</small></button>
+ <button class="menuitem" onclick="toast('Language setting ready')"><b>🌐 Language</b><small>Hindi / English</small></button>
+ </div>
+ <div class="dangerbox" style="margin-top:14px"><b>⚠️ Account data</b><p>Local demo data clear karne par account, cart, wishlist aur saved cards remove ho jayenge.</p><button class="btn red" onclick="clearAll()">Clear All Local Data</button></div></div>`;
+ if(type==='security')p.innerHTML=`<div class="panel"><h3>🔐 Security Center</h3><p><span class="badge">Password Protected</span></p><h4>Change Password</h4><label>Current Password<input id="oldPass" type="password"></label><label>New Password<input id="newPass" type="password" minlength="6"></label><label>Confirm New Password<input id="newPass2" type="password"></label><button class="btn blue full" onclick="changePassword()">Change Password</button><hr><p>🔒 Password code me nahi dikhaya jata. Production me Firebase Authentication/backend use karein.</p></div>`;
+ if(type==='help')p.innerHTML=`<div class="panel"><h3>🆘 Helpdesk</h3><div class="menu"><button class="menuitem" onclick="showHelpText('help');openHelp()"><b>📞 Helpline</b><small>1800-000-0000</small></button><button class="menuitem" onclick="openAIHelp()"><b>🤖 AI Helpdesk</b><small>Chat support</small></button><button class="menuitem" onclick="showHelpText('return');openHelp()"><b>↩️ Return & Refund</b><small>Support information</small></button><button class="menuitem" onclick="showHelpText('security');openHelp()"><b>🔐 Security Help</b><small>Account security</small></button></div></div>`;
+}
+function changePassword(){
+ let a=document.getElementById('oldPass').value,b=document.getElementById('newPass').value,c=document.getElementById('newPass2').value;
+ if(a!==user.password||b.length<6||b!==c){toast('Password details sahi nahi hain');return}
+ user.password=b;save();toast('Password changed successfully');accountPanel('security');
+}
+function saveAddr(){address=document.getElementById('savedAddr').value.trim();localStorage.setItem('ssm_address',address);toast('Address saved')}
+function addCard(){
+ let n=document.getElementById('cardNum').value.replace(/\s/g,''),name=document.getElementById('cardName').value.trim();
+ if(!/^\d{12,19}$/.test(n)||!name){toast('Card details sahi bhariye');return}
+ cards.push({number:'•••• •••• •••• '+n.slice(-4),name});save();toast('Card saved');accountPanel('cards');
+}
+function deleteCard(i){cards.splice(i,1);save();accountPanel('cards');toast('Card removed')}
+function clearAll(){if(confirm('Sab local demo data delete karna hai?')){localStorage.clear();location.reload()}}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 
-if(!cart.length){
-
-alert("Cart empty hai.");
-
-return;
-
+function openHelp(){document.getElementById('helpModal').classList.add('show')}
+function showHelpText(t){
+ let x=document.getElementById('helpText');
+ if(t==='help')x.innerHTML='<b>📞 Customer Helpdesk</b><p>Helpline: <a href="tel:+918000000000">1800-000-0000</a></p><p>Email: support@sudhsagarmart.example</p>';
+ if(t==='security')x.innerHTML='<b>🔐 Security Help</b><p>Password change, account login aur suspicious activity ke liye support se contact karein.</p>';
+ if(t==='return')x.innerHTML='<b>↩️ Return & Refund</b><p>Order details me return/refund request ka option production version me add kiya ja sakta hai.</p>';
+}
+function openAIHelp(){document.getElementById('aiModal').classList.add('show')}
+function sendAI(){
+ let input=document.getElementById('aiInput'),q=input.value.trim();if(!q)return;
+ let box=document.getElementById('messages');box.innerHTML+=`<div class="msg me">${esc(q)}</div>`;
+ let l=q.toLowerCase(),ans='Main aapki help kar sakta hoon. Order ID, delivery, return, payment ya account ke baare me poochhiye.';
+ if(l.includes('order'))ans='My Account → My Orders me aapke placed orders dikhte hain.';
+ else if(l.includes('delivery'))ans='Delivery ka status My Orders section me dekha ja sakta hai.';
+ else if(l.includes('return')||l.includes('refund'))ans='Return/refund ke liye Helpdesk se support le sakte hain.';
+ else if(l.includes('password'))ans='My Account → Security → Change Password se password badal sakte hain.';
+ else if(l.includes('card'))ans='My Account → Saved Cards se card add/remove kar sakte hain.';
+ else if(l.includes('payment'))ans='Checkout me COD, UPI aur Saved/New Card options available hain.';
+ else if(l.includes('cart'))ans='Product par Add to Cart dabaiye, phir Cart se checkout kijiye.';
+ box.innerHTML+=`<div class="msg bot">${ans}</div>`;box.scrollTop=box.scrollHeight;input.value='';
 }
 
-
-const name =
-document
-.getElementById("customerName")
-.value.trim();
-
-
-const mobile =
-document
-.getElementById("mobile")
-.value.trim();
-
-
-const address =
-document
-.getElementById("address")
-.value.trim();
-
-
-if(!name){
-
-alert("Customer name bhariye.");
-
-return;
-
-}
-
-
-if(!/^[0-9]{10}$/.test(mobile)){
-
-alert(
-"10 digit mobile number bhariye."
-);
-
-return;
-
-}
-
-
-if(!address){
-
-alert(
-"Delivery address bhariye."
-);
-
-return;
-
-}
-
-
-const method =
-document.querySelector(
-'input[name="payment"]:checked'
-).value;
-
-
-const order={
-
-id:
-"SSM"+
-Date.now()
-.toString()
-.slice(-8),
-
-date:
-new Date()
-.toLocaleString("en-IN"),
-
-name:name,
-
-mobile:mobile,
-
-address:address,
-
-method:method,
-
-total:cartTotal(),
-
-items:
-cart.map(x=>({...x})),
-
-email:
-currentUser
-?
-currentUser.email
-:
-""
-
-};
-
-
-orders.unshift(order);
-
-save(
-"ssm_orders",
-orders
-);
-
-
-cart=[];
-
-save(
-"ssm_cart",
-cart
-);
-
-renderCart();
-
-
-document.getElementById(
-"orderMessage"
-).innerHTML=`
-
-<div class="success">
-
-<b>
-✅ Order Successfully Placed!
-</b>
-
-<br><br>
-
-Order ID:
-<b>${order.id}</b>
-
-<br>
-
-Total:
-<b>₹${money(order.total)}</b>
-
-<br>
-
-Payment:
-${method.toUpperCase()}
-
-</div>
-
-`;
-
-
-document.getElementById(
-"customerName"
-).value="";
-
-
-document.getElementById(
-"mobile"
-).value="";
-
-
-document.getElementById(
-"address"
-).value="";
-
-}
-
-
-/* =========================
-ACCOUNT
-========================= */
-
-function openAccount(){
-
-document
-.getElementById("accountModal")
-.classList
-.add("show");
-
-
-if(currentUser){
-
-renderUserArea();
-
-}
-
-else{
-
-showAuth("login");
-
-}
-
-}
-
-
-function closeAccount(){
-
-document
-.getElementById("accountModal")
-.classList
-.remove("show");
-
-}
-
-
-/* =========================
-LOGIN / REGISTER
-========================= */
-
-function showAuth(type){
-
-document
-.getElementById("loginTab")
-.classList
-.toggle(
-"active",
-type==="login"
-);
-
-
-document
-.getElementById("registerTab")
-.classList
-.toggle(
-"active",
-type==="register"
-);
-
-
-if(type==="login"){
-
-document
-.getElementById("authForm")
-.innerHTML=`
-
-<label>
-
-Email
-
-<input
-id="authEmail"
-type="email"
-placeholder="customer@email.com">
-
-</label>
-
-
-<label>
-
-Password
-
-<input
-id="authPassword"
-type="password"
-placeholder="Password">
-
-</label>
-
-
-<button
-class="primary"
-onclick="loginCustomer()">
-
-Login
-
-</button>
-
-`;
-
-}
-
-else{
-
-document
-.getElementById("authForm")
-.innerHTML=`
-
-<label>
-
-Customer Name
-
-<input
-id="authName"
-placeholder="Aapka naam">
-
-</label>
-
-
-<label>
-
-Email
-
-<input
-id="authEmail"
-type="email"
-placeholder="customer@email.com">
-
-</label>
-
-
-<label>
-
-Password
-
-<input
-id="authPassword"
-type="password"
-minlength="6"
-placeholder="Minimum 6 characters">
-
-</label>
-
-
-<button
-class="primary"
-onclick="registerCustomer()">
-
-Create Account
-
-</button>
-
-`;
-
-}
-
-}
-
-
-/* CREATE ACCOUNT */
-
-function registerCustomer(){
-
-const name =
-document
-.getElementById("authName")
-.value.trim();
-
-
-const email =
-document
-.getElementById("authEmail")
-.value.trim()
-.toLowerCase();
-
-
-const password =
-document
-.getElementById("authPassword")
-.value;
-
-
-if(!name || !email || !password){
-
-alert(
-"Sabhi fields bhariye."
-);
-
-return;
-
-}
-
-
-if(password.length<6){
-
-alert(
-"Password minimum 6 characters ka hona chahiye."
-);
-
-return;
-
-}
-
-
-if(
-users.some(
-u=>u.email===email
-)
-){
-
-alert(
-"Is email se account already bana hua hai."
-);
-
-return;
-
-}
-
-
-const user={
-
-id:Date.now(),
-
-displayName:name,
-
-email:email,
-
-password:password
-
-};
-
-
-users.push(user);
-
-save(
-"ssm_users",
-users
-);
-
-
-currentUser={
-
-id:user.id,
-
-displayName:user.displayName,
-
-email:user.email
-
-};
-
-
-save(
-"ssm_currentUser",
-currentUser
-);
-
-
-renderUserArea();
-
-alert(
-"Account create ho gaya."
-);
-
-}
-
-
-/* LOGIN */
-
-function loginCustomer(){
-
-const email =
-document
-.getElementById("authEmail")
-.value
-.trim()
-.toLowerCase();
-
-
-const password =
-document
-.getElementById("authPassword")
-.value;
-
-
-const user =
-users.find(
-u=>
-u.email===email &&
-u.password===password
-);
-
-
-if(!user){
-
-alert(
-"Email ya password galat hai."
-);
-
-return;
-
-}
-
-
-currentUser={
-
-id:user.id,
-
-displayName:user.displayName,
-
-email:user.email
-
-};
-
-
-save(
-"ssm_currentUser",
-currentUser
-);
-
-
-renderUserArea();
-
-}
-
-
-/* LOGOUT */
-
-function logoutCustomer(){
-
-currentUser=null;
-
-localStorage.removeItem(
-"ssm_currentUser"
-);
-
-
-renderLoggedOut();
-
-}
-
-
-function renderLoggedOut(){
-
-document
-.getElementById("authArea")
-.style.display="block";
-
-
-document
-.getElementById("userArea")
-.style.display="none";
-
-
-document
-.getElementById("accountLabel")
-.textContent="Login";
-
-
-showAuth("login");
-
-}
-
-
-/* =========================
-USER AREA
-========================= */
-
-function renderUserArea(){
-
-document
-.getElementById("authArea")
-.style.display="none";
-
-
-document
-.getElementById("userArea")
-.style.display="block";
-
-
-document
-.getElementById("accountLabel")
-.textContent=
-(
-currentUser.displayName ||
-"Account"
-)
-.slice(0,12);
-
-
-document
-.getElementById("userName")
-.textContent=
-curre
-
-  <script> from pathlib import Path
-path = Path("/mnt/data/SudhSagarMart_WORKING_index.html")
-path.write_text(html, encoding="utf-8")
-print(path)
+renderCategories();renderProducts();renderCart();paymentChange();
+if(user)document.getElementById('loginLabel').textContent=user.name.slice(0,12);
+</script>
+</body>
+</html>
