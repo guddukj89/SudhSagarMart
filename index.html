@@ -4,587 +4,1991 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SudhSagarMart - Online Shopping</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#222}
-header{background:#1557d6;color:#fff;padding:14px 5%;position:sticky;top:0;z-index:10}
-.top{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.logo{font-size:25px;font-weight:bold}
-.search{flex:1;min-width:220px;padding:13px;border:0;border-radius:8px;font-size:15px}
-nav{margin-top:12px;display:flex;gap:20px;flex-wrap:wrap}
-nav a{color:#fff;text-decoration:none;font-weight:bold}
-main{max-width:1200px;margin:auto;padding:25px 15px}
-.hero{background:linear-gradient(120deg,#1557d6,#2878ef);color:#fff;padding:28px;border-radius:14px;margin-bottom:25px}
-.hero h1{margin:0 0 8px;font-size:32px}
-h2{margin-top:28px}
-.categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px}
-.category{background:#fff;border-radius:12px;padding:16px 8px;text-align:center;box-shadow:0 2px 10px #ddd;cursor:pointer;transition:.2s}
-.category:hover{transform:translateY(-3px)}
-.emoji{font-size:35px;display:block;margin-bottom:7px}
-.category small{display:block;color:#666;margin-top:4px}
-.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
-.card,.cart,.checkout{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 10px #ddd}
-.pic{height:150px;background:#eef4ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:60px}
-.price{font-size:20px;font-weight:bold;margin:10px 0}
-.old{font-size:13px;color:#888;text-decoration:line-through;margin-left:5px}
-.actions{display:flex;gap:8px;flex-direction:column}
-.add,.buy,.checkout-btn{width:100%;border:0;padding:11px;border-radius:7px;font-weight:bold;cursor:pointer;color:#fff}
-.add{background:#f0a900}.buy{background:#16a34a}.checkout-btn{background:#1557d6}
-.cart{margin-top:30px}
-.cart-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #eee}
-.remove{border:0;background:#dc2626;color:#fff;border-radius:5px;padding:5px 8px;cursor:pointer}
-.checkout{margin-top:25px}
-.checkout-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.checkout input,.checkout textarea,.checkout select{width:100%;padding:11px;border:1px solid #ccc;border-radius:7px;margin-top:6px}
-.checkout textarea{min-height:80px;resize:vertical}
-.payment-box{border:1px solid #ddd;border-radius:8px;padding:12px;margin-top:10px}
-.note{font-size:13px;color:#666}
-.success{background:#ecfdf5;border:1px solid #86efac;padding:15px;border-radius:8px;margin-top:12px;color:#166534}
-footer{margin-top:35px;background:#17202a;color:#fff;padding:25px;text-align:center}
-@media(max-width:700px){.hero h1{font-size:25px}.categories{grid-template-columns:repeat(3,1fr)}.checkout-grid{grid-template-columns:1fr}}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#f5f7fb;
+color:#222
+}
+
+button,input,textarea,select{
+font:inherit
+}
+
+header{
+background:#1557d6;
+color:#fff;
+padding:12px 5%;
+position:sticky;
+top:0;
+z-index:20
+}
+
+.top{
+display:flex;
+align-items:center;
+gap:12px;
+flex-wrap:wrap
+}
+
+.logo{
+font-size:23px;
+font-weight:800;
+white-space:nowrap
+}
+
+.search{
+flex:1;
+min-width:190px;
+padding:12px;
+border:0;
+border-radius:8px
+}
+
+.header-btn{
+background:#fff;
+color:#1557d6;
+border:0;
+border-radius:8px;
+padding:10px 12px;
+font-weight:700;
+cursor:pointer
+}
+
+nav{
+margin-top:10px;
+display:flex;
+gap:18px;
+flex-wrap:wrap
+}
+
+nav a{
+color:#fff;
+text-decoration:none;
+font-weight:700
+}
+
+main{
+max-width:1250px;
+margin:auto;
+padding:20px 15px
+}
+
+.hero{
+background:linear-gradient(120deg,#1557d6,#2878ef);
+color:#fff;
+padding:26px;
+border-radius:14px
+}
+
+.hero h1{
+margin:0 0 8px;
+font-size:31px
+}
+
+h2{
+margin-top:25px
+}
+
+.categories{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(125px,1fr));
+gap:12px
+}
+
+.category{
+background:#fff;
+border-radius:12px;
+padding:15px 8px;
+text-align:center;
+box-shadow:0 2px 10px #ddd;
+cursor:pointer;
+transition:.2s
+}
+
+.category:hover{
+transform:translateY(-2px)
+}
+
+.emoji{
+font-size:34px;
+display:block;
+margin-bottom:6px
+}
+
+.category small{
+display:block;
+color:#666;
+margin-top:4px
+}
+
+.products{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(210px,1fr));
+gap:15px
+}
+
+.card,
+.cart,
+.checkout,
+.panel{
+background:#fff;
+border-radius:12px;
+padding:16px;
+box-shadow:0 2px 10px #ddd
+}
+
+.pic{
+height:150px;
+background:#eef4ff;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:60px
+}
+
+.price{
+font-size:20px;
+font-weight:bold;
+margin:10px 0
+}
+
+.old{
+font-size:13px;
+color:#888;
+text-decoration:line-through;
+margin-left:5px
+}
+
+.actions{
+display:flex;
+gap:8px;
+flex-direction:column
+}
+
+.add,
+.buy,
+.primary,
+.danger,
+.secondary{
+width:100%;
+border:0;
+padding:11px;
+border-radius:7px;
+font-weight:bold;
+cursor:pointer
+}
+
+.add{
+background:#f0a900;
+color:#fff
+}
+
+.buy,
+.primary{
+background:#16a34a;
+color:#fff
+}
+
+.secondary{
+background:#e9eef8;
+color:#1557d6
+}
+
+.danger{
+background:#dc2626;
+color:#fff
+}
+
+.cart{
+margin-top:25px
+}
+
+.cart-row{
+display:flex;
+justify-content:space-between;
+gap:10px;
+align-items:center;
+padding:10px 0;
+border-bottom:1px solid #eee
+}
+
+.remove{
+border:0;
+background:#dc2626;
+color:#fff;
+border-radius:5px;
+padding:6px 9px;
+cursor:pointer
+}
+
+.checkout{
+margin-top:25px
+}
+
+.checkout-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px
+}
+
+.checkout input,
+.checkout textarea,
+.checkout select,
+.panel input,
+.panel textarea,
+.panel select{
+width:100%;
+padding:11px;
+border:1px solid #ccc;
+border-radius:7px;
+margin-top:6px
+}
+
+.checkout textarea,
+.panel textarea{
+min-height:80px;
+resize:vertical
+}
+
+.payment-box{
+border:1px solid #ddd;
+border-radius:8px;
+padding:12px;
+margin-top:10px
+}
+
+.note{
+font-size:13px;
+color:#666
+}
+
+.success{
+background:#ecfdf5;
+border:1px solid #86efac;
+padding:15px;
+border-radius:8px;
+margin-top:12px;
+color:#166534
+}
+
+.account-bar{
+display:flex;
+gap:8px;
+align-items:center;
+flex-wrap:wrap
+}
+
+.modal{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.55);
+z-index:50;
+align-items:center;
+justify-content:center;
+padding:15px
+}
+
+.modal.show{
+display:flex
+}
+
+.modal-box{
+background:#fff;
+width:min(600px,100%);
+max-height:90vh;
+overflow:auto;
+border-radius:14px;
+padding:20px
+}
+
+.close{
+float:right;
+border:0;
+background:#eee;
+border-radius:50%;
+width:34px;
+height:34px;
+cursor:pointer
+}
+
+.tabs{
+display:flex;
+gap:7px;
+flex-wrap:wrap;
+margin:12px 0
+}
+
+.tab{
+border:0;
+padding:9px 12px;
+border-radius:8px;
+background:#eef2ff;
+cursor:pointer
+}
+
+.tab.active{
+background:#1557d6;
+color:#fff
+}
+
+.setting-row{
+display:flex;
+justify-content:space-between;
+gap:15px;
+padding:13px 0;
+border-bottom:1px solid #eee
+}
+
+.list-item{
+padding:12px 0;
+border-bottom:1px solid #eee
+}
+
+.badge{
+display:inline-block;
+padding:4px 8px;
+border-radius:20px;
+background:#e0e7ff;
+color:#3730a3;
+font-size:12px
+}
+
+footer{
+margin-top:35px;
+background:#17202a;
+color:#fff;
+padding:25px;
+text-align:center
+}
+
+@media(max-width:700px){
+
+.hero h1{
+font-size:25px
+}
+
+.categories{
+grid-template-columns:repeat(3,1fr)
+}
+
+.checkout-grid{
+grid-template-columns:1fr
+}
+
+.logo{
+font-size:20px
+}
+
+}
 </style>
 </head>
+
 <body>
+
 <header>
-  <div class="top">
-    <div class="logo">🛒 SudhSagarMart</div>
-    <input id="search" class="search" placeholder="Search products..." oninput="searchProducts()">
-    <div>🛍️ Cart (<span id="count">0</span>)</div>
-  </div>
-  <nav><a href="#">Home</a><a href="#categories">Categories</a><a href="#products">Products</a><a href="#cart">Cart</a><a href="#checkout">Checkout</a></nav>
-</header>
-<main>
-<section class="hero"><h1>Sudh Sagar Mart</h1><p>Online Shopping Website — sabhi categories ke products ek jagah.</p></section>
-<h2 id="categories">All Categories</h2><div class="categories"><div class="category" onclick="showCategory('Fashion')"><span class="emoji">👕</span><b>Fashion</b><small>Clothes & Style</small></div><div class="category" onclick="showCategory('Electronics')"><span class="emoji">📱</span><b>Electronics</b><small>Gadgets</small></div><div class="category" onclick="showCategory('Mobiles')"><span class="emoji">📱</span><b>Mobiles</b><small>Phones & Accessories</small></div><div class="category" onclick="showCategory('Home')"><span class="emoji">🏠</span><b>Home</b><small>Home Items</small></div><div class="category" onclick="showCategory('Grocery')"><span class="emoji">🛒</span><b>Grocery</b><small>Daily Needs</small></div><div class="category" onclick="showCategory('Beauty')"><span class="emoji">💄</span><b>Beauty</b><small>Beauty & Care</small></div><div class="category" onclick="showCategory('Footwear')"><span class="emoji">👟</span><b>Footwear</b><small>Shoes & Sandals</small></div><div class="category" onclick="showCategory('Appliances')"><span class="emoji">🧊</span><b>Appliances</b><small>Home Appliances</small></div><div class="category" onclick="showCategory('Kitchen')"><span class="emoji">🍳</span><b>Kitchen</b><small>Kitchen Items</small></div><div class="category" onclick="showCategory('Kids')"><span class="emoji">🧸</span><b>Kids</b><small>Toys & Kids</small></div><div class="category" onclick="showCategory('Sports')"><span class="emoji">⚽</span><b>Sports</b><small>Sports Items</small></div><div class="category" onclick="showCategory('Automotive')"><span class="emoji">🏍️</span><b>Automotive</b><small>Bike & Car</small></div></div>
-<h2 id="products">Products</h2>
-<div class="products" id="productList">
-  <div class="card product" data-name="Cotton T Shirt" data-category="Fashion">
-    <div class="pic">👕</div><h3>Cotton T-Shirt</h3>
-    <div class="price">₹399 <span class="old">₹599</span></div>
-    <div class="actions"><button class="add" onclick="addCart('Cotton T-Shirt',399)">Add to Cart</button><button class="buy" onclick="buyNow('Cotton T-Shirt',399)">Buy Now</button></div>
-  </div>
-  <div class="card product" data-name="Smart Watch" data-category="Electronics">
-    <div class="pic">⌚</div><h3>Smart Watch</h3>
-    <div class="price">₹999 <span class="old">₹1,499</span></div>
-    <div class="actions"><button class="add" onclick="addCart('Smart Watch',999)">Add to Cart</button><button class="buy" onclick="buyNow('Smart Watch',999)">Buy Now</button></div>
-  </div>
-  <div class="card product" data-name="Bluetooth Earphone" data-category="Electronics">
-    <div class="pic">🎧</div><h3>Bluetooth Earphone</h3>
-    <div class="price">₹699 <span class="old">₹999</span></div>
-    <div class="actions"><button class="add" onclick="addCart('Bluetooth Earphone',699)">Add to Cart</button><button class="buy" onclick="buyNow('Bluetooth Earphone',699)">Buy Now</button></div>
-  </div>
+
+<div class="top">
+
+<div class="logo">
+🛒 SudhSagarMart
 </div>
+
+<input
+id="search"
+class="search"
+placeholder="Search products..."
+oninput="searchProducts()">
+
+<button
+class="header-btn"
+onclick="openAccount()">
+👤 <span id="accountLabel">Login</span>
+</button>
+
+<button
+class="header-btn"
+onclick="goCart()">
+🛒 Cart (<span id="count">0</span>)
+</button>
+
+</div>
+
+<nav>
+
+<a href="#home">Home</a>
+
+<a href="#categories">
+Categories
+</a>
+
+<a href="#products">
+Products
+</a>
+
+<a href="#cart">
+Cart
+</a>
+
+<a href="#checkout">
+Checkout
+</a>
+
+<a
+href="#"
+onclick="openAccount();return false">
+⚙️ My Account
+</a>
+
+</nav>
+
+</header>
+
+
+<main id="home">
+
+
+<section class="hero">
+
+<h1>
+Sudh Sagar Mart
+</h1>
+
+<p>
+Online Shopping — products, orders,
+account, wishlist aur settings ek jagah.
+</p>
+
+</section>
+
+
+<h2 id="categories">
+All Categories
+</h2>
+
+
+<div class="categories">
+
+
+<div
+class="category"
+onclick="showCategory('Fashion')">
+
+<span class="emoji">👕</span>
+
+<b>Fashion</b>
+
+<small>
+Clothes & Style
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Electronics')">
+
+<span class="emoji">📱</span>
+
+<b>Electronics</b>
+
+<small>
+Gadgets
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Mobiles')">
+
+<span class="emoji">📱</span>
+
+<b>Mobiles</b>
+
+<small>
+Phones
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Home')">
+
+<span class="emoji">🏠</span>
+
+<b>Home</b>
+
+<small>
+Home Items
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Grocery')">
+
+<span class="emoji">🛒</span>
+
+<b>Grocery</b>
+
+<small>
+Daily Needs
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Beauty')">
+
+<span class="emoji">💄</span>
+
+<b>Beauty</b>
+
+<small>
+Beauty & Care
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Footwear')">
+
+<span class="emoji">👟</span>
+
+<b>Footwear</b>
+
+<small>
+Shoes
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Appliances')">
+
+<span class="emoji">🧊</span>
+
+<b>Appliances</b>
+
+<small>
+Home Appliances
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Kitchen')">
+
+<span class="emoji">🍳</span>
+
+<b>Kitchen</b>
+
+<small>
+Kitchen Items
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Kids')">
+
+<span class="emoji">🧸</span>
+
+<b>Kids</b>
+
+<small>
+Toys & Kids
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Sports')">
+
+<span class="emoji">⚽</span>
+
+<b>Sports</b>
+
+<small>
+Sports Items
+</small>
+
+</div>
+
+
+<div
+class="category"
+onclick="showCategory('Automotive')">
+
+<span class="emoji">🏍️</span>
+
+<b>Automotive</b>
+
+<small>
+Bike & Car
+</small>
+
+</div>
+
+
+</div>
+
+
+<h2 id="products">
+Products
+</h2>
+
+
+<div
+class="products"
+id="productList">
+
+
+<div
+class="card product"
+data-name="Cotton T Shirt"
+data-category="Fashion">
+
+<div class="pic">
+👕
+</div>
+
+<h3>
+Cotton T-Shirt
+</h3>
+
+<div class="price">
+₹399
+<span class="old">
+₹599
+</span>
+</div>
+
+<div class="actions">
+
+<button
+class="add"
+onclick="addCart('Cotton T-Shirt',399)">
+Add to Cart
+</button>
+
+<button
+class="buy"
+onclick="buyNow('Cotton T-Shirt',399)">
+Buy Now
+</button>
+
+</div>
+
+</div>
+
+
+<div
+class="card product"
+data-name="Smart Watch"
+data-category="Electronics">
+
+<div class="pic">
+⌚
+</div>
+
+<h3>
+Smart Watch
+</h3>
+
+<div class="price">
+₹999
+<span class="old">
+₹1,499
+</span>
+</div>
+
+<div class="actions">
+
+<button
+class="add"
+onclick="addCart('Smart Watch',999)">
+Add to Cart
+</button>
+
+<button
+class="buy"
+onclick="buyNow('Smart Watch',999)">
+Buy Now
+</button>
+
+</div>
+
+</div>
+
+
+<div
+class="card product"
+data-name="Bluetooth Earphone"
+data-category="Electronics">
+
+<div class="pic">
+🎧
+</div>
+
+<h3>
+Bluetooth Earphone
+</h3>
+
+<div class="price">
+₹699
+<span class="old">
+₹999
+</span>
+</div>
+
+<div class="actions">
+
+<button
+class="add"
+onclick="addCart('Bluetooth Earphone',699)">
+Add to Cart
+</button>
+
+<button
+class="buy"
+onclick="buyNow('Bluetooth Earphone',699)">
+Buy Now
+</button>
+
+</div>
+
+</div>
+
+
+<div
+class="card product"
+data-name="Running Shoes"
+data-category="Footwear">
+
+<div class="pic">
+👟
+</div>
+
+<h3>
+Running Shoes
+</h3>
+
+<div class="price">
+₹1,299
+<span class="old">
+₹1,799
+</span>
+</div>
+
+<div class="actions">
+
+<button
+class="add"
+onclick="addCart('Running Shoes',1299)">
+Add to Cart
+</button>
+
+<button
+class="buy"
+onclick="buyNow('Running Shoes',1299)">
+Buy Now
+</button>
+
+</div>
+
+</div>
+
+
+</div>
+
 
 <div class="cart" id="cart">
-  <h2>🛒 Your Cart</h2>
-  <div id="cartItems">Cart empty hai.</div>
-  <h3>Total: ₹<span id="total">0</span></h3>
-  <button class="checkout-btn" onclick="openCheckout()">Proceed to Buy / Checkout</button>
+
+<h2>
+🛒 Your Cart
+</h2>
+
+<div id="cartItems">
+Cart empty hai.
 </div>
 
-<div class="checkout" id="checkout">
-  <h2>💳 Checkout & Payment</h2>
-  <div class="checkout-grid">
-    <div>
-      <label>Customer Name<input id="customerName" placeholder="Apna naam"></label>
-      <label>Mobile Number<input id="mobile" type="tel" placeholder="10 digit mobile number"></label>
-    </div>
-    <div>
-      <label>Delivery Address<textarea id="address" placeholder="Pura delivery address"></textarea></label>
-    </div>
-  </div>
+<h3>
+Total: ₹<span id="total">0</span>
+</h3>
 
-  <h3>Payment Method</h3>
-  <div class="payment-box">
-    <label><input type="radio" name="payment" value="upi" checked onchange="paymentChanged()"> 📱 UPI Payment</label><br>
-    <label><input type="radio" name="payment" value="cod" onchange="paymentChanged()"> 🚚 Cash on Delivery</label><br>
-    <label><input type="radio" name="payment" value="gateway" onchange="paymentChanged()"> 💳 Online Payment Gateway</label>
-    <div id="paymentDetails" class="note" style="margin-top:10px">
-      UPI ID: <input id="upiId" placeholder="example@upi">
-    </div>
-  </div>
-  <p class="note">Note: UPI aur gateway ka real paisa receive karne ke liye payment provider (jaise Razorpay/Cashfree) ki merchant setup aur API keys connect karni hongi. Is file me checkout/order flow ready hai.</p>
-  <button class="checkout-btn" onclick="placeOrder()">Place Order</button>
-  <div id="orderMessage"></div>
+<button
+class="primary"
+onclick="openCheckout()">
+Proceed to Buy / Checkout
+</button>
+
 </div>
+
+
+<div
+class="checkout"
+id="checkout">
+
+<h2>
+💳 Checkout & Payment
+</h2>
+
+<div class="checkout-grid">
+
+<div>
+
+<label>
+Customer Name
+
+<input
+id="customerName"
+placeholder="Apna naam">
+
+</label>
+
+
+<label>
+Mobile Number
+
+<input
+id="mobile"
+type="tel"
+maxlength="10"
+placeholder="10 digit mobile number">
+
+</label>
+
+</div>
+
+
+<div>
+
+<label>
+Delivery Address
+
+<textarea
+id="address"
+placeholder="Pura delivery address">
+</textarea>
+
+</label>
+
+</div>
+
+</div>
+
+
+<h3>
+Payment Method
+</h3>
+
+
+<div class="payment-box">
+
+
+<label>
+
+<input
+type="radio"
+name="payment"
+value="upi"
+checked
+onchange="paymentChanged()">
+
+📱 UPI Payment
+
+</label>
+
+<br>
+
+
+<label>
+
+<input
+type="radio"
+name="payment"
+value="cod"
+onchange="paymentChanged()">
+
+🚚 Cash on Delivery
+
+</label>
+
+<br>
+
+
+<label>
+
+<input
+type="radio"
+name="payment"
+value="gateway"
+onchange="paymentChanged()">
+
+💳 Online Payment Gateway
+
+</label>
+
+
+<div
+id="paymentDetails"
+class="note"
+style="margin-top:10px">
+
+UPI ID:
+
+<input
+id="upiId"
+placeholder="example@upi">
+
+</div>
+
+
+</div>
+
+
+<p class="note">
+
+Real online payment receive karne ke liye
+Razorpay/Cashfree jaise merchant gateway ko
+server-side verification ke saath connect karna hoga.
+
+</p>
+
+
+<button
+class="primary"
+onclick="placeOrder()">
+
+Place Order
+
+</button>
+
+
+<div id="orderMessage">
+</div>
+
+
+</div>
+
 </main>
-<footer>© 2026 SudhSagarMart — Online Shopping | UPI • COD • Online Payment</footer>
+
+
+<footer>
+
+© 2026 SudhSagarMart —
+Shopping • Orders • Account • Settings
+
+</footer>
+
+
+<!-- ACCOUNT MODAL -->
+
+<div
+class="modal"
+id="accountModal">
+
+<div class="modal-box">
+
+<button
+class="close"
+onclick="closeAccount()">
+×
+</button>
+
+
+<h2>
+👤 My Account
+</h2>
+
+
+<div id="authArea">
+
+<p class="note">
+
+Customer apne account se login karega.
+Yahan tumhara naam permanently save nahi hai.
+
+</p>
+
+
+<div class="tabs">
+
+<button
+class="tab active"
+id="loginTab"
+onclick="showAuth('login')">
+
+Login
+
+</button>
+
+
+<button
+class="tab"
+id="registerTab"
+onclick="showAuth('register')">
+
+Create Account
+
+</button>
+
+</div>
+
+
+<div id="authForm">
+</div>
+
+</div>
+
+
+<div
+id="userArea"
+style="display:none">
+
+<div class="account-bar">
+
+<b id="userName">
+Customer
+</b>
+
+<span
+class="badge"
+id="userEmail">
+</span>
+
+</div>
+
+
+<div class="tabs">
+
+<button
+class="tab active"
+onclick="showPanel('profile',this)">
+Profile
+</button>
+
+<button
+class="tab"
+onclick="showPanel('orders',this)">
+My Orders
+</button>
+
+<button
+class="tab"
+onclick="showPanel('wishlist',this)">
+Wishlist
+</button>
+
+<button
+class="tab"
+onclick="showPanel('addresses',this)">
+Addresses
+</button>
+
+<button
+class="tab"
+onclick="showPanel('settings',this)">
+⚙️ Settings
+</button>
+
+<button
+class="tab"
+onclick="showPanel('security',this)">
+🔐 Security
+</button>
+
+</div>
+
+
+<div id="panelContent">
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
 
 <script>
-let cart=[],total=0;
 
-function renderCart(){
-  document.getElementById('count').textContent=cart.length;
-  document.getElementById('total').textContent=total;
-  const box=document.getElementById('cartItems');
-  if(!cart.length){box.innerHTML='Cart empty hai.';return;}
-  box.innerHTML=cart.map((x,i)=>`
-    <div class="cart-row">
-      <span>${i+1}. ${x.name} — ₹${x.price}</span>
-      <button class="remove" onclick="removeCart(${i})">Remove</button>
-    </div>`).join('');
-}
-function addCart(name,price){cart.push({name,price});total+=price;renderCart();document.getElementById('cart').scrollIntoView({behavior:'smooth'});}
-function buyNow(name,price){cart=[{name,price}];total=price;renderCart();openCheckout();}
-function removeCart(i){total-=cart[i].price;cart.splice(i,1);renderCart();}
-function openCheckout(){document.getElementById('checkout').scrollIntoView({behavior:'smooth'});}
-function searchProducts(){
-  let q=document.getElementById('search').value.toLowerCase();
-  document.querySelectorAll('.product').forEach(p=>p.style.display=p.dataset.name.toLowerCase().includes(q)?'block':'none');
-}
-function showCategory(category){
-  document.getElementById('search').value='';
-  let found=false;
-  document.querySelectorAll('.product').forEach(p=>{
-    let match=p.dataset.category===category;
-    p.style.display=match?'block':'none';
-    if(match)found=true;
-  });
-  document.getElementById('products').scrollIntoView({behavior:'smooth'});
-  if(!found)alert(category+' category ke products abhi add nahi kiye gaye hain.');
-}
-function paymentChanged(){
-  const method=document.querySelector('input[name="payment"]:checked').value;
-  const d=document.getElementById('paymentDetails');
-  if(method==='upi') d.innerHTML='UPI ID: <input id="upiId" placeholder="example@upi">';
-  else if(method==='cod') d.innerHTML='<b>Cash on Delivery</b><br><span class="note">Delivery ke time cash payment.</span>';
-  else d.innerHTML='<b>Online Gateway</b><br><span class="note">Razorpay/Cashfree jaise gateway ko merchant keys ke saath connect kiya ja sakta hai.</span>';
-}
-function placeOrder(){
-  if(!cart.length){alert('Pehle product cart me add karein.');return;}
-  const name=document.getElementById('customerName').value.trim();
-  const mobile=document.getElementById('mobile').value.trim();
-  const address=document.getElementById('address').value.trim();
-  if(!name || !/^[0-9]{10}$/.test(mobile) || !address){
-    alert('Name, 10 digit mobile aur delivery address bhariye.');
-    return;
-  }
-  const method=document.querySelector('input[name="payment"]:checked').value;
-  if(method==='upi'){
-    const upi=document.getElementById('upiId')?.value.trim();
-    if(!upi){alert('UPI ID bhariye.');return;}
-  }
-  const orderNo='SSM'+Date.now().toString().slice(-8);
-  document.getElementById('orderMessage').innerHTML=
-    `<div class="success"><b>Order placed successfully!</b><br>Order No: ${orderNo}<br>Total: ₹${total}<br>Payment: ${method==='upi'?'UPI':method==='cod'?'Cash on Delivery':'Online Gateway'}<br><span class="note">Demo checkout complete. Real online payment ke liye gateway integration required hai.</span></div>`;
-}
-</script><script type="module">
+let cart =
+JSON.parse(
+localStorage.getItem("ssm_cart") || "[]"
+);
 
-import { initializeApp } from
-"https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp
-} from
-"https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-
-
-// ===============================
-// 🔥 FIREBASE CONFIG
-// ===============================
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
-  authDomain: "sudhsagarmart.firebaseapp.com",
-  projectId: "sudhsagarmart",
-  storageBucket: "sudhsagarmart.firebasestorage.app",
-  messagingSenderId: "682379938859",
-  appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e",
-  measurementId: "G-VZY41YWFXP"
-};
-
-
-// Firebase start
-const app = initializeApp(firebaseConfig);
-
-// Firestore database
-const db = getFirestore(app);
-
-console.log("🔥 SudhSagarMart Firebase Connected");
-
-
-// ===============================
-// 🛒 CART
-// ===============================
-
-let cart = [];
 let total = 0;
 
+let currentUser = null;
 
-// Cart display
-function renderCart() {
 
-  const count = document.getElementById("count");
-  const totalBox = document.getElementById("total");
-  const box = document.getElementById("cartItems");
+function renderCart(){
 
-  count.textContent = cart.length;
+document.getElementById("count")
+.textContent = cart.length;
 
-  total = cart.reduce((sum, item) => {
-    return sum + Number(item.price);
-  }, 0);
 
-  totalBox.textContent = total;
+total =
+cart.reduce(
+(s,x)=>s + Number(x.price),
+0
+);
 
-  if (cart.length === 0) {
-    box.innerHTML = "Cart empty hai.";
-    return;
-  }
 
-  box.innerHTML = cart.map((item, index) => `
-    
-    <div class="cart-row">
+document.getElementById("total")
+.textContent = total;
 
-      <span>
-        ${index + 1}. ${item.name} - ₹${item.price}
-      </span>
 
-      <button
-        class="remove"
-        onclick="removeCart(${index})">
-        Remove
-      </button>
+const box =
+document.getElementById("cartItems");
 
-    </div>
 
-  `).join("");
+if(!cart.length){
+
+box.innerHTML =
+"Cart empty hai.";
+
+localStorage.setItem(
+"ssm_cart",
+"[]"
+);
+
+return;
+
 }
 
 
-// ===============================
-// ➕ ADD CART
-// ===============================
+box.innerHTML =
+cart.map(
+(x,i)=>`
 
-window.addCart = function(name, price) {
+<div class="cart-row">
 
-  cart.push({
-    name: name,
-    price: Number(price)
-  });
+<span>
+${i+1}. ${x.name} — ₹${x.price}
+</span>
 
-  renderCart();
+<button
+class="remove"
+onclick="removeCart(${i})">
 
-};
+Remove
 
+</button>
 
-// ===============================
-// 🛒 BUY NOW
-// ===============================
+</div>
 
-window.buyNow = function(name, price) {
+`
+).join("");
 
-  cart = [{
-    name: name,
-    price: Number(price)
-  }];
 
-  renderCart();
+localStorage.setItem(
+"ssm_cart",
+JSON.stringify(cart)
+);
 
-  openCheckout();
+}
 
-};
 
+function addCart(name,price){
 
-// ===============================
-// ❌ REMOVE CART
-// ===============================
+cart.push({
+name:name,
+price:price
+});
 
-window.removeCart = function(index) {
+renderCart();
 
-  cart.splice(index, 1);
+document
+.getElementById("cart")
+.scrollIntoView({
+behavior:"smooth"
+});
 
-  renderCart();
+}
 
-};
 
+function buyNow(name,price){
 
-// ===============================
-// CHECKOUT OPEN
-// ===============================
+cart=[
+{
+name:name,
+price:price
+}
+];
 
-window.openCheckout = function() {
+renderCart();
 
-  if (cart.length === 0) {
+openCheckout();
 
-    alert("Pehle product cart me add karein.");
+}
 
-    return;
-  }
 
-  document
-    .getElementById("checkout")
-    .scrollIntoView({
-      behavior: "smooth"
-    });
+function removeCart(i){
 
-};
+cart.splice(i,1);
 
+renderCart();
 
-// ===============================
-// 💳 PAYMENT CHANGE
-// ===============================
+}
 
-window.paymentChange = function() {
 
-  const method =
-    document.querySelector(
-      'input[name="payment"]:checked'
-    ).value;
+function goCart(){
 
-  const details =
-    document.getElementById("paymentDetails");
+document
+.getElementById("cart")
+.scrollIntoView({
+behavior:"smooth"
+});
 
+}
 
-  if (method === "upi") {
 
-    details.innerHTML = `
-      <b>UPI ID:</b>
-      <input
-        id="upiId"
-        placeholder="example@upi"
-      >
-    `;
+function openCheckout(){
 
-  }
+if(!cart.length){
 
-  else if (method === "cod") {
+alert(
+"Pehle product cart me add karein."
+);
 
-    details.innerHTML = `
-      <b>Cash on Delivery</b>
-      <br>
-      <span class="note">
-        Delivery ke time cash payment karein.
-      </span>
-    `;
+return;
 
-  }
+}
 
-  else {
+document
+.getElementById("checkout")
+.scrollIntoView({
+behavior:"smooth"
+});
 
-    details.innerHTML = `
-      <b>Online Payment Gateway</b>
-      <br>
-      <span class="note">
-        Payment gateway integration baad me add kiya ja sakta hai.
-      </span>
-    `;
+}
 
-  }
 
-};
+function searchProducts(){
 
+let q =
+document
+.getElementById("search")
+.value
+.toLowerCase();
 
-// ===============================
-// 📦 PLACE ORDER
-// ===============================
 
-window.placeOrder = async function() {
+document
+.querySelectorAll(".product")
+.forEach(
+p => {
 
-  try {
+p.style.display =
+p.dataset.name
+.toLowerCase()
+.includes(q)
+?
+"block"
+:
+"none";
 
-    // Cart check
-    if (cart.length === 0) {
+});
 
-      alert("Pehle product cart me add karein.");
+}
 
-      return;
-    }
 
+function showCategory(category){
 
-    // Customer details
-    const name =
-      document
-        .getElementById("customerName")
-        .value
-        .trim();
+document
+.getElementById("search")
+.value="";
 
-    const mobile =
-      document
-        .getElementById("mobile")
-        .value
-        .trim();
 
-    const address =
-      document
-        .getElementById("address")
-        .value
-        .trim();
+let found=false;
 
 
-    // Validation
-    if (
-      !name ||
-      !/^[0-9]{10}$/.test(mobile) ||
-      !address
-    ) {
+document
+.querySelectorAll(".product")
+.forEach(
+p=>{
 
-      alert(
-        "Name, 10 digit mobile aur delivery address bhariye."
-      );
+let match =
+p.dataset.category===category;
 
-      return;
-    }
+p.style.display =
+match
+?
+"block"
+:
+"none";
 
+if(match)
+found=true;
 
-    // Payment method
-    const method =
-      document.querySelector(
-        'input[name="payment"]:checked'
-      ).value;
+});
 
 
-    // UPI validation
-    if (method === "upi") {
+document
+.getElementById("products")
+.scrollIntoView({
+behavior:"smooth"
+});
 
-      const upi =
-        document
-          .getElementById("upiId")
-          ?.value
-          .trim();
 
-      if (!upi) {
+if(!found){
 
-        alert("UPI ID bhariye.");
+alert(
+category+
+" category ke products abhi add nahi kiye gaye hain."
+);
 
-        return;
-      }
-    }
+}
 
+}
 
-    // Order number
-    const orderNo =
-      "SSM" +
-      Date.now().toString().slice(-8);
 
+function paymentChanged(){
 
-    // Product list
-    const products = cart.map(item => ({
+const method =
+document
+.querySelector(
+'input[name="payment"]:checked'
+).value;
 
-      name: item.name,
 
-      price: Number(item.price)
+const details =
+document.getElementById(
+"paymentDetails"
+);
 
-    }));
 
+if(method==="upi"){
 
-    // ===============================
-    // 🔥 FIRESTORE ME ORDER SAVE
-    // ===============================
+details.innerHTML=`
 
-    const orderData = {
+UPI ID:
 
-      orderNo: orderNo,
+<input
+id="upiId"
+placeholder="example@upi">
 
-      customerName: name,
+`;
 
-      mobile: mobile,
+}
 
-      address: address,
+else if(method==="cod"){
 
-      products: products,
+details.innerHTML=`
 
-      total: total,
+<b>
+Cash on Delivery
+</b>
 
-      paymentMethod: method,
+<br>
 
-      paymentStatus:
-        method === "cod"
-          ? "Pending"
-          : "Pending",
+<span class="note">
+Delivery ke time cash payment.
+</span>
 
-      orderStatus: "Pending",
+`;
 
-      createdAt: serverTimestamp()
+}
 
-    };
+else{
 
+details.innerHTML=`
 
-    const docRef = await addDoc(
-      collection(db, "orders"),
-      orderData
-    );
+<b>
+Online Gateway
+</b>
 
+<br>
 
-    console.log(
-      "Order saved:",
-      docRef.id
-    );
+<span class="note">
+Gateway ko merchant setup ke baad
+connect karein.
+</span>
 
+`;
 
-    // Success message
-    document.getElementById(
-      "orderMessage"
-    ).innerHTML = `
+}
 
-      <div class="success">
+}
 
-        <b>✅ Order placed successfully!</b>
 
-        <br><br>
+function openAccount(){
 
-        Order No:
-        <b>${orderNo}</b>
+document
+.getElementById("accountModal")
+.classList.add("show");
 
-        <br>
 
-        Total:
-        <b>₹${total}</b>
+if(currentUser)
+renderUserArea();
 
-        <br>
+else
+showAuth("login");
 
-        Payment:
-        <b>${method.toUpperCase()}</b>
+}
 
-      </div>
 
-    `;
+function closeAccount(){
 
+document
+.getElementById("accountModal")
+.classList.remove("show");
 
-    // Empty cart
-    cart = [];
+}
 
-    renderCart();
 
+function showAuth(type){
 
-    // Form clear
-    document.getElementById(
-      "customerName"
-    ).value = "";
+document
+.getElementById("loginTab")
+.classList
+.toggle(
+"active",
+type==="login"
+);
 
-    document.getElementById(
-      "mobile"
-    ).value = "";
 
-    document.getElementById(
-      "address"
-    ).value = "";
+document
+.getElementById("registerTab")
+.classList
+.toggle(
+"active",
+type==="register"
+);
 
 
-  }
+document
+.getElementById("authForm")
+.innerHTML =
 
-  catch (error) {
+type==="login"
 
-    console.error(
-      "Order Error:",
-      error
-    );
+?
 
-    alert(
-      "Order save nahi hua.\n\n" +
-      error.message
-    );
+`
 
-  }
+<label>
 
-};
+Email
 
+<input
+id="authEmail"
+type="email"
+placeholder="customer@email.com">
 
-// First cart render
+</label>
+
+
+<label>
+
+Password
+
+<input
+id="authPassword"
+type="password"
+placeholder="Password">
+
+</label>
+
+
+<button
+class="primary"
+style="margin-top:12px"
+onclick="loginCustomer()">
+
+Login
+
+</button>
+
+
+<p class="note">
+
+Password kisi ke saath share na karein.
+
+</p>
+
+`
+
+:
+
+`
+
+<label>
+
+Customer Name
+
+<input
+id="authName"
+placeholder="Aapka naam">
+
+</label>
+
+
+<label>
+
+Email
+
+<input
+id="authEmail"
+type="email"
+placeholder="customer@email.com">
+
+</label>
+
+
+<label>
+
+Password
+
+<input
+id="authPassword"
+type="password"
+minlength="6"
+placeholder="Minimum 6 characters">
+
+</label>
+
+
+<button
+class="primary"
+style="margin-top:12px"
+onclick="registerCustomer()">
+
+Create Account
+
+</button>
+
+`;
+
+}
+
+
+function renderUserArea(){
+
+document
+.getElementById("authArea")
+.style.display="none";
+
+
+document
+.getElementById("userArea")
+.style.display="block";
+
+
+document
+.getElementById("accountLabel")
+.textContent =
+(
+currentUser.displayName ||
+"Account"
+).slice(0,14);
+
+
+document
+.getElementById("userName")
+.textContent =
+currentUser.displayName ||
+"Customer";
+
+
+document
+.getElementById("userEmail")
+.textContent =
+currentUser.email || "";
+
+
+showPanel(
+"profile",
+document.querySelector(
+"#userArea .tab"
+)
+);
+
+}
+
+
+function renderLoggedOut(){
+
+document
+.getElementById("authArea")
+.style.display="block";
+
+
+document
+.getElementById("userArea")
+.style.display="none";
+
+
+document
+.getElementById("accountLabel")
+.textContent="Login";
+
+
+showAuth("login");
+
+}
+
+
+function showPanel(type,btn){
+
+document
+.querySelectorAll(
+"#userArea .tab"
+)
+.forEach(
+x=>x.classList.remove("active")
+);
+
+
+if(btn)
+btn.classList.add("active");
+
+
+const p =
+document.getElementById(
+"panelContent"
+);
+
+
+if(type==="profile"){
+
+p.innerHTML=`
+
+<div class="panel">
+
+<h3>
+Profile
+</h3>
+
+<p>
+<b>Name:</b>
+${escapeHtml(
+currentUser.displayName ||
+"Customer"
+)}
+</p>
+
+<p>
+<b>Email:</b>
+${escapeHtml(
+currentUser.email || ""
+)}
+</p>
+
+<button
+class="secondary"
+onclick="logoutCustomer()">
+
+Logout
+
+</button>
+
+</div>
+
+`;
+
+}
+
+
+if(type==="orders"){
+
+p.innerHTML=`
+
+<div class="panel">
+
+<h3>
+📦 My Orders
+</h3>
+
+<div id="ordersList">
+Orders loading...
+</div>
+
+</div>
+
+`;
+
+}
+
+
+if(type==="wishlist"){
+
+p.innerHTML=`
+
+<div class="panel">
+
+<h3>
+❤️ Wishlist
+</h3>
+
+<p class="note">
+
+Wishlist section ready hai.
+
+</p>
+
+</div>
+
+`;
+
+}
+
+
+if(type==="addresses"){
+
+p.innerHTML=`
+
+<div class="panel">
+
+<h3>
+📍 Saved Addresses
+</h3>
+
+<textarea
+id="savedAddress"
+placeholder="Apna saved delivery address">
+</textarea>
+
+<button
+class="primary"
+style="margin-top:10px"
+onclick="saveAddress()">
+
+Save Address
+
+</button>
+
+<div id="addressMsg">
+</div>
+
+</div>
+
+`;
+
+}
+
+
+if(type==="settings"){
+
+p.innerHTML=`
+
+<div class="panel">
+
+<h3>
+⚙️ Settings
+</h3>
+
+
+<div class="setting-row">
+
+<span>
+Order notifications
+</span>
+
+<input
+id="notifyToggle"
+type="checkbox"
+checked>
+
+</div>
+
+
+<div class="setting-row">
+
+<span>
+Save cart on this device
+</span>
+
+<input
+type="checkbox"
+checked>
+
+</div>
+
+
+<div class="setting-row">
+
+<span>
+Language
+</span>
+
+<select>
+
+<option>
+Hindi
+</option>
+
+<option>
+English
+</option>
+
+</select>
+
+</div>
+
+
+<button
+class="danger"
+style="margin-top:15px"
+onclick="clearLocalData()">
+
+Clear device data
+
+</button>
+
+</div>
+
+`;
+
+}
+
+
+if(type==="security"){
+
+p.innerHTML=`
+
+<div class="panel">
+
+<h3>
+🔐 Security
+</h3>
+
+<p>
+Customer account Firebase Authentication
+se protected rahega.
+</p>
+
+<p class="note">
+
+Password website code me store nahi hota.
+
+</p>
+
+<button
+class="secondary"
+onclick="resetPassword()">
+
+Reset Password Email
+
+</button>
+
+</div>
+
+`;
+
+}
+
+
+if(type==="orders")
+loadOrders();
+
+}
+
+
+function escapeHtml(s){
+
+return String(s).replace(
+/[&<>"']/g,
+m=>({
+
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+
+}[m])
+);
+
+}
+
+
+function saveAddress(){
+
+localStorage.setItem(
+"ssm_address",
+document.getElementById(
+"savedAddress"
+).value
+);
+
+
+document.getElementById(
+"addressMsg"
+).innerHTML=
+
+`
+
+<div class="success">
+
+Address saved on this device.
+
+</div>
+
+`;
+
+}
+
+
+function clearLocalData(){
+
+if(
+confirm(
+"Is device ka saved cart/address clear karna hai?"
+)
+){
+
+localStorage.removeItem(
+"ssm_cart"
+);
+
+localStorage.removeItem(
+"ssm_address"
+);
+
+cart=[];
+
+renderCart();
+
+alert(
+"Device data clear ho gaya."
+);
+
+}
+
+}
+
+
 renderCart();
 
 </script>
-</body>
-</html>
