@@ -271,7 +271,50 @@ function renderCart(){
 function openCheckout(){if(!cart.length){toast('Pehle product cart me add kijiye');scrollToId('products');return}scrollToId('checkout')}
 function paymentChange(){
  let v=document.querySelector('input[name=pay]:checked').value, el=document.getElementById('paymentExtra');
- if(v==='upi')el.innerHTML='<label>UPI ID<input id="upi" placeholder="example@upi"></label>';
+ if(v==='upi')if(v==='upi'){
+  const amount = cart.reduce((s,x)=>s+x.price,0);
+  const upiId = '6201188344-2@ybl';
+  const merchantName = 'SudhSagarMart';
+
+  const upiLink =
+    `upi://pay?pa=${encodeURIComponent(upiId)}` +
+    `&pn=${encodeURIComponent(merchantName)}` +
+    `&am=${amount.toFixed(2)}` +
+    `&cu=INR`;
+
+  const qrUrl =
+    `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
+
+  el.innerHTML = `
+    <div style="text-align:center;padding:15px">
+      <h3>📱 UPI Payment</h3>
+
+      <p>Scan karke payment karein</p>
+
+      <img src="${qrUrl}"
+           alt="SudhSagarMart UPI QR"
+           style="width:250px;height:250px;border:8px solid #fff;box-shadow:0 2px 10px #ccc;border-radius:8px">
+
+      <p style="margin:10px 0 5px">
+        <b>Amount: ₹${money(amount)}</b>
+      </p>
+
+      <p style="font-size:13px;color:#666">
+        UPI ID: <b>${upiId}</b>
+      </p>
+
+      <a href="${upiLink}"
+         class="btn green"
+         style="display:inline-block;text-decoration:none;margin-top:8px">
+         📲 Pay Now with UPI
+      </a>
+
+      <p style="font-size:12px;color:#777;margin-top:10px">
+        QR scan karke payment complete karein.
+      </p>
+    </div>
+  `;
+}
  else if(v==='card')el.innerHTML=`<label>Saved Card<select id="cardSelect"><option value="">New card</option>${cards.map((c,i)=>`<option value="${i}">${c.number} — ${c.name}</option>`).join('')}</select></label><div id="newCard"></div>`;
  else el.innerHTML='<p>Delivery ke time cash payment.</p>';
 }
