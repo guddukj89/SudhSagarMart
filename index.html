@@ -308,13 +308,18 @@ function showOrders(){closeMenu();document.getElementById("orders").innerHTML=or
 
     const address = data.address || {};
 
-    const area =
-        address.suburb ||
-        address.village ||
-        address.town ||
-        address.city ||
-        address.county ||
-        "Location Found";
+   const area =
+    [
+        address.village,
+        address.town,
+        address.city,
+        address.county,
+        address.state,
+        address.country
+    ]
+    .filter(Boolean)
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .join(", ") || "Location Found";
 
     document.getElementById("locationText").innerText = area;
 
