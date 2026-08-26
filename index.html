@@ -302,10 +302,30 @@ function showOrders(){closeMenu();document.getElementById("orders").innerHTML=or
                 });
             }
 
-            document.getElementById("locationText").innerText =
-                "Current Location";
+           fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+.then(response => response.json())
+.then(data => {
 
-            alert("Current location mil gayi.");
+    const address = data.address || {};
+
+    const area =
+        address.suburb ||
+        address.village ||
+        address.town ||
+        address.city ||
+        address.county ||
+        "Location Found";
+
+    document.getElementById("locationText").innerText = area;
+
+    alert("Location: " + area);
+})
+.catch(() => {
+    document.getElementById("locationText").innerText =
+    "Location Found";
+
+    alert("Location mil gayi, lekin area name nahi mil saka.");
+});
         },
         function(error){
             alert("Location permission allow karein.");
