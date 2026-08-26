@@ -179,8 +179,46 @@ document.getElementById("categories").innerHTML=categories.map(c=>`<div class="c
 document.getElementById("chips").innerHTML=["All",...categories.map(c=>c[0])].map(c=>`<button class="chip ${c==="All"?"active":""}" onclick="filterCategory('${c}')">${c}</button>`).join("");
 }
 function renderProducts(list=products){
-document.getElementById("products").innerHTML=list.map((p,i)=>`<div class="product"><img src="${p[4]}" alt="${p[1]}"><div class="info"><div class="category">${p[0]}</div><h3>${p[1]}</h3><span class="price">₹${p[2]}</span><span class="old">₹${p[3]}</span><div class="stock">In stock</div><button class="add" onclick="addCart(${i})">🛒 Add to Cart</button></div></div>`).join("")||'<div class="empty">No products found</div>';
-document.getElementById("productCount").innerText=list.length+" products available";
+document.getElementById("products").innerHTML=list.map(p=>{
+let i=products.indexOf(p);
+let discount=Math.round(((p[3]-p[2])/p[3])*100);
+let liked=wishlist.some(x=>x[1]===p[1]);
+
+return `<div class="product">
+<img src="${p[4]}" alt="${p[1]}">
+
+<div class="info">
+<div class="category">${p[0]}</div>
+
+<h3>${p[1]}</h3>
+
+<div>
+<span class="price">₹${p[2]}</span>
+<span class="old">₹${p[3]}</span>
+<span style="color:#d00;font-size:11px;font-weight:bold">
+ ${discount}% OFF
+</span>
+</div>
+
+<div class="stock">✅ In stock</div>
+
+<div style="display:flex;gap:6px;margin-top:7px">
+<button class="add" onclick="addCart(${i})">
+🛒 Add to Cart
+</button>
+
+<button onclick="toggleWishlist(${i})"
+style="border:1px solid #ddd;background:#fff;border-radius:7px;padding:8px 12px;font-size:20px;cursor:pointer">
+${liked?"❤️":"♡"}
+</button>
+</div>
+
+</div>
+</div>`;
+}).join("")||'<div class="empty">No products found</div>';
+
+document.getElementById("productCount").innerText=
+list.length+" products available";
 }
 function filterCategory(c){
 activeCategory=c;
@@ -193,6 +231,25 @@ let q=document.getElementById("search").value.toLowerCase();
 renderProducts(products.filter(p=>(p[1]+" "+p[0]).toLowerCase().includes(q)));
 }
 function addCart(i){cart.push({p:products[i],qty:1});save();alert(products[i][1]+" added to cart");}
+ function toggleWishlist(i){
+    let index=wishlist.findIndex(x=>x[1]===products[i][1]);
+
+    if(index>=0){
+        wishlist.splice(index,1);
+        alert("Removed from wishlist");
+    }else{
+        wishlist.push(products[i]);
+        alert("Added to wishlist ❤️");
+    }
+
+    save();
+
+    renderProducts(
+        activeCategory==="All"
+        ? products
+        : products.filter(p=>p[0]===activeCategory)
+    );
+}
 function save(){localStorage.setItem("ssm_cart",JSON.stringify(cart));localStorage.setItem("ssm_orders",JSON.stringify(orders));localStorage.setItem("ssm_wishlist",JSON.stringify(wishlist));}
 function openCart(){renderCart();openModal("cartModal")}
 function renderCart(){
