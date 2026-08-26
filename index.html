@@ -67,7 +67,7 @@ input,textarea,select{width:100%;padding:11px;margin:6px 0;border:1px solid #bbb
 <div class="nav">
 <span onclick="home()">Home</span><span onclick="allProducts()">Categories</span><span onclick="showOrders()">My Orders</span><span onclick="help()">Help</span>
 </div>
-<div class="location" onclick="openLocation()">📍 <b id="locationText">Add Delivery Location</b></div>
+<div class="location" onclick="getCurrentLocation()">📍 <b id="locationText">Use Current Location</b></div>
 <div id="map" style="height:300px;margin:12px;border-radius:12px;display:none;"></div>
 <div class="delivery">⚡ <b id="deliveryText">10-minute delivery</b> available in selected service areas</div>
 </header>
@@ -274,6 +274,44 @@ orders.unshift({id,total,status:"Order Placed",time:new Date().toLocaleString()}
 cart=[];save();closeModal("checkoutModal");alert("Order placed successfully! Order ID: "+id);showOrders();
 }
 function showOrders(){closeMenu();document.getElementById("orders").innerHTML=orders.length?orders.map(o=>`<div class="cartRow"><div><b>${o.id}</b><br>₹${o.total}<br>${o.time}</div><b>${o.status}</b></div>`).join(""):'<div class="empty">No orders yet</div>';openModal("ordersModal")}
+ function getCurrentLocation(){
+    if(!navigator.geolocation){
+        alert("Aapke browser me location support nahi hai.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function(position){
+
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            document.getElementById("map").style.display = "block";
+
+            if(map){
+                map.setCenter({lat: lat, lng: lng});
+                map.setZoom(16);
+
+                if(marker){
+                    marker.setMap(null);
+                }
+
+                marker = new google.maps.Marker({
+                    position: {lat: lat, lng: lng},
+                    map: map
+                });
+            }
+
+            document.getElementById("locationText").innerText =
+                "Current Location";
+
+            alert("Current location mil gayi.");
+        },
+        function(error){
+            alert("Location permission allow karein.");
+        }
+    );
+}
 function openLocation(){closeMenu();openModal("locationModal")}
 function saveLocation(){
 let name=document.getElementById("name").value,mobile=document.getElementById("mobile").value,address=document.getElementById("address").value,city=document.getElementById("city").value,pincode=document.getElementById("pincode").value;
@@ -298,7 +336,6 @@ function home(){closeMenu();window.scrollTo({top:0,behavior:"smooth"})}
 renderCategories();renderProducts();
  let map;
 let marker;
-
 function initMap() {
     document.getElementById("map").style.display = "block";
 
@@ -306,7 +343,6 @@ function initMap() {
         center: { lat: 25.5941, lng: 85.1376 },
         zoom: 13
     });
-
     map.addListener("click", function(event) {
         const lat = event.latLng.lat();
         const lng = event.latLng.lng();
