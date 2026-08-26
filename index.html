@@ -239,6 +239,29 @@ function closeModal(id){document.getElementById(id).classList.remove("show")}
 function allProducts(){closeMenu();filterCategory("All")}
 function home(){closeMenu();window.scrollTo({top:0,behavior:"smooth"})}
 renderCategories();renderProducts();
+ let map;
+let marker;
+
+function initMap() {
+    document.getElementById("map").style.display = "block";
+
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 25.5941, lng: 85.1376 },
+        zoom: 13
+    });
+
+    map.addListener("click", function(event) {
+        const lat = event.latLng.lat();
+        const lng = event.latLng.lng();
+
+        if (marker) marker.setMap(null);
+
+        marker = new google.maps.Marker({
+            position: { lat: lat, lng: lng },
+            map: map
+        });
+    });
+}
 </script>
 </body>
 </html>
