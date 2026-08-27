@@ -224,7 +224,28 @@ let unsubs=[];
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function money(v){return (data.settings.currency||"₹")+Number(v||0).toLocaleString("en-IN")}
 function showSection(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active")}
-function login(){const u=document.getElementById("loginUser").value.trim(),p=document.getElementById("loginPass").value;if(u==="admin"&&p==="1234"){sessionStorage.setItem("ssm_admin","1");document.getElementById("loginPage").style.display="none";document.getElementById("app").style.display="block";startLive();}else document.getElementById("loginMsg").innerText="Wrong username or password";}
+async function login(){
+  const email = document.getElementById("loginUser").value.trim();
+  const password = document.getElementById("loginPass").value;
+  const msg = document.getElementById("loginMsg");
+
+  try {
+    msg.innerText = "Login ho raha hai...";
+
+    await auth.signInWithEmailAndPassword(email, password);
+
+    sessionStorage.setItem("ssm_admin","1");
+
+    document.getElementById("loginPage").style.display="none";
+    document.getElementById("app").style.display="block";
+
+    startLive();
+
+  } catch(error) {
+    console.error(error);
+    msg.innerText = "Login failed: " + error.message;
+  }
+}
 function logout(){sessionStorage.removeItem("ssm_admin");unsubs.forEach(f=>f&&f());location.reload()}
 
 function startLive(){
