@@ -623,15 +623,7 @@ async function saveLocation(){
         }
     );
 }
-let name=document.getElementById("name").value,mobile=document.getElementById("mobile").value,address=document.getElementById("address").value,city=document.getElementById("city").value,pincode=document.getElementById("pincode").value;
-if(!name||!mobile||!address||!city||!pincode)return alert("Please fill all address details");
-localStorage.setItem("ssm_location",JSON.stringify({name,mobile,address,city,pincode}));
-document.getElementById("locationText").innerText =
-    address + ", " + city + ", " + pincode;
-let service=["801108","801105","801104","801503"].includes(pincode);
-document.getElementById("areaMsg").innerText=service?"⚡ 10-minute delivery available in your area":"📦 Standard delivery available. 10-minute service is not available here yet.";
-document.getElementById("deliveryText").innerText=service?"10-minute delivery":"Standard delivery";
-}
+
 function openAccount(){closeMenu();openModal("accountModal")}
 function openWishlist(){document.getElementById("wishlist").innerHTML=wishlist.length?wishlist.map(x=>`<p>${x}</p>`).join(""):"<div class='empty'>Wishlist is empty</div>";openModal("wishlistModal")}
 function openSettings(){closeMenu();openModal("settingsModal")}
