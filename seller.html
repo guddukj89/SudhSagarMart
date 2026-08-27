@@ -588,7 +588,15 @@ auth.onAuthStateChanged(async user => {
   }
 
 });
+function openAddProduct(){
+  document.getElementById("addProductBox")
+    .classList.remove("hidden");
+}
 
+function closeAddProduct(){
+  document.getElementById("addProductBox")
+    .classList.add("hidden");
+}
 </script>
 
 </body>
