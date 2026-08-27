@@ -166,7 +166,50 @@ Approval hone ke baad seller panel ke saare features activate ho jayenge.
 <button>Customers</button>
 <button>Notifications</button>
 </div>
+<div id="addProductBox" class="card hidden">
 
+<h2>Add Product</h2>
+
+<input id="productName"
+       placeholder="Product Name">
+
+<input id="productCategory"
+       placeholder="Category">
+
+<input id="productPrice"
+       type="number"
+       placeholder="Selling Price">
+
+<input id="productMrp"
+       type="number"
+       placeholder="MRP">
+
+<input id="productStock"
+       type="number"
+       placeholder="Stock">
+
+<textarea id="productDescription"
+          placeholder="Product Description"
+          style="width:100%;padding:12px;margin:7px 0;border-radius:7px;border:1px solid #ccc"></textarea>
+
+<label>Product Image</label>
+
+<input id="productImage"
+       type="file"
+       accept="image/*">
+
+<button onclick="addProduct()">
+Add Product
+</button>
+
+<button class="red"
+        onclick="closeAddProduct()">
+Cancel
+</button>
+
+<p id="productMsg"></p>
+
+</div>
 <div class="card">
 <h2>Weekly Settlement</h2>
 
