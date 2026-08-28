@@ -737,34 +737,152 @@ async function loginSeller(){
   msg.innerText="Login ho raha hai...";
 
 
-  const sellerQuery=
+ async function loginSeller(){
+
+ const loginId=
+ document.getElementById("loginId")
+ .value.trim()
+ .toLowerCase();
+
+ const password=
+ document.getElementById("loginPassword")
+ .value;
+
+ const msg=
+ document.getElementById("loginMsg");
+
+
+ if(!loginId || !password){
+
+  msg.innerText=
+  "Login ID aur password bhariye.";
+
+  return;
+
+ }
+
+
+ try{
+
+  msg.innerText="Login ho raha hai...";
+
+
+  /*
+     Login ID se Firebase ka internal email banega.
+     Firestore ko login se pehle read nahi karna hai.
+  */
+
+  const firebaseEmail=
+  makeFirebaseEmail(loginId);
+
+
+  /*
+     STEP 1:
+     Pehle Firebase Authentication login
+  */
+
+  const result=
+  await auth.signInWithEmailAndPassword(
+   firebaseEmail,
+   password
+  );
+
+
+  const uid=result.user.uid;
+
+
+  /*
+     STEP 2:
+     Auth hone ke baad seller document read
+  */
+
+  const sellerDoc=
   await db.collection("sellers")
-  .where("loginId","==",loginId)
-  .limit(1)
+  .doc(uid)
   .get();
 
 
-  if(sellerQuery.empty){
+  if(!sellerDoc.exists){
+
+   await auth.signOut();
 
    msg.innerText=
-   "Seller Login ID nahi mila.";
+   "Seller account record nahi mila.";
 
    return;
 
   }
 
 
-  const sellerDoc=
-  sellerQuery.docs[0];
-
   const seller=
   sellerDoc.data();
 
 
-  const firebaseEmail=
-  seller.email ||
-  makeFirebaseEmail(loginId);
+  /*
+     Login ID verify
+  */
 
+  if(
+   seller.loginId &&
+   seller.loginId.toLowerCase()!==loginId
+  ){
+
+   await auth.signOut();
+
+   msg.innerText=
+   "Seller Login ID match nahi kar rahi.";
+
+   return;
+
+  }
+
+
+  currentSeller={
+   id:sellerDoc.id,
+   ...seller
+  };
+
+
+  /*
+     Seller Panel open
+  */
+
+  openSellerPanel();
+
+
+ }
+ catch(error){
+
+  console.error("LOGIN ERROR:",error);
+
+  if(error.code==="auth/user-not-found"){
+
+   msg.innerText=
+   "Seller Login ID ya Password galat hai.";
+
+  }
+  else if(error.code==="auth/wrong-password"){
+
+   msg.innerText=
+   "Seller Login ID ya Password galat hai.";
+
+  }
+  else if(error.code==="auth/invalid-credential"){
+
+   msg.innerText=
+   "Seller Login ID ya Password galat hai.";
+
+  }
+  else{
+
+   msg.innerText=
+   "Login failed: "+error.message;
+
+  }
+
+ }
+
+}
 
   await auth.signInWithEmailAndPassword(
    firebaseEmail,
