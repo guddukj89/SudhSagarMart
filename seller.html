@@ -595,25 +595,6 @@ async function registerSeller(){
   msg.innerText="Account create ho raha hai...";
 
 
-  /* CHECK LOGIN ID */
-
-  const existing=
-  await db.collection("sellers")
-  .where("loginId","==",loginId)
-  .limit(1)
-  .get();
-
-
-  if(!existing.empty){
-
-   msg.innerText=
-   "Ye Seller Login ID pehle se registered hai.";
-
-   return;
-
-  }
-
-
   /*
      Firebase ke liye internal email.
      Seller ko email dikhane ki zarurat nahi.
