@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>Sudh Sagar Mart - Seller</title>
 
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
@@ -12,215 +13,419 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f4f6f9;
-  color:#222
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f4f6f9;
+ color:#222;
 }
+
 header{
-  background:#0879d1;
-  color:white;
-  padding:15px;
-  font-size:20px;
-  font-weight:bold
+ background:#0879d1;
+ color:white;
+ padding:15px;
+ font-size:20px;
+ font-weight:bold;
 }
+
 .container{
-  max-width:600px;
-  margin:30px auto;
-  padding:15px
+ max-width:650px;
+ margin:25px auto;
+ padding:15px;
 }
+
 .card{
-  background:white;
-  padding:22px;
-  border-radius:12px;
-  box-shadow:0 3px 15px #ddd;
-  margin-bottom:20px
+ background:white;
+ padding:20px;
+ border-radius:12px;
+ box-shadow:0 3px 15px #ddd;
+ margin-bottom:18px;
 }
-input,select,button{
-  width:100%;
-  padding:12px;
-  margin:7px 0;
-  border-radius:7px;
-  border:1px solid #ccc
+
+input,select,textarea,button{
+ width:100%;
+ padding:12px;
+ margin:7px 0;
+ border-radius:7px;
+ border:1px solid #ccc;
+ font-size:15px;
 }
+
 button{
-  background:#0879d1;
-  color:white;
-  border:0;
-  cursor:pointer;
-  font-weight:bold
+ background:#0879d1;
+ color:white;
+ border:0;
+ cursor:pointer;
+ font-weight:bold;
 }
+
 button.red{background:#d93025}
+button.green{background:#198754}
+button.gray{background:#6c757d}
+
 .hidden{display:none}
+
 .status{
-  padding:12px;
-  border-radius:8px;
-  margin:10px 0;
-  font-weight:bold
+ padding:12px;
+ border-radius:8px;
+ margin:10px 0;
+ font-weight:bold;
 }
-.pending{background:#fff3cd;color:#856404}
-.approved{background:#d1e7dd;color:#0f5132}
-.rejected{background:#f8d7da;color:#842029}
-h2{margin-top:0}
-.small{font-size:13px;color:#666}
+
+.pending{
+ background:#fff3cd;
+ color:#856404;
+}
+
+.approved{
+ background:#d1e7dd;
+ color:#0f5132;
+}
+
+.rejected{
+ background:#f8d7da;
+ color:#842029;
+}
+
+.small{
+ font-size:13px;
+ color:#666;
+}
+
+.info{
+ background:#eef6ff;
+ padding:12px;
+ border-radius:8px;
+ margin:10px 0;
+}
+
+.menu button{
+ margin-bottom:8px;
+}
+
+hr{
+ border:0;
+ border-top:1px solid #eee;
+ margin:18px 0;
+}
 </style>
 </head>
 
 <body>
 
-<header>Sudh Sagar Mart — Seller Panel</header>
+<header>
+🛒 Sudh Sagar Mart — Seller Panel
+</header>
 
 <div class="container">
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
+
 <div id="loginBox" class="card">
+
 <h2>Seller Login</h2>
 
-<input id="loginEmail" type="email" placeholder="Seller Email">
-<input id="loginPassword" type="password" placeholder="Password">
+<input
+ id="loginId"
+ placeholder="Seller Login ID"
+ autocomplete="username">
 
-<button onclick="loginSeller()">Login</button>
+<input
+ id="loginPassword"
+ type="password"
+ placeholder="Password"
+ autocomplete="current-password">
+
+<button onclick="loginSeller()">
+Login
+</button>
 
 <p class="small">
 New seller?
-<a href="#" onclick="showRegister()">Create Seller Account</a>
+<a href="#" onclick="showRegister();return false;">
+Create Seller Account
+</a>
 </p>
 
 <p id="loginMsg"></p>
+
 </div>
 
 
-<!-- REGISTER -->
+<!-- ================= REGISTER ================= -->
+
 <div id="registerBox" class="card hidden">
+
 <h2>Create Seller Account</h2>
 
-<input id="name" placeholder="Shop / Seller Name">
-<input id="mobile" placeholder="Mobile Number">
-<input id="shopName" placeholder="Shop Name">
-<input id="shopAddress" placeholder="Shop Address">
+<input
+ id="regName"
+ placeholder="Seller Name">
 
-<input id="email" type="email" placeholder="Email">
-<input id="password" type="password" placeholder="Create Password">
+<input
+ id="regMobile"
+ placeholder="Mobile Number"
+ type="tel">
 
-<h3>KYC Documents</h3>
+<select id="regState">
 
-<label>PAN Card</label>
-<input id="panFile" type="file" accept="image/*,.pdf">
+<option value="">Select State</option>
+<option>Bihar</option>
+<option>Uttar Pradesh</option>
+<option>Jharkhand</option>
+<option>Delhi</option>
+<option>West Bengal</option>
+<option>Maharashtra</option>
+<option>Other</option>
 
-<label>Aadhaar / ID Proof</label>
-<input id="aadhaarFile" type="file" accept="image/*,.pdf">
+</select>
 
-<label>Shop Proof</label>
-<input id="shopFile" type="file" accept="image/*,.pdf">
+<input
+ id="regDistrict"
+ placeholder="District">
 
-<button onclick="registerSeller()">Submit Registration & KYC</button>
+<input
+ id="regVillage"
+ placeholder="Village / Area">
 
-<button class="red" onclick="showLogin()">Back to Login</button>
+<input
+ id="regLoginId"
+ placeholder="Create Login ID">
+
+<input
+ id="regPassword"
+ type="password"
+ placeholder="Create Password">
+
+<div class="info">
+<b>Important:</b><br>
+KYC documents registration ke samay nahi chahiye.
+Account banne ke baad Seller Panel ke andar KYC submit karna hoga.
+</div>
+
+<button onclick="registerSeller()">
+Create Seller Account
+</button>
+
+<button class="red" onclick="showLogin()">
+Back to Login
+</button>
 
 <p id="registerMsg"></p>
 
-<p class="small">
-KYC documents will be checked and approved by Sudh Sagar Mart company.
-</p>
 </div>
 
 
-<!-- SELLER PANEL -->
+<!-- ================= SELLER PANEL ================= -->
+
 <div id="sellerPanel" class="hidden">
 
+
+<!-- DASHBOARD -->
+
 <div class="card">
+
 <h2>Seller Dashboard</h2>
 
-<p><b>Seller:</b> <span id="sellerName"></span></p>
-<p><b>Email:</b> <span id="sellerEmail"></span></p>
+<p>
+<b>Seller ID:</b>
+<span id="showLoginId"></span>
+</p>
+
+<p>
+<b>Seller Name:</b>
+<span id="sellerName"></span>
+</p>
+
+<p>
+<b>Mobile:</b>
+<span id="sellerMobile"></span>
+</p>
+
+<p>
+<b>Location:</b>
+<span id="sellerLocation"></span>
+</p>
 
 <div id="kycStatus"></div>
 
-<button class="red" onclick="logoutSeller()">Logout</button>
+<button class="red" onclick="logoutSeller()">
+Logout
+</button>
+
 </div>
 
 
-<!-- LOCKED UNTIL APPROVAL -->
-<div id="lockedPanel" class="card">
-<h2>⏳ KYC Verification</h2>
-<p>
-Aapka KYC abhi company ke paas verification ke liye pending hai.
+<!-- ================= KYC ================= -->
+
+<div id="kycBox" class="card">
+
+<h2>🔐 KYC Verification</h2>
+
+<div id="kycMessage"></div>
+
+<label><b>PAN Card</b></label>
+<input
+ id="panFile"
+ type="file"
+ accept="image/*,.pdf">
+
+<label><b>Aadhaar / ID Proof</b></label>
+<input
+ id="aadhaarFile"
+ type="file"
+ accept="image/*,.pdf">
+
+<label><b>Shop Proof</b></label>
+<input
+ id="shopFile"
+ type="file"
+ accept="image/*,.pdf">
+
+<button onclick="submitKYC()">
+Submit KYC
+</button>
+
+<p class="small">
+PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
 </p>
-<p>
-Approval hone ke baad seller panel ke saare features activate ho jayenge.
-</p>
+
 </div>
 
 
-<!-- APPROVED SELLER -->
-<div id="approvedPanel" class="hidden">
+<!-- ================= BUSINESS ================= -->
 
-<div class="card">
-<h2>Seller Business</h2>
+<div id="businessBox" class="hidden">
 
-<button onclick="openAddProduct()">Add Product</button>
-<button>My Products</button>
-<button>Orders</button>
-<button>Payments & Settlement</button>
-<button>Customers</button>
-<button>Notifications</button>
+
+<div class="card menu">
+
+<h2>🏪 Seller Business</h2>
+
+<button onclick="openAddProduct()">
+➕ Add Product
+</button>
+
+<button onclick="showMyProducts()">
+📦 My Products
+</button>
+
+<button>
+🛍️ Orders
+</button>
+
+<button>
+💰 Payments & Settlement
+</button>
+
+<button>
+👥 Customers
+</button>
+
+<button>
+🔔 Notifications
+</button>
+
 </div>
+
+
+<!-- ================= ADD PRODUCT ================= -->
+
 <div id="addProductBox" class="card hidden">
 
 <h2>Add Product</h2>
 
-<input id="productName"
-       placeholder="Product Name">
+<input
+ id="productName"
+ placeholder="Product Name">
 
-<input id="productCategory"
-       placeholder="Category">
+<input
+ id="productCategory"
+ placeholder="Category">
 
-<input id="productPrice"
-       type="number"
-       placeholder="Selling Price">
+<input
+ id="productPrice"
+ type="number"
+ placeholder="Selling Price">
 
-<input id="productMrp"
-       type="number"
-       placeholder="MRP">
+<input
+ id="productMrp"
+ type="number"
+ placeholder="MRP">
 
-<input id="productStock"
-       type="number"
-       placeholder="Stock">
+<input
+ id="productStock"
+ type="number"
+ placeholder="Stock">
 
-<textarea id="productDescription"
-          placeholder="Product Description"
-          style="width:100%;padding:12px;margin:7px 0;border-radius:7px;border:1px solid #ccc"></textarea>
+<textarea
+ id="productDescription"
+ placeholder="Product Description"
+ style="min-height:90px">
+</textarea>
 
-<label>Product Image</label>
+<label><b>Product Image</b></label>
 
-<input id="productImage"
-       type="file"
-       accept="image/*">
+<input
+ id="productImage"
+ type="file"
+ accept="image/*">
 
 <button onclick="addProduct()">
 Add Product
 </button>
 
-<button class="red"
-        onclick="closeAddProduct()">
+<button class="red" onclick="closeAddProduct()">
 Cancel
 </button>
 
 <p id="productMsg"></p>
 
 </div>
-<div class="card">
-<h2>Weekly Settlement</h2>
 
-<p>Total Sales: ₹<span id="totalSales">0</span></p>
-<p>Company Commission: ₹<span id="commission">0</span></p>
-<p>Seller Amount: ₹<span id="sellerAmount">0</span></p>
+
+<!-- ================= MY PRODUCTS ================= -->
+
+<div id="myProductsBox" class="card hidden">
+
+<h2>📦 My Products</h2>
+
+<div id="myProducts">
+Loading...
+</div>
+
+</div>
+
+
+<!-- ================= SETTLEMENT ================= -->
+
+<div class="card">
+
+<h2>💰 Weekly Settlement</h2>
+
+<p>
+Total Sales:
+₹<span id="totalSales">0</span>
+</p>
+
+<p>
+Company Commission:
+₹<span id="commission">0</span>
+</p>
+
+<p>
+Seller Amount:
+₹<span id="sellerAmount">0</span>
+</p>
 
 <p>
 <b>Settlement Status:</b>
-<span id="settlementStatus">Pending</span>
+<span id="settlementStatus">
+Pending
+</span>
 </p>
+
 </div>
 
 </div>
@@ -232,503 +437,933 @@ Cancel
 
 <script>
 
-/* ==============================
-   FIREBASE CONFIG
-   ============================== */
+/* =====================================================
+   FIREBASE
+===================================================== */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
-  authDomain: "sudhsagarmart.firebaseapp.com",
-  projectId: "sudhsagarmart",
-  storageBucket: "sudhsagarmart.firebasestorage.app",
-  messagingSenderId: "682379938859",
-  appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e",
-  measurementId: "G-VZY41YWFXP"
+
+ apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+
+ authDomain:"sudhsagarmart.firebaseapp.com",
+
+ projectId:"sudhsagarmart",
+
+ storageBucket:"sudhsagarmart.firebasestorage.app",
+
+ messagingSenderId:"682379938859",
+
+ appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e",
+
+ measurementId:"G-VZY41YWFXP"
+
 };
 
 firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+const auth=firebase.auth();
+
+const db=firebase.firestore();
+
+const storage=firebase.storage();
+
+let currentSeller=null;
 
 
-/* ==============================
-   SCREEN CHANGE
-   ============================== */
+/* =====================================================
+   SCREEN
+===================================================== */
 
 function showRegister(){
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("registerBox").classList.remove("hidden");
+
+ document.getElementById("loginBox")
+ .classList.add("hidden");
+
+ document.getElementById("registerBox")
+ .classList.remove("hidden");
+
 }
 
 function showLogin(){
-  document.getElementById("registerBox").classList.add("hidden");
-  document.getElementById("loginBox").classList.remove("hidden");
+
+ document.getElementById("registerBox")
+ .classList.add("hidden");
+
+ document.getElementById("loginBox")
+ .classList.remove("hidden");
+
 }
 
 
-/* ==============================
-   FILE UPLOAD
-   ============================== */
+/* =====================================================
+   MAKE INTERNAL FIREBASE EMAIL
+===================================================== */
 
-async function uploadFile(file, uid, name){
+function makeFirebaseEmail(loginId){
 
-  if(!file) throw new Error(name + " required");
+ return loginId.toLowerCase()
+ .replace(/[^a-z0-9]/g,"")
+ +"@seller.sudhsagarmart.local";
 
-  const path =
-    "sellerKYC/" + uid + "/" + name + "_" + file.name;
-
-  const ref = storage.ref(path);
-
-  await ref.put(file);
-
-  return await ref.getDownloadURL();
 }
 
 
-/* ==============================
-   SELLER REGISTRATION
-   ============================== */
+/* =====================================================
+   REGISTER
+===================================================== */
 
 async function registerSeller(){
 
-  const msg = document.getElementById("registerMsg");
+ const msg=document.getElementById("registerMsg");
 
-  try{
+ try{
 
-    const name = document.getElementById("name").value.trim();
-    const mobile = document.getElementById("mobile").value.trim();
-    const shopName = document.getElementById("shopName").value.trim();
-    const shopAddress = document.getElementById("shopAddress").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+  const name=document.getElementById("regName")
+  .value.trim();
 
-    const panFile = document.getElementById("panFile").files[0];
-    const aadhaarFile = document.getElementById("aadhaarFile").files[0];
-    const shopFile = document.getElementById("shopFile").files[0];
+  const mobile=document.getElementById("regMobile")
+  .value.trim();
 
-    if(!name || !mobile || !shopName || !shopAddress ||
-       !email || !password){
+  const state=document.getElementById("regState")
+  .value;
 
-      msg.innerText = "Sabhi details bhariye.";
-      return;
-    }
+  const district=document.getElementById("regDistrict")
+  .value.trim();
 
-    if(password.length < 6){
-      msg.innerText = "Password kam se kam 6 characters ka hona chahiye.";
-      return;
-    }
+  const village=document.getElementById("regVillage")
+  .value.trim();
 
-    if(!panFile || !aadhaarFile || !shopFile){
-      msg.innerText = "Teeno KYC documents upload karein.";
-      return;
-    }
+  const loginId=document.getElementById("regLoginId")
+  .value.trim()
+  .toLowerCase();
 
-    msg.innerText = "Account create ho raha hai...";
-
-    const result =
-      await auth.createUserWithEmailAndPassword(email,password);
-
-    const uid = result.user.uid;
-
-    msg.innerText = "KYC documents upload ho rahe hain...";
-
-    const panURL =
-      await uploadFile(panFile,uid,"PAN");
-
-    const aadhaarURL =
-      await uploadFile(aadhaarFile,uid,"AADHAAR");
-
-    const shopURL =
-      await uploadFile(shopFile,uid,"SHOP_PROOF");
+  const password=document.getElementById("regPassword")
+  .value;
 
 
-    await db.collection("sellers").doc(uid).set({
+  if(
+   !name ||
+   !mobile ||
+   !state ||
+   !district ||
+   !village ||
+   !loginId ||
+   !password
+  ){
 
-      uid: uid,
+   msg.innerText="Sabhi details bhariye.";
 
-      name: name,
-      mobile: mobile,
-
-      shopName: shopName,
-      shopAddress: shopAddress,
-
-      email: email,
-
-      panDocument: panURL,
-      aadhaarDocument: aadhaarURL,
-      shopDocument: shopURL,
-
-      kycStatus: "pending",
-
-      accountStatus: "pending",
-
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-
-      approvedAt: null,
-      approvedBy: null,
-
-      totalSales: 0,
-      commission: 0,
-      sellerAmount: 0,
-
-      settlementStatus: "pending"
-
-    });
-
-
-    msg.innerText =
-      "Registration successful! KYC company approval ke liye bhej diya gaya hai.";
-
-    document.getElementById("registerBox").classList.add("hidden");
+   return;
 
   }
-  catch(error){
 
-    console.error(error);
 
-    document.getElementById("registerMsg").innerText =
-      error.message;
+  if(loginId.length<4){
+
+   msg.innerText=
+   "Login ID kam se kam 4 characters ki honi chahiye.";
+
+   return;
+
   }
+
+
+  if(!/^[a-z0-9._-]+$/.test(loginId)){
+
+   msg.innerText=
+   "Login ID me sirf letters, numbers, dot, _ aur - use karein.";
+
+   return;
+
+  }
+
+
+  if(password.length<6){
+
+   msg.innerText=
+   "Password kam se kam 6 characters ka hona chahiye.";
+
+   return;
+
+  }
+
+
+  msg.innerText="Account create ho raha hai...";
+
+
+  /* CHECK LOGIN ID */
+
+  const existing=
+  await db.collection("sellers")
+  .where("loginId","==",loginId)
+  .limit(1)
+  .get();
+
+
+  if(!existing.empty){
+
+   msg.innerText=
+   "Ye Seller Login ID pehle se registered hai.";
+
+   return;
+
+  }
+
+
+  /*
+     Firebase ke liye internal email.
+     Seller ko email dikhane ki zarurat nahi.
+  */
+
+  const firebaseEmail=
+  makeFirebaseEmail(loginId);
+
+
+  const result=
+  await auth.createUserWithEmailAndPassword(
+   firebaseEmail,
+   password
+  );
+
+
+  const uid=result.user.uid;
+
+
+  await db.collection("sellers")
+  .doc(uid)
+  .set({
+
+   uid:uid,
+
+   loginId:loginId,
+
+   name:name,
+
+   mobile:mobile,
+
+   state:state,
+
+   district:district,
+
+   village:village,
+
+   email:firebaseEmail,
+
+   kycStatus:"pending",
+
+   accountStatus:"active",
+
+   panDocument:"",
+
+   aadhaarDocument:"",
+
+   shopDocument:"",
+
+   createdAt:
+   firebase.firestore.FieldValue.serverTimestamp(),
+
+   approvedAt:null,
+
+   approvedBy:null,
+
+   totalSales:0,
+
+   commission:0,
+
+   sellerAmount:0,
+
+   settlementStatus:"pending"
+
+  });
+
+
+  /*
+     Account create ke baad logout.
+     Phir Login page.
+  */
+
+  await auth.signOut();
+
+
+  msg.innerText=
+  "✓ Account successfully create ho gaya. Ab Login karein.";
+
+  document.getElementById("regName").value="";
+  document.getElementById("regMobile").value="";
+  document.getElementById("regDistrict").value="";
+  document.getElementById("regVillage").value="";
+  document.getElementById("regLoginId").value="";
+  document.getElementById("regPassword").value="";
+
+  setTimeout(()=>{
+
+   showLogin();
+
+   document.getElementById("loginId")
+   .value=loginId;
+
+  },1000);
+
+
+ }
+ catch(error){
+
+  console.error(error);
+
+  msg.innerText=
+  "Registration failed: "+error.message;
+
+ }
 
 }
 
 
-/* ==============================
-   SELLER LOGIN
-   ============================== */
+/* =====================================================
+   LOGIN
+===================================================== */
 
 async function loginSeller(){
 
-  const email =
-    document.getElementById("loginEmail").value.trim();
+ const loginId=
+ document.getElementById("loginId")
+ .value.trim()
+ .toLowerCase();
 
-  const password =
-    document.getElementById("loginPassword").value;
+ const password=
+ document.getElementById("loginPassword")
+ .value;
 
-  const msg =
-    document.getElementById("loginMsg");
-
-  try{
-
-    msg.innerText = "Login ho raha hai...";
-
-    const result =
-      await auth.signInWithEmailAndPassword(email,password);
-
-    const uid = result.user.uid;
-
-    const doc =
-      await db.collection("sellers").doc(uid).get();
-
-    if(!doc.exists){
-
-      await auth.signOut();
-
-      msg.innerText =
-        "Seller account record nahi mila.";
-
-      return;
-    }
-
-    const seller = doc.data();
-
-    document.getElementById("loginBox")
-      .classList.add("hidden");
-
-    document.getElementById("sellerPanel")
-      .classList.remove("hidden");
-
-    document.getElementById("sellerName").innerText =
-      seller.name || "";
-
-    document.getElementById("sellerEmail").innerText =
-      seller.email || email;
+ const msg=
+ document.getElementById("loginMsg");
 
 
-    showKYCStatus(seller);
+ if(!loginId || !password){
+
+  msg.innerText=
+  "Login ID aur password bhariye.";
+
+  return;
+
+ }
+
+
+ try{
+
+  msg.innerText="Login ho raha hai...";
+
+
+  const sellerQuery=
+  await db.collection("sellers")
+  .where("loginId","==",loginId)
+  .limit(1)
+  .get();
+
+
+  if(sellerQuery.empty){
+
+   msg.innerText=
+   "Seller Login ID nahi mila.";
+
+   return;
 
   }
-  catch(error){
 
-    console.error(error);
 
-    msg.innerText =
-      "Login failed: " + error.message;
-  }
+  const sellerDoc=
+  sellerQuery.docs[0];
+
+  const seller=
+  sellerDoc.data();
+
+
+  const firebaseEmail=
+  seller.email ||
+  makeFirebaseEmail(loginId);
+
+
+  await auth.signInWithEmailAndPassword(
+   firebaseEmail,
+   password
+  );
+
+
+  currentSeller={
+   id:sellerDoc.id,
+   ...seller
+  };
+
+
+  openSellerPanel();
+
+
+ }
+ catch(error){
+
+  console.error(error);
+
+  msg.innerText=
+  "Login failed: "+error.message;
+
+ }
 
 }
 
 
-/* ==============================
-   KYC STATUS
-   ============================== */
+/* =====================================================
+   OPEN SELLER PANEL
+===================================================== */
 
-function showKYCStatus(seller){
+function openSellerPanel(){
 
-  const status =
-    document.getElementById("kycStatus");
+ document.getElementById("loginBox")
+ .classList.add("hidden");
 
-  const locked =
-    document.getElementById("lockedPanel");
+ document.getElementById("registerBox")
+ .classList.add("hidden");
 
-  const approved =
-    document.getElementById("approvedPanel");
-
-
-  locked.classList.remove("hidden");
-  approved.classList.add("hidden");
+ document.getElementById("sellerPanel")
+ .classList.remove("hidden");
 
 
-  if(seller.kycStatus === "approved"){
+ document.getElementById("showLoginId")
+ .innerText=currentSeller.loginId||"";
 
-    status.className = "status approved";
+ document.getElementById("sellerName")
+ .innerText=currentSeller.name||"";
 
-    status.innerText =
-      "✓ KYC Approved";
+ document.getElementById("sellerMobile")
+ .innerText=currentSeller.mobile||"";
 
-    locked.classList.add("hidden");
-    approved.classList.remove("hidden");
 
-    document.getElementById("totalSales").innerText =
-      seller.totalSales || 0;
+ document.getElementById("sellerLocation")
+ .innerText=
+ [
+  currentSeller.village,
+  currentSeller.district,
+  currentSeller.state
+ ]
+ .filter(Boolean)
+ .join(", ");
 
-    document.getElementById("commission").innerText =
-      seller.commission || 0;
 
-    document.getElementById("sellerAmount").innerText =
-      seller.sellerAmount || 0;
-
-    document.getElementById("settlementStatus").innerText =
-      seller.settlementStatus || "pending";
-
-  }
-
-  else if(seller.kycStatus === "rejected"){
-
-    status.className = "status rejected";
-
-    status.innerText =
-      "✕ KYC Rejected";
-
-    locked.innerHTML =
-      "<h2>KYC Rejected</h2>" +
-      "<p>Company ne aapka KYC reject kiya hai. " +
-      "Documents dobara submit karein.</p>";
-
-  }
-
-  else{
-
-    status.className = "status pending";
-
-    status.innerText =
-      "⏳ KYC Pending - Company Approval Required";
-
-  }
+ updateSellerScreen();
 
 }
 
 
-/* ==============================
-   LOGOUT
-   ============================== */
+/* =====================================================
+   UPDATE SELLER SCREEN
+===================================================== */
 
-async function logoutSeller(){
+async function updateSellerScreen(){
+
+ const uid=auth.currentUser.uid;
+
+
+ const doc=
+ await db.collection("sellers")
+ .doc(uid)
+ .get();
+
+
+ if(!doc.exists){
 
   await auth.signOut();
 
   location.reload();
 
+  return;
+
+ }
+
+
+ currentSeller={
+  id:doc.id,
+  ...doc.data()
+ };
+
+
+ const status=
+ document.getElementById("kycStatus");
+
+
+ const kycBox=
+ document.getElementById("kycBox");
+
+
+ const business=
+ document.getElementById("businessBox");
+
+
+ status.className="status";
+
+
+ business.classList.add("hidden");
+
+
+ if(currentSeller.kycStatus==="approved"){
+
+  status.classList.add("approved");
+
+  status.innerText=
+  "✓ KYC Approved";
+
+  kycBox.classList.add("hidden");
+
+  business.classList.remove("hidden");
+
+ }
+ else if(currentSeller.kycStatus==="rejected"){
+
+  status.classList.add("rejected");
+
+  status.innerText=
+  "✕ KYC Rejected";
+
+  kycBox.classList.remove("hidden");
+
+  business.classList.add("hidden");
+
+  document.getElementById("kycMessage")
+  .innerHTML=
+  "<div class='status rejected'>"+
+  "Admin ne KYC reject kiya hai. Documents dobara upload karein."+
+  "</div>";
+
+ }
+ else{
+
+  status.classList.add("pending");
+
+  status.innerText=
+  "⏳ KYC Pending - Admin Approval Required";
+
+  kycBox.classList.remove("hidden");
+
+  business.classList.add("hidden");
+
+ }
+
+
+ document.getElementById("totalSales")
+ .innerText=currentSeller.totalSales||0;
+
+ document.getElementById("commission")
+ .innerText=currentSeller.commission||0;
+
+ document.getElementById("sellerAmount")
+ .innerText=currentSeller.sellerAmount||0;
+
+ document.getElementById("settlementStatus")
+ .innerText=currentSeller.settlementStatus||"pending";
+
 }
 
 
-/* ==============================
-   AUTO LOGIN
-   ============================== */
+/* =====================================================
+   KYC UPLOAD
+===================================================== */
 
-auth.onAuthStateChanged(async user => {
+async function uploadKYCFile(file,uid,type){
 
-  if(!user) return;
+ if(!file){
 
-  try{
+  throw new Error(type+" file required");
 
-    const doc =
-      await db.collection("sellers")
-      .doc(user.uid)
-      .get();
+ }
 
-    if(!doc.exists) return;
 
-    const seller = doc.data();
+ const safeName=
+ file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
 
-    document.getElementById("loginBox")
-      .classList.add("hidden");
 
-    document.getElementById("registerBox")
-      .classList.add("hidden");
+ const path=
+ "sellerKYC/"
+ +uid+"/"
+ +type+"_"
+ +Date.now()+"_"
+ +safeName;
 
-    document.getElementById("sellerPanel")
-      .classList.remove("hidden");
 
-    document.getElementById("sellerName").innerText =
-      seller.name || "";
+ const ref=
+ storage.ref(path);
 
-    document.getElementById("sellerEmail").innerText =
-      seller.email || user.email;
 
-    showKYCStatus(seller);
+ await ref.put(file);
+
+
+ return await ref.getDownloadURL();
+
+}
+
+
+/* =====================================================
+   SUBMIT KYC
+===================================================== */
+
+async function submitKYC(){
+
+ const msg=
+ document.getElementById("kycMessage");
+
+
+ try{
+
+  const user=auth.currentUser;
+
+
+  if(!user){
+
+   msg.innerText=
+   "Pehle login karein.";
+
+   return;
 
   }
-  catch(e){
 
-    console.error(e);
+
+  const pan=
+  document.getElementById("panFile")
+  .files[0];
+
+  const aadhaar=
+  document.getElementById("aadhaarFile")
+  .files[0];
+
+  const shop=
+  document.getElementById("shopFile")
+  .files[0];
+
+
+  if(!pan || !aadhaar || !shop){
+
+   msg.innerText=
+   "PAN, Aadhaar/ID aur Shop Proof teeno upload karein.";
+
+   return;
 
   }
 
-});
+
+  msg.innerText=
+  "Documents upload ho rahe hain...";
+
+
+  const panURL=
+  await uploadKYCFile(
+   pan,
+   user.uid,
+   "PAN"
+  );
+
+
+  const aadhaarURL=
+  await uploadKYCFile(
+   aadhaar,
+   user.uid,
+   "AADHAAR"
+  );
+
+
+  const shopURL=
+  await uploadKYCFile(
+   shop,
+   user.uid,
+   "SHOP_PROOF"
+  );
+
+
+  await db.collection("sellers")
+  .doc(user.uid)
+  .update({
+
+   panDocument:panURL,
+
+   aadhaarDocument:aadhaarURL,
+
+   shopDocument:shopURL,
+
+   kycStatus:"pending",
+
+   accountStatus:"active",
+
+   kycSubmittedAt:
+   firebase.firestore.FieldValue.serverTimestamp(),
+
+   approvedAt:null,
+
+   approvedBy:null
+
+  });
+
+
+  msg.innerHTML=
+  "<div class='status pending'>"+
+  "✓ KYC successfully submit ho gaya. Admin approval ka wait karein."+
+  "</div>";
+
+
+  document.getElementById("panFile").value="";
+
+  document.getElementById("aadhaarFile").value="";
+
+  document.getElementById("shopFile").value="";
+
+
+  await updateSellerScreen();
+
+
+ }
+ catch(error){
+
+  console.error(error);
+
+  msg.innerText=
+  "KYC upload failed: "+error.message;
+
+ }
+
+}
+
+
+/* =====================================================
+   ADD PRODUCT
+===================================================== */
+
 function openAddProduct(){
-  document.getElementById("addProductBox")
-    .classList.remove("hidden");
+
+ document.getElementById("addProductBox")
+ .classList.remove("hidden");
+
 }
 
 function closeAddProduct(){
-  document.getElementById("addProductBox")
-    .classList.add("hidden");
+
+ document.getElementById("addProductBox")
+ .classList.add("hidden");
+
 }
-  async function addProduct(){
 
-  const msg = document.getElementById("productMsg");
 
-  try{
+/* =====================================================
+   ADD PRODUCT
+===================================================== */
 
-    const user = firebase.auth().currentUser;
+async function addProduct(){
 
-    if(!user){
-      msg.innerText = "Pehle seller login karein.";
-      return;
-    }
+ const msg=
+ document.getElementById("productMsg");
 
-    const sellerDoc =
-      await db.collection("sellers").doc(user.uid).get();
 
-    if(!sellerDoc.exists){
-      msg.innerText = "Seller record nahi mila.";
-      return;
-    }
+ try{
 
-    const seller = sellerDoc.data();
+  const user=auth.currentUser;
 
-    if(seller.kycStatus !== "approved"){
-      msg.innerText = "KYC approval ke baad product add kar sakte hain.";
-      return;
-    }
 
-    const productName =
-      document.getElementById("productName").value.trim();
+  if(!user){
 
-    const category =
-      document.getElementById("productCategory").value.trim();
+   msg.innerText=
+   "Pehle login karein.";
 
-    const price =
-      Number(document.getElementById("productPrice").value);
-
-    const mrp =
-      Number(document.getElementById("productMrp").value);
-
-    const stock =
-      Number(document.getElementById("productStock").value);
-
-    const description =
-      document.getElementById("productDescription").value.trim();
-
-    const imageFile =
-      document.getElementById("productImage").files[0];
-
-    if(!productName || !category || !price || !mrp || !stock){
-      msg.innerText = "Product ki sabhi details bhariye.";
-      return;
-    }
-
-    if(!imageFile){
-      msg.innerText = "Product image select karein.";
-      return;
-    }
-
-    msg.innerText = "Product upload ho raha hai...";
-
-    const productId =
-      db.collection("products").doc().id;
-
-    const imagePath =
-      "products/" + user.uid + "/" +
-      productId + "_" + imageFile.name;
-
-    const imageRef =
-      storage.ref(imagePath);
-
-    await imageRef.put(imageFile);
-
-    const imageURL =
-      await imageRef.getDownloadURL();
-
-    await db.collection("products").doc(productId).set({
-
-      productId: productId,
-
-      sellerId: user.uid,
-
-      sellerName: seller.name || "",
-
-      shopName: seller.shopName || "",
-
-      productName: productName,
-
-      category: category,
-
-      price: price,
-
-      mrp: mrp,
-
-      stock: stock,
-
-      description: description,
-
-      imageURL: imageURL,
-
-      status: "pending",
-
-      approved: false,
-
-      createdAt:
-        firebase.firestore.FieldValue.serverTimestamp()
-
-    });
-
-    msg.innerText =
-      "✓ Product successfully submit ho gaya. Admin approval ka wait karein.";
-
-    document.getElementById("productName").value = "";
-    document.getElementById("productCategory").value = "";
-    document.getElementById("productPrice").value = "";
-    document.getElementById("productMrp").value = "";
-    document.getElementById("productStock").value = "";
-    document.getElementById("productDescription").value = "";
-    document.getElementById("productImage").value = "";
-
-  }
-  catch(error){
-
-    console.error(error);
-
-    msg.innerText =
-      "Product add failed: " + error.message;
+   return;
 
   }
 
-}
-</script>
 
-</body>
-</html>
+  const sellerDoc=
+  await db.collection("sellers")
+  .doc(user.uid)
+  .get();
+
+
+  if(!sellerDoc.exists){
+
+   msg.innerText=
+   "Seller record nahi mila.";
+
+   return;
+
+  }
+
+
+  const seller=sellerDoc.data();
+
+
+  if(seller.kycStatus!=="approved"){
+
+   msg.innerText=
+   "KYC approval ke baad product add kar sakte hain.";
+
+   return;
+
+  }
+
+
+  const productName=
+  document.getElementById("productName")
+  .value.trim();
+
+
+  const category=
+  document.getElementById("productCategory")
+  .value.trim();
+
+
+  const price=
+  Number(
+   document.getElementById("productPrice").value
+  );
+
+
+  const mrp=
+  Number(
+   document.getElementById("productMrp").value
+  );
+
+
+  const stock=
+  Number(
+   document.getElementById("productStock").value
+  );
+
+
+  const description=
+  document.getElementById("productDescription")
+  .value.trim();
+
+
+  const imageFile=
+  document.getElementById("productImage")
+  .files[0];
+
+
+  if(
+   !productName ||
+   !category ||
+   !price ||
+   !mrp ||
+   stock<1
+  ){
+
+   msg.innerText=
+   "Product ki sabhi details bhariye.";
+
+   return;
+
+  }
+
+
+  if(!imageFile){
+
+   msg.innerText=
+   "Product image select karein.";
+
+   return;
+
+  }
+
+
+  msg.innerText=
+  "Product upload ho raha hai...";
+
+
+  const productId=
+  db.collection("products").doc().id;
+
+
+  const safeName=
+  imageFile.name
+  .replace(/[^a-zA-Z0-9._-]/g,"_");
+
+
+  const imagePath=
+  "products/"
+  +user.uid+"/"
+  +productId+"_"
+  +safeName;
+
+
+  const imageRef=
+  storage.ref(imagePath);
+
+
+  await imageRef.put(imageFile);
+
+
+  const imageURL=
+  await imageRef.getDownloadURL();
+
+
+  await db.collection("products")
+  .doc(productId)
+  .set({
+
+   productId:productId,
+
+   sellerId:user.uid,
+
+   sellerName:seller.name||"",
+
+   shopName:seller.shopName||"",
+
+   productName:productName,
+
+   category:category,
+
+   price:price,
+
+   mrp:mrp,
+
+   stock:stock,
+
+   description:description,
+
+   imageURL:imageURL,
+
+   status:"pending",
+
+   approved:false,
+
+   createdAt:
+   firebase.firestore.FieldValue.serverTimestamp()
+
+  });
+
+
+  msg.innerHTML=
+  "<div class='status pending'>"+
+  "✓ Product submit ho gaya. Admin approval ka wait karein."+
+  "</div>";
+
+
+  document.getElementById("productName").value="";
+
+  document.getElementById("productCategory").value="";
+
+  document.getElementById("productPrice").value="";
+
+  document.getElementById("productMrp").value="";
+
+  document.getElementById("productStock").value="";
+
+  document.getElementById("productDescription").value="";
+
+  document.getElementById("productImage").value="";
+
+
+ }
+ catch(error){
+
+  console.error(error);
+
+  msg.innerText=
+  "Product add failed: "+error.message;
+
+ }
+
+}
+
+
+/* =====================================================
+   MY PRODUCTS
+========
