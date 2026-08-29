@@ -1471,6 +1471,130 @@ async function addProduct(){
    MY PRODUCTS
 ========
 */
+ /* =====================================================
+   MY PRODUCTS
+===================================================== */
+
+async function showMyProducts(){
+
+ const box =
+ document.getElementById("myProductsBox");
+
+ const list =
+ document.getElementById("myProducts");
+
+ box.classList.remove("hidden");
+
+ list.innerHTML = "Products loading...";
+
+ try{
+
+  const user = auth.currentUser;
+
+  if(!user){
+
+   list.innerHTML =
+   "<div class='status rejected'>Pehle login karein.</div>";
+
+   return;
+
+  }
+
+  const snapshot =
+  await db.collection("products")
+  .where("sellerId","==",user.uid)
+  .get();
+
+  if(snapshot.empty){
+
+   list.innerHTML =
+   "<div class='small'>Abhi koi product nahi hai.</div>";
+
+   return;
+
+  }
+
+  let html = "";
+
+  snapshot.forEach(doc=>{
+
+   const p = doc.data();
+
+   html += `
+   <div class="card">
+
+    <h3>${p.productName || ""}</h3>
+
+    <p>
+     <b>Category:</b>
+     ${p.category || ""}
+    </p>
+
+    <p>
+     <b>Price:</b>
+     ₹${p.price || 0}
+    </p>
+
+    <p>
+     <b>MRP:</b>
+     ₹${p.mrp || 0}
+    </p>
+
+    <p>
+     <b>Stock:</b>
+     ${p.stock || 0}
+    </p>
+
+    <p>
+     <b>Status:</b>
+     ${p.status || "pending"}
+    </p>
+
+   </div>
+   `;
+
+  });
+
+  list.innerHTML = html;
+
+ }
+ catch(error){
+
+  console.error(error);
+
+  list.innerHTML =
+  "<div class='status rejected'>"+
+  "Products load failed: "+
+  error.message+
+  "</div>";
+
+ }
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logoutSeller(){
+
+ try{
+
+  await auth.signOut();
+
+  currentSeller = null;
+
+  location.reload();
+
+ }
+ catch(error){
+
+  console.error(error);
+
+ }
+
+}
 </script>
 
 </body>
