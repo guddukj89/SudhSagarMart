@@ -337,7 +337,200 @@ function showOrders(){closeMenu();document.getElementById("orders").innerHTML=or
         }
     );
 }
+async function savelocation(){
 
+    if(!navigator.geolocation){
+        return alert("Aapke device me GPS/location support nahi hai.");
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        async function(position){
+
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            try{
+
+                // GPS coordinates se address nikalo
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+                );
+
+                if(!response.ok){
+                    throw new Error("Address API failed");
+                }
+
+                const data = await response.json();
+                const a = data.address || {};
+
+                // Address ke parts
+                const parts = [
+                    a.house_number,
+                    a.road,
+                    a.neighbourhood,
+                    a.suburb,
+                    a.village,
+                    a.town,
+                    a.city,
+                    a.district,
+                    a.state_district,
+                    a.state,
+                    a.postcode,
+                    a.country
+                ];
+
+                const finalAddress =
+                    parts
+                        .filter(Boolean)
+                        .filter((v,i,arr) => arr.indexOf(v) === i)
+                        .join(", ")
+                    || data.display_name
+                    || "Current location";
+
+                // Current GPS location save
+                const currentLocation = {
+                    latitude: lat,
+                    longitude: lng,
+                    accuracy: accuracy,
+                    address: finalAddress,
+                    time: new Date().toISOString()
+                };
+
+                localStorage.setItem(
+                    "ssm_current_location",
+                    JSON.stringify(currentLocation)
+                );
+
+                // Website par location dikhao
+                const locationText =
+                    document.getElementById("locationText");
+
+                if(locationText){
+                    locationText.innerText = finalAddress;
+                }
+
+                // Address field me location bharo
+                const address =
+                    document.getElementById("address");
+
+                if(address){
+                    address.value = finalAddress;
+                }
+
+                // City automatically bharo
+                const city =
+                    document.getElementById("city");
+
+                if(city){
+                    city.value =
+                        a.city ||
+                        a.town ||
+                        a.village ||
+                        a.suburb ||
+                        "";
+                }
+
+                // Pincode automatically bharo
+                const pincode =
+                    document.getElementById("pincode");
+
+                if(pincode){
+                    pincode.value = a.postcode || "";
+                }
+
+                // Map ko current location par lao
+                if(typeof map !== "undefined" && map){
+
+                    map.setCenter({
+                        lat: lat,
+                        lng: lng
+                    });
+
+                    map.setZoom(18);
+
+                    if(typeof marker !== "undefined" && marker){
+                        marker.setMap(null);
+                    }
+
+                    marker = new google.maps.Marker({
+                        position: {
+                            lat: lat,
+                            lng: lng
+                        },
+                        map: map,
+                        title: "Your Current Location"
+                    });
+                }
+
+                alert(
+                    "📍 Current location mil gayi!\n\n" +
+                    finalAddress +
+                    "\n\nAccuracy: " +
+                    Math.round(accuracy) +
+                    " meter"
+                );
+
+            }catch(error){
+
+                console.error(error);
+
+                // Address API fail ho jaye tab bhi GPS save rahe
+                localStorage.setItem(
+                    "ssm_current_location",
+                    JSON.stringify({
+                        latitude: lat,
+                        longitude: lng,
+                        accuracy: accuracy,
+                        address: "GPS Current Location",
+                        time: new Date().toISOString()
+                    })
+                );
+
+                const address =
+                    document.getElementById("address");
+
+                if(address){
+                    address.value = "GPS Current Location";
+                }
+
+                const locationText =
+                    document.getElementById("locationText");
+
+                if(locationText){
+                    locationText.innerText = "GPS Current Location";
+                }
+
+                alert(
+                    "📍 GPS location mil gayi, lekin address naam nahi mil saka."
+                );
+            }
+
+        },
+
+        function(error){
+
+            if(error.code === 1){
+                alert("Location permission Allow karein.");
+            }
+            else if(error.code === 2){
+                alert("Current location nahi mil rahi. GPS ON karein.");
+            }
+            else if(error.code === 3){
+                alert("Location detect hone me time lag raha hai. Dobara try karein.");
+            }
+            else{
+                alert("Current location nahi mil saki.");
+            }
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+        }
+    );
+}
 function openAccount(){closeMenu();openModal("accountModal")}
 function openWishlist(){document.getElementById("wishlist").innerHTML=wishlist.length?wishlist.map(x=>`<p>${x}</p>`).join(""):"<div class='empty'>Wishlist is empty</div>";openModal("wishlistModal")}
 function openSettings(){closeMenu();openModal("settingsModal")}
