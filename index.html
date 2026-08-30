@@ -275,6 +275,7 @@ cart=[];save();closeModal("checkoutModal");alert("Order placed successfully! Ord
 }
 function showOrders(){closeMenu();document.getElementById("orders").innerHTML=orders.length?orders.map(o=>`<div class="cartRow"><div><b>${o.id}</b><br>₹${o.total}<br>${o.time}</div><b>${o.status}</b></div>`).join(""):'<div class="empty">No orders yet</div>';openModal("ordersModal")}
 async function getCurrentLocation(){
+ alert("LOCATION BUTTON CHAL RAHA HAI")
 
     if(!navigator.geolocation){
         alert("Aapke device me GPS/location support nahi hai.");
