@@ -274,6 +274,8 @@ orders.unshift({id,total,status:"Order Placed",time:new Date().toLocaleString()}
 cart=[];save();closeModal("checkoutModal");alert("Order placed successfully! Order ID: "+id);showOrders();
 }
 function showOrders(){closeMenu();document.getElementById("orders").innerHTML=orders.length?orders.map(o=>`<div class="cartRow"><div><b>${o.id}</b><br>₹${o.total}<br>${o.time}</div><b>${o.status}</b></div>`).join(""):'<div class="empty">No orders yet</div>';openModal("ordersModal")}
+let liveLocationWatch = null;
+
 function getCurrentLocation(){
 
     if(!navigator.geolocation){
@@ -281,181 +283,91 @@ function getCurrentLocation(){
         return;
     }
 
-    document.getElementById("locationText").innerText =
-        "📍 Current location detect ho rahi hai...";
+    const locationText =
+        document.getElementById("locationText");
 
-    navigator.geolocation.getCurrentPosition(
+    if(locationText){
+        locationText.innerText =
+            "📍 Live location detect ho rahi hai...";
+    }
+
+    // Purana live tracking band karo
+    if(liveLocationWatch !== null){
+        navigator.geolocation.clearWatch(liveLocationWatch);
+    }
+
+    liveLocationWatch = navigator.geolocation.watchPosition(
 
         async function(position){
 
-            const lat = position.coords.latitude
+            const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            const accuracy = Math.round(position.coords.accuracy);
-         if(accuracy > 1000){
-    alert(
-        "📍 Location accurate nahi mil rahi.\n\n" +
-        "Current accuracy: " + accuracy + " meter\n\n" +
-        "GPS ON karein aur thodi der open area me rukkar dobara try karein."
-    );
-    return;
-}
+            const accuracy =
+                Math.round(position.coords.accuracy);
 
-            try{
+            console.log(
+                "LIVE LOCATION:",
+                lat,
+                lng,
+                "Accuracy:",
+                accuracy + "m"
+            );
 
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
-                );
+            // Bahut inaccurate location ko use mat karo
+            if(accuracy > 1000){
 
-                const data = await response.json();
+                if(locationText){
+                    locationText.innerText =
+                        "📍 Accurate GPS location mil rahi hai...";
+                }
 
-                const a = data.address || {};
+                return;
+            }
 
-                const parts = [
-                    a.house_number,
-                    a.road,
-                    a.neighbourhood,
-                    a.suburb,
-                    a.village,
-                    a.town,
-                    a.city,
-                    a.district,
-                    a.state_district,
-                    a.state,
-                    a.postcode,
-                    a.country
-                ];
+            // Live location save karo
+            const currentLocation = {
+                latitude: lat,
+                longitude: lng,
+                accuracy: accuracy,
+                address: "Live GPS Location",
+                time: new Date().toISOString()
+            };
 
-                const fullAddress = parts
-                    .filter(Boolean)
-                    .filter((v,i,arr)=>arr.indexOf(v)===i)
-                    .join(", ");
+            localStorage.setItem(
+                "ssm_current_location",
+                JSON.stringify(currentLocation)
+            );
 
-                const finalAddress =
-                    fullAddress ||
-                    data.display_name ||
-                    "Current location";
+            // Map par live marker move karo
+            if(typeof map !== "undefined" && map){
 
-                // Current location ko save karo
-                const currentLocation = {
-                    latitude: lat,
-                    longitude: lng,
-                    accuracy: accuracy,
-                    address: finalAddress,
-                    time: new Date().toISOString()
+                const newPosition = {
+                    lat: lat,
+                    lng: lng
                 };
 
-                localStorage.setItem(
-                    "ssm_current_location",
-                    JSON.stringify(currentLocation)
-                );
+                map.setCenter(newPosition);
+                map.setZoom(18);
 
-                // Website par location dikhao
-                document.getElementById("locationText").innerText =
-                    finalAddress;
+                if(marker){
 
-                // Address modal me bhi bhar do
-                if(document.getElementById("address")){
-                    document.getElementById("address").value =
-                        finalAddress;
-                }
+                    marker.setPosition(newPosition);
 
-                if(document.getElementById("city")){
-                    document.getElementById("city").value =
-                        a.city ||
-                        a.town ||
-                        a.village ||
-                        a.suburb ||
-                        "";
-                }
-
-                if(document.getElementById("pincode")){
-                    document.getElementById("pincode").value =
-                        a.postcode || "";
-                }
-
-                // Map available ho to current location dikhao
-                if(typeof map !== "undefined" && map){
-
-                    map.setCenter({
-                        lat: lat,
-                        lng: lng
-                    });
-
-                    map.setZoom(18);
-
-                    if(marker){
-                        marker.setMap(null);
-                    }
+                }else{
 
                     marker = new google.maps.Marker({
-                        position:{
-                            lat:lat,
-                            lng:lng
-                        },
-                        map:map,
-                        title:"Your Current Location"
+                        position: newPosition,
+                        map: map,
+                        title: "Your Live Location"
                     });
+
                 }
 
-                document.getElementById("map").style.display = "block";
-
-                alert(
-                    "📍 Current location mil gayi.\n\n" +
-                    finalAddress +
-                    "\n\nAccuracy: लगभग " +
-                    accuracy +
-                    " meter"
-                );
-
-            }catch(error){
-
-                console.error(error);
-
-                // Address API fail ho jaye tab bhi GPS save rahega
-                localStorage.setItem(
-                    "ssm_current_location",
-                    JSON.stringify({
-                        latitude:lat,
-                        longitude:lng,
-                        accuracy:accuracy,
-                        address:"GPS Current Location",
-                        time:new Date().toISOString()
-                    })
-                );
-
-                document.getElementById("locationText").innerText =
-                    "📍 GPS Current Location";
-
-                alert(
-                    "GPS location mil gayi hai, lekin address name nahi mil saka."
-                );
+                document.getElementById("map").style.display =
+                    "block";
             }
-        },
 
-        function(error){
-
-            if(error.code === 1){
-                alert("Location permission Allow karein.");
-            }
-            else if(error.code === 2){
-                alert("Current location nahi mil rahi. GPS ON karein.");
-            }
-            else if(error.code === 3){
-                alert("Location detect hone me time lag raha hai. Dobara try karein.");
-            }
-            else{
-                alert("Current location nahi mil saki.");
-            }
-        },
-
-        {
-            enableHighAccuracy:true,
-            timeout:20000,
-            maximumAge:0
-        }
-    );
-}
-          
+            
 function openLocation(){closeMenu();openModal("locationModal")}
 async function saveLocation(){
 
