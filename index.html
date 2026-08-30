@@ -288,9 +288,17 @@ function getCurrentLocation(){
 
         async function(position){
 
-            const lat = position.coords.latitude;
+            const lat = position.coords.latitude
             const lng = position.coords.longitude;
             const accuracy = Math.round(position.coords.accuracy);
+         if(accuracy > 1000){
+    alert(
+        "📍 Location accurate nahi mil rahi.\n\n" +
+        "Current accuracy: " + accuracy + " meter\n\n" +
+        "GPS ON karein aur thodi der open area me rukkar dobara try karein."
+    );
+    return;
+}
 
             try{
 
