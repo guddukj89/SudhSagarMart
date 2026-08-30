@@ -670,6 +670,39 @@ function initMap() {
         });
     });
 }
+ function saveAddress(){
+
+    const name = document.getElementById("name").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const pincode = document.getElementById("pincode").value.trim();
+
+    if(!name || !mobile || !address || !city || !pincode){
+        alert("Please fill all address details.");
+        return;
+    }
+
+    const deliveryAddress = {
+        name: name,
+        mobile: mobile,
+        address: address,
+        city: city,
+        pincode: pincode
+    };
+
+    localStorage.setItem(
+        "ssm_delivery_address",
+        JSON.stringify(deliveryAddress)
+    );
+
+    document.getElementById("locationText").innerText =
+        "Deliver to: " + city + " - " + pincode;
+
+    closeModal("locationModal");
+
+    alert("✅ Delivery address saved successfully!");
+}
 </script>
 </body>
 </html>
