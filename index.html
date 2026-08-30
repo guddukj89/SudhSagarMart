@@ -464,7 +464,7 @@ async function saveLocation(){
     }
 
     navigator.geolocation.getCurrentPosition(
-           function(position){
+           async function(position){
 
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
