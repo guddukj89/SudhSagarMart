@@ -274,12 +274,10 @@ orders.unshift({id,total,status:"Order Placed",time:new Date().toLocaleString()}
 cart=[];save();closeModal("checkoutModal");alert("Order placed successfully! Order ID: "+id);showOrders();
 }
 function showOrders(){closeMenu();document.getElementById("orders").innerHTML=orders.length?orders.map(o=>`<div class="cartRow"><div><b>${o.id}</b><br>₹${o.total}<br>${o.time}</div><b>${o.status}</b></div>`).join(""):'<div class="empty">No orders yet</div>';openModal("ordersModal")}
-let liveLocationWatch = null;
-
-function getCurrentLocation(){
+async function getCurrentLocation(){
 
     if(!navigator.geolocation){
-        alert("Aapke browser me location support nahi hai.");
+        alert("Aapke device me GPS/location support nahi hai.");
         return;
     }
 
@@ -288,88 +286,179 @@ function getCurrentLocation(){
 
     if(locationText){
         locationText.innerText =
-            "📍 Live location detect ho rahi hai...";
+            "📍 Current location detect ho rahi hai...";
     }
 
-    // Purana live tracking band karo
-    if(liveLocationWatch !== null){
-        navigator.geolocation.clearWatch(liveLocationWatch);
-    }
-
-    liveLocationWatch = navigator.geolocation.watchPosition(
+    navigator.geolocation.getCurrentPosition(
 
         async function(position){
 
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            const accuracy =
-                Math.round(position.coords.accuracy);
+            const accuracy = position.coords.accuracy;
 
-            console.log(
-                "LIVE LOCATION:",
-                lat,
-                lng,
-                "Accuracy:",
-                accuracy + "m"
-            );
+            try{
 
-            // Bahut inaccurate location ko use mat karo
-            if(accuracy > 1000){
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+                );
+
+                if(!response.ok){
+                    throw new Error("Address API failed");
+                }
+
+                const data = await response.json();
+                const a = data.address || {};
+
+                const finalAddress =
+                    [
+                        a.house_number,
+                        a.road,
+                        a.neighbourhood,
+                        a.suburb,
+                        a.village,
+                        a.town,
+                        a.city,
+                        a.district,
+                        a.state,
+                        a.postcode,
+                        a.country
+                    ]
+                    .filter(Boolean)
+                    .filter((v,i,arr)=>arr.indexOf(v)===i)
+                    .join(", ")
+                    || data.display_name
+                    || "Current Location";
+
+                const currentLocation = {
+                    latitude: lat,
+                    longitude: lng,
+                    accuracy: Math.round(accuracy),
+                    address: finalAddress,
+                    city:
+                        a.city ||
+                        a.town ||
+                        a.village ||
+                        a.suburb ||
+                        "",
+                    pincode: a.postcode || "",
+                    time: new Date().toISOString()
+                };
+
+                localStorage.setItem(
+                    "ssm_current_location",
+                    JSON.stringify(currentLocation)
+                );
 
                 if(locationText){
                     locationText.innerText =
-                        "📍 Accurate GPS location mil rahi hai...";
+                        "📍 " + finalAddress;
                 }
 
-                return;
-            }
+                const address =
+                    document.getElementById("address");
 
-            // Live location save karo
-            const currentLocation = {
-                latitude: lat,
-                longitude: lng,
-                accuracy: accuracy,
-                address: "Live GPS Location",
-                time: new Date().toISOString()
-            };
+                if(address){
+                    address.value = finalAddress;
+                }
 
-            localStorage.setItem(
-                "ssm_current_location",
-                JSON.stringify(currentLocation)
-            );
+                const city =
+                    document.getElementById("city");
 
-            // Map par live marker move karo
-            if(typeof map !== "undefined" && map){
+                if(city){
+                    city.value =
+                        currentLocation.city;
+                }
 
-                const newPosition = {
-                    lat: lat,
-                    lng: lng
-                };
+                const pincode =
+                    document.getElementById("pincode");
 
-                map.setCenter(newPosition);
-                map.setZoom(18);
+                if(pincode){
+                    pincode.value =
+                        currentLocation.pincode;
+                }
 
-                if(marker){
+                if(typeof map !== "undefined" && map){
 
-                    marker.setPosition(newPosition);
+                    const positionMap = {
+                        lat: lat,
+                        lng: lng
+                    };
 
-                }else{
+                    map.setCenter(positionMap);
+                    map.setZoom(18);
+
+                    if(marker){
+                        marker.setMap(null);
+                    }
 
                     marker = new google.maps.Marker({
-                        position: newPosition,
+                        position: positionMap,
                         map: map,
-                        title: "Your Live Location"
+                        title: "Your Current Location"
                     });
 
+                    document.getElementById("map").style.display =
+                        "block";
                 }
 
-                document.getElementById("map").style.display =
-                    "block";
+                alert(
+                    "📍 Current location mil gayi!\n\n" +
+                    finalAddress +
+                    "\n\nAccuracy: " +
+                    Math.round(accuracy) +
+                    " meter"
+                );
+
+            }catch(error){
+
+                console.error(error);
+
+                localStorage.setItem(
+                    "ssm_current_location",
+                    JSON.stringify({
+                        latitude: lat,
+                        longitude: lng,
+                        accuracy: Math.round(accuracy),
+                        address: "GPS Current Location",
+                        time: new Date().toISOString()
+                    })
+                );
+
+                if(locationText){
+                    locationText.innerText =
+                        "📍 GPS location mil gayi";
+                }
+
+                alert(
+                    "📍 GPS location mil gayi, lekin address naam nahi mil saka."
+                );
             }
+        },
+
+        function(error){
+
+            if(error.code === 1){
+                alert("Location permission Allow karein.");
+            }
+            else if(error.code === 2){
+                alert("Current location nahi mil rahi. GPS ON karein.");
+            }
+            else if(error.code === 3){
+                alert("Location detect hone me time lag raha hai. Dobara try karein.");
+            }
+            else{
+                alert("Current location nahi mil saki.");
+            }
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
         }
     );
 }
-
 async function savelocation(){
     if(!navigator.geolocation){
         return alert("Aapke device me GPS/location support nahi hai.");
