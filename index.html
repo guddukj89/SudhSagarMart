@@ -473,11 +473,11 @@ async function savelocation(){
         },
 
         {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0
-        }
-    );
+ enableHighAccuracy: true,
+timeout: 20000,
+maximumAge: 0        
+           }
+);
 }
 function openAccount(){closeMenu();openModal("accountModal")}
 function openWishlist(){document.getElementById("wishlist").innerHTML=wishlist.length?wishlist.map(x=>`<p>${x}</p>`).join(""):"<div class='empty'>Wishlist is empty</div>";openModal("wishlistModal")}
