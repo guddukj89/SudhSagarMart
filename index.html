@@ -366,13 +366,11 @@ function getCurrentLocation(){
                 document.getElementById("map").style.display =
                     "block";
             }
+        }
     );
 }
 
-            
-function openLocation(){closeMenu();openModal("locationModal")}
-async function saveLocation(){
-
+async function savelocation(){
     if(!navigator.geolocation){
         return alert("Aapke device me GPS/location support nahi hai.");
     }
