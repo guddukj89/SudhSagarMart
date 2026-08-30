@@ -1001,7 +1001,16 @@ async function updateSellerScreen(){
 
   business.classList.add("hidden");
 
- }
+  if(currentSeller.documentsUploaded){
+
+    document.getElementById("kycMessage").innerHTML=
+    "<div class='status approved'>"+
+    "✓ Documents Uploaded — Admin Approval Pending"+
+    "</div>";
+
+  }
+
+}
 
 
  document.getElementById("totalSales")
