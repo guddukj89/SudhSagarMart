@@ -776,6 +776,82 @@ auth.onAuthStateChanged(function(user){
     }
 
 });
+  let signupConfirmationResult = null;
+let signupPhoneVerified = false;
+
+function sendSignupOTP() {
+
+    const mobile = document.getElementById("signupMobile").value.trim();
+
+    if (!mobile) {
+        alert("Pehle mobile number enter karein.");
+        return;
+    }
+
+    if (!/^[0-9]{10}$/.test(mobile)) {
+        alert("10 digit mobile number enter karein.");
+        return;
+    }
+
+    const phoneNumber = "+91" + mobile;
+
+    window.signupRecaptcha = new firebase.auth.RecaptchaVerifier(
+        "recaptcha-container",
+        {
+            size: "normal"
+        }
+    );
+
+    auth.signInWithPhoneNumber(phoneNumber, window.signupRecaptcha)
+        .then(function(result) {
+
+            signupConfirmationResult = result;
+
+            document.getElementById("signupOtpBox").style.display = "block";
+
+            alert("OTP aapke mobile number par bhej diya gaya hai.");
+
+        })
+        .catch(function(error) {
+
+            console.error(error);
+            alert(error.message);
+
+            if (window.signupRecaptcha) {
+                window.signupRecaptcha.clear();
+            }
+        });
+}
+
+
+function verifySignupOTP() {
+
+    const otp = document.getElementById("signupOTP").value.trim();
+
+    if (!otp || otp.length !== 6) {
+        alert("6 digit OTP enter karein.");
+        return;
+    }
+
+    if (!signupConfirmationResult) {
+        alert("Pehle Send OTP karein.");
+        return;
+    }
+
+    signupConfirmationResult.confirm(otp)
+        .then(function(result) {
+
+            signupPhoneVerified = true;
+
+            alert("Mobile number verify ho gaya.");
+
+        })
+        .catch(function(error) {
+
+            console.error(error);
+            alert("OTP galat hai ya expire ho gaya.");
+        });
+}
  </script>
 <div class="modal" id="accountModal">
 <div class="box">
