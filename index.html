@@ -538,5 +538,240 @@ function initMap() {
 }
  
 </script>
+ <script>
+
+function showSignup(){
+
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("signupBox").style.display="block";
+    document.getElementById("accountLoggedIn").style.display="none";
+
+}
+
+
+function showLogin(){
+
+    document.getElementById("loginBox").style.display="block";
+    document.getElementById("signupBox").style.display="none";
+    document.getElementById("accountLoggedIn").style.display="none";
+
+}
+
+
+function signupUser(){
+
+    const name=document.getElementById("signupName").value.trim();
+    const mobile=document.getElementById("signupMobile").value.trim();
+    const email=document.getElementById("signupEmail").value.trim();
+    const password=document.getElementById("signupPassword").value;
+
+    if(!name || !mobile || !email || !password){
+
+        alert("Please fill all details.");
+        return;
+
+    }
+
+    if(password.length < 6){
+
+        alert("Password kam se kam 6 characters ka hona chahiye.");
+        return;
+
+    }
+
+    auth.createUserWithEmailAndPassword(email,password)
+
+    .then(function(result){
+
+        const user=result.user;
+
+        return user.updateProfile({
+            displayName:name
+        });
+
+    })
+
+    .then(function(){
+
+        localStorage.setItem("ssm_user_name",name);
+        localStorage.setItem("ssm_user_mobile",mobile);
+
+        alert("Account successfully created! 🎉");
+
+        showAccount();
+
+    })
+
+    .catch(function(error){
+
+        console.error(error);
+
+        if(error.code==="auth/email-already-in-use"){
+            alert("Ye email pehle se registered hai.");
+        }
+
+        else if(error.code==="auth/invalid-email"){
+            alert("Email address sahi nahi hai.");
+        }
+
+        else if(error.code==="auth/weak-password"){
+            alert("Password bahut weak hai.");
+        }
+
+        else{
+            alert(error.message);
+        }
+
+    });
+
+}
+
+
+function loginUser(){
+
+    const email=document.getElementById("loginEmail").value.trim();
+    const password=document.getElementById("loginPassword").value;
+
+    if(!email || !password){
+
+        alert("Email aur password enter karein.");
+        return;
+
+    }
+
+    auth.signInWithEmailAndPassword(email,password)
+
+    .then(function(){
+
+        alert("Login successful! ✅");
+
+        showAccount();
+
+    })
+
+    .catch(function(error){
+
+        console.error(error);
+
+        if(error.code==="auth/invalid-credential"){
+            alert("Email ya password galat hai.");
+        }
+
+        else if(error.code==="auth/user-not-found"){
+            alert("Account nahi mila.");
+        }
+
+        else{
+            alert(error.message);
+        }
+
+    });
+
+}
+
+
+function forgotPassword(){
+
+    const email=document.getElementById("loginEmail").value.trim();
+
+    if(!email){
+
+        alert("Pehle apna email enter karein.");
+        return;
+
+    }
+
+    auth.sendPasswordResetEmail(email)
+
+    .then(function(){
+
+        alert("Password reset link aapke email par bhej diya gaya hai. 📧");
+
+    })
+
+    .catch(function(error){
+
+        alert(error.message);
+
+    });
+
+}
+
+
+function logoutUser(){
+
+    auth.signOut()
+
+    .then(function(){
+
+        alert("Logout successful.");
+
+        showLogin();
+
+    })
+
+    .catch(function(error){
+
+        alert(error.message);
+
+    });
+
+}
+
+
+function showAccount(){
+
+    const user=auth.currentUser;
+
+    if(!user){
+
+        showLogin();
+        return;
+
+    }
+
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("signupBox").style.display="none";
+    document.getElementById("accountLoggedIn").style.display="block";
+
+    document.getElementById("userInfo").innerHTML=
+        "<b>Name:</b> "+(user.displayName || "User")+"<br><br>"+
+        "<b>Email:</b> "+user.email;
+
+}
+
+
+function openAccount(){
+
+    openModal("accountModal");
+
+    if(auth.currentUser){
+
+        showAccount();
+
+    }else{
+
+        showLogin();
+
+    }
+
+}
+
+
+auth.onAuthStateChanged(function(user){
+
+    if(user){
+
+        console.log("Logged in:",user.email);
+
+    }else{
+
+        console.log("No user logged in");
+
+    }
+
+});
+
+</script>
 </body>
 </html>
