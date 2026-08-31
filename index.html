@@ -471,7 +471,7 @@ maximumAge: 0
 }
 function openAccount(){closeMenu();openModal("accountModal")}
 function openWishlist(){document.getElementById("wishlist").innerHTML=wishlist.length?wishlist.map(x=>`<p>${x}</p>`).join(""):"<div class='empty'>Wishlist is empty</div>";openModal("wishlistModal")}
-function openLocation(){closemenu();openModal("locationModal");}
+function openLocation(){closeMenu();openModal("locationModal");}
 function openSettings(){closeMenu();openModal("settingsModal")}
 function help(){alert("Sudh Sagar Mart Help & Support")}
 function deleteAccount(){if(confirm("Delete local account data?")){localStorage.clear();location.reload()}}
