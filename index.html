@@ -565,41 +565,53 @@ function showLogin(){
 
 function signupUser(){
 
-    const name=document.getElementById("signupName").value.trim();
-    const mobile=document.getElementById("signupMobile").value.trim();
-    const email=document.getElementById("signupEmail").value.trim();
-    const password=document.getElementById("signupPassword").value;
+    const name = document.getElementById("signupName").value.trim();
+    const mobile = document.getElementById("signupMobile").value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
+    const password = document.getElementById("signupPassword").value;
 
     if(!name || !mobile || !email || !password){
-
         alert("Please fill all details.");
         return;
+    }
 
+    if(!signupPhoneVerified){
+        alert("Pehle mobile number ka OTP verify karein.");
+        return;
     }
 
     if(password.length < 6){
-
         alert("Password kam se kam 6 characters ka hona chahiye.");
         return;
-
     }
 
-    auth.createUserWithEmailAndPassword(email,password)
+    const user = auth.currentUser;
+
+    if(!user){
+        alert("Mobile verification session nahi mila. Dobara OTP verify karein.");
+        return;
+    }
+
+    const credential =
+        firebase.auth.EmailAuthProvider.credential(
+            email,
+            password
+        );
+
+    user.linkWithCredential(credential)
 
     .then(function(result){
 
-        const user=result.user;
-
-        return user.updateProfile({
-            displayName:name
+        return result.user.updateProfile({
+            displayName: name
         });
 
     })
 
     .then(function(){
 
-        localStorage.setItem("ssm_user_name",name);
-        localStorage.setItem("ssm_user_mobile",mobile);
+        localStorage.setItem("ssm_user_name", name);
+        localStorage.setItem("ssm_user_mobile", mobile);
 
         alert("Account successfully created! 🎉");
 
@@ -609,20 +621,17 @@ function signupUser(){
 
     .catch(function(error){
 
-        console.error(error);
+        console.error("SIGNUP ERROR:", error);
 
-        if(error.code==="auth/email-already-in-use"){
-            alert("Ye email pehle se registered hai.");
+        if(error.code === "auth/email-already-in-use"){
+            alert("Ye email pehle se kisi account me registered hai.");
         }
-
-        else if(error.code==="auth/invalid-email"){
-            alert("Email address sahi nahi hai.");
+        else if(error.code === "auth/credential-already-in-use"){
+            alert("Ye email kisi aur Firebase account se linked hai.");
         }
-
-        else if(error.code==="auth/weak-password"){
-            alert("Password bahut weak hai.");
+        else if(error.code === "auth/provider-already-linked"){
+            alert("Is account me email/password pehle se linked hai.");
         }
-
         else{
             alert(error.message);
         }
@@ -630,6 +639,7 @@ function signupUser(){
     });
 
 }
+   
 
 
 function loginUser(){
