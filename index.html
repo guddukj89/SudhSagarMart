@@ -795,32 +795,66 @@ function sendSignupOTP() {
 
     const phoneNumber = "+91" + mobile;
 
-    window.signupRecaptcha = new firebase.auth.RecaptchaVerifier(
-        "recaptcha-container",
-        {
-            size: "normal"
+    try {
+
+        // Purana reCAPTCHA hatao
+        if (window.signupRecaptcha) {
+            window.signupRecaptcha.clear();
         }
-    );
 
-    auth.signInWithPhoneNumber(phoneNumber, window.signupRecaptcha)
-        .then(function(result) {
+        // Naya reCAPTCHA
+        window.signupRecaptcha = new firebase.auth.RecaptchaVerifier(
+            "recaptcha-container",
+            {
+                size: "normal",
+                callback: function(response) {
+                    console.log("reCAPTCHA verified");
+                },
+                "expired-callback": function() {
+                    alert("reCAPTCHA expire ho gaya. Dobara verify karein.");
+                }
+            },
+            auth
+        );
 
-            signupConfirmationResult = result;
+        window.signupRecaptcha.render()
+            .then(function(widgetId) {
 
-            document.getElementById("signupOtpBox").style.display = "block";
+                console.log("reCAPTCHA rendered:", widgetId);
 
-            alert("OTP aapke mobile number par bhej diya gaya hai.");
+                return auth.signInWithPhoneNumber(
+                    phoneNumber,
+                    window.signupRecaptcha
+                );
 
-        })
-        .catch(function(error) {
+            })
+            .then(function(result) {
 
-            console.error(error);
-            alert(error.message);
+                signupConfirmationResult = result;
 
-            if (window.signupRecaptcha) {
-                window.signupRecaptcha.clear();
-            }
-        });
+                document.getElementById("signupOtpBox").style.display = "block";
+
+                alert("OTP aapke mobile number par bhej diya gaya hai.");
+
+            })
+            .catch(function(error) {
+
+                console.error("OTP ERROR:", error);
+
+                alert("OTP nahi bheja gaya: " + error.message);
+
+                if (window.signupRecaptcha) {
+                    window.signupRecaptcha.clear();
+                    window.signupRecaptcha = null;
+                }
+            });
+
+    } catch (error) {
+
+        console.error("reCAPTCHA ERROR:", error);
+
+        alert("reCAPTCHA start nahi ho raha: " + error.message);
+    }
 }
 
 
