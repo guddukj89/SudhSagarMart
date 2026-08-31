@@ -309,9 +309,10 @@ async function savelocation(){
                 const parts = [
                     a.house_number,
                     a.road,
+                    a.hamlet,
+                    a.village,
                     a.neighbourhood,
                     a.suburb,
-                    a.village,
                     a.town,
                     a.city,
                     a.district,
@@ -369,6 +370,7 @@ async function savelocation(){
                         a.town ||
                         a.village ||
                         a.suburb ||
+                        a.district ||
                         "";
                 }
 
