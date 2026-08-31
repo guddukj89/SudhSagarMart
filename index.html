@@ -771,7 +771,78 @@ auth.onAuthStateChanged(function(user){
     }
 
 });
+ </script>
+<div class="modal" id="accountModal">
+<div class="box">
 
-</script>
+<span class="close" onclick="closeModal('accountModal')">×</span>
+
+<h2>👤 My Account</h2>
+
+<div id="loginBox">
+
+<input id="loginEmail" type="email" placeholder="Email Address">
+
+<input id="loginPassword" type="password" placeholder="Password">
+
+<button class="primary" onclick="loginUser()">
+Login
+</button>
+
+<p style="margin-top:12px;cursor:pointer;color:#a00080"
+onclick="forgotPassword()">
+Forgot Password?
+</p>
+
+<p style="margin-top:15px">
+New user?
+<span style="color:#a00080;font-weight:bold;cursor:pointer"
+onclick="showSignup()">
+Create Account
+</span>
+</p>
+
+</div>
+
+
+<div id="signupBox" style="display:none">
+
+<input id="signupName" placeholder="Full Name">
+
+<input id="signupMobile" placeholder="Mobile Number">
+
+<input id="signupEmail" type="email" placeholder="Email Address">
+
+<input id="signupPassword" type="password" placeholder="Password">
+
+<button class="primary" onclick="signupUser()">
+Create Account
+</button>
+
+<p style="margin-top:15px">
+Already have an account?
+<span style="color:#a00080;font-weight:bold;cursor:pointer"
+onclick="showLogin()">
+Login
+</span>
+</p>
+
+</div>
+
+
+<div id="accountLoggedIn" style="display:none">
+
+<h3>Welcome 👋</h3>
+
+<div id="userInfo" style="margin:15px 0"></div>
+
+<button class="primary" onclick="logoutUser()">
+Logout
+</button>
+
+</div>
+
+</div>
+</div>
 </body>
 </html>
