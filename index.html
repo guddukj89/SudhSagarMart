@@ -810,6 +810,19 @@ Create Account
 <input id="signupName" placeholder="Full Name">
 
 <input id="signupMobile" placeholder="Mobile Number">
+ 
+ <button type="button" class="primary" onclick="sendSignupOTP()">
+Send OTP
+</button>
+
+<div id="signupOtpBox" style="display:none;margin-top:10px;">
+    <input id="signupOTP" placeholder="Enter OTP" maxlength="6">
+    <button type="button" class="primary" onclick="verifySignupOTP()">
+        Verify OTP
+    </button>
+</div>
+
+<div id="recaptcha-container"></div>
 
 <input id="signupEmail" type="email" placeholder="Email Address">
 
