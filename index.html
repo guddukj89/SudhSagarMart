@@ -281,6 +281,13 @@ return `<div class="product">
 🛒 Add to Cart
 </button>
 
+<button
+    class="primary"
+    onclick="buyNow(${i})"
+    style="width:100%;margin-top:6px;">
+    ⚡ Buy Now
+</button>
+
 <button onclick="toggleWishlist(${i})"
 style="border:1px solid #ddd;background:#fff;border-radius:7px;padding:8px 12px;font-size:20px;cursor:pointer">
 ${liked?"❤️":"♡"}
@@ -304,7 +311,37 @@ function searchProducts(){
 let q=document.getElementById("search").value.toLowerCase();
 renderProducts(products.filter(p=>(p[1]+" "+p[0]).toLowerCase().includes(q)));
 }
-function addCart(i){cart.push({p:products[i],qty:1});save();alert(products[i][1]+" added to cart");}
+function addCart(i){
+
+    const existing =
+        cart.find(x => x.p[1] === products[i][1]);
+
+    if(existing){
+
+        existing.qty += 1;
+
+        alert(
+            products[i][1] +
+            " ki quantity 1 badh gayi."
+        );
+
+    }else{
+
+        cart.push({
+            p: products[i],
+            qty: 1
+        });
+
+        alert(
+            products[i][1] +
+            " cart me add ho gaya."
+        );
+
+    }
+
+    save();
+    renderCart();
+}
  function toggleWishlist(i){
     let index=wishlist.findIndex(x=>x[1]===products[i][1]);
 
