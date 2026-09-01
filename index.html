@@ -169,6 +169,59 @@ const auth = firebase.auth();
 <div class="drawerItem">🔐 Privacy</div><div class="drawerItem">🔑 Change Password</div>
 <div class="drawerItem">📱 Login & Security</div><div class="drawerItem">📄 Terms & Conditions</div>
 </div></div>
+ <div class="modal" id="sellerModal">
+<div class="box">
+
+<span class="close" onclick="closeModal('sellerModal')">×</span>
+
+<h2>🏪 Become a Seller</h2>
+<p style="font-size:12px;color:#777;margin:8px 0 15px">
+Sell your products on Sudh Sagar Mart
+</p>
+
+<input id="sellerName" placeholder="Seller Full Name">
+
+<input id="shopName" placeholder="Shop / Business Name">
+
+<input id="sellerMobile" type="tel" placeholder="Mobile Number">
+
+<input id="sellerEmail" type="email" placeholder="Email Address">
+
+<textarea id="sellerAddress"
+placeholder="Shop / Business Address"></textarea>
+
+<input id="sellerCity" placeholder="City">
+
+<input id="sellerPincode" type="number" placeholder="Pincode">
+
+<select id="sellerCategory">
+<option value="">Select Product Category</option>
+<option>Grocery</option>
+<option>Women Fashion</option>
+<option>Men Fashion</option>
+<option>Kids & Toys</option>
+<option>Footwear</option>
+<option>Beauty</option>
+<option>Electronics</option>
+<option>Home & Kitchen</option>
+<option>Jewellery</option>
+<option>Bags & Luggage</option>
+<option>Sports</option>
+<option>Automotive</option>
+<option>Pet Supplies</option>
+<option>Stationery</option>
+</select>
+
+<button class="primary" type="button" onclick="submitSeller()">
+🏪 Submit for Approval
+</button>
+
+<p id="sellerMsg"
+style="margin-top:12px;font-size:12px;text-align:center">
+</p>
+
+</div>
+</div>
 
 <script>
 const categories=[
