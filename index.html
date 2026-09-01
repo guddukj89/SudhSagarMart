@@ -547,6 +547,69 @@ function openWishlist(){document.getElementById("wishlist").innerHTML=wishlist.l
 function openLocation(){closeMenu();openModal("locationModal");}
 function openSettings(){closeMenu();openModal("settingsModal")}
 function openSeller(){closeMenu();openModal("sellerModal");}
+function submitSeller(){
+
+    const name = document.getElementById("sellerName").value.trim();
+    const shop = document.getElementById("shopName").value.trim();
+    const mobile = document.getElementById("sellerMobile").value.trim();
+    const email = document.getElementById("sellerEmail").value.trim();
+    const address = document.getElementById("sellerAddress").value.trim();
+    const city = document.getElementById("sellerCity").value.trim();
+    const pincode = document.getElementById("sellerPincode").value.trim();
+    const category = document.getElementById("sellerCategory").value;
+
+    if(!name || !shop || !mobile || !email || !address || !city || !pincode || !category){
+        alert("Please fill all seller details.");
+        return;
+    }
+
+    if(!/^[0-9]{10}$/.test(mobile)){
+        alert("Please enter a valid 10 digit mobile number.");
+        return;
+    }
+
+    if(!/^[0-9]{6}$/.test(pincode)){
+        alert("Please enter a valid 6 digit pincode.");
+        return;
+    }
+
+    const seller = {
+        id: "SELLER" + Date.now(),
+        name: name,
+        shop: shop,
+        mobile: mobile,
+        email: email,
+        address: address,
+        city: city,
+        pincode: pincode,
+        category: category,
+        status: "Pending Approval",
+        time: new Date().toLocaleString()
+    };
+
+    let sellers =
+        JSON.parse(localStorage.getItem("ssm_sellers") || "[]");
+
+    sellers.push(seller);
+
+    localStorage.setItem(
+        "ssm_sellers",
+        JSON.stringify(sellers)
+    );
+
+    document.getElementById("sellerMsg").innerText =
+        "✅ Application submitted successfully. Admin approval pending.";
+
+    alert(
+        "✅ Seller application submitted!\n\n" +
+        "Shop: " + shop +
+        "\nStatus: Pending Approval"
+    );
+
+    setTimeout(function(){
+        closeModal("sellerModal");
+    },1500);
+}
 function help(){alert("Sudh Sagar Mart Help & Support")}
 function deleteAccount(){if(confirm("Delete local account data?")){localStorage.clear();location.reload()}}
 function openMenu(){document.getElementById("drawer").classList.add("open");document.getElementById("overlay").classList.add("show")}
