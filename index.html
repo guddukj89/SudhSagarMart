@@ -547,18 +547,18 @@ function openWishlist(){document.getElementById("wishlist").innerHTML=wishlist.l
 function openLocation(){closeMenu();openModal("locationModal");}
 function openSettings(){closeMenu();openModal("settingsModal")}
 function openSeller(){closeMenu();openModal("sellerModal");}
-function submitSeller(){
+async function submitSeller(){
 
     const name = document.getElementById("sellerName").value.trim();
-    const shop = document.getElementById("shopName").value.trim();
+    const shopName = document.getElementById("shopName").value.trim();
     const mobile = document.getElementById("sellerMobile").value.trim();
     const email = document.getElementById("sellerEmail").value.trim();
-    const address = document.getElementById("sellerAddress").value.trim();
+    const shopAddress = document.getElementById("sellerAddress").value.trim();
     const city = document.getElementById("sellerCity").value.trim();
     const pincode = document.getElementById("sellerPincode").value.trim();
     const category = document.getElementById("sellerCategory").value;
 
-    if(!name || !shop || !mobile || !email || !address || !city || !pincode || !category){
+    if(!name || !shopName || !mobile || !email || !shopAddress || !city || !pincode || !category){
         alert("Please fill all seller details.");
         return;
     }
@@ -573,42 +573,73 @@ function submitSeller(){
         return;
     }
 
-    const seller = {
-        id: "SELLER" + Date.now(),
-        name: name,
-        shop: shop,
-        mobile: mobile,
-        email: email,
-        address: address,
-        city: city,
-        pincode: pincode,
-        category: category,
-        status: "Pending Approval",
-        time: new Date().toLocaleString()
-    };
+    try {
 
-    let sellers =
-        JSON.parse(localStorage.getItem("ssm_sellers") || "[]");
+        if(typeof firebase === "undefined"){
+            alert("Firebase is not loaded. Please check Firebase script.");
+            return;
+        }
 
-    sellers.push(seller);
+        if(firebase.apps.length === 0){
 
-    localStorage.setItem(
-        "ssm_sellers",
-        JSON.stringify(sellers)
-    );
+            firebase.initializeApp({
+                apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+                authDomain:"sudhsagarmart.firebaseapp.com",
+                projectId:"sudhsagarmart",
+                storageBucket:"sudhsagarmart.firebasestorage.app",
+                messagingSenderId:"682379938859",
+                appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e"
+            });
 
-    document.getElementById("sellerMsg").innerText =
-        "✅ Application submitted successfully. Admin approval pending.";
+        }
 
-    alert(
-        "✅ Seller application submitted!\n\n" +
-        "Shop: " + shop +
-        "\nStatus: Pending Approval"
-    );
+        const db = firebase.firestore();
 
-    setTimeout(function(){
-        closeModal("sellerModal");
-    },1500);
+        const seller = {
+
+            name: name,
+            shopName: shopName,
+            mobile: mobile,
+            email: email,
+            shopAddress: shopAddress,
+            city: city,
+            pincode: pincode,
+            category: category,
+
+            kycStatus: "pending",
+            accountStatus: "pending",
+
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+
+            source: "website"
+
+        };
+
+        const docRef = await db.collection("sellers").add(seller);
+
+        document.getElementById("sellerMsg").innerText =
+            "✅ Application submitted successfully. Admin approval pending.";
+
+        alert(
+            "✅ Seller application submitted!\n\n" +
+            "Shop: " + shopName +
+            "\nApplication ID: " + docRef.id +
+            "\nStatus: Pending Approval"
+        );
+
+        setTimeout(function(){
+            closeModal("sellerModal");
+        },1500);
+
+    } catch(error){
+
+        console.error("Seller submission error:", error);
+
+        alert(
+            "❌ Seller application submit nahi hua.\n\n" +
+            error.message
+        );
+    }
 }
 function help(){alert("Sudh Sagar Mart Help & Support")}
 function deleteAccount(){if(confirm("Delete local account data?")){localStorage.clear();location.reload()}}
