@@ -356,8 +356,9 @@ async function savelocation(){
     }
 
     navigator.geolocation.getCurrentPosition(
-        async function(position){
-
+         async function(position){
+        // GPS position mil gayi
+    
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
