@@ -616,11 +616,16 @@ async function submitSeller(){
 
         };
 
-    const currentUser = firebase.auth().currentUser;
+    const currentUser = await new Promise(function(resolve) {
+    const unsubscribe = firebase.auth().onAuthStateChanged(function(user) {
+        unsubscribe();
+        resolve(user);
+    });
+});
 
 if (!currentUser) {
-  alert("Please login first to submit seller application.");
-  return;
+    alert("Please login first to submit seller application.");
+    return;
 }
 
 const uid = currentUser.uid;    
