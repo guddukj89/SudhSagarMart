@@ -522,137 +522,712 @@ async function savelocation(){
             }
 
         },
-
-        function(error){
+function(error){
 
             if(error.code === 1){
-                alert("Location permission Allow karein.");
+                alert("📍 Location permission Allow karein.");
             }
             else if(error.code === 2){
-                alert("Current location nahi mil rahi. GPS ON karein.");
+                alert("📍 Location nahi mil rahi. GPS ON karein.");
             }
             else if(error.code === 3){
-                alert("Location detect hone me time lag raha hai. Dobara try karein.");
+                alert("📍 Location lene me timeout ho gaya. Dobara try karein.");
             }
             else{
-                alert("Current location nahi mil saki.");
+                alert("📍 Location lene me problem hui.");
             }
+
         },
-
         {
- enableHighAccuracy: true,
-timeout: 20000,
-maximumAge: 0        
-           }
-);
+            enableHighAccuracy:true,
+            timeout:20000,
+            maximumAge:0
+        }
+    );
 }
-function openWishlist(){document.getElementById("wishlist").innerHTML=wishlist.length?wishlist.map(x=>`<p>${x}</p>`).join(""):"<div class='empty'>Wishlist is empty</div>";openModal("wishlistModal")}
-function openLocation(){closeMenu();openModal("locationModal");}
-function openSettings(){closeMenu();openModal("settingsModal")}
-function openSeller(){closeMenu();openModal("sellerModal");}
-async function submitSeller(){
 
-    const name = document.getElementById("sellerName").value.trim();
-    const shopName = document.getElementById("shopName").value.trim();
-    const mobile = document.getElementById("sellerMobile").value.trim();
-    const email = document.getElementById("sellerEmail").value.trim();
-    const shopAddress = document.getElementById("sellerAddress").value.trim();
-    const city = document.getElementById("sellerCity").value.trim();
-    const pincode = document.getElementById("sellerPincode").value.trim();
-    const category = document.getElementById("sellerCategory").value;
 
-    if(!name || !shopName || !mobile || !email || !shopAddress || !city || !pincode || !category){
-        alert("Please fill all seller details.");
-        return;
+// ===============================
+// SAVE DELIVERY ADDRESS
+// ===============================
+
+function saveAddress(){
+
+    const name = document.getElementById("name").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const pincode = document.getElementById("pincode").value.trim();
+
+    if(!name || !mobile || !address || !city || !pincode){
+        return alert("Please sabhi delivery details bharein.");
     }
 
     if(!/^[0-9]{10}$/.test(mobile)){
-        alert("Please enter a valid 10 digit mobile number.");
-        return;
+        return alert("Please valid 10 digit mobile number dalein.");
     }
 
     if(!/^[0-9]{6}$/.test(pincode)){
-        alert("Please enter a valid 6 digit pincode.");
+        return alert("Please valid 6 digit pincode dalein.");
+    }
+
+    const locationData = {
+        name:name,
+        mobile:mobile,
+        address:address,
+        city:city,
+        pincode:pincode,
+        time:new Date().toISOString()
+    };
+
+    localStorage.setItem(
+        "ssm_location",
+        JSON.stringify(locationData)
+    );
+
+    const locationText =
+        document.getElementById("locationText");
+
+    if(locationText){
+        locationText.innerText =
+            address + ", " + city + " - " + pincode;
+    }
+
+    document.getElementById("areaMsg").innerText =
+        "✅ Delivery address saved successfully.";
+
+    document.getElementById("areaMsg").style.color =
+        "#278a43";
+
+    setTimeout(function(){
+        closeModal("locationModal");
+    },800);
+}
+
+
+// ===============================
+// OPEN SAVED LOCATION
+// ===============================
+
+function openLocation(){
+
+    closeMenu();
+
+    const loc =
+        JSON.parse(
+            localStorage.getItem("ssm_location") || "null"
+        );
+
+    if(loc){
+
+        document.getElementById("name").value =
+            loc.name || "";
+
+        document.getElementById("mobile").value =
+            loc.mobile || "";
+
+        document.getElementById("address").value =
+            loc.address || "";
+
+        document.getElementById("city").value =
+            loc.city || "";
+
+        document.getElementById("pincode").value =
+            loc.pincode || "";
+
+    }
+
+    openModal("locationModal");
+}
+
+
+// ===============================
+// LOAD SAVED LOCATION
+// ===============================
+
+function loadSavedLocation(){
+
+    const loc =
+        JSON.parse(
+            localStorage.getItem("ssm_location") || "null"
+        );
+
+    const gps =
+        JSON.parse(
+            localStorage.getItem("ssm_current_location") || "null"
+        );
+
+    const locationText =
+        document.getElementById("locationText");
+
+    if(!locationText) return;
+
+    if(loc){
+
+        locationText.innerText =
+            loc.address + ", " +
+            loc.city + " - " +
+            loc.pincode;
+
+    }
+    else if(gps && gps.address){
+
+        locationText.innerText =
+            gps.address;
+
+    }
+}
+
+
+// ===============================
+// MAP VARIABLES
+// ===============================
+
+let map = null;
+let marker = null;
+
+
+// ===============================
+// GOOGLE MAP INITIALIZE
+// ===============================
+
+function initMap(){
+
+    const defaultLocation = {
+        lat:20.5937,
+        lng:78.9629
+    };
+
+    map = new google.maps.Map(
+        document.getElementById("map"),
+        {
+            center:defaultLocation,
+            zoom:5
+        }
+    );
+
+}
+
+
+// ===============================
+// SHOW MAP
+// ===============================
+
+function showMap(){
+
+    const mapBox =
+        document.getElementById("map");
+
+    if(!mapBox) return;
+
+    mapBox.style.display = "block";
+
+    if(map){
+        google.maps.event.trigger(
+            map,
+            "resize"
+        );
+    }
+}
+
+
+// ===============================
+// HOME
+// ===============================
+
+function home(){
+
+    closeMenu();
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+    renderProducts(products);
+}
+
+
+// ===============================
+// ALL PRODUCTS
+// ===============================
+
+function allProducts(){
+
+    closeMenu();
+
+    activeCategory = "All";
+
+    document.querySelectorAll(".chip")
+        .forEach(x =>
+            x.classList.toggle(
+                "active",
+                x.innerText === "All"
+            )
+        );
+
+    renderProducts(products);
+
+    window.scrollTo({
+        top:document.querySelector(".products").offsetTop - 100,
+        behavior:"smooth"
+    });
+}
+
+
+// ===============================
+// WISHLIST
+// ===============================
+
+function openWishlist(){
+
+    closeMenu();
+
+    const box =
+        document.getElementById("wishlist");
+
+    if(!wishlist.length){
+
+        box.innerHTML =
+            '<div class="empty">Your wishlist is empty ❤️</div>';
+
+    }
+    else{
+
+        box.innerHTML =
+            wishlist.map((p,i)=>`
+
+                <div class="cartRow">
+
+                    <div>
+                        <b>${p[1]}</b><br>
+                        <span class="price">
+                            ₹${p[2]}
+                        </span>
+                    </div>
+
+                    <div>
+
+                        <button
+                            class="primary"
+                            onclick="addCartFromWishlist(${i})">
+                            🛒 Add
+                        </button>
+
+                        <button
+                            onclick="removeWishlist(${i})">
+                            Remove
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `).join("");
+
+    }
+
+    openModal("wishlistModal");
+}
+
+
+function addCartFromWishlist(i){
+
+    cart.push({
+        p:wishlist[i],
+        qty:1
+    });
+
+    save();
+
+    alert(
+        wishlist[i][1] +
+        " added to cart"
+    );
+
+}
+
+
+function removeWishlist(i){
+
+    wishlist.splice(i,1);
+
+    save();
+
+    openWishlist();
+
+    renderProducts(
+        activeCategory === "All"
+        ? products
+        : products.filter(
+            p => p[0] === activeCategory
+        )
+    );
+
+}
+
+
+// ===============================
+// ACCOUNT
+// ===============================
+
+function openAccount(){
+
+    closeMenu();
+
+    const user =
+        auth.currentUser;
+
+    if(user){
+
+        alert(
+            "👤 Logged in\n\n" +
+            (user.email || "User account")
+        );
+
+    }
+    else{
+
+        const email =
+            prompt("Login ke liye Email dalein:");
+
+        if(!email) return;
+
+        const password =
+            prompt("Password dalein:");
+
+        if(!password) return;
+
+        auth.signInWithEmailAndPassword(
+            email,
+            password
+        )
+        .then(function(){
+
+            alert(
+                "✅ Login successful"
+            );
+
+        })
+        .catch(function(error){
+
+            alert(
+                "Login failed: " +
+                error.message
+            );
+
+        });
+
+    }
+
+}
+
+
+// ===============================
+// SETTINGS
+// ===============================
+
+function openSettings(){
+
+    closeMenu();
+
+    openModal("settingsModal");
+
+}
+
+
+// ===============================
+// HELP
+// ===============================
+
+function help(){
+
+    closeMenu();
+
+    alert(
+        "❓ Sudh Sagar Mart Help\n\n" +
+        "Delivery Address ke liye location button use karein.\n\n" +
+        "Order ke liye product Cart me add karein.\n\n" +
+        "Problem hone par support se contact karein."
+    );
+
+}
+
+
+// ===============================
+// SELLER
+// ===============================
+
+function openSeller(){
+
+    closeMenu();
+
+    openModal("sellerModal");
+
+}
+
+
+function submitSeller(){
+
+    const name =
+        document.getElementById("sellerName")
+        .value.trim();
+
+    const shop =
+        document.getElementById("shopName")
+        .value.trim();
+
+    const mobile =
+        document.getElementById("sellerMobile")
+        .value.trim();
+
+    const email =
+        document.getElementById("sellerEmail")
+        .value.trim();
+
+    const address =
+        document.getElementById("sellerAddress")
+        .value.trim();
+
+    const city =
+        document.getElementById("sellerCity")
+        .value.trim();
+
+    const pincode =
+        document.getElementById("sellerPincode")
+        .value.trim();
+
+    const category =
+        document.getElementById("sellerCategory")
+        .value;
+
+    const msg =
+        document.getElementById("sellerMsg");
+
+
+    if(
+        !name ||
+        !shop ||
+        !mobile ||
+        !email ||
+        !address ||
+        !city ||
+        !pincode ||
+        !category
+    ){
+
+        msg.innerText =
+            "❌ Please sabhi details bharein.";
+
+        msg.style.color =
+            "#d00";
+
+        return;
+
+    }
+
+
+    if(!/^[0-9]{10}$/.test(mobile)){
+
+        msg.innerText =
+            "❌ Valid 10 digit mobile number dalein.";
+
+        msg.style.color =
+            "#d00";
+
+        return;
+
+    }
+
+
+    if(!/^[0-9]{6}$/.test(pincode)){
+
+        msg.innerText =
+            "❌ Valid 6 digit pincode dalein.";
+
+        msg.style.color =
+            "#d00";
+
+        return;
+
+    }
+
+
+    const seller = {
+
+        name:name,
+        shopName:shop,
+        mobile:mobile,
+        email:email,
+        address:address,
+        city:city,
+        pincode:pincode,
+        category:category,
+        status:"Pending Approval",
+        time:new Date().toISOString()
+
+    };
+
+
+    let sellers =
+        JSON.parse(
+            localStorage.getItem("ssm_sellers") || "[]"
+        );
+
+    sellers.push(seller);
+
+    localStorage.setItem(
+        "ssm_sellers",
+        JSON.stringify(sellers)
+    );
+
+
+    msg.innerText =
+        "✅ Seller application submitted successfully.";
+
+    msg.style.color =
+        "#278a43";
+
+
+    document.getElementById("sellerName").value="";
+    document.getElementById("shopName").value="";
+    document.getElementById("sellerMobile").value="";
+    document.getElementById("sellerEmail").value="";
+    document.getElementById("sellerAddress").value="";
+    document.getElementById("sellerCity").value="";
+    document.getElementById("sellerPincode").value="";
+    document.getElementById("sellerCategory").value="";
+
+}
+
+
+// ===============================
+// DELETE ACCOUNT
+// ===============================
+
+function deleteAccount(){
+
+    closeMenu();
+
+    if(
+        !confirm(
+            "Kya aap account delete karna chahte hain?"
+        )
+    ){
         return;
     }
 
-    try {
+    localStorage.removeItem("ssm_cart");
+    localStorage.removeItem("ssm_orders");
+    localStorage.removeItem("ssm_wishlist");
+    localStorage.removeItem("ssm_location");
+    localStorage.removeItem("ssm_current_location");
 
-        if(typeof firebase === "undefined"){
-            alert("Firebase is not loaded. Please check Firebase script.");
-            return;
-        }
+    cart=[];
+    orders=[];
+    wishlist=[];
 
-        if(firebase.apps.length === 0){
+    if(auth.currentUser){
 
-            firebase.initializeApp({
-                apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
-                authDomain:"sudhsagarmart.firebaseapp.com",
-                projectId:"sudhsagarmart",
-                storageBucket:"sudhsagarmart.firebasestorage.app",
-                messagingSenderId:"682379938859",
-                appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e"
+        auth.currentUser
+            .delete()
+            .catch(function(error){
+
+                console.log(error);
+
             });
 
-        }
-
-        const db = firebase.firestore();
-
-        const seller = {
-
-            name: name,
-            shopName: shopName,
-            mobile: mobile,
-            email: email,
-            shopAddress: shopAddress,
-            city: city,
-            pincode: pincode,
-            category: category,
-
-            kycStatus: "pending",
-            accountStatus: "pending",
-
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-
-            source: "website"
-
-        };
-
- const currentUser = firebase.auth().currentUser;
-
-if (!currentUser) {
-    alert("Please login first to submit seller application.");
-    return;
-}
-
-const uid = currentUser.uid;    
-
-await db.collection("sellers").doc(uid).set(seller);
-const docRef = { id: uid };
-        document.getElementById("sellerMsg").innerText =
-            "✅ Application submitted successfully. Admin approval pending.";
-
-        alert(
-            "✅ Seller application submitted!\n\n" +
-            "Shop: " + shopName +
-            "\nApplication ID: " + docRef.id +
-            "\nStatus: Pending Approval"
-        );
-
-        setTimeout(function(){
-            closeModal("sellerModal");
-        },1500);
-
-    } catch(error){
-
-        console.error("Seller submission error:", error);
-
-        alert(
-            "❌ Seller application submit nahi hua.\n\n" +
-            error.message
-        );
     }
+
+    alert(
+        "Account data delete kar diya gaya."
+    );
+
+    location.reload();
+
 }
+
+
+// ===============================
+// MENU
+// ===============================
+
+function openMenu(){
+
+    document
+        .getElementById("drawer")
+        .classList.add("open");
+
+    document
+        .getElementById("overlay")
+        .classList.add("show");
+
+}
+
+
+function closeMenu(){
+
+    document
+        .getElementById("drawer")
+        .classList.remove("open");
+
+    document
+        .getElementById("overlay")
+        .classList.remove("show");
+
+}
+
+
+// ===============================
+// MODAL
+// ===============================
+
+function openModal(id){
+
+    const modal =
+        document.getElementById(id);
+
+    if(modal){
+        modal.classList.add("show");
+    }
+
+}
+
+
+function closeModal(id){
+
+    const modal =
+        document.getElementById(id);
+
+    if(modal){
+        modal.classList.remove("show");
+    }
+
+}
+
+
+// ===============================
+// PAGE START
+// ===============================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        renderCategories();
+
+        renderProducts(products);
+
+        loadSavedLocation();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
+        
 function help(){alert("Sudh Sagar Mart Help & Support")}
 function deleteAccount(){if(confirm("Delete local account data?")){localStorage.clear();location.reload()}}
 function openMenu(){document.getElementById("drawer").classList.add("open");document.getElementById("overlay").classList.add("show")}
