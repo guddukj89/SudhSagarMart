@@ -616,7 +616,14 @@ async function submitSeller(){
 
         };
 
-        const uid = firebase.auth().currentUser.uid;
+    const currentUser = firebase.auth().currentUser;
+
+if (!currentUser) {
+  alert("Please login first to submit seller application.");
+  return;
+}
+
+const uid = currentUser.uid;    
 
 await db.collection("sellers").doc(uid).set(seller);
 const docRef = { id: uid };
