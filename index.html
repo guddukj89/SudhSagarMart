@@ -827,35 +827,24 @@ function loginUser(){
 
     }
 
-    auth.signInWithEmailAndPassword(email,password)
+   auth.signInWithEmailAndPassword(email, password)
+.then(function(result) {
+    alert("Login successful! ✅");
+    showAccount();
+})
+.catch(function(error) {
+    console.error(error);
 
-    .then(function(){
-
-        alert("Login successful! ✅");
-
-        showAccount();
-
-    })
-
-    .catch(function(error){
-
-        console.error(error);
-
-        if(error.code==="auth/invalid-credential"){
-            alert("Email ya password galat hai.");
-        }
-
-        else if(error.code==="auth/user-not-found"){
-            alert("Account nahi mila.");
-        }
-
-        else{
-            alert(error.message);
-        }
-
-    });
-
-}
+    if (error.code === "auth/invalid-credential") {
+        alert("Email ya password galat hai.");
+    }
+    else if (error.code === "auth/user-not-found") {
+        alert("Account nahi mila.");
+    }
+    else {
+        alert(error.message);
+    }
+});
 
 
 function forgotPassword(){
