@@ -342,6 +342,40 @@ function addCart(i){
     save();
     renderCart();
 }
+ function buyNow(i){
+
+    cart = [{
+        p: products[i],
+        qty: 1
+    }];
+
+    save();
+
+    openModal("checkoutModal");
+
+    let loc =
+        JSON.parse(
+            localStorage.getItem("ssm_location") || "null"
+        );
+
+    if(loc){
+
+        document.getElementById("coName").value =
+            loc.name || "";
+
+        document.getElementById("coMobile").value =
+            loc.mobile || "";
+
+        document.getElementById("coAddress").value =
+            (loc.address || "") +
+            ", " +
+            (loc.city || "") +
+            " - " +
+            (loc.pincode || "");
+
+    }
+
+}
  function toggleWishlist(i){
     let index=wishlist.findIndex(x=>x[1]===products[i][1]);
 
