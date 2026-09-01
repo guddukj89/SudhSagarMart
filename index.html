@@ -616,8 +616,10 @@ async function submitSeller(){
 
         };
 
-        const docRef = await db.collection("sellers").add(seller);
+        const uid = firebase.auth().currentUser.uid;
 
+await db.collection("sellers").doc(uid).set(seller);
+const docRef = { id: uid };
         document.getElementById("sellerMsg").innerText =
             "✅ Application submitted successfully. Admin approval pending.";
 
