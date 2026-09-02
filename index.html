@@ -777,6 +777,84 @@ function showOrders(){
   document.body.appendChild(modal);
   openModal("languageModal");
 }
+ function openPrivacy(){
+  closeMenu();
+
+  let old = document.getElementById("privacyModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.id = "privacyModal";
+
+  modal.innerHTML = `
+    <div class="box">
+      <span class="close" onclick="closeModal('privacyModal')">×</span>
+
+      <h2>🔒 Privacy Policy</h2>
+
+      <div style="max-height:65vh;overflow-y:auto;font-size:13px;line-height:1.6">
+
+        <h3>1. Information We Collect</h3>
+        <p>
+          We may collect information such as your name, mobile number,
+          email address, delivery address and order details when you use
+          Sudh Sagar Mart.
+        </p>
+
+        <h3>2. How We Use Information</h3>
+        <p>
+          Your information may be used to process orders, provide delivery,
+          customer support, payments and improve our services.
+        </p>
+
+        <h3>3. Payment Information</h3>
+        <p>
+          Online payments are processed through our payment service provider.
+          We do not store your complete card, UPI or banking credentials.
+        </p>
+
+        <h3>4. Seller Information</h3>
+        <p>
+          Seller information may be used for seller verification, order
+          processing, communication and marketplace operations.
+        </p>
+
+        <h3>5. Data Security</h3>
+        <p>
+          We take reasonable measures to protect your information from
+          unauthorized access, misuse or disclosure.
+        </p>
+
+        <h3>6. Cookies & Local Storage</h3>
+        <p>
+          Our website may use cookies or local storage to remember settings,
+          cart items, wishlist, location and other preferences.
+        </p>
+
+        <h3>7. Third-Party Services</h3>
+        <p>
+          We may use third-party services such as Firebase, payment providers
+          and maps/location services to operate the website.
+        </p>
+
+        <h3>8. Contact</h3>
+        <p>
+          For privacy-related questions or requests, please contact
+          Sudh Sagar Mart support.
+        </p>
+
+        <p style="margin-top:20px;color:#777">
+          Last Updated: 2026
+        </p>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  openModal("privacyModal");
+}
  function openNotifications(){
   closeMenu();
 
