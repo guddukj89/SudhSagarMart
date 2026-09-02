@@ -777,7 +777,10 @@ function showOrders(){
   document.body.appendChild(modal);
   openModal("languageModal");
 }
-
+function openTerms(){
+  closeMenu();
+  openModal("termsModal");
+}
 function selectLanguage(language){
 
   localStorage.setItem("ssm_language", language);
