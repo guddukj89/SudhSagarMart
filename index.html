@@ -639,6 +639,70 @@ function showOrders(){
 
   openModal("ordersModal");
 }
+ function openLanguage(){
+  const languages = [
+    "English",
+    "हिन्दी",
+    "বাংলা",
+    "অসমীয়া",
+    "ગુજરાતી",
+    "मराठी",
+    "தமிழ்",
+    "తెలుగు",
+    "ಕನ್ನಡ",
+    "മലയാളം",
+    "ਪੰਜਾਬੀ",
+    "اردو",
+    "संस्कृतम्",
+    "नेपाली",
+    "कोंकणी",
+    "मैथिली",
+    "মণিপুরী",
+    "ଓଡ଼ିଆ",
+    "کٲشُر",
+    "संथाली",
+    "डोगरी",
+    "बोडो",
+    "सिन्धी"
+  ];
+
+  let old = document.getElementById("languageModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.id = "languageModal";
+
+  modal.innerHTML = `
+    <div class="box">
+      <span class="close" onclick="closeModal('languageModal')">×</span>
+      <h2>🌐 Select Language</h2>
+
+      <div style="max-height:60vh;overflow-y:auto;">
+        ${languages.map(lang => `
+          <div
+            class="drawerItem"
+            onclick="selectLanguage('${lang.replace(/'/g,"\\'")}')"
+            style="cursor:pointer;border-bottom:1px solid #eee;padding:13px 8px;"
+          >
+            ${lang}
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  openModal("languageModal");
+}
+
+function selectLanguage(language){
+  localStorage.setItem("ssm_language", language);
+
+  closeModal("languageModal");
+
+  alert("Language selected: " + language);
+}
 async function savelocation(){
 
     if(!navigator.geolocation){
