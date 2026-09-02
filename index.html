@@ -275,6 +275,83 @@ async function changePassword(){
     }
   }
 }
+  function openChangePassword(){
+  closeMenu();
+
+  let old = document.getElementById("changePasswordModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.id = "changePasswordModal";
+
+  modal.innerHTML = `
+    <div class="box">
+      <span class="close" onclick="closeModal('changePasswordModal')">×</span>
+
+      <h2>🔑 Change Password</h2>
+
+      <input
+        id="newPassword"
+        type="password"
+        placeholder="New Password"
+      >
+
+      <input
+        id="confirmPassword"
+        type="password"
+        placeholder="Confirm New Password"
+      >
+
+      <button class="primary" onclick="changePassword()">
+        Change Password
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  openModal("changePasswordModal");
+}
+
+async function changePassword(){
+  const newPassword = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if(!newPassword || !confirmPassword){
+    return alert("Please fill both fields");
+  }
+
+  if(newPassword.length < 6){
+    return alert("Password must be at least 6 characters");
+  }
+
+  if(newPassword !== confirmPassword){
+    return alert("Passwords do not match");
+  }
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Please login first");
+  }
+
+  try{
+    await user.updatePassword(newPassword);
+
+    alert("Password changed successfully!");
+
+    closeModal("changePasswordModal");
+
+  }catch(error){
+    console.error(error);
+
+    if(error.code === "auth/requires-recent-login"){
+      alert("For security, please logout and login again, then change your password.");
+    }else{
+      alert("Unable to change password. Please try again.");
+    }
+  }
+}
 </script>
  <div class="modal" id="termsModal">
   <div class="box">
