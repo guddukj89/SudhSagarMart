@@ -194,64 +194,86 @@ const auth = firebase.auth();
 <div class="modal" id="settingsModal"><div class="box">
 <span class="close" onclick="closeModal('settingsModal')">×</span><h2>⚙️ Settings</h2>
 <div class="drawerItem" onclick="openNotifications()">🔔 Notifications</div><div class="drawerItem" onclick="openLanguage()">🌐 Language</div>
-<div class="drawerItem" onclick="openPrivacy()">🔒 Privacy</div><div class="drawerItem">🔑 Change Password</div>
+<div class="drawerItem" onclick="openPrivacy()">🔒 Privacy</div><div class="drawerItem" onclick="openChangePassword()">🔑 Change Password</div>
 <div class="drawerItem" onclick="openLoginSecurity()">🔐 Login & Security</div><div class="drawerItem" onclick="openTerms()">📄 Terms & Conditions</div>
 </div></div>
  <script>
-function openLoginSecurity(){
+function openChangePassword(){
   closeMenu();
 
-  let old = document.getElementById("loginSecurityModal");
+  let old = document.getElementById("changePasswordModal");
   if(old) old.remove();
 
   const modal = document.createElement("div");
   modal.className = "modal";
-  modal.id = "loginSecurityModal";
+  modal.id = "changePasswordModal";
 
   modal.innerHTML = `
     <div class="box">
-      <span class="close" onclick="closeModal('loginSecurityModal')">×</span>
+      <span class="close" onclick="closeModal('changePasswordModal')">×</span>
 
-      <h2>🔐 Login & Security</h2>
+      <h2>🔑 Change Password</h2>
 
-      <div style="max-height:65vh;overflow-y:auto;font-size:13px;line-height:1.6">
+      <input
+        id="newPassword"
+        type="password"
+        placeholder="New Password"
+      >
 
-        <h3>Account Security</h3>
-        <p>
-          Keep your account information secure and do not share your
-          password or verification codes with anyone.
-        </p>
+      <input
+        id="confirmPassword"
+        type="password"
+        placeholder="Confirm New Password"
+      >
 
-        <h3>Login Information</h3>
-        <p>
-          Your account login is securely handled through our authentication
-          service.
-        </p>
-
-        <h3>Password</h3>
-        <p>
-          Use a strong password and change it if you believe your account
-          may have been accessed by someone else.
-        </p>
-
-        <h3>Verification Codes</h3>
-        <p>
-          Never share OTP or verification codes with anyone, including
-          people claiming to be from Sudh Sagar Mart.
-        </p>
-
-        <h3>Account Access</h3>
-        <p>
-          If you notice suspicious activity on your account, contact
-          Sudh Sagar Mart support as soon as possible.
-        </p>
-
-      </div>
+      <button class="primary" onclick="changePassword()">
+        Change Password
+      </button>
     </div>
   `;
 
   document.body.appendChild(modal);
-  openModal("loginSecurityModal");
+  openModal("changePasswordModal");
+}
+
+async function changePassword(){
+  const newPassword = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if(!newPassword || !confirmPassword){
+    return alert("Please fill both fields");
+  }
+
+  if(newPassword.length < 6){
+    return alert("Password must be at least 6 characters");
+  }
+
+  if(newPassword !== confirmPassword){
+    return alert("Passwords do not match");
+  }
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Please login first");
+  }
+
+  try{
+    await user.updatePassword(newPassword);
+
+    alert("Password changed successfully!");
+
+    closeModal("changePasswordModal");
+
+  }catch(error){
+    console.error(error);
+
+    if(error.code === "auth/requires-recent-login"){
+      alert("For security, please logout and login again, then change your password.");
+    }else{
+      alert("Unable to change password. Please try again.");
+    }
+  }
 }
 </script>
  <div class="modal" id="termsModal">
