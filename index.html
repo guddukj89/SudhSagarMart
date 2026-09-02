@@ -1469,25 +1469,210 @@ function logoutUser(){
 
 function showAccount(){
 
-    const user=auth.currentUser;
+    const user = auth.currentUser;
 
     if(!user){
-
         showLogin();
         return;
-
     }
 
     document.getElementById("loginBox").style.display="none";
     document.getElementById("signupBox").style.display="none";
     document.getElementById("accountLoggedIn").style.display="block";
 
-    document.getElementById("userInfo").innerHTML=
-        "<b>Name:</b> "+(user.displayName || "User")+"<br><br>"+
-        "<b>Email:</b> "+user.email;
+    document.getElementById("userInfo").innerHTML =
+        "<b>Email:</b> " + (user.email || "Not available");
 
+    document.getElementById("profileName").value =
+        user.displayName || "";
+
+    document.getElementById("profileMobile").value =
+        user.phoneNumber || "";
+
+    if(user.photoURL){
+        document.getElementById("profilePhoto").src = user.photoURL;
+        document.getElementById("profilePhoto").style.display = "block";
+    }
+
+    loadCustomerProfile();
+}
+function loadCustomerProfile(){
+
+    const user = auth.currentUser;
+
+    if(!user) return;
+
+    firebase.firestore()
+    .collection("customers")
+    .doc(user.uid)
+    .get()
+    .then(function(doc){
+
+        if(!doc.exists) return;
+
+        const data = doc.data();
+
+        document.getElementById("profileName").value =
+            data.name || user.displayName || "";
+
+        document.getElementById("profileDob").value =
+            data.dob || "";
+
+        document.getElementById("addressHouse").value =
+            data.house || "";
+
+        document.getElementById("addressArea").value =
+            data.area || "";
+
+        document.getElementById("addressCity").value =
+            data.city || "";
+
+        document.getElementById("addressState").value =
+            data.state || "";
+
+        document.getElementById("addressPincode").value =
+            data.pincode || "";
+
+        if(data.photo){
+
+            document.getElementById("profilePhoto").src = data.photo;
+
+            document.getElementById("profilePhoto").style.display =
+                "block";
+        }
+
+    })
+    .catch(function(error){
+
+        console.error("PROFILE LOAD ERROR:", error);
+
+    });
 }
 
+
+function saveCustomerProfile(){
+
+    const user = auth.currentUser;
+
+    if(!user){
+
+        alert("Please login first.");
+
+        return;
+    }
+
+    const data = {
+
+        name: document.getElementById("profileName").value.trim(),
+
+        dob: document.getElementById("profileDob").value,
+
+        house: document.getElementById("addressHouse").value.trim(),
+
+        area: document.getElementById("addressArea").value.trim(),
+
+        city: document.getElementById("addressCity").value.trim(),
+
+        state: document.getElementById("addressState").value.trim(),
+
+        pincode: document.getElementById("addressPincode").value.trim(),
+
+        email: user.email || "",
+
+        mobile: user.phoneNumber || "",
+
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+
+    };
+
+    const photoInput =
+        document.getElementById("profilePhotoInput");
+
+    if(photoInput.files && photoInput.files[0]){
+
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+
+            data.photo = e.target.result;
+
+            document.getElementById("profilePhoto").src =
+                data.photo;
+
+            document.getElementById("profilePhoto").style.display =
+                "block";
+
+            saveProfileToFirestore(user.uid, data);
+        };
+
+        reader.readAsDataURL(photoInput.files[0]);
+
+    }else{
+
+        saveProfileToFirestore(user.uid, data);
+
+    }
+}
+
+
+function saveProfileToFirestore(uid, data){
+
+    firebase.firestore()
+    .collection("customers")
+    .doc(uid)
+    .set(data, {merge:true})
+    .then(function(){
+
+        alert("Profile successfully save ho gaya. ✅");
+
+    })
+    .catch(function(error){
+
+        console.error("PROFILE SAVE ERROR:", error);
+
+        alert("Profile save nahi hua: " + error.message);
+
+    });
+}
+
+
+function changeCustomerPassword(){
+
+    const user = auth.currentUser;
+
+    if(!user){
+
+        alert("Please login first.");
+
+        return;
+    }
+
+    const newPassword =
+        prompt("Naya password enter karein:");
+
+    if(!newPassword) return;
+
+    if(newPassword.length < 6){
+
+        alert("Password kam se kam 6 characters ka hona chahiye.");
+
+        return;
+    }
+
+    user.updatePassword(newPassword)
+    .then(function(){
+
+        alert("Password successfully change ho gaya. ✅");
+
+    })
+    .catch(function(error){
+
+        console.error("PASSWORD ERROR:", error);
+
+        alert("Password change nahi hua: " + error.message);
+
+    });
+}
 
 function openAccount(){
 
