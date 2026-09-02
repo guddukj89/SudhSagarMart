@@ -549,7 +549,6 @@ async function placeOrder(){
     alert("Unable to start online payment. Please try again.");
   }
 }
-}
 function showOrders(){closeMenu();document.getElementById("orders").innerHTML=orders.length?orders.map(o=>`<div class="cartRow"><div><b>${o.id}</b><br>₹${o.total}<br>${o.time}</div><b>${o.status}</b></div>`).join(""):'<div class="empty">No orders yet</div>';openModal("ordersModal")}
 
 async function savelocation(){
