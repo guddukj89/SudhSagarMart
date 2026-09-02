@@ -413,12 +413,142 @@ closeModal("cartModal");openModal("checkoutModal");
 let loc=JSON.parse(localStorage.getItem("ssm_location")||"null");
 if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.address+", "+loc.city+" - "+loc.pincode}
 }
-function placeOrder(){
-if(!coName.value||!coMobile.value||!coAddress.value)return alert("Please fill all delivery details");
-let id="SSM"+Date.now().toString().slice(-8);
-let total=cart.reduce((s,x)=>s+x.p[2]*x.qty,0);
-orders.unshift({id,total,status:"Order Placed",time:new Date().toLocaleString()});
-cart=[];save();closeModal("checkoutModal");alert("Order placed successfully! Order ID: "+id);showOrders();
+async function placeOrder(){
+  if(!coName.value || !coMobile.value || !coAddress.value){
+    return alert("Please fill all delivery details");
+  }
+
+  const total = cart.reduce((s,x)=>s + x.p[2] * x.qty, 0);
+  const paymentMethod = document.getElementById("payment").value;
+
+  if(paymentMethod === "Cash on Delivery"){
+    const id = "SSM" + Date.now().toString().slice(-8);
+
+    orders.unshift({
+      id:id,
+      total:total,
+      status:"Order Placed",
+      payment:"Cash on Delivery",
+      time:new Date().toLocaleString()
+    });
+
+    cart=[];
+    save();
+    closeModal("checkoutModal");
+    alert("Order placed successfully! Order ID: " + id);
+    showOrders();
+    return;
+  }
+
+  try{
+    if(!firebase.auth().currentUser){
+      return alert("Please login first");
+    }
+
+    const user = firebase.auth().currentUser;
+    const token = await user.getIdToken();
+
+    const response = await fetch(
+      "https://asia-south1-sudhsagarmart.cloudfunctions.net/createRazorpayOrder",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":"Bearer " + token
+        },
+        body:JSON.stringify({
+          amount:total
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if(!response.ok || !data.success){
+      throw new Error(data.error || "Unable to create payment order");
+    }
+
+    const options = {
+      key:data.keyId,
+      amount:data.amount,
+      currency:data.currency,
+      name:"Sudh Sagar Mart",
+      description:"Order Payment",
+      order_id:data.orderId,
+
+      prefill:{
+        name:coName.value,
+        contact:coMobile.value
+      },
+
+      theme:{
+        color:"#111111"
+      },
+
+      handler:async function(paymentResponse){
+
+        try{
+          const verifyResponse = await fetch(
+            "https://asia-south1-sudhsagarmart.cloudfunctions.net/verifyRazorpayPayment",
+            {
+              method:"POST",
+              headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + token
+              },
+              body:JSON.stringify(paymentResponse)
+            }
+          );
+
+          const verifyData = await verifyResponse.json();
+
+          if(!verifyResponse.ok || !verifyData.success){
+            return alert("Payment verification failed. Order not confirmed.");
+          }
+
+          const id = "SSM" + Date.now().toString().slice(-8);
+
+          orders.unshift({
+            id:id,
+            total:total,
+            status:"Payment Successful",
+            payment:"Razorpay",
+            razorpayOrderId:paymentResponse.razorpay_order_id,
+            razorpayPaymentId:paymentResponse.razorpay_payment_id,
+            time:new Date().toLocaleString()
+          });
+
+          cart=[];
+          save();
+          closeModal("checkoutModal");
+
+          alert(
+            "Payment successful!\n\nOrder ID: " + id
+          );
+
+          showOrders();
+
+        }catch(error){
+          console.error(error);
+          alert("Payment verification error. Please contact support.");
+        }
+      },
+
+      modal:{
+        ondismiss:function(){
+          console.log("Razorpay checkout closed");
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+  }catch(error){
+    console.error(error);
+    alert("Unable to start online payment. Please try again.");
+  }
+}
 }
 function showOrders(){closeMenu();document.getElementById("orders").innerHTML=orders.length?orders.map(o=>`<div class="cartRow"><div><b>${o.id}</b><br>₹${o.total}<br>${o.time}</div><b>${o.status}</b></div>`).join(""):'<div class="empty">No orders yet</div>';openModal("ordersModal")}
 
