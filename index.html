@@ -549,8 +549,96 @@ async function placeOrder(){
     alert("Unable to start online payment. Please try again.");
   }
 }
-function showOrders(){closeMenu();document.getElementById("orders").innerHTML=orders.length?orders.map(o=>`<div class="cartRow"><div><b>${o.id}</b><br>₹${o.total}<br>${o.time}</div><b>${o.status}</b></div>`).join(""):'<div class="empty">No orders yet</div>';openModal("ordersModal")}
+function trackingStep(step, currentStatus){
+  const steps = [
+    "Order Placed",
+    "Order Confirmed",
+    "Packed",
+    "Shipped",
+    "Out for Delivery",
+    "Delivered"
+  ];
 
+  let currentIndex = steps.indexOf(currentStatus);
+
+  // Payment Successful ko Order Placed maana jayega
+  if(currentStatus === "Payment Successful"){
+    currentIndex = 0;
+  }
+
+  const stepIndex = steps.indexOf(step);
+  const completed = stepIndex <= currentIndex;
+
+  return `
+    <div style="
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:7px 0;
+      color:${completed ? "#198754" : "#777"};
+    ">
+      <span style="
+        width:24px;
+        height:24px;
+        border-radius:50%;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border:2px solid ${completed ? "#198754" : "#aaa"};
+        font-size:13px;
+      ">
+        ${completed ? "✓" : stepIndex + 1}
+      </span>
+
+      <span style="font-weight:${completed ? "600" : "400"};">
+        ${step}
+      </span>
+    </div>
+  `;
+}
+
+
+function showOrders(){
+  closeMenu();
+
+  document.getElementById("orders").innerHTML = orders.length
+    ? orders.map(o => `
+      <div class="cartRow" style="display:block;margin-bottom:15px;">
+
+        <div>
+          <b>Order ID: ${o.id}</b><br>
+          ₹${o.total}<br>
+          ${o.time}
+        </div>
+
+        <div style="margin-top:12px;">
+          <b>Order Tracking</b>
+
+          <div style="
+            margin-top:10px;
+            padding:10px;
+            border-left:3px solid #198754;
+          ">
+            ${trackingStep("Order Placed", o.status)}
+            ${trackingStep("Order Confirmed", o.status)}
+            ${trackingStep("Packed", o.status)}
+            ${trackingStep("Shipped", o.status)}
+            ${trackingStep("Out for Delivery", o.status)}
+            ${trackingStep("Delivered", o.status)}
+          </div>
+
+          <div style="margin-top:8px;">
+            <b>Current Status:</b> ${o.status}
+          </div>
+
+        </div>
+
+      </div>
+    `).join("")
+    : `<div class="empty">No orders yet</div>`;
+
+  openModal("ordersModal");
+}
 async function savelocation(){
 
     if(!navigator.geolocation){
