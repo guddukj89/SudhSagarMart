@@ -5,6 +5,31 @@
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU&callback=initMap" defer></script>
+ <style>
+#google_translate_element{
+  display:none !important;
+}
+.goog-te-banner-frame{
+  display:none !important;
+}
+body{
+  top:0 !important;
+}
+</style>
+
+<div id="google_translate_element"></div>
+
+<script>
+function googleTranslateInit(){
+  new google.translate.TranslateElement({
+    pageLanguage:"en",
+    includedLanguages:"en,hi,bn,te,mr,ta,gu,ur,kn,ml,pa,as,or,sa,ne,sd,ks,mai,kok,mni,brx,doi,sat",
+    autoDisplay:false
+  },"google_translate_element");
+}
+</script>
+
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateInit"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Sudh Sagar Mart</title>
@@ -697,13 +722,52 @@ function showOrders(){
 }
 
 function selectLanguage(language){
+
   localStorage.setItem("ssm_language", language);
 
   closeModal("languageModal");
 
-  const currentLanguage = localStorage.getItem("ssm_language") || "English";
+  const languageCodes = {
+    "English":"en",
+    "हिन्दी":"hi",
+    "বাংলা":"bn",
+    "অসমীয়া":"as",
+    "ગુજરાતી":"gu",
+    "मराठी":"mr",
+    "தமிழ்":"ta",
+    "తెలుగు":"te",
+    "ಕನ್ನಡ":"kn",
+    "മലയാളം":"ml",
+    "ਪੰਜਾਬੀ":"pa",
+    "ଓଡ଼ିଆ":"or",
+    "संस्कृतम्":"sa",
+    "नेपाली":"ne",
+    "सिन्धी":"sd",
+    "कोंकणी":"kok",
+    "मैथिली":"mai",
+    "बोडो":"brx",
+    "डोगरी":"doi",
+    "संथाली":"sat"
+  };
 
-  alert("Language selected: " + currentLanguage);
+  const code = languageCodes[language] || "en";
+
+  function changeGoogleLanguage(){
+
+    const select = document.querySelector(".goog-te-combo");
+
+    if(!select){
+      setTimeout(changeGoogleLanguage, 500);
+      return;
+    }
+
+    select.value = code;
+
+    select.dispatchEvent(new Event("change"));
+
+  }
+
+  changeGoogleLanguage();
 }
 async function savelocation(){
 
