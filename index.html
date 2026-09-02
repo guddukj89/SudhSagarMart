@@ -195,8 +195,65 @@ const auth = firebase.auth();
 <span class="close" onclick="closeModal('settingsModal')">×</span><h2>⚙️ Settings</h2>
 <div class="drawerItem">🔔 Notifications</div><div class="drawerItem" onclick="openLanguage()">🌐 Language</div>
 <div class="drawerItem">🔐 Privacy</div><div class="drawerItem">🔑 Change Password</div>
-<div class="drawerItem">📱 Login & Security</div><div class="drawerItem">📄 Terms & Conditions</div>
+<div class="drawerItem">📱 Login & Security</div><div class="drawerItem" onclick="openTerms()">📄 Terms & Conditions</div>
 </div></div>
+ <div class="modal" id="termsModal">
+  <div class="box">
+    <span class="close" onclick="closeModal('termsModal')">×</span>
+
+    <h2>📄 Terms & Conditions</h2>
+
+    <div style="max-height:65vh;overflow-y:auto;font-size:13px;line-height:1.6">
+
+      <h3>1. Introduction</h3>
+      <p>Welcome to Sudh Sagar Mart. By using our website, you agree to follow these Terms & Conditions.</p>
+
+      <h3>2. Customer Account</h3>
+      <p>Customers are responsible for providing correct information and keeping their account secure.</p>
+
+      <h3>3. Products & Pricing</h3>
+      <p>Product information, images, prices and availability may change from time to time.</p>
+
+      <h3>4. Orders</h3>
+      <p>After placing an order, customers may receive order confirmation. Sudh Sagar Mart may cancel an order in cases such as stock unavailability, incorrect pricing or suspected fraud.</p>
+
+      <h3>5. Payments</h3>
+      <p>We may provide Cash on Delivery and online payment options. Online payments are processed through authorized payment providers.</p>
+
+      <h3>6. Delivery</h3>
+      <p>Delivery time may vary depending on product, seller, location and courier service.</p>
+
+      <h3>7. Cancellation</h3>
+      <p>Order cancellation may be available before the order reaches a stage where cancellation is no longer possible.</p>
+
+      <h3>8. Returns & Refunds</h3>
+      <p>Returns and refunds are subject to the applicable product, seller and platform return policy. Certain products may not be eligible for return.</p>
+
+      <h3>9. Seller Rules</h3>
+      <p>Sellers must provide genuine products and accurate product information. Sellers must not list illegal, counterfeit, restricted or misleading products.</p>
+
+      <h3>10. Seller Approval</h3>
+      <p>Seller applications are subject to verification and approval. Sudh Sagar Mart may reject or suspend a seller account if required.</p>
+
+      <h3>11. Fraud & Misuse</h3>
+      <p>Fraudulent orders, fake accounts, payment abuse, misleading information or misuse of the platform may result in account restriction or termination.</p>
+
+      <h3>12. Platform Rights</h3>
+      <p>Sudh Sagar Mart may update products, services, policies and these Terms & Conditions when necessary.</p>
+
+      <h3>13. Privacy</h3>
+      <p>Customer and seller information will be handled according to our applicable privacy practices.</p>
+
+      <h3>14. Contact</h3>
+      <p>For questions, complaints or support related to orders, sellers or payments, please contact Sudh Sagar Mart support.</p>
+
+      <p style="margin-top:20px;color:#777">
+        Last Updated: 2026
+      </p>
+
+    </div>
+  </div>
+</div>
  <div class="modal" id="sellerModal">
 <div class="box">
 
