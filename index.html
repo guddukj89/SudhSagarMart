@@ -777,6 +777,47 @@ function showOrders(){
   document.body.appendChild(modal);
   openModal("languageModal");
 }
+ function openNotifications(){
+  closeMenu();
+
+  let old = document.getElementById("notificationsModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.id = "notificationsModal";
+
+  modal.innerHTML = `
+    <div class="box">
+      <span class="close" onclick="closeModal('notificationsModal')">×</span>
+      <h2>🔔 Notifications</h2>
+
+      <div style="padding:12px 0;border-bottom:1px solid #eee;">
+        <b>📦 Order Updates</b>
+        <p style="font-size:13px;color:#777;margin:5px 0;">
+          Aapke order ke status aur delivery updates yahan dikhenge.
+        </p>
+      </div>
+
+      <div style="padding:12px 0;border-bottom:1px solid #eee;">
+        <b>💳 Payment Updates</b>
+        <p style="font-size:13px;color:#777;margin:5px 0;">
+          Payment aur transaction se related updates yahan milenge.
+        </p>
+      </div>
+
+      <div style="padding:12px 0;">
+        <b>🎁 Offers & Updates</b>
+        <p style="font-size:13px;color:#777;margin:5px 0;">
+          Sudh Sagar Mart ke latest offers aur important updates.
+        </p>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  openModal("notificationsModal");
+}
 function openTerms(){
   closeMenu();
   openModal("termsModal");
