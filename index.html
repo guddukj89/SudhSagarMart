@@ -1702,12 +1702,83 @@ Login
 
 <div id="accountLoggedIn" style="display:none">
 
-<h3>Welcome 👋</h3>
+<h3>👤 Customer Profile</h3>
+
+<div style="text-align:center;margin:15px 0">
+  <img id="profilePhoto"
+       src=""
+       alt="Profile Photo"
+       style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #ddd;display:none">
+
+  <br>
+
+  <input type="file"
+         id="profilePhotoInput"
+         accept="image/*"
+         style="margin-top:10px">
+</div>
 
 <div id="userInfo" style="margin:15px 0"></div>
 
-<button class="primary" onclick="logoutUser()">
-Logout
+<input id="profileName"
+       type="text"
+       placeholder="Full Name"
+       style="width:100%;margin:6px 0;padding:12px">
+
+<input id="profileMobile"
+       type="tel"
+       placeholder="Mobile Number"
+       readonly
+       style="width:100%;margin:6px 0;padding:12px">
+
+<input id="profileDob"
+       type="date"
+       style="width:100%;margin:6px 0;padding:12px">
+
+<h3 style="margin-top:20px">🏠 My Address</h3>
+
+<input id="addressHouse"
+       type="text"
+       placeholder="House / Flat No."
+       style="width:100%;margin:6px 0;padding:12px">
+
+<input id="addressArea"
+       type="text"
+       placeholder="Area / Street"
+       style="width:100%;margin:6px 0;padding:12px">
+
+<input id="addressCity"
+       type="text"
+       placeholder="City"
+       style="width:100%;margin:6px 0;padding:12px">
+
+<input id="addressState"
+       type="text"
+       placeholder="State"
+       style="width:100%;margin:6px 0;padding:12px">
+
+<input id="addressPincode"
+       type="text"
+       placeholder="PIN Code"
+       maxlength="6"
+       style="width:100%;margin:6px 0;padding:12px">
+
+<button class="primary"
+        onclick="saveCustomerProfile()"
+        style="margin-top:10px">
+💾 Save Profile
+</button>
+
+<button class="primary"
+        onclick="changeCustomerPassword()"
+        style="margin-top:10px">
+🔐 Change Password
+</button>
+
+<button class="primary"
+        onclick="logoutUser()"
+        style="margin-top:10px">
+🚪 Logout
 </button>
 
 </div>
