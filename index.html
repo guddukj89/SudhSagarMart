@@ -1530,7 +1530,489 @@ function submitSeller(){
     document.getElementById("sellerCategory").value="";
 
 }
+// ======================================
+// SELLER DASHBOARD
+// ======================================
 
+function openSellerDashboard(){
+
+  closeMenu();
+
+  let sellers = JSON.parse(
+    localStorage.getItem("ssm_sellers") || "[]"
+  );
+
+  if(!sellers.length){
+    return alert("Pehle Seller application submit karein.");
+  }
+
+  const seller = sellers[sellers.length - 1];
+
+  let old = document.getElementById("sellerDashboardModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.id = "sellerDashboardModal";
+
+  modal.innerHTML = `
+    <div class="box" style="max-width:700px">
+
+      <span class="close"
+        onclick="closeModal('sellerDashboardModal')">×</span>
+
+      <h2>🏪 Seller Dashboard</h2>
+
+      <div style="
+        background:#f7f7f7;
+        padding:14px;
+        border-radius:10px;
+        margin:12px 0;
+      ">
+        <b>${seller.shopName || "My Shop"}</b><br>
+        Seller: ${seller.name || "-"}<br>
+        Mobile: ${seller.mobile || "-"}<br>
+        City: ${seller.city || "-"}<br>
+        Status:
+        <b style="color:#278a43">
+          ${seller.status || "Pending Approval"}
+        </b>
+      </div>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+        margin:15px 0;
+      ">
+
+        <button class="primary"
+          onclick="sellerAddProduct()">
+          ➕ Add Product
+        </button>
+
+        <button class="primary"
+          onclick="sellerMyProducts()">
+          📦 My Products
+        </button>
+
+        <button class="primary"
+          onclick="sellerOrders()">
+          🛒 Orders
+        </button>
+
+        <button class="primary"
+          onclick="sellerProfile()">
+          👤 Seller Profile
+        </button>
+
+      </div>
+
+      <div id="sellerDashboardContent"
+        style="margin-top:15px">
+        <h3>📊 Dashboard</h3>
+
+        <div style="
+          display:grid;
+          grid-template-columns:repeat(3,1fr);
+          gap:8px;
+        ">
+
+          <div style="
+            background:#f5f5f5;
+            padding:15px;
+            border-radius:8px;
+            text-align:center;
+          ">
+            <b id="sellerProductCount">0</b><br>
+            Products
+          </div>
+
+          <div style="
+            background:#f5f5f5;
+            padding:15px;
+            border-radius:8px;
+            text-align:center;
+          ">
+            <b id="sellerOrderCount">0</b><br>
+            Orders
+          </div>
+
+          <div style="
+            background:#f5f5f5;
+            padding:15px;
+            border-radius:8px;
+            text-align:center;
+          ">
+            <b>₹0</b><br>
+            Earnings
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById("sellerDashboardModal").style.display = "flex";
+
+  const products = JSON.parse(
+    localStorage.getItem("ssm_seller_products") || "[]"
+  );
+
+  document.getElementById("sellerProductCount").innerText =
+    products.length;
+
+  const sellerOrdersData = JSON.parse(
+    localStorage.getItem("ssm_orders") || "[]"
+  );
+
+  document.getElementById("sellerOrderCount").innerText =
+    sellerOrdersData.length;
+}
+
+
+// ======================================
+// ADD PRODUCT
+// ======================================
+
+function sellerAddProduct(){
+
+  const content =
+    document.getElementById("sellerDashboardContent");
+
+  if(!content) return;
+
+  content.innerHTML = `
+
+    <h3>➕ Add Product</h3>
+
+    <input id="spName"
+      placeholder="Product Name">
+
+    <input id="spPrice"
+      type="number"
+      placeholder="Selling Price">
+
+    <input id="spOldPrice"
+      type="number"
+      placeholder="MRP / Old Price">
+
+    <input id="spCategory"
+      placeholder="Category">
+
+    <input id="spImage"
+      placeholder="Product Image URL">
+
+    <input id="spStock"
+      type="number"
+      placeholder="Stock Quantity">
+
+    <textarea id="spDescription"
+      placeholder="Product Description"></textarea>
+
+    <button class="primary"
+      onclick="saveSellerProduct()">
+      ✅ Save Product
+    </button>
+
+    <button
+      onclick="openSellerDashboard()"
+      style="margin-top:8px">
+      ← Back to Dashboard
+    </button>
+  `;
+}
+
+
+// ======================================
+// SAVE PRODUCT
+// ======================================
+
+function saveSellerProduct(){
+
+  const name =
+    document.getElementById("spName").value.trim();
+
+  const price =
+    Number(document.getElementById("spPrice").value);
+
+  const oldPrice =
+    Number(document.getElementById("spOldPrice").value);
+
+  const category =
+    document.getElementById("spCategory").value.trim();
+
+  const image =
+    document.getElementById("spImage").value.trim();
+
+  const stock =
+    Number(document.getElementById("spStock").value);
+
+  const description =
+    document.getElementById("spDescription").value.trim();
+
+  if(!name || !price || !category || !image){
+
+    return alert(
+      "Product name, price, category aur image bharna zaroori hai."
+    );
+  }
+
+  let products = JSON.parse(
+    localStorage.getItem("ssm_seller_products") || "[]"
+  );
+
+  products.push({
+
+    id:"SP" + Date.now(),
+
+    name:name,
+
+    price:price,
+
+    oldPrice:oldPrice || price,
+
+    category:category,
+
+    image:image,
+
+    stock:stock || 0,
+
+    description:description,
+
+    sellerName:"Seller",
+
+    status:"Pending Approval",
+
+    time:new Date().toISOString()
+
+  });
+
+  localStorage.setItem(
+    "ssm_seller_products",
+    JSON.stringify(products)
+  );
+
+  alert("✅ Product successfully add ho gaya.");
+
+  openSellerDashboard();
+}
+
+
+// ======================================
+// MY PRODUCTS
+// ======================================
+
+function sellerMyProducts(){
+
+  const content =
+    document.getElementById("sellerDashboardContent");
+
+  if(!content) return;
+
+  const products = JSON.parse(
+    localStorage.getItem("ssm_seller_products") || "[]"
+  );
+
+  if(!products.length){
+
+    content.innerHTML = `
+      <h3>📦 My Products</h3>
+
+      <p style="color:#777">
+        Abhi koi product add nahi kiya gaya hai.
+      </p>
+
+      <button class="primary"
+        onclick="sellerAddProduct()">
+        ➕ Add Product
+      </button>
+    `;
+
+    return;
+  }
+
+  content.innerHTML = `
+    <h3>📦 My Products</h3>
+
+    ${products.map((p,index)=>`
+
+      <div style="
+        border:1px solid #ddd;
+        padding:12px;
+        border-radius:10px;
+        margin:10px 0;
+      ">
+
+        <b>${p.name}</b><br>
+
+        ₹${p.price}
+
+        ${p.oldPrice && p.oldPrice > p.price
+          ? `<del style="color:#777">
+               ₹${p.oldPrice}
+             </del>`
+          : ""
+        }
+
+        <br>
+
+        Category: ${p.category}<br>
+
+        Stock: ${p.stock}<br>
+
+        Status:
+        <b>${p.status}</b>
+
+        <br><br>
+
+        <button
+          onclick="deleteSellerProduct(${index})"
+          style="background:#d00;color:white">
+          🗑 Delete
+        </button>
+
+      </div>
+
+    `).join("")}
+  `;
+}
+
+
+// ======================================
+// DELETE PRODUCT
+// ======================================
+
+function deleteSellerProduct(index){
+
+  if(!confirm("Kya aap ye product delete karna chahte hain?")){
+    return;
+  }
+
+  let products = JSON.parse(
+    localStorage.getItem("ssm_seller_products") || "[]"
+  );
+
+  products.splice(index,1);
+
+  localStorage.setItem(
+    "ssm_seller_products",
+    JSON.stringify(products)
+  );
+
+  sellerMyProducts();
+}
+
+
+// ======================================
+// SELLER ORDERS
+// ======================================
+
+function sellerOrders(){
+
+  const content =
+    document.getElementById("sellerDashboardContent");
+
+  if(!content) return;
+
+  const ordersData = JSON.parse(
+    localStorage.getItem("ssm_orders") || "[]"
+  );
+
+  content.innerHTML = `
+
+    <h3>🛒 Seller Orders</h3>
+
+    ${
+      ordersData.length
+      ?
+      ordersData.map(o=>`
+
+        <div style="
+          border:1px solid #ddd;
+          padding:12px;
+          border-radius:10px;
+          margin:10px 0;
+        ">
+
+          <b>Order ID:</b> ${o.id || "-"}<br>
+
+          <b>Total:</b> ₹${o.total || 0}<br>
+
+          <b>Status:</b> ${o.status || "Order Placed"}<br>
+
+          <b>Payment:</b> ${o.payment || "-"}
+
+        </div>
+
+      `).join("")
+      :
+      `<p style="color:#777">
+        Abhi koi order nahi hai.
+      </p>`
+    }
+
+  `;
+}
+
+
+// ======================================
+// SELLER PROFILE
+// ======================================
+
+function sellerProfile(){
+
+  const content =
+    document.getElementById("sellerDashboardContent");
+
+  if(!content) return;
+
+  const sellers = JSON.parse(
+    localStorage.getItem("ssm_sellers") || "[]"
+  );
+
+  const seller =
+    sellers[sellers.length - 1];
+
+  if(!seller) return;
+
+  content.innerHTML = `
+
+    <h3>👤 Seller Profile</h3>
+
+    <div style="
+      background:#f7f7f7;
+      padding:15px;
+      border-radius:10px;
+      line-height:1.8;
+    ">
+
+      <b>Name:</b> ${seller.name || "-"}<br>
+
+      <b>Shop:</b> ${seller.shopName || "-"}<br>
+
+      <b>Mobile:</b> ${seller.mobile || "-"}<br>
+
+      <b>Email:</b> ${seller.email || "-"}<br>
+
+      <b>Address:</b> ${seller.address || "-"}<br>
+
+      <b>City:</b> ${seller.city || "-"}<br>
+
+      <b>Pincode:</b> ${seller.pincode || "-"}<br>
+
+      <b>Category:</b> ${seller.category || "-"}<br>
+
+      <b>Status:</b>
+      ${seller.status || "Pending Approval"}
+
+    </div>
+
+  `;
+}
 
 // ===============================
 // DELETE ACCOUNT
