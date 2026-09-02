@@ -701,7 +701,9 @@ function selectLanguage(language){
 
   closeModal("languageModal");
 
-  alert("Language selected: " + language);
+  const currentLanguage = localStorage.getItem("ssm_language") || "English";
+
+  alert("Language selected: " + currentLanguage);
 }
 async function savelocation(){
 
