@@ -607,6 +607,183 @@ document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x.inne
 renderProducts(c==="All"?products:products.filter(p=>p[0]===c));
 window.scrollTo({top:document.querySelector(".products").offsetTop-100,behavior:"smooth"});
 }
+ function openTravel(){
+  const old = document.getElementById("travelModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "travelModal";
+
+  modal.innerHTML = `
+    <div style="
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:15px;
+    ">
+      <div style="
+        background:#fff;
+        width:100%;
+        max-width:520px;
+        border-radius:18px;
+        padding:20px;
+        box-shadow:0 10px 35px rgba(0,0,0,.25);
+      ">
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          margin-bottom:18px;
+        ">
+          <h2 style="margin:0;">✈️ Travel</h2>
+          <button onclick="document.getElementById('travelModal').remove()"
+            style="
+              border:0;
+              background:#f1f1f1;
+              border-radius:50%;
+              width:36px;
+              height:36px;
+              font-size:20px;
+              cursor:pointer;
+            ">×</button>
+        </div>
+
+        <div style="
+          display:grid;
+          grid-template-columns:repeat(5,1fr);
+          gap:7px;
+          margin-bottom:18px;
+        ">
+          <button onclick="selectTravelType(this,'Flights')" class="travelType activeTravel">✈️<br>Flights</button>
+          <button onclick="selectTravelType(this,'Trains')" class="travelType">🚆<br>Trains</button>
+          <button onclick="selectTravelType(this,'Bus')" class="travelType">🚌<br>Bus</button>
+          <button onclick="selectTravelType(this,'Hotels')" class="travelType">🏨<br>Hotels</button>
+          <button onclick="selectTravelType(this,'Cabs')" class="travelType">🚕<br>Cabs</button>
+        </div>
+
+        <input id="travelType" type="hidden" value="Flights">
+
+        <label style="font-size:13px;font-weight:600;">From</label>
+        <input id="travelFrom" type="text" placeholder="Enter departure city"
+          style="
+            width:100%;
+            box-sizing:border-box;
+            padding:12px;
+            margin:6px 0 12px;
+            border:1px solid #ddd;
+            border-radius:10px;
+          ">
+
+        <label style="font-size:13px;font-weight:600;">To</label>
+        <input id="travelTo" type="text" placeholder="Enter destination"
+          style="
+            width:100%;
+            box-sizing:border-box;
+            padding:12px;
+            margin:6px 0 12px;
+            border:1px solid #ddd;
+            border-radius:10px;
+          ">
+
+        <label style="font-size:13px;font-weight:600;">Travel Date</label>
+        <input id="travelDate" type="date"
+          style="
+            width:100%;
+            box-sizing:border-box;
+            padding:12px;
+            margin:6px 0 16px;
+            border:1px solid #ddd;
+            border-radius:10px;
+          ">
+
+        <button onclick="searchTravel()"
+          style="
+            width:100%;
+            border:0;
+            padding:13px;
+            border-radius:10px;
+            background:#2874f0;
+            color:white;
+            font-size:16px;
+            font-weight:600;
+            cursor:pointer;
+          ">
+          🔎 Search Travel
+        </button>
+
+        <div style="
+          margin-top:15px;
+          padding:12px;
+          background:#f7f7f7;
+          border-radius:10px;
+          text-align:center;
+          font-size:12px;
+          color:#666;
+        ">
+          Travel booking services will be connected soon.
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const style = document.createElement("style");
+  style.id = "travelStyles";
+  style.innerHTML = `
+    .travelType{
+      border:1px solid #ddd;
+      background:#fff;
+      border-radius:10px;
+      padding:8px 3px;
+      font-size:11px;
+      cursor:pointer;
+    }
+
+    .activeTravel{
+      background:#2874f0 !important;
+      color:#fff;
+      border-color:#2874f0 !important;
+    }
+  `;
+
+  const oldStyle = document.getElementById("travelStyles");
+  if(!oldStyle) document.head.appendChild(style);
+}
+
+function selectTravelType(btn,type){
+  document.querySelectorAll(".travelType").forEach(x=>{
+    x.classList.remove("activeTravel");
+  });
+
+  btn.classList.add("activeTravel");
+  document.getElementById("travelType").value=type;
+}
+
+function searchTravel(){
+  const type=document.getElementById("travelType").value;
+  const from=document.getElementById("travelFrom").value.trim();
+  const to=document.getElementById("travelTo").value.trim();
+  const date=document.getElementById("travelDate").value;
+
+  if(!from || !to || !date){
+    alert("Please enter From, To and Travel Date.");
+    return;
+  }
+
+  alert(
+    type+" search requested\\n\\n"+
+    "From: "+from+"\\n"+
+    "To: "+to+"\\n"+
+    "Date: "+date
+  );
+}
 function searchProducts(){
 let q=document.getElementById("search").value.toLowerCase();
 renderProducts(products.filter(p=>(p[1]+" "+p[0]).toLowerCase().includes(q)));
