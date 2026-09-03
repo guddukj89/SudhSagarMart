@@ -136,6 +136,15 @@ const auth = firebase.auth();
 <div class="chips" id="chips"></div>
 <h2 class="title">Products For You</h2>
 <div class="sub" id="productCount"></div>
+
+<div id="sortFilterBar" style="display:flex;gap:8px;margin:10px 0;overflow-x:auto;">
+  <button onclick="openSortFilter('sort')">↕️ Sort</button>
+  <button onclick="openSortFilter('category')">☰ Category</button>
+  <button onclick="openSortFilter('price')">₹ Price</button>
+  <button onclick="openSortFilter('discount')">🏷️ Discount</button>
+  <button onclick="openSortFilter('availability')">📦 Availability</button>
+</div>
+
 <div class="products" id="products"></div>
 
 <footer><h3>Sudh Sagar Mart</h3><p>Online Shopping Marketplace</p><br><p>Fast Delivery • Secure Shopping • Easy Returns</p><br>© 2026 Sudh Sagar Mart</footer>
