@@ -123,9 +123,47 @@ const auth = firebase.auth();
 <div class="categories" id="categories"></div>
 
 <section class="hero">
-<h1>Welcome to Sudh Sagar Mart</h1>
-<p>Fresh Grocery, Fashion, Beauty, Electronics, Home & Kitchen and many more products.</p>
-<button class="shop" onclick="allProducts()">Shop Now</button>
+<div style="text-align:center;padding:22px 15px;">
+  <div style="font-size:14px;font-weight:700;letter-spacing:1px;opacity:.9;">
+    🛍️ SUDHSAGARMART
+  </div>
+
+  <h1 style="font-size:30px;margin:10px 0 8px;">
+    Sab Kuchh, Ek Hi Jagah
+  </h1>
+
+  <p style="font-size:15px;line-height:1.5;margin:0 auto 16px;max-width:500px;">
+    Shopping se lekar Travel tak — aapki zaroorat,
+    ab SudhSagarMart ke saath.
+  </p>
+
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <button class="shop"
+      onclick="allProducts()"
+      style="border-radius:25px;padding:12px 22px;font-weight:700;">
+      🛒 Shop Now
+    </button>
+
+    <button
+      onclick="openTravel()"
+      style="border-radius:25px;padding:12px 22px;font-weight:700;">
+      ✈️ Travel
+    </button>
+  </div>
+
+  <div style="
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-top:20px;
+    font-size:13px;
+    font-weight:600;">
+    <span>🚚 Fast Delivery</span>
+    <span>🔒 Secure Payment</span>
+    <span>↩️ Easy Returns</span>
+  </div>
+</div>
 </section>
 
 <div class="features">
