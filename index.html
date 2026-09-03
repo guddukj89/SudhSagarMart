@@ -2349,8 +2349,19 @@ function saveSellerProduct(){
   const category =
     document.getElementById("spCategory").value.trim();
 
-  const image =
-    document.getElementById("spImage").value.trim();
+  const image1 =
+  document.getElementById("spImage1").value.trim();
+
+const image2 =
+  document.getElementById("spImage2").value.trim();
+
+const image3 =
+  document.getElementById("spImage3").value.trim();
+
+const image4 =
+  document.getElementById("spImage4").value.trim();
+
+const image = image1;
 
   const stock =
     Number(document.getElementById("spStock").value);
@@ -2358,7 +2369,7 @@ function saveSellerProduct(){
   const description =
     document.getElementById("spDescription").value.trim();
 
-  if(!name || !price || !category || !image){
+  if(!name || !price || !category || !image1){
 
     return alert(
       "Product name, price, category aur image bharna zaroori hai."
@@ -2381,8 +2392,8 @@ function saveSellerProduct(){
 
     category:category,
 
-    image:image,
-
+  image:image,
+images:[image1,image2,image3,image4].filter(Boolean),
     stock:stock || 0,
 
     description:description,
