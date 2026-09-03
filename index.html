@@ -2047,21 +2047,53 @@ function showMap(){
 // HOME
 // ===============================
 
-function home(){
+async function home(){
 
-    closeMenu();
+  closeMenu();
 
-    window.scrollTo({
-        top:0,
-        behavior:"smooth"
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+  try{
+
+    const snap =
+      await firebase.firestore()
+        .collection("products")
+        .where("status","==","approved")
+        .get();
+
+    const sellerProducts = [];
+
+    snap.forEach(doc => {
+
+      const p = doc.data();
+
+      sellerProducts.push([
+        p.category || "Other",
+        p.name || "Product",
+        Number(p.price || 0),
+        Number(p.oldPrice || p.price || 0),
+        p.image || ""
+      ]);
+
     });
- const sellerProducts = JSON.parse(
-  localStorage.getItem("ssm_seller_products") || "[]"
-);
 
-const allProducts = [...products, ...sellerProducts];
+    const allProducts = [
+      ...products,
+      ...sellerProducts
+    ];
 
-renderProducts(allProducts);
+    renderProducts(allProducts);
+
+  }catch(error){
+
+    console.error("HOME PRODUCTS ERROR:",error);
+
+    renderProducts(products);
+
+  }
 }
 
 
