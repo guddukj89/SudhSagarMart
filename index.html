@@ -660,12 +660,33 @@ renderProducts(products.filter(p=>(p[1]+" "+p[0]).toLowerCase().includes(q)));
     `;
   }
 
-  modal.innerHTML = `
-    <div class="box">
-      <span class="close" onclick="closeModal('sortFilterModal')">×</span>
-      ${content}
-    </div>
-  `;
+ modal.innerHTML = `
+  <div class="box">
+    <span class="close" onclick="closeModal('sortFilterModal')">×</span>
+
+    <style>
+      #sortFilterModal .box button{
+        display:block;
+        width:100%;
+        margin:8px 0;
+        padding:12px;
+        border:0;
+        border-radius:10px;
+        background:linear-gradient(135deg,#c00091,#e000b5);
+        color:white;
+        font-size:15px;
+        font-weight:600;
+        cursor:pointer;
+      }
+
+      #sortFilterModal .box button:active{
+        transform:scale(.98);
+      }
+    </style>
+
+    ${content}
+  </div>
+`;
 
   document.body.appendChild(modal);
   openModal("sortFilterModal");
