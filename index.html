@@ -166,9 +166,87 @@ const auth = firebase.auth();
 </div>
 </section>
 
-<div class="features">
-<div class="feature">⚡<br>Fast Delivery</div><div class="feature">🛡️<br>Secure Shopping</div>
-<div class="feature">💳<br>Easy Payment</div><div class="feature">↩️<br>Easy Returns</div>
+<div class="features" style="
+display:flex;
+gap:12px;
+overflow-x:auto;
+padding:14px 8px;
+margin:0;
+scrollbar-width:none;
+">
+
+<div class="feature" onclick="allProducts()" style="
+min-width:115px;
+padding:16px 10px;
+border-radius:16px;
+text-align:center;
+font-weight:700;
+cursor:pointer;
+">
+🛒<br>
+<span>Shopping</span>
+<small style="display:block;font-weight:500;margin-top:5px;">
+Shop Products
+</small>
+</div>
+
+<div class="feature" onclick="openTravel()" style="
+min-width:115px;
+padding:16px 10px;
+border-radius:16px;
+text-align:center;
+font-weight:700;
+cursor:pointer;
+">
+✈️<br>
+<span>Travel</span>
+<small style="display:block;font-weight:500;margin-top:5px;">
+Train • Flight • Bus
+</small>
+</div>
+
+<div class="feature" style="
+min-width:115px;
+padding:16px 10px;
+border-radius:16px;
+text-align:center;
+font-weight:700;
+">
+📦<br>
+<span>My Orders</span>
+<small style="display:block;font-weight:500;margin-top:5px;">
+Track Orders
+</small>
+</div>
+
+<div class="feature" style="
+min-width:115px;
+padding:16px 10px;
+border-radius:16px;
+text-align:center;
+font-weight:700;
+">
+🏪<br>
+<span>Sell With Us</span>
+<small style="display:block;font-weight:500;margin-top:5px;">
+Become a Seller
+</small>
+</div>
+
+<div class="feature" style="
+min-width:115px;
+padding:16px 10px;
+border-radius:16px;
+text-align:center;
+font-weight:700;
+">
+❤️<br>
+<span>Wishlist</span>
+<small style="display:block;font-weight:500;margin-top:5px;">
+Your Favorites
+</small>
+</div>
+
 </div>
 
 <div class="chips" id="chips"></div>
