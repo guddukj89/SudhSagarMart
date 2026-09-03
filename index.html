@@ -599,6 +599,197 @@ function searchProducts(){
 let q=document.getElementById("search").value.toLowerCase();
 renderProducts(products.filter(p=>(p[1]+" "+p[0]).toLowerCase().includes(q)));
 }
+ function openSortFilter(type){
+
+  let old = document.getElementById("sortFilterModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.id = "sortFilterModal";
+
+  let content = "";
+
+  if(type === "sort"){
+    content = `
+      <h2>↕️ Sort Products</h2>
+      <button onclick="applyProductSort('low')">Price: Low to High</button>
+      <button onclick="applyProductSort('high')">Price: High to Low</button>
+      <button onclick="applyProductSort('discount')">Highest Discount</button>
+      <button onclick="applyProductSort('name')">Name: A to Z</button>
+    `;
+  }
+
+  if(type === "category"){
+    content = `<h2>☰ Category</h2>`;
+
+    categories.forEach(c => {
+      content += `
+        <button onclick="applyProductCategory('${c[0].replace(/'/g,"\\'")}')">
+          ${c[0]}
+        </button>
+      `;
+    });
+  }
+
+  if(type === "price"){
+    content = `
+      <h2>₹ Price</h2>
+      <button onclick="applyPriceFilter(0,500)">Under ₹500</button>
+      <button onclick="applyPriceFilter(500,1000)">₹500 - ₹1,000</button>
+      <button onclick="applyPriceFilter(1000,2000)">₹1,000 - ₹2,000</button>
+      <button onclick="applyPriceFilter(2000,9999999)">Above ₹2,000</button>
+    `;
+  }
+
+  if(type === "discount"){
+    content = `
+      <h2>🏷️ Discount</h2>
+      <button onclick="applyDiscountFilter(10)">10% or more</button>
+      <button onclick="applyDiscountFilter(20)">20% or more</button>
+      <button onclick="applyDiscountFilter(30)">30% or more</button>
+      <button onclick="applyDiscountFilter(50)">50% or more</button>
+    `;
+  }
+
+  if(type === "availability"){
+    content = `
+      <h2>📦 Availability</h2>
+      <button onclick="applyAvailabilityFilter('all')">All Products</button>
+      <button onclick="applyAvailabilityFilter('available')">Available Products</button>
+    `;
+  }
+
+  modal.innerHTML = `
+    <div class="box">
+      <span class="close" onclick="closeModal('sortFilterModal')">×</span>
+      ${content}
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  openModal("sortFilterModal");
+}
+
+
+function getVisibleProducts(){
+
+  let list = products.slice();
+
+  if(activeCategory !== "All"){
+    list = list.filter(p => p[0] === activeCategory);
+  }
+
+  const searchBox = document.getElementById("search");
+
+  if(searchBox && searchBox.value.trim()){
+    const q = searchBox.value.toLowerCase().trim();
+
+    list = list.filter(p =>
+      (p[1] + " " + p[0]).toLowerCase().includes(q)
+    );
+  }
+
+  return list;
+}
+
+
+function applyProductSort(type){
+
+  closeModal("sortFilterModal");
+
+  let list = getVisibleProducts();
+
+  if(type === "low"){
+    list.sort((a,b) => Number(a[2]) - Number(b[2]));
+  }
+
+  if(type === "high"){
+    list.sort((a,b) => Number(b[2]) - Number(a[2]));
+  }
+
+  if(type === "discount"){
+    list.sort((a,b) => {
+      const da = Math.round(((a[3]-a[2])/a[3])*100);
+      const db = Math.round(((b[3]-b[2])/b[3])*100);
+      return db - da;
+    });
+  }
+
+  if(type === "name"){
+    list.sort((a,b) => String(a[1]).localeCompare(String(b[1])));
+  }
+
+  renderProducts(list);
+}
+
+
+function applyProductCategory(category){
+
+  closeModal("sortFilterModal");
+  filterCategory(category);
+}
+
+
+function applyPriceFilter(min,max){
+
+  closeModal("sortFilterModal");
+
+  let list = getVisibleProducts().filter(p =>
+    Number(p[2]) >= min && Number(p[2]) <= max
+  );
+
+  renderProducts(list);
+}
+
+
+function applyDiscountFilter(minDiscount){
+
+  closeModal("sortFilterModal");
+
+  let list = getVisibleProducts().filter(p => {
+
+    const oldPrice = Number(p[3]);
+    const price = Number(p[2]);
+
+    if(!oldPrice || oldPrice <= price) return false;
+
+    const discount = Math.round(((oldPrice-price)/oldPrice)*100);
+
+    return discount >= minDiscount;
+  });
+
+  renderProducts(list);
+}
+
+
+function applyAvailabilityFilter(type){
+
+  closeModal("sortFilterModal");
+
+  let list = getVisibleProducts();
+
+  if(type === "available"){
+
+    list = list.filter(p => {
+
+      /*
+       * Agar future product data me stock field hoga
+       * to uska use hoga.
+       * Abhi existing products me stock field nahi hai,
+       * isliye existing products ko available maana jayega.
+       */
+
+      if(p.length > 5){
+        return p[5] !== false && p[5] !== 0 && p[5] !== "Out of Stock";
+      }
+
+      return true;
+    });
+  }
+
+  renderProducts(list);
+}
 function addCart(i){
 
     const existing =
