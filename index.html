@@ -2055,9 +2055,13 @@ function home(){
         top:0,
         behavior:"smooth"
     });
+ const sellerProducts = JSON.parse(
+  localStorage.getItem("ssm_seller_products") || "[]"
+);
 
-    renderProducts(products);
-}
+const allProducts = [...products, ...sellerProducts];
+
+renderProducts(allProducts);
 
 
 // ===============================
