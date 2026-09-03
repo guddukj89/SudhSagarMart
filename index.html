@@ -2071,11 +2071,11 @@ async function home(){
       const p = doc.data();
 
       sellerProducts.push([
-        p.category || "Other",
-        p.name || "Product",
-        Number(p.price || 0),
-        Number(p.oldPrice || p.price || 0),
-        p.image || ""
+       p.category || "Other",
+p.productName || "Product",
+Number(p.price || 0),
+Number(p.mrp || p.price || 0),
+p.imageURL || ""
       ]);
 
     });
