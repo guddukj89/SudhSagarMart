@@ -2165,13 +2165,14 @@ async function home(){
 ]);
     });
 
-    const allProducts = [
-      ...products,
-      ...sellerProducts
-    ];
+   const allProducts = [
+  ...products,
+  ...sellerProducts
+];
 
-    renderProducts(allProducts);
+products = allProducts;
 
+renderProducts(products);
   }catch(error){
 
     console.error("HOME PRODUCTS ERROR:",error);
