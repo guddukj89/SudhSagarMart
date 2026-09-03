@@ -1216,6 +1216,59 @@ closeModal("cartModal");openModal("checkoutModal");
 let loc=JSON.parse(localStorage.getItem("ssm_location")||"null");
 if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.address+", "+loc.city+" - "+loc.pincode}
 }
+ async function saveOrderToFirestore(orderId, status, paymentMethod, paymentData = {}){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    throw new Error("Please login first");
+  }
+
+  const orderItems = cart.map(x => ({
+    productId: x.p[5] || "",
+    sellerId: x.p[6] || "",
+    sellerName: x.p[7] || "",
+    category: x.p[0] || "",
+    productName: x.p[1] || "",
+    price: Number(x.p[2] || 0),
+    mrp: Number(x.p[3] || 0),
+    image: x.p[4] || "",
+    quantity: Number(x.qty || 1),
+    itemTotal: Number(x.p[2] || 0) * Number(x.qty || 1)
+  }));
+
+  const sellerIds = [...new Set(
+    orderItems
+      .map(x => x.sellerId)
+      .filter(Boolean)
+  )];
+
+  await firebase.firestore()
+    .collection("orders")
+    .doc(orderId)
+    .set({
+      orderId: orderId,
+
+      customerId: user.uid,
+      customerName: coName.value.trim(),
+      customerMobile: coMobile.value.trim(),
+      customerAddress: coAddress.value.trim(),
+
+      items: orderItems,
+      sellerIds: sellerIds,
+
+      total: Number(orderItems.reduce(
+        (sum, x) => sum + x.itemTotal, 0
+      )),
+
+      status: status,
+      payment: paymentMethod,
+
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+
+      ...paymentData
+    });
+}
 async function placeOrder(){
   if(!coName.value || !coMobile.value || !coAddress.value){
     return alert("Please fill all delivery details");
@@ -1225,7 +1278,20 @@ async function placeOrder(){
   const paymentMethod = document.getElementById("payment").value;
 
   if(paymentMethod === "Cash on Delivery"){
-    const id = "SSM" + Date.now().toString().slice(-8);
+
+  const id = "SSM" + Date.now().toString().slice(-8);
+
+  try{
+
+    if(!firebase.auth().currentUser){
+      return alert("Please login first");
+    }
+
+    await saveOrderToFirestore(
+      id,
+      "Order Placed",
+      "Cash on Delivery"
+    );
 
     orders.unshift({
       id:id,
@@ -1237,11 +1303,28 @@ async function placeOrder(){
 
     cart=[];
     save();
+
     closeModal("checkoutModal");
-    alert("Order placed successfully! Order ID: " + id);
+
+    alert(
+      "Order placed successfully!\n\nOrder ID: " + id
+    );
+
     showOrders();
-    return;
+
+  }catch(error){
+
+    console.error("Order save error:", error);
+
+    alert(
+      "Order place nahi ho paya.\n\n" +
+      "Please try again."
+    );
+
   }
+
+  return;
+}
 
   try{
     if(!firebase.auth().currentUser){
