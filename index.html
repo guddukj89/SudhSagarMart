@@ -516,7 +516,7 @@ style="margin-top:12px;font-size:12px;text-align:center">
 const categories=[
 ["Women Fashion","👗"],["Men Fashion","👔"],["Kids & Toys","🧸"],["Footwear","👟"],["Beauty","💄"],
 ["Grocery","🛒"],["Electronics","📱"],["Home & Kitchen","🏠"],["Jewellery","💍"],["Bags & Luggage","🎒"],
-["Sports","🏋️"],["Automotive","🚗"],["Pet Supplies","🐶"],["Stationery","📚"]
+["Sports","🏆"],["Automotive","🚗"],["Pet Supplies","🐶"],["Stationery","📚"],["Travel","✈️"]
 ];
 
 const products=[
@@ -536,8 +536,20 @@ let wishlist=JSON.parse(localStorage.getItem("ssm_wishlist")||"[]");
 let activeCategory="All";
 
 function renderCategories(){
-document.getElementById("categories").innerHTML=categories.map(c=>`<div class="cat" onclick="filterCategory('${c[0]}')"><div class="catImg">${c[1]}</div><p>${c[0]}</p></div>`).join("");
-document.getElementById("chips").innerHTML=["All",...categories.map(c=>c[0])].map(c=>`<button class="chip ${c==="All"?"active":""}" onclick="filterCategory('${c}')">${c}</button>`).join("");
+  document.getElementById("categories").innerHTML=categories.map(c=>
+    `<div class="cat" onclick="${c[0]==='Travel'?'openTravel()':`filterCategory('${c[0]}')`}">
+      <div class="catImg">${c[1]}</div>
+      <div>${c[0]}</div>
+    </div>`
+  ).join("");
+
+  document.getElementById("chips").innerHTML=
+    ["All",...categories.map(c=>c[0])].map(c=>
+      `<button class="chip ${c==="All"?"active":""}"
+        onclick="${c==='Travel'?'openTravel()':`filterCategory('${c}')`}">
+        ${c==='Travel'?'✈️ Travel':c}
+      </button>`
+    ).join("");
 }
 function renderProducts(list=products){
 document.getElementById("products").innerHTML=list.map(p=>{
