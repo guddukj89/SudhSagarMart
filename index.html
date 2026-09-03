@@ -3699,15 +3699,19 @@ function openAccount(){
 
 auth.onAuthStateChanged(function(user){
 
-    if(user){
+  if(user){
 
-        console.log("Logged in:",user.email);
+    console.log("Logged in:", user.email);
 
-    }else{
+    home();
 
-        console.log("No user logged in");
+  }else{
 
-    }
+    console.log("No user logged in");
+
+    home();
+
+  }
 
 });
   let signupConfirmationResult = null;
