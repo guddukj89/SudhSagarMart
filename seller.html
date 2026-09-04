@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Sudh Sagar Mart - Seller</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js">/* ================= SELLER NOTIFICATIONS ================= */
 
@@ -638,6 +639,7 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
 <button onclick="showSellerOrders()">
    Orders
 </button>
+  
 <button>
  Payments & Settlement
 </button>
@@ -1933,7 +1935,7 @@ async function showMyProducts(){
             margin-bottom:15px;
           ">
 
-            <h2> Seller Orders</h2>
+            <h2> INNSeller Orders</h2>
 
             <button onclick="document.getElementById('sellerOrdersBox').remove()"
                     style="
@@ -2218,6 +2220,158 @@ async function updateSellerOrderStatus(orderId){
     );
 
   }
+}
+    async function downloadSellerOrderPDF(orderId){
+
+    const user = auth.currentUser;
+
+    if(!user){
+        alert("Seller login required.");
+        return;
+    }
+
+    try{
+
+        const docSnap = await db.collection("orders")
+            .doc(orderId)
+            .get();
+
+        if(!docSnap.exists){
+            alert("Order nahi mila.");
+            return;
+        }
+
+        const order = docSnap.data();
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        let y = 20;
+
+        pdf.setFontSize(18);
+        pdf.text("Sudh Sagar Mart - Order Details", 20, y);
+
+        y += 12;
+
+        pdf.setFontSize(11);
+
+        pdf.text("Order ID: " + (order.orderId || orderId), 20, y);
+        y += 7;
+
+        pdf.text(
+            "Order Date: " +
+            (
+                order.createdAt?.toDate
+                ? order.createdAt.toDate().toLocaleString()
+                : "-"
+            ),
+            20,
+            y
+        );
+
+        y += 7;
+
+        pdf.text("Status: " + (order.status || "-"), 20, y);
+        y += 7;
+
+        pdf.text("Payment: " + (order.paymentMethod || "-"), 20, y);
+
+        y += 12;
+
+        pdf.setFontSize(14);
+        pdf.text("Customer Details", 20, y);
+
+        y += 8;
+
+        pdf.setFontSize(11);
+
+        pdf.text("Name: " + (order.customerName || "-"), 20, y);
+        y += 7;
+
+        pdf.text("Mobile: " + (order.customerMobile || order.mobile || "-"), 20, y);
+        y += 7;
+
+        pdf.text("Address: " + (order.address || "-"), 20, y);
+        y += 12;
+
+        pdf.setFontSize(14);
+        pdf.text("Products", 20, y);
+
+        y += 8;
+
+        pdf.setFontSize(11);
+
+        let sellerTotal = 0;
+
+        const items = order.items || [];
+
+        items
+        .filter(item => item.sellerId === user.uid)
+        .forEach((item, index) => {
+
+            const qty = Number(item.quantity || 1);
+            const price = Number(item.price || 0);
+            const total = qty * price;
+
+            sellerTotal += total;
+
+            pdf.text(
+                (index + 1) + ". " +
+                (item.productName || item.name || "Product"),
+                20,
+                y
+            );
+
+            y += 7;
+
+            pdf.text(
+                "Qty: " + qty +
+                "   Price: Rs " + price +
+                "   Total: Rs " + total,
+                25,
+                y
+            );
+
+            y += 8;
+
+            if(y > 270){
+                pdf.addPage();
+                y = 20;
+            }
+
+        });
+
+        y += 5;
+
+        pdf.setFontSize(14);
+
+        pdf.text(
+            "Seller Total: Rs " + sellerTotal,
+            20,
+            y
+        );
+
+        y += 15;
+
+        pdf.setFontSize(10);
+
+        pdf.text(
+            "Sudh Sagar Mart - Seller Order Slip",
+            20,
+            y
+        );
+
+        pdf.save(
+            "Order-" + (order.orderId || orderId) + ".pdf"
+        );
+
+    }catch(error){
+
+        console.error("PDF ERROR:", error);
+
+        alert("Order PDF download nahi ho paya.");
+
+    }
 }
 
 
