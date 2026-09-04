@@ -638,6 +638,57 @@ button:hover{
   }
 
 }
+    /* =====================================================
+   SELLER BUSINESS MENU - MODERN VERSION
+   Existing functions ko touch nahi karta
+===================================================== */
+
+#businessBox > .menu{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:15px;
+}
+
+#businessBox > .menu button{
+  width:100%;
+  min-height:58px;
+  margin:0 !important;
+  padding:14px 16px !important;
+  border:1px solid #e2e8f0 !important;
+  border-radius:12px !important;
+  background:#ffffff !important;
+  color:#172033 !important;
+  font-size:16px !important;
+  font-weight:700 !important;
+  text-align:left;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+
+#businessBox > .menu button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(0,0,0,.10);
+}
+
+#businessBox > .menu button:active{
+  transform:scale(.98);
+}
+
+/* Mobile */
+@media(max-width:600px){
+
+  #businessBox > .menu{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+
+  #businessBox > .menu button{
+    min-height:54px;
+    font-size:16px !important;
+  }
+
+}
 </style>
 </head>
 
