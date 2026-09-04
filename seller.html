@@ -2525,6 +2525,196 @@ async function showPaymentsSettlement(){
     alert("Payment & Settlement load nahi ho saka.");
   }
 }
+    /* =====================================================
+   SELLER CUSTOMERS
+===================================================== */
+
+async function showSellerCustomers(){
+
+  const user = auth.currentUser;
+
+  if(!user){
+    alert("Pehle seller login kijiye.");
+    return;
+  }
+
+  try{
+
+    const snapshot = await db.collection("orders")
+      .where("sellerIds","array-contains",user.uid)
+      .get();
+
+    const customers = {};
+
+    snapshot.forEach(doc => {
+
+      const order = doc.data();
+
+      const items = (order.items || []).filter(
+        item => item.sellerId === user.uid
+      );
+
+      if(items.length === 0) return;
+
+      const mobile =
+        order.customerMobile ||
+        order.mobile ||
+        "unknown";
+
+      const key = mobile;
+
+      let total = 0;
+
+      items.forEach(item => {
+        total +=
+          Number(item.price || 0) *
+          Number(item.quantity || 1);
+      });
+
+      if(!customers[key]){
+
+        customers[key] = {
+          name: order.customerName || "-",
+          mobile: mobile,
+          address: order.customerAddress || "-",
+          orders: 0,
+          total: 0
+        };
+
+      }
+
+      customers[key].orders += 1;
+      customers[key].total += total;
+
+    });
+
+    const old =
+      document.getElementById("sellerCustomersModal");
+
+    if(old) old.remove();
+
+    let customerHTML = "";
+
+    const customerList =
+      Object.values(customers);
+
+    if(customerList.length === 0){
+
+      customerHTML = `
+        <p style="text-align:center;">
+          Abhi koi customer nahi mila.
+        </p>
+      `;
+
+    }else{
+
+      customerList.forEach(customer => {
+
+        customerHTML += `
+          <div style="
+            border:1px solid #ddd;
+            border-radius:12px;
+            padding:15px;
+            margin-bottom:12px;
+            background:#fafafa;
+          ">
+
+            <h3 style="margin-top:0;">
+              ${customer.name}
+            </h3>
+
+            <p>
+              <b>Mobile:</b>
+              ${customer.mobile}
+            </p>
+
+            <p>
+              <b>Address:</b>
+              ${customer.address}
+            </p>
+
+            <p>
+              <b>Total Orders:</b>
+              ${customer.orders}
+            </p>
+
+            <p>
+              <b>Total Purchase:</b>
+              Rs ${customer.total.toFixed(2)}
+            </p>
+
+          </div>
+        `;
+
+      });
+
+    }
+
+    document.body.insertAdjacentHTML("beforeend",`
+
+      <div id="sellerCustomersModal"
+        style="
+          position:fixed;
+          inset:0;
+          background:rgba(0,0,0,.6);
+          z-index:99999;
+          padding:20px;
+          overflow:auto;
+        ">
+
+        <div style="
+          max-width:550px;
+          margin:30px auto;
+          background:white;
+          border-radius:15px;
+          padding:20px;
+        ">
+
+          <h2>Customers</h2>
+
+          <p>
+            <b>Total Customers:</b>
+            ${customerList.length}
+          </p>
+
+          ${customerHTML}
+
+          <button
+            onclick="
+              document
+                .getElementById('sellerCustomersModal')
+                .remove()
+            "
+            style="
+              width:100%;
+              padding:12px;
+              border:0;
+              border-radius:8px;
+              background:#222;
+              color:white;
+              font-weight:bold;
+            ">
+            Close
+          </button>
+
+        </div>
+
+      </div>
+
+    `);
+
+  }catch(error){
+
+    console.error(
+      "SELLER CUSTOMERS ERROR:",
+      error
+    );
+
+    alert("Customers load nahi ho sake.");
+
+  }
+
+}
 
 /* =====================================================
    LOGOUT
