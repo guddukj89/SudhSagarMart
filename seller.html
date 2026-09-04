@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,10 +6,330 @@
 
 <title>Sudh Sagar Mart - Seller</title>
 
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js">/* ================= SELLER NOTIFICATIONS ================= */
+
+async function showSellerNotifications(){
+
+    const user=auth.currentUser;
+
+    if(!user){
+        alert("Seller login required.");
+        return;
+    }
+
+    try{
+
+        const snap=await db.collection("orders")
+            .where("sellerIds","array-contains",user.uid)
+            .get();
+
+        let orders=[];
+
+        snap.forEach(doc=>{
+            const d=doc.data();
+            orders.push({
+                id:doc.id,
+                ...d
+            });
+        });
+
+        orders.sort((a,b)=>{
+            const ta=a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb=b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb-ta;
+        });
+
+        let html=
+        '<div id="sellerNotificationsBox" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:15px;">'+
+        '<div style="background:white;width:100%;max-width:550px;max-height:85vh;overflow:auto;border-radius:15px;padding:20px;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+        '<h2>🔔 Seller Notifications</h2>'+
+        '<button onclick="document.getElementById(\'sellerNotificationsBox\').remove()" style="font-size:20px;">✕</button>'+
+        '</div>';
+
+        if(!orders.length){
+
+            html+='<p style="padding:20px;text-align:center;">📭 Abhi koi order notification nahi hai.</p>';
+
+        }else{
+
+            orders.forEach(o=>{
+
+                const name=o.customerName || "Customer";
+                const total=o.total || 0;
+                const status=o.status || "Order Received";
+                const orderId=o.orderId || o.id;
+
+                html+=
+                '<div style="border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0;">'+
+                '<b>🛒 New/Updated Order</b><br>'+
+                'Order ID: <b>'+orderId+'</b><br>'+
+                'Customer: <b>'+name+'</b><br>'+
+                'Amount: <b>₹'+total+'</b><br>'+
+                'Status: <b>'+status+'</b>'+
+                '</div>';
+
+            });
+
+        }
+
+        html+='</div></div>';
+
+        document.body.insertAdjacentHTML("beforeend",html);
+
+    }catch(error){
+
+        console.error("Seller notifications error:",error);
+
+        alert("Notifications load nahi ho payi. Please try again.");
+
+    }
+}
+
+/* ======================================================== */</script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js">/* ================= SELLER NOTIFICATIONS ================= */
+
+async function showSellerNotifications(){
+
+    const user=auth.currentUser;
+
+    if(!user){
+        alert("Seller login required.");
+        return;
+    }
+
+    try{
+
+        const snap=await db.collection("orders")
+            .where("sellerIds","array-contains",user.uid)
+            .get();
+
+        let orders=[];
+
+        snap.forEach(doc=>{
+            const d=doc.data();
+            orders.push({
+                id:doc.id,
+                ...d
+            });
+        });
+
+        orders.sort((a,b)=>{
+            const ta=a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb=b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb-ta;
+        });
+
+        let html=
+        '<div id="sellerNotificationsBox" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:15px;">'+
+        '<div style="background:white;width:100%;max-width:550px;max-height:85vh;overflow:auto;border-radius:15px;padding:20px;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+        '<h2>🔔 Seller Notifications</h2>'+
+        '<button onclick="document.getElementById(\'sellerNotificationsBox\').remove()" style="font-size:20px;">✕</button>'+
+        '</div>';
+
+        if(!orders.length){
+
+            html+='<p style="padding:20px;text-align:center;">📭 Abhi koi order notification nahi hai.</p>';
+
+        }else{
+
+            orders.forEach(o=>{
+
+                const name=o.customerName || "Customer";
+                const total=o.total || 0;
+                const status=o.status || "Order Received";
+                const orderId=o.orderId || o.id;
+
+                html+=
+                '<div style="border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0;">'+
+                '<b>🛒 New/Updated Order</b><br>'+
+                'Order ID: <b>'+orderId+'</b><br>'+
+                'Customer: <b>'+name+'</b><br>'+
+                'Amount: <b>₹'+total+'</b><br>'+
+                'Status: <b>'+status+'</b>'+
+                '</div>';
+
+            });
+
+        }
+
+        html+='</div></div>';
+
+        document.body.insertAdjacentHTML("beforeend",html);
+
+    }catch(error){
+
+        console.error("Seller notifications error:",error);
+
+        alert("Notifications load nahi ho payi. Please try again.");
+
+    }
+}
+
+/* ======================================================== */</script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js">/* ================= SELLER NOTIFICATIONS ================= */
+
+async function showSellerNotifications(){
+
+    const user=auth.currentUser;
+
+    if(!user){
+        alert("Seller login required.");
+        return;
+    }
+
+    try{
+
+        const snap=await db.collection("orders")
+            .where("sellerIds","array-contains",user.uid)
+            .get();
+
+        let orders=[];
+
+        snap.forEach(doc=>{
+            const d=doc.data();
+            orders.push({
+                id:doc.id,
+                ...d
+            });
+        });
+
+        orders.sort((a,b)=>{
+            const ta=a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb=b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb-ta;
+        });
+
+        let html=
+        '<div id="sellerNotificationsBox" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:15px;">'+
+        '<div style="background:white;width:100%;max-width:550px;max-height:85vh;overflow:auto;border-radius:15px;padding:20px;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+        '<h2>🔔 Seller Notifications</h2>'+
+        '<button onclick="document.getElementById(\'sellerNotificationsBox\').remove()" style="font-size:20px;">✕</button>'+
+        '</div>';
+
+        if(!orders.length){
+
+            html+='<p style="padding:20px;text-align:center;">📭 Abhi koi order notification nahi hai.</p>';
+
+        }else{
+
+            orders.forEach(o=>{
+
+                const name=o.customerName || "Customer";
+                const total=o.total || 0;
+                const status=o.status || "Order Received";
+                const orderId=o.orderId || o.id;
+
+                html+=
+                '<div style="border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0;">'+
+                '<b>🛒 New/Updated Order</b><br>'+
+                'Order ID: <b>'+orderId+'</b><br>'+
+                'Customer: <b>'+name+'</b><br>'+
+                'Amount: <b>₹'+total+'</b><br>'+
+                'Status: <b>'+status+'</b>'+
+                '</div>';
+
+            });
+
+        }
+
+        html+='</div></div>';
+
+        document.body.insertAdjacentHTML("beforeend",html);
+
+    }catch(error){
+
+        console.error("Seller notifications error:",error);
+
+        alert("Notifications load nahi ho payi. Please try again.");
+
+    }
+}
+
+/* ======================================================== */</script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-storage-compat.js">/* ================= SELLER NOTIFICATIONS ================= */
+
+async function showSellerNotifications(){
+
+    const user=auth.currentUser;
+
+    if(!user){
+        alert("Seller login required.");
+        return;
+    }
+
+    try{
+
+        const snap=await db.collection("orders")
+            .where("sellerIds","array-contains",user.uid)
+            .get();
+
+        let orders=[];
+
+        snap.forEach(doc=>{
+            const d=doc.data();
+            orders.push({
+                id:doc.id,
+                ...d
+            });
+        });
+
+        orders.sort((a,b)=>{
+            const ta=a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb=b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb-ta;
+        });
+
+        let html=
+        '<div id="sellerNotificationsBox" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:15px;">'+
+        '<div style="background:white;width:100%;max-width:550px;max-height:85vh;overflow:auto;border-radius:15px;padding:20px;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+        '<h2>🔔 Seller Notifications</h2>'+
+        '<button onclick="document.getElementById(\'sellerNotificationsBox\').remove()" style="font-size:20px;">✕</button>'+
+        '</div>';
+
+        if(!orders.length){
+
+            html+='<p style="padding:20px;text-align:center;">📭 Abhi koi order notification nahi hai.</p>';
+
+        }else{
+
+            orders.forEach(o=>{
+
+                const name=o.customerName || "Customer";
+                const total=o.total || 0;
+                const status=o.status || "Order Received";
+                const orderId=o.orderId || o.id;
+
+                html+=
+                '<div style="border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0;">'+
+                '<b>🛒 New/Updated Order</b><br>'+
+                'Order ID: <b>'+orderId+'</b><br>'+
+                'Customer: <b>'+name+'</b><br>'+
+                'Amount: <b>₹'+total+'</b><br>'+
+                'Status: <b>'+status+'</b>'+
+                '</div>';
+
+            });
+
+        }
+
+        html+='</div></div>';
+
+        document.body.insertAdjacentHTML("beforeend",html);
+
+    }catch(error){
+
+        console.error("Seller notifications error:",error);
+
+        alert("Notifications load nahi ho payi. Please try again.");
+
+    }
+}
+
+/* ======================================================== */</script>
 
 <style>
 *{box-sizing:border-box}
@@ -115,7 +435,7 @@ hr{
 <body>
 
 <header>
-🛒 Sudh Sagar Mart — Seller Panel
+ðŸ›’ Sudh Sagar Mart â€” Seller Panel
 </header>
 
 <div class="container">
@@ -265,7 +585,7 @@ Logout
 
 <div id="kycBox" class="card">
 
-<h2>🔐 KYC Verification</h2>
+<h2>ðŸ” KYC Verification</h2>
 
 <div id="kycMessage"></div>
 
@@ -305,30 +625,28 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
 
 <div class="card menu">
 
-<h2>🏪 Seller Business</h2>
+<h2>ðŸª Seller Business</h2>
 
 <button onclick="openAddProduct()">
-➕ Add Product
+âž• Add Product
 </button>
 
 <button onclick="showMyProducts()">
-📦 My Products
+ðŸ“¦ My Products
 </button>
 
 <button onclick="showSellerOrders()">
-  📦 Orders
+  ðŸ“¦ Orders
 </button>
 <button>
-💰 Payments & Settlement
+ðŸ’° Payments & Settlement
 </button>
 
 <button>
-👥 Customers
+ðŸ‘¥ Customers
 </button>
 
-<button>
-🔔 Notifications
-</button>
+<button onclick="showSellerNotifications()">?? Notifications</button>
 
 </div>
 
@@ -411,7 +729,7 @@ Cancel
 
 <div id="myProductsBox" class="card hidden">
 
-<h2>📦 My Products</h2>
+<h2>ðŸ“¦ My Products</h2>
 
 <div id="myProducts">
 Loading...
@@ -424,21 +742,21 @@ Loading...
 
 <div class="card">
 
-<h2>💰 Weekly Settlement</h2>
+<h2>ðŸ’° Weekly Settlement</h2>
 
 <p>
 Total Sales:
-₹<span id="totalSales">0</span>
+â‚¹<span id="totalSales">0</span>
 </p>
 
 <p>
 Company Commission:
-₹<span id="commission">0</span>
+â‚¹<span id="commission">0</span>
 </p>
 
 <p>
 Seller Amount:
-₹<span id="sellerAmount">0</span>
+â‚¹<span id="sellerAmount">0</span>
 </p>
 
 <p>
@@ -689,7 +1007,7 @@ async function registerSeller(){
 
 
   msg.innerText=
-  "✓ Account successfully create ho gaya. Ab Login karein.";
+  "âœ“ Account successfully create ho gaya. Ab Login karein.";
 
   document.getElementById("regName").value="";
   document.getElementById("regMobile").value="";
@@ -983,7 +1301,7 @@ async function updateSellerScreen(){
   status.classList.add("approved");
 
   status.innerText=
-  "✓ KYC Approved";
+  "âœ“ KYC Approved";
 
   kycBox.classList.add("hidden");
 
@@ -995,7 +1313,7 @@ async function updateSellerScreen(){
   status.classList.add("rejected");
 
   status.innerText=
-  "✕ KYC Rejected";
+  "âœ• KYC Rejected";
 
   kycBox.classList.remove("hidden");
 
@@ -1013,7 +1331,7 @@ async function updateSellerScreen(){
   status.classList.add("pending");
 
   status.innerText=
-  "⏳ KYC Pending - Admin Approval Required";
+  "â³ KYC Pending - Admin Approval Required";
 
   kycBox.classList.remove("hidden");
 
@@ -1023,7 +1341,7 @@ async function updateSellerScreen(){
 
     document.getElementById("kycMessage").innerHTML=
     "<div class='status approved'>"+
-    "✓ Documents Uploaded — Admin Approval Pending"+
+    "âœ“ Documents Uploaded â€” Admin Approval Pending"+
     "</div>";
 
   }
@@ -1187,7 +1505,7 @@ async function submitKYC(){
 
   msg.innerHTML=
   "<div class='status pending'>"+
-  "✓ KYC successfully submit ho gaya. Admin approval ka wait karein."+
+  "âœ“ KYC successfully submit ho gaya. Admin approval ka wait karein."+
   "</div>";
 
 
@@ -1420,7 +1738,7 @@ async function addProduct(){
 
   msg.innerHTML=
   "<div class='status pending'>"+
-  "✓ Product submit ho gaya. Admin approval ka wait karein."+
+  "âœ“ Product submit ho gaya. Admin approval ka wait karein."+
   "</div>";
 
 
@@ -1517,12 +1835,12 @@ async function showMyProducts(){
 
     <p>
      <b>Price:</b>
-     ₹${p.price || 0}
+     â‚¹${p.price || 0}
     </p>
 
     <p>
      <b>MRP:</b>
-     ₹${p.mrp || 0}
+     â‚¹${p.mrp || 0}
     </p>
 
     <p>
@@ -1615,7 +1933,7 @@ async function showMyProducts(){
             margin-bottom:15px;
           ">
 
-            <h2>📦 Seller Orders</h2>
+            <h2>ðŸ“¦ Seller Orders</h2>
 
             <button onclick="document.getElementById('sellerOrdersBox').remove()"
                     style="
@@ -1626,7 +1944,7 @@ async function showMyProducts(){
                       padding:8px 14px;
                       cursor:pointer;
                     ">
-              ✕ Close
+              âœ• Close
             </button>
 
           </div>
@@ -1640,7 +1958,7 @@ async function showMyProducts(){
           padding:40px 10px;
           color:#777;
         ">
-          <h3>📦 No Orders Yet</h3>
+          <h3>ðŸ“¦ No Orders Yet</h3>
           <p>Customer order karne ke baad yahan dikhega.</p>
         </div>
       `;
@@ -1686,14 +2004,14 @@ async function showMyProducts(){
 
               <div>
                 <b>Payment:</b> ${order.payment || "-"}<br>
-                <b>Seller Total:</b> ₹${sellerTotal}
+                <b>Seller Total:</b> â‚¹${sellerTotal}
               </div>
 
             </div>
 
             <hr>
 
-            <h3>👤 Customer Details</h3>
+            <h3>ðŸ‘¤ Customer Details</h3>
 
             <p>
               <b>Name:</b> ${order.customerName || "-"}<br>
@@ -1701,7 +2019,7 @@ async function showMyProducts(){
               <b>Address:</b> ${order.customerAddress || "-"}
             </p>
 
-            <h3>🛍️ Products</h3>
+            <h3>ðŸ›ï¸ Products</h3>
 
         `;
 
@@ -1739,9 +2057,9 @@ async function showMyProducts(){
 
                 <div>
                   <b>${item.productName || "Product"}</b><br>
-                  ₹${item.price || 0}
-                  × ${item.quantity || 1}
-                  = ₹${item.itemTotal || 0}
+                  â‚¹${item.price || 0}
+                  Ã— ${item.quantity || 1}
+                  = â‚¹${item.itemTotal || 0}
                 </div>
 
               </div>
@@ -1753,7 +2071,7 @@ async function showMyProducts(){
 
         html += `
 
-            <h3>🔄 Update Order Status</h3>
+            <h3>ðŸ”„ Update Order Status</h3>
 
             <select
               id="orderStatus_${order.orderId}"
@@ -1826,7 +2144,7 @@ async function showMyProducts(){
                 cursor:pointer;
               "
             >
-              💾 Update Status
+              ðŸ’¾ Update Status
             </button>
 
           </div>
@@ -1925,7 +2243,89 @@ async function logoutSeller(){
  }
 
 }
-</script>
+/* ================= SELLER NOTIFICATIONS ================= */
+
+async function showSellerNotifications(){
+
+    const user=auth.currentUser;
+
+    if(!user){
+        alert("Seller login required.");
+        return;
+    }
+
+    try{
+
+        const snap=await db.collection("orders")
+            .where("sellerIds","array-contains",user.uid)
+            .get();
+
+        let orders=[];
+
+        snap.forEach(doc=>{
+            const d=doc.data();
+            orders.push({
+                id:doc.id,
+                ...d
+            });
+        });
+
+        orders.sort((a,b)=>{
+            const ta=a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb=b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb-ta;
+        });
+
+        let html=
+        '<div id="sellerNotificationsBox" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:15px;">'+
+        '<div style="background:white;width:100%;max-width:550px;max-height:85vh;overflow:auto;border-radius:15px;padding:20px;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+        '<h2>🔔 Seller Notifications</h2>'+
+        '<button onclick="document.getElementById(\'sellerNotificationsBox\').remove()" style="font-size:20px;">✕</button>'+
+        '</div>';
+
+        if(!orders.length){
+
+            html+='<p style="padding:20px;text-align:center;">📭 Abhi koi order notification nahi hai.</p>';
+
+        }else{
+
+            orders.forEach(o=>{
+
+                const name=o.customerName || "Customer";
+                const total=o.total || 0;
+                const status=o.status || "Order Received";
+                const orderId=o.orderId || o.id;
+
+                html+=
+                '<div style="border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0;">'+
+                '<b>🛒 New/Updated Order</b><br>'+
+                'Order ID: <b>'+orderId+'</b><br>'+
+                'Customer: <b>'+name+'</b><br>'+
+                'Amount: <b>₹'+total+'</b><br>'+
+                'Status: <b>'+status+'</b>'+
+                '</div>';
+
+            });
+
+        }
+
+        html+='</div></div>';
+
+        document.body.insertAdjacentHTML("beforeend",html);
+
+    }catch(error){
+
+        console.error("Seller notifications error:",error);
+
+        alert("Notifications load nahi ho payi. Please try again.");
+
+    }
+}
+
+/* ======================================================== */</script>
 
 </body>
 </html>
+
+
