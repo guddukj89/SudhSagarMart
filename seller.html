@@ -2148,7 +2148,22 @@ async function showMyProducts(){
             >
                Update Status
             </button>
-
+<button
+  onclick="downloadSellerOrderPDF('${order.orderId}')"
+  style="
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    border:0;
+    border-radius:8px;
+    background:#e53935;
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer;
+  "
+>
+  Download Order PDF
+</button>
           </div>
         `;
 
