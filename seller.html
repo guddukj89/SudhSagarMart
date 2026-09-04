@@ -8,7 +8,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
 
- <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
 
@@ -1554,6 +1554,9 @@ async function showMyProducts(){
      <b>Status:</b>
      ${p.status || "pending"}
     </p>
+    <button onclick="updateProductValues('${doc.id}')">
+ Update Price / MRP / Stock
+</button>
 
    </div>
    `;
