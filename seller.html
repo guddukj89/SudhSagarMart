@@ -1504,12 +1504,12 @@ async function showMyProducts(){
 
     <p>
      <b>Price:</b>
-     â‚¹${p.price || 0}
+     Rs ${p.price || 0}
     </p>
 
     <p>
      <b>MRP:</b>
-     â‚¹${p.mrp || 0}
+     Rs ${p.mrp || 0}
     </p>
 
     <p>
@@ -1602,7 +1602,7 @@ async function showMyProducts(){
             margin-bottom:15px;
           ">
 
-            <h2>ðŸ“¦ Seller Orders</h2>
+            <h2>Seller Orders</h2>
 
             <button onclick="document.getElementById('sellerOrdersBox').remove()"
                     style="
@@ -1613,7 +1613,7 @@ async function showMyProducts(){
                       padding:8px 14px;
                       cursor:pointer;
                     ">
-              âœ• Close
+                 Close
             </button>
 
           </div>
@@ -1627,7 +1627,7 @@ async function showMyProducts(){
           padding:40px 10px;
           color:#777;
         ">
-          <h3>ðŸ“¦ No Orders Yet</h3>
+          <h3>No Orders Yet</h3>
           <p>Customer order karne ke baad yahan dikhega.</p>
         </div>
       `;
@@ -1680,7 +1680,7 @@ async function showMyProducts(){
 
             <hr>
 
-            <h3>ðŸ‘¤ Customer Details</h3>
+            <h3>Customer Details</h3>
 
             <p>
               <b>Name:</b> ${order.customerName || "-"}<br>
@@ -1688,7 +1688,7 @@ async function showMyProducts(){
               <b>Address:</b> ${order.customerAddress || "-"}
             </p>
 
-            <h3>ðŸ›ï¸ Products</h3>
+            <h3>Products</h3>
 
         `;
 
@@ -1726,9 +1726,9 @@ async function showMyProducts(){
 
                 <div>
                   <b>${item.productName || "Product"}</b><br>
-                  â‚¹${item.price || 0}
-                  Ã— ${item.quantity || 1}
-                  = â‚¹${item.itemTotal || 0}
+                  Rs ${item.price || 0}
+                  x ${item.quantity || 1}
+                  = Rs ${item.itemTotal || 0}
                 </div>
 
               </div>
@@ -1740,7 +1740,7 @@ async function showMyProducts(){
 
         html += `
 
-            <h3>ðŸ”„ Update Order Status</h3>
+            <h3>Update Order Status</h3>
 
             <select
               id="orderStatus_${order.orderId}"
@@ -1813,7 +1813,7 @@ async function showMyProducts(){
                 cursor:pointer;
               "
             >
-              ðŸ’¾ Update Status
+               Update Status
             </button>
 
           </div>
@@ -1949,13 +1949,13 @@ async function showSellerNotifications(){
         '<div id="sellerNotificationsBox" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:15px;">'+
         '<div style="background:white;width:100%;max-width:550px;max-height:85vh;overflow:auto;border-radius:15px;padding:20px;">'+
         '<div style="display:flex;justify-content:space-between;align-items:center;">'+
-        '<h2>🔔 Seller Notifications</h2>'+
-        '<button onclick="document.getElementById(\'sellerNotificationsBox\').remove()" style="font-size:20px;">✕</button>'+
+        '<h2>Seller Notifications</h2>'+
+        '<button onclick="document.getElementById(\'sellerNotificationsBox\').remove()" style="font-size:20px;">close</button>'+
         '</div>';
 
         if(!orders.length){
 
-            html+='<p style="padding:20px;text-align:center;">📭 Abhi koi order notification nahi hai.</p>';
+            html+='<p style="padding:20px;text-align:center;">Abhi koi order notification nahi hai.</p>';
 
         }else{
 
@@ -1968,10 +1968,10 @@ async function showSellerNotifications(){
 
                 html+=
                 '<div style="border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0;">'+
-                '<b>🛒 New/Updated Order</b><br>'+
+                '<b>New/Updated Order</b><br>'+
                 'Order ID: <b>'+orderId+'</b><br>'+
                 'Customer: <b>'+name+'</b><br>'+
-                'Amount: <b>₹'+total+'</b><br>'+
+                'Amount: <b>Rs'+total+'</b><br>'+
                 'Status: <b>'+status+'</b>'+
                 '</div>';
 
