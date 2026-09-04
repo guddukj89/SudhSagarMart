@@ -690,7 +690,7 @@ async function registerSeller(){
 
 
   msg.innerText=
-  "âœ“ Account successfully create ho gaya. Ab Login karein.";
+  "Account successfully create ho gaya. Ab Login karein.";
 
   document.getElementById("regName").value="";
   document.getElementById("regMobile").value="";
@@ -754,18 +754,6 @@ async function loginSeller(){
  try{
 
   msg.innerText="Login ho raha hai...";
-
-
-
- if(!loginId || !password){
-
-  msg.innerText=
-  "Login ID aur password bhariye.";
-
-  return;
-
- }
-
 
   /*
      Login ID se Firebase ka internal email banega.
@@ -883,8 +871,6 @@ async function loginSeller(){
  }
 
 }
-
-
 
 
 /* =====================================================
