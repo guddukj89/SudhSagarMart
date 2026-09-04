@@ -8,71 +8,12 @@
 
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
 <script>
-async function showSellerNotifications(){
 
-    const user=auth.currentUser;
-
-    if(!user){
-        alert("Seller login required.");
-        return;
-    }
-
-    try{
-
-        const snap=await db.collection("orders")
-            .where("sellerIds","array-contains",user.uid)
-            .get();
-
-        let orders=[];
-
-        snap.forEach(doc=>{
-            const d=doc.data();
-            orders.push({
-                id:doc.id,
-                ...d
-            });
-        });
-
-        orders.sort((a,b)=>{
-            const ta=a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-            const tb=b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
-            return tb-ta;
-        });
-
-        let html=
-        '<div id="sellerNotificationsBox" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:15px;">'+
-        '<div style="background:white;width:100%;max-width:550px;max-height:85vh;overflow:auto;border-radius:15px;padding:20px;">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;">'+
-        '<h2>🔔 Seller Notifications</h2>'+
-        '<button onclick="document.getElementById(\'sellerNotificationsBox\').remove()" style="font-size:20px;">✕</button>'+
-        '</div>';
-
-        if(!orders.length){
-
-            html+='<p style="padding:20px;text-align:center;">📭 Abhi koi order notification nahi hai.</p>';
-
-        }else{
-
-            orders.forEach(o=>{
-
-                const name=o.customerName || "Customer";
-                const total=o.total || 0;
-                const status=o.status || "Order Received";
-                const orderId=o.orderId || o.id;
-
-              
-       
-</script>
 
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
 
 
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-storage-compat.js"></script>
-
-
-      
-
-/* ======================================================== */</script>
 
 <style>
 *{box-sizing:border-box}
