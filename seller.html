@@ -970,7 +970,7 @@ async function updateSellerScreen(){
   status.classList.add("approved");
 
   status.innerText=
-  "âœ“ KYC Approved";
+  "KYC Approved";
 
   kycBox.classList.add("hidden");
 
@@ -982,7 +982,7 @@ async function updateSellerScreen(){
   status.classList.add("rejected");
 
   status.innerText=
-  "âœ• KYC Rejected";
+  "KYC Rejected";
 
   kycBox.classList.remove("hidden");
 
@@ -1000,7 +1000,7 @@ async function updateSellerScreen(){
   status.classList.add("pending");
 
   status.innerText=
-  "â³ KYC Pending - Admin Approval Required";
+  "KYC Pending - Admin Approval Required";
 
   kycBox.classList.remove("hidden");
 
@@ -1010,7 +1010,7 @@ async function updateSellerScreen(){
 
     document.getElementById("kycMessage").innerHTML=
     "<div class='status approved'>"+
-    "âœ“ Documents Uploaded â€” Admin Approval Pending"+
+    "Documents Uploaded - Admin Approval Pending"+
     "</div>";
 
   }
@@ -1174,7 +1174,7 @@ async function submitKYC(){
 
   msg.innerHTML=
   "<div class='status pending'>"+
-  "âœ“ KYC successfully submit ho gaya. Admin approval ka wait karein."+
+  "KYC successfully submit ho gaya. Admin approval ka wait karein."+
   "</div>";
 
 
