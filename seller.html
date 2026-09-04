@@ -310,29 +310,43 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
 
 <h2>Seller Business</h2>
 
+<button onclick="showSellerDashboard()">
+Dashboard
+</button>
+
 <button onclick="openAddProduct()">
- Add Product
+Add New Product
 </button>
 
 <button onclick="showMyProducts()">
- My Products
+My Products
 </button>
 
 <button onclick="showSellerOrders()">
- Orders
-</button>
-<button>
- Payments & Settlement
+Orders
 </button>
 
-<button>
- Customers
+<button onclick="showPaymentsSettlement()">
+Payments & Settlement
 </button>
 
-<button onclick="showSellerNotifications()">Notifications</button>
+<button onclick="showSellerCustomers()">
+Customers
+</button>
+
+<button onclick="showSellerNotifications()">
+Notifications
+</button>
+
+<button onclick="showSellerReturns()">
+Returns & Refunds
+</button>
+
+<button onclick="showSellerProfile()">
+Profile & Bank Settings
+</button>
 
 </div>
-
 
 <!-- ================= ADD PRODUCT ================= -->
 
@@ -381,6 +395,16 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
  id="productStock"
  type="number"
  placeholder="Stock">
+ 
+ <input
+ id="productSku"
+ placeholder="SKU Code">
+ 
+ <input
+ id="productGst"
+ type="number"
+ min="0"
+ placeholder="GST Rate %">
 
 <textarea
  id="productDescription"
@@ -1300,6 +1324,13 @@ async function addProduct(){
   Number(
    document.getElementById("productStock").value
   );
+  const sku =
+document.getElementById("productSku").value.trim();
+
+const gstRate =
+Number(
+document.getElementById("productGst").value || 0
+);
 
 
   const description=
@@ -1382,6 +1413,8 @@ async function addProduct(){
    shopName:seller.shopName||"",
 
    productName:productName,
+   sku: sku,
+gstRate: gstRate,
 
    category:category,
 
@@ -1886,6 +1919,674 @@ async function updateSellerOrderStatus(orderId){
       "Order status update nahi ho paya.\n\nPlease try again."
     );
 
+  }
+}
+ /* =====================================================
+   SELLER DASHBOARD
+===================================================== */
+
+async function showSellerDashboard(){
+
+  const user = auth.currentUser;
+
+  if(!user){
+    return alert("Please login first");
+  }
+
+  try{
+
+    const ordersSnap = await db.collection("orders")
+      .where("sellerIds","array-contains",user.uid)
+      .get();
+
+    let todayOrders = 0;
+    let todaySales = 0;
+    let pendingOrders = 0;
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    ordersSnap.forEach(doc => {
+
+      const order = doc.data();
+
+      const time =
+        order.createdAt && order.createdAt.toMillis
+        ? order.createdAt.toMillis()
+        : 0;
+
+      if(time >= today.getTime()){
+
+        todayOrders++;
+
+        const items = order.items || [];
+
+        items.forEach(item => {
+
+          if(item.sellerId === user.uid){
+
+            todaySales += Number(
+              item.itemTotal || 0
+            );
+
+          }
+
+        });
+
+      }
+
+      if(
+        order.status === "Order Placed" ||
+        order.status === "Confirmed" ||
+        order.status === "Packing"
+      ){
+
+        pendingOrders++;
+
+      }
+
+    });
+
+
+    const productsSnap = await db.collection("products")
+      .where("sellerId","==",user.uid)
+      .get();
+
+    let lowStock = 0;
+
+    productsSnap.forEach(doc => {
+
+      const product = doc.data();
+
+      if(Number(product.stock || 0) <= 5){
+
+        lowStock++;
+
+      }
+
+    });
+
+
+    let html = `
+
+      <div id="sellerDashboardBox"
+           style="
+             position:fixed;
+             inset:0;
+             background:rgba(0,0,0,.65);
+             z-index:99999;
+             overflow:auto;
+             padding:15px;
+           ">
+
+        <div style="
+          max-width:800px;
+          margin:20px auto;
+          background:#fff;
+          border-radius:14px;
+          padding:20px;
+        ">
+
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+          ">
+
+            <h2>Seller Dashboard</h2>
+
+            <button
+              onclick="document.getElementById('sellerDashboardBox').remove()"
+              style="width:auto;background:#d93025;"
+            >
+              Close
+            </button>
+
+          </div>
+
+          <div style="
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:12px;
+          ">
+
+            <div style="
+              background:#eef6ff;
+              padding:18px;
+              border-radius:10px;
+            ">
+              <b>Today's Orders</b>
+              <h2>${todayOrders}</h2>
+            </div>
+
+            <div style="
+              background:#eef6ff;
+              padding:18px;
+              border-radius:10px;
+            ">
+              <b>Today's Sales</b>
+              <h2>Rs ${todaySales.toFixed(2)}</h2>
+            </div>
+
+            <div style="
+              background:#fff3cd;
+              padding:18px;
+              border-radius:10px;
+            ">
+              <b>Pending Actions</b>
+              <h2>${pendingOrders}</h2>
+            </div>
+
+            <div style="
+              background:#f8d7da;
+              padding:18px;
+              border-radius:10px;
+            ">
+              <b>Low Stock Alerts</b>
+              <h2>${lowStock}</h2>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      html
+    );
+
+  }
+  catch(error){
+
+    console.error(
+      "Dashboard error:",
+      error
+    );
+
+    alert(
+      "Dashboard load nahi ho paya."
+    );
+
+  }
+
+}
+ /* =====================================================
+   PAYMENTS & SETTLEMENT
+===================================================== */
+async function showPaymentsSettlement(){
+  const user = auth.currentUser;
+  if(!user){
+    return alert("Please login first");
+  }
+
+  try{
+    const sellerDoc = await db.collection("sellers")
+      .doc(user.uid)
+      .get();
+
+    if(!sellerDoc.exists){
+      return alert("Seller profile nahi mila.");
+    }
+
+    const seller = sellerDoc.data();
+
+    const totalSales = Number(seller.totalSales || 0);
+    const commission = Number(seller.commission || 0);
+    const sellerAmount = Number(
+      seller.sellerAmount || (totalSales - commission)
+    );
+
+    const html = `
+      <div id="sellerPaymentsBox"
+           style="position:fixed;inset:0;background:rgba(0,0,0,.65);
+           z-index:99999;overflow:auto;padding:15px;">
+
+        <div style="max-width:800px;margin:20px auto;background:#fff;
+                    border-radius:14px;padding:20px;">
+
+          <div style="display:flex;justify-content:space-between;
+                      align-items:center;">
+            <h2>Payments & Settlement</h2>
+
+            <button onclick="document.getElementById('sellerPaymentsBox').remove()"
+                    style="width:auto;background:#d93025;">
+              Close
+            </button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);
+                      gap:12px;">
+
+            <div style="padding:18px;background:#eef6ff;border-radius:10px;">
+              <b>Total Earnings</b>
+              <h2>Rs ${totalSales.toFixed(2)}</h2>
+            </div>
+
+            <div style="padding:18px;background:#fff3cd;border-radius:10px;">
+              <b>Admin Commission</b>
+              <h2>Rs ${commission.toFixed(2)}</h2>
+            </div>
+
+            <div style="padding:18px;background:#e8f5e9;border-radius:10px;">
+              <b>Seller Amount</b>
+              <h2>Rs ${sellerAmount.toFixed(2)}</h2>
+            </div>
+
+            <div style="padding:18px;background:#f8d7da;border-radius:10px;">
+              <b>Settlement Status</b>
+              <h2>${seller.settlementStatus || "Pending"}</h2>
+            </div>
+
+          </div>
+
+          <hr>
+
+          <h3>Bank Payout Status</h3>
+
+          <p>
+            Bank Account:
+            ${seller.bankAccount || "Not Added"}
+          </p>
+
+          <p>
+            IFSC:
+            ${seller.ifsc || "Not Added"}
+          </p>
+
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend",html);
+
+  }catch(error){
+    console.error("Payments error:",error);
+    alert("Payments load nahi ho paya.");
+  }
+}
+
+
+/* =====================================================
+   SELLER CUSTOMERS
+===================================================== */
+async function showSellerCustomers(){
+  const user = auth.currentUser;
+
+  if(!user){
+    return alert("Please login first");
+  }
+
+  try{
+    const snap = await db.collection("orders")
+      .where("sellerIds","array-contains",user.uid)
+      .get();
+
+    const customers = {};
+
+    snap.forEach(doc => {
+      const order = doc.data();
+
+      const customerId =
+        order.userId ||
+        order.customerId ||
+        order.email ||
+        order.mobile;
+
+      if(!customerId) return;
+
+      if(!customers[customerId]){
+        customers[customerId] = {
+          name: order.customerName || order.name || "Customer",
+          mobile: order.customerMobile || order.mobile || "Not available",
+          email: order.customerEmail || order.email || "Not available",
+          orders: 0,
+          amount: 0
+        };
+      }
+
+      customers[customerId].orders++;
+
+      (order.items || []).forEach(item => {
+        if(item.sellerId === user.uid){
+          customers[customerId].amount +=
+            Number(item.itemTotal || 0);
+        }
+      });
+    });
+
+    let customerHtml = "";
+
+    Object.values(customers).forEach(customer => {
+
+      customerHtml += `
+        <div style="border:1px solid #ddd;border-radius:10px;
+                    padding:15px;margin-bottom:12px;">
+
+          <h3>${customer.name}</h3>
+
+          <p>Mobile: ${customer.mobile}</p>
+
+          <p>Email: ${customer.email}</p>
+
+          <p>Orders: <b>${customer.orders}</b></p>
+
+          <p>Total Purchase:
+             <b>Rs ${customer.amount.toFixed(2)}</b>
+          </p>
+
+        </div>
+      `;
+    });
+
+    if(!customerHtml){
+      customerHtml = "<p>No customers found.</p>";
+    }
+
+    const html = `
+      <div id="sellerCustomersBox"
+           style="position:fixed;inset:0;background:rgba(0,0,0,.65);
+           z-index:99999;overflow:auto;padding:15px;">
+
+        <div style="max-width:800px;margin:20px auto;background:#fff;
+                    border-radius:14px;padding:20px;">
+
+          <div style="display:flex;justify-content:space-between;
+                      align-items:center;">
+
+            <h2>Customers</h2>
+
+            <button onclick="document.getElementById('sellerCustomersBox').remove()"
+                    style="width:auto;background:#d93025;">
+              Close
+            </button>
+
+          </div>
+
+          ${customerHtml}
+
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend",html);
+
+  }catch(error){
+    console.error("Customers error:",error);
+    alert("Customers load nahi ho paye.");
+  }
+}
+
+
+/* =====================================================
+   RETURNS & REFUNDS
+===================================================== */
+async function showSellerReturns(){
+  const user = auth.currentUser;
+
+  if(!user){
+    return alert("Please login first");
+  }
+
+  try{
+    const snap = await db.collection("returns")
+      .where("sellerId","==",user.uid)
+      .get();
+
+    let returnHtml = "";
+
+    snap.forEach(doc => {
+      const item = doc.data();
+
+      returnHtml += `
+        <div style="border:1px solid #ddd;border-radius:10px;
+                    padding:15px;margin-bottom:12px;">
+
+          <h3>Return Request</h3>
+
+          <p>
+            Order ID:
+            <b>${item.orderId || "N/A"}</b>
+          </p>
+
+          <p>
+            Product:
+            ${item.productName || "N/A"}
+          </p>
+
+          <p>
+            Reason:
+            ${item.reason || item.returnReason || "Not specified"}
+          </p>
+
+          <p>
+            Status:
+            <b>${item.status || "Pending"}</b>
+          </p>
+
+          <p>
+            Refund:
+            ${item.refundStatus || "Pending"}
+          </p>
+
+          <p>
+            Replacement:
+            ${item.replacementStatus || "Not requested"}
+          </p>
+
+        </div>
+      `;
+    });
+
+    if(!returnHtml){
+      returnHtml = `
+        <p>
+          Abhi koi return request nahi hai.
+        </p>
+      `;
+    }
+
+    const html = `
+      <div id="sellerReturnsBox"
+           style="position:fixed;inset:0;background:rgba(0,0,0,.65);
+           z-index:99999;overflow:auto;padding:15px;">
+
+        <div style="max-width:800px;margin:20px auto;background:#fff;
+                    border-radius:14px;padding:20px;">
+
+          <div style="display:flex;justify-content:space-between;
+                      align-items:center;">
+
+            <h2>Returns & Refunds</h2>
+
+            <button onclick="document.getElementById('sellerReturnsBox').remove()"
+                    style="width:auto;background:#d93025;">
+              Close
+            </button>
+
+          </div>
+
+          ${returnHtml}
+
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend",html);
+
+  }catch(error){
+    console.error("Returns error:",error);
+
+    alert(
+      "Returns collection abhi available nahi hai ya permission nahi hai."
+    );
+  }
+}
+
+
+/* =====================================================
+   PROFILE & BANK SETTINGS
+===================================================== */
+async function showSellerProfile(){
+  const user = auth.currentUser;
+
+  if(!user){
+    return alert("Please login first");
+  }
+
+  try{
+    const sellerRef = db.collection("sellers").doc(user.uid);
+    const sellerDoc = await sellerRef.get();
+
+    if(!sellerDoc.exists){
+      return alert("Seller profile nahi mila.");
+    }
+
+    const seller = sellerDoc.data();
+
+    const html = `
+      <div id="sellerProfileBox"
+           style="position:fixed;inset:0;background:rgba(0,0,0,.65);
+           z-index:99999;overflow:auto;padding:15px;">
+
+        <div style="max-width:800px;margin:20px auto;background:#fff;
+                    border-radius:14px;padding:20px;">
+
+          <div style="display:flex;justify-content:space-between;
+                      align-items:center;">
+
+            <h2>Profile & Bank Settings</h2>
+
+            <button onclick="document.getElementById('sellerProfileBox').remove()"
+                    style="width:auto;background:#d93025;">
+              Close
+            </button>
+
+          </div>
+
+          <input id="sellerStoreName"
+                 value="${seller.shopName || seller.storeName || ""}"
+                 placeholder="Store Name">
+
+          <input id="sellerGstin"
+                 value="${seller.gstin || seller.GSTIN || ""}"
+                 placeholder="GSTIN">
+
+          <input id="sellerFssai"
+                 value="${seller.fssai || seller.FSSAI || ""}"
+                 placeholder="FSSAI License">
+
+          <input id="sellerPickupAddress"
+                 value="${seller.pickupAddress || ""}"
+                 placeholder="Pickup Address">
+
+          <input id="sellerBankAccount"
+                 value="${seller.bankAccount || ""}"
+                 placeholder="Bank Account Number">
+
+          <input id="sellerIfsc"
+       value="${seller.ifsc || ""}"
+       placeholder="IFSC Code">
+
+<button onclick="saveSellerProfile()">
+  Save Profile
+</button>
+/* =====================================================
+   UPDATE PRODUCT PRICE / STOCK
+===================================================== */
+async function updateProductValues(productId){
+
+  const user = auth.currentUser;
+
+  if(!user){
+    return alert("Please login first");
+  }
+
+  try{
+
+    const productRef = db.collection("products").doc(productId);
+    const productDoc = await productRef.get();
+
+    if(!productDoc.exists){
+      return alert("Product nahi mila.");
+    }
+
+    const product = productDoc.data();
+
+    if(product.sellerId !== user.uid){
+      return alert("Aap is product ko update nahi kar sakte.");
+    }
+
+    const newPrice = prompt(
+      "New Selling Price:",
+      product.price || 0
+    );
+
+    if(newPrice === null){
+      return;
+    }
+
+    const newMrp = prompt(
+      "New MRP:",
+      product.mrp || 0
+    );
+
+    if(newMrp === null){
+      return;
+    }
+
+    const newStock = prompt(
+      "New Stock Quantity:",
+      product.stock || 0
+    );
+
+    if(newStock === null){
+      return;
+    }
+
+    const price = Number(newPrice);
+    const mrp = Number(newMrp);
+    const stock = Number(newStock);
+
+    if(
+      isNaN(price) ||
+      isNaN(mrp) ||
+      isNaN(stock) ||
+      price < 0 ||
+      mrp < 0 ||
+      stock < 0
+    ){
+      return alert("Please valid numbers enter karein.");
+    }
+
+    const discount = mrp > 0
+      ? Math.max(0, ((mrp - price) / mrp) * 100)
+      : 0;
+
+    await productRef.update({
+
+      price: price,
+      mrp: mrp,
+      stock: stock,
+      discount: discount,
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    });
+
+    alert("Product successfully updated.");
+
+    showMyProducts();
+
+  }catch(error){
+
+    console.error("Product update error:",error);
+
+    alert("Product update nahi ho paya.");
   }
 }
 
