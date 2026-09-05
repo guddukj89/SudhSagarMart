@@ -1059,13 +1059,42 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
  style="min-height:90px">
 </textarea>
 
-<label><b>Product Image</b></label>
+<label><b>Product Photos (5 Photos)</b></label>
 
 <input
- id="productImage"
+ id="productImage1"
  type="file"
  accept="image/*">
 
+<small>1. Front Photo</small>
+
+<input
+ id="productImage2"
+ type="file"
+ accept="image/*">
+
+<small>2. Back Photo</small>
+
+<input
+ id="productImage3"
+ type="file"
+ accept="image/*">
+
+<small>3. Left Side Photo</small>
+
+<input
+ id="productImage4"
+ type="file"
+ accept="image/*">
+
+<small>4. Right Side Photo</small>
+
+<input
+ id="productImage5"
+ type="file"
+ accept="image/*">
+
+<small>5. Top / Bottom Photo</small>
 <button onclick="addProduct()">
 Add Product
 </button>
@@ -1992,9 +2021,13 @@ async function addProduct(){
   .value.trim();
 
 
-  const imageFile=
-  document.getElementById("productImage")
-  .files[0];
+  const imageFiles = [
+  document.getElementById("productImage1").files[0],
+  document.getElementById("productImage2").files[0],
+  document.getElementById("productImage3").files[0],
+  document.getElementById("productImage4").files[0],
+  document.getElementById("productImage5").files[0]
+].filter(Boolean);
 
 
   if(
@@ -2031,17 +2064,33 @@ async function addProduct(){
   db.collection("products").doc().id;
 
 
-  const safeName=
-  imageFile.name
-  .replace(/[^a-zA-Z0-9._-]/g,"_");
+  const imageURLs = [];
 
+for(let i = 0; i < imageFiles.length; i++){
 
-  const imagePath=
-  "products/"
-  +user.uid+"/"
-  +productId+"_"
-  +safeName;
+  const imageFile = imageFiles[i];
 
+  const safeName =
+    imageFile.name
+    .replace(/[^a-zA-Z0-9._-]/g,"_");
+
+  const imagePath =
+    "products/"
+    + user.uid + "/"
+    + productId + "_"
+    + (i + 1) + "_"
+    + safeName;
+
+  const imageRef =
+    storage.ref(imagePath);
+
+  await imageRef.put(imageFile);
+
+  const imageURL =
+    await imageRef.getDownloadURL();
+
+  imageURLs.push(imageURL);
+}
 
   const imageRef=
   storage.ref(imagePath);
