@@ -2127,7 +2127,8 @@ for(let i = 0; i < imageFiles.length; i++){
 
    description:description,
 
-   imageURL:imageURL,
+  imageURL: imageURLs[0] || "",
+imageURLs: imageURLs,
 
    status:"pending",
 
@@ -2157,7 +2158,11 @@ for(let i = 0; i < imageFiles.length; i++){
 
   document.getElementById("productDescription").value="";
 
-  document.getElementById("productImage").value="";
+document.getElementById("productImage1").value="";
+document.getElementById("productImage2").value="";
+document.getElementById("productImage3").value="";
+document.getElementById("productImage4").value="";
+document.getElementById("productImage5").value="";
 
 
  }
