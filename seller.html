@@ -2046,15 +2046,13 @@ async function addProduct(){
   }
 
 
-  if(!imageFile){
+ if(imageFiles.length === 0){
 
-   msg.innerText=
-   "Product image select karein.";
+  msg.innerText=
+  "Kam se kam 1 product image select karein.";
 
-   return;
-
-  }
-
+  return;
+}
 
   msg.innerText=
   "Product upload ho raha hai...";
@@ -2091,16 +2089,6 @@ for(let i = 0; i < imageFiles.length; i++){
 
   imageURLs.push(imageURL);
 }
-
-  const imageRef=
-  storage.ref(imagePath);
-
-
-  await imageRef.put(imageFile);
-
-
-  const imageURL=
-  await imageRef.getDownloadURL();
 
 
   await db.collection("products")
