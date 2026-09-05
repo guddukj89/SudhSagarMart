@@ -795,6 +795,138 @@ button:hover{
   }
 
 }
+    /* =================================================
+   PROFESSIONAL SELLER PANEL
+   ================================================= */
+
+#sellerPanel > .sellerProfileCard{
+  position:fixed !important;
+  left:0 !important;
+  top:68px !important;
+  width:235px !important;
+  height:auto !important;
+  margin:0 !important;
+  padding:20px 16px !important;
+  box-sizing:border-box !important;
+  background:#fff !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:2px 0 12px rgba(0,0,0,.08) !important;
+  z-index:1001 !important;
+}
+
+#sellerPanel > .sellerProfileCard h2{
+  font-size:20px !important;
+  margin:5px 5px 20px !important;
+}
+
+#sellerPanel > .sellerProfileCard p{
+  font-size:14px !important;
+  margin:12px 5px !important;
+  line-height:1.5 !important;
+}
+
+#sellerPanel > .sellerProfileCard #kycStatus{
+  margin:15px 0 !important;
+}
+
+#sellerPanel > .sellerProfileCard button{
+  width:100% !important;
+  margin-top:15px !important;
+}
+
+#businessBox > .menu{
+  position:fixed !important;
+  left:0 !important;
+  top:300px !important;
+  bottom:0 !important;
+  width:235px !important;
+  margin:0 !important;
+  padding:14px 12px !important;
+  box-sizing:border-box !important;
+  background:#fff !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:2px 0 12px rgba(0,0,0,.08) !important;
+  overflow-y:auto !important;
+  z-index:1000 !important;
+}
+
+#businessBox > .menu h2{
+  font-size:17px !important;
+  margin:5px 8px 15px !important;
+}
+
+#businessBox > .menu button{
+  width:100% !important;
+  display:block !important;
+  text-align:left !important;
+  padding:13px 14px !important;
+  margin:4px 0 !important;
+  background:#fff !important;
+  color:#263238 !important;
+  border:0 !important;
+  border-radius:8px !important;
+  font-size:14px !important;
+  font-weight:500 !important;
+  cursor:pointer !important;
+}
+
+#businessBox > .menu button:hover{
+  background:#eef6ff !important;
+  color:#0879d1 !important;
+}
+
+#businessBox > .card:not(.menu){
+  margin-left:255px !important;
+  width:auto !important;
+  max-width:none !important;
+  box-sizing:border-box !important;
+}
+
+/* MOBILE */
+
+@media (max-width:800px){
+
+  #sellerPanel > .sellerProfileCard{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    width:auto !important;
+    margin:10px !important;
+    padding:18px !important;
+    border-radius:14px !important;
+    box-shadow:0 3px 14px rgba(20,40,80,.08) !important;
+  }
+
+  #businessBox{
+    min-height:auto !important;
+  }
+
+  #businessBox > .menu{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    width:auto !important;
+    margin:10px !important;
+    padding:14px !important;
+    border-radius:14px !important;
+    box-shadow:0 3px 14px rgba(20,40,80,.08) !important;
+  }
+
+  #businessBox > .menu button{
+    padding:14px !important;
+    font-size:15px !important;
+  }
+
+  #businessBox > .card:not(.menu){
+    margin-left:10px !important;
+    margin-right:10px !important;
+    width:auto !important;
+    max-width:none !important;
+  }
+}
 </style>
 </head>
 
