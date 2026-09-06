@@ -2891,12 +2891,10 @@ body{
 
   <div class="payment">
 
-    ${
-      String(
-        order.paymentMethod ||
-        order.payment ||
-        ""
-      ).toUpperCase() === "COD"
+   ${
+  /COD|CASH ON DELIVERY/i.test(
+    String(order.paymentMethod || order.payment || "")
+  )
       ? "CASH ON DELIVERY"
       : "PREPAID"
     }
