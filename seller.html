@@ -4834,6 +4834,156 @@ th,td{
     width:auto !important;
   }
 }
+/* ===== FINAL SELLER PANEL COMPACT LAYOUT ===== */
+
+/* Main seller panel */
+#sellerPanel{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:15px 18px 30px 205px !important;
+  box-sizing:border-box !important;
+}
+
+/* Seller profile - smaller left sidebar */
+.sellerProfileCard{
+  width:185px !important;
+  max-width:185px !important;
+  padding:12px !important;
+  box-sizing:border-box !important;
+  font-size:12px !important;
+}
+
+/* Profile heading */
+.sellerProfileCard h2,
+.sellerProfileCard h3{
+  font-size:16px !important;
+}
+
+/* Profile text */
+.sellerProfileCard p,
+.sellerProfileCard span,
+.sellerProfileCard b{
+  font-size:11px !important;
+}
+
+/* KYC */
+.sellerProfileCard #kycStatus{
+  font-size:11px !important;
+  padding:8px !important;
+}
+
+/* Logout */
+.sellerProfileCard button{
+  width:100% !important;
+  min-height:36px !important;
+  font-size:12px !important;
+}
+
+/* Business menu smaller */
+#businessBox{
+  width:185px !important;
+  max-width:185px !important;
+  box-sizing:border-box !important;
+}
+
+/* Business menu heading */
+#businessBox .menu h2{
+  font-size:15px !important;
+  margin:8px 0 !important;
+}
+
+/* Business buttons */
+#businessBox .menu button{
+  width:100% !important;
+  min-height:38px !important;
+  padding:8px 10px !important;
+  font-size:11px !important;
+  text-align:left !important;
+}
+
+/* Welcome screen content */
+#sellerWelcomeScreen{
+  width:100% !important;
+  box-sizing:border-box !important;
+  padding:20px !important;
+}
+
+/* Welcome card */
+#sellerWelcomeScreen .sellerWelcomeCard{
+  width:100% !important;
+  max-width:none !important;
+  box-sizing:border-box !important;
+}
+
+/* Benefits - 4 items in one row */
+#sellerWelcomeScreen .sellerBenefits{
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:10px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+/* Each benefit */
+#sellerWelcomeScreen .sellerBenefit{
+  width:24% !important;
+  max-width:none !important;
+  flex:1 1 24% !important;
+  box-sizing:border-box !important;
+  text-align:center !important;
+  font-size:13px !important;
+}
+
+/* Benefit icons */
+#sellerWelcomeScreen .sellerBenefitIcon{
+  font-size:22px !important;
+}
+
+/* Weekly settlement */
+#sellerPanel .card{
+  box-sizing:border-box !important;
+}
+
+/* Desktop */
+@media(min-width:768px){
+  #sellerPanel{
+    padding-left:205px !important;
+  }
+}
+
+/* Mobile */
+@media(max-width:767px){
+  #sellerPanel{
+    padding:10px !important;
+  }
+
+  .sellerProfileCard,
+  #businessBox{
+    width:165px !important;
+    max-width:165px !important;
+  }
+
+  #sellerWelcomeScreen{
+    padding:12px !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefits{
+    gap:5px !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefit{
+    font-size:10px !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefitIcon{
+    font-size:17px !important;
+  }
+}
+
+/* ===== END COMPACT LAYOUT ===== */
 </style>
 
 </head>
