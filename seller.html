@@ -1144,8 +1144,11 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
 <button onclick="showSellerCustomers()">
  Customers
 </button>
+    <button onclick="showSellerReturns()">
+  Return Tracking
+</button>
 
-<button onclick="showSellerNotifications()">?? Notifications</button>
+<button onclick="showSellerNotifications()">Notifications</button>
 
 </div>
 
@@ -3394,6 +3397,554 @@ window.onload=function(){
 
   }
 
+}
+    async function showSellerReturns(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  try{
+
+    const snap = await db.collection("returns")
+      .where("sellerId","==",user.uid)
+      .get();
+
+    const returns = [];
+
+    snap.forEach(doc=>{
+      returns.push({
+        id:doc.id,
+        ...doc.data()
+      });
+    });
+
+    returns.sort((a,b)=>{
+      const ad = a.createdAt?.seconds || 0;
+      const bd = b.createdAt?.seconds || 0;
+      return bd-ad;
+    });
+
+    let html = `
+      <div style="
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.65);
+        z-index:99999;
+        overflow:auto;
+        padding:20px;
+      ">
+
+        <div style="
+          max-width:800px;
+          margin:20px auto;
+          background:#fff;
+          border-radius:14px;
+          padding:20px;
+        ">
+
+          <h2 style="margin-top:0;">
+            Return Tracking
+          </h2>
+
+          <button
+            onclick="scanSellerReturn()"
+            style="
+              width:100%;
+              padding:13px;
+              border:0;
+              border-radius:8px;
+              background:#1565c0;
+              color:#fff;
+              font-weight:bold;
+              cursor:pointer;
+              margin-bottom:15px;
+            ">
+            Scan Return
+          </button>
+
+          <div id="sellerReturnList">
+    `;
+
+    if(!returns.length){
+
+      html += `
+        <div style="
+          padding:25px;
+          text-align:center;
+          background:#f5f7fa;
+          border-radius:10px;
+        ">
+          Abhi koi return nahi hai.
+        </div>
+      `;
+
+    }else{
+
+      returns.forEach(r=>{
+
+        const status = r.status || "return_requested";
+
+        const customer =
+          r.customerName ||
+          r.customer?.name ||
+          "-";
+
+        const orderId =
+          r.orderId ||
+          r.orderID ||
+          "-";
+
+        const tracking =
+          r.trackingNumber ||
+          r.returnTrackingNumber ||
+          r.trackingId ||
+          r.id;
+
+        let receiveButton = "";
+
+        if(
+          status !== "received_by_seller" &&
+          status !== "returned"
+        ){
+
+          receiveButton = `
+            <button
+              onclick="markSellerReturnReceived('${r.id}')"
+              style="
+                width:100%;
+                padding:12px;
+                margin-top:10px;
+                border:0;
+                border-radius:8px;
+                background:#008f5a;
+                color:white;
+                font-weight:bold;
+                cursor:pointer;
+              ">
+              Receive / Scan Return
+            </button>
+          `;
+        }
+
+        html += `
+          <div style="
+            border:1px solid #e1e5ea;
+            border-radius:12px;
+            padding:15px;
+            margin-bottom:12px;
+            background:#fff;
+          ">
+
+            <div style="
+              display:flex;
+              justify-content:space-between;
+              gap:10px;
+              flex-wrap:wrap;
+            ">
+
+              <b>Order ID: ${orderId}</b>
+
+              <span style="
+                padding:5px 10px;
+                border-radius:20px;
+                background:#eef4ff;
+                color:#1565c0;
+                font-weight:bold;
+              ">
+                ${status}
+              </span>
+
+            </div>
+
+            <hr>
+
+            <p>
+              <b>Return Tracking:</b><br>
+              ${tracking}
+            </p>
+
+            <p>
+              <b>Customer:</b> ${customer}
+            </p>
+
+            <p>
+              <b>Reason:</b>
+              ${r.reason || "-"}
+            </p>
+
+            <p>
+              <b>Return Status:</b>
+              ${status}
+            </p>
+
+            ${receiveButton}
+
+          </div>
+        `;
+      });
+    }
+
+    html += `
+          </div>
+
+          <button
+            onclick="this.closest('div[style*=fixed]').remove()"
+            style="
+              width:100%;
+              padding:12px;
+              margin-top:10px;
+              border:0;
+              border-radius:8px;
+              background:#e53935;
+              color:white;
+              font-weight:bold;
+              cursor:pointer;
+            ">
+            Close
+          </button>
+
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend",html);
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Return tracking load nahi ho paya: " +
+      error.message
+    );
+
+  }
+}
+
+
+async function markSellerReturnReceived(returnId){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  if(!confirm(
+    "Kya return parcel seller shop par pahunch gaya hai?"
+  )){
+    return;
+  }
+
+  try{
+
+    const returnRef =
+      db.collection("returns").doc(returnId);
+
+    const returnSnap =
+      await returnRef.get();
+
+    if(!returnSnap.exists){
+      return alert("Return record nahi mila.");
+    }
+
+    const returnData = returnSnap.data();
+
+    if(returnData.sellerId !== user.uid){
+      return alert("Ye return aapke seller account ka nahi hai.");
+    }
+
+    await returnRef.update({
+
+      status:"received_by_seller",
+
+      receivedBy:user.uid,
+
+      receivedAt:
+        firebase.firestore.FieldValue.serverTimestamp(),
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    });
+
+    if(returnData.orderId){
+
+      const orderRef =
+        db.collection("orders").doc(returnData.orderId);
+
+      const orderSnap =
+        await orderRef.get();
+
+      if(orderSnap.exists){
+
+        await orderRef.update({
+
+          status:"Returned",
+
+          returnStatus:"received_by_seller",
+
+          returnReceivedAt:
+            firebase.firestore.FieldValue.serverTimestamp(),
+
+          returnReceivedBy:user.uid,
+
+          updatedAt:
+            firebase.firestore.FieldValue.serverTimestamp()
+
+        });
+
+      }
+    }
+
+    alert("Return successfully receive ho gaya.");
+
+    document.querySelectorAll(
+      'div[style*="position:fixed"]'
+    ).forEach(el=>el.remove());
+
+    showSellerReturns();
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Return receive nahi ho paya: " +
+      error.message
+    );
+
+  }
+}
+
+
+async function scanSellerReturn(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  /*
+    Camera barcode / QR scanner
+  */
+
+  if("BarcodeDetector" in window){
+
+    try{
+
+      const detector =
+        new BarcodeDetector({
+          formats:[
+            "qr_code",
+            "code_128",
+            "code_39",
+            "ean_13",
+            "ean_8"
+          ]
+        });
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+          video:{
+            facingMode:"environment"
+          }
+        });
+
+      const box = document.createElement("div");
+
+      box.style.cssText = `
+        position:fixed;
+        inset:0;
+        background:#000;
+        z-index:100000;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+      `;
+
+      box.innerHTML = `
+        <video
+          id="returnScannerVideo"
+          autoplay
+          playsinline
+          style="
+            width:90%;
+            max-width:500px;
+            border-radius:12px;
+          ">
+        </video>
+
+        <p style="
+          color:#fff;
+          font-weight:bold;
+          margin:15px;
+        ">
+          Return barcode / QR code camera ke saamne rakhein
+        </p>
+
+        <button
+          id="closeReturnScanner"
+          style="
+            padding:12px 30px;
+            border:0;
+            border-radius:8px;
+            background:#e53935;
+            color:white;
+            font-weight:bold;
+          ">
+          Cancel
+        </button>
+      `;
+
+      document.body.appendChild(box);
+
+      const video =
+        document.getElementById("returnScannerVideo");
+
+      video.srcObject = stream;
+
+      document
+        .getElementById("closeReturnScanner")
+        .onclick = ()=>{
+          stream.getTracks().forEach(t=>t.stop());
+          box.remove();
+        };
+
+      const scan = async()=>{
+
+        if(!document.body.contains(box)){
+          return;
+        }
+
+        try{
+
+          const codes =
+            await detector.detect(video);
+
+          if(codes.length){
+
+            const value =
+              codes[0].rawValue;
+
+            stream.getTracks()
+              .forEach(t=>t.stop());
+
+            box.remove();
+
+            await findAndReceiveReturn(value);
+
+            return;
+          }
+
+        }catch(e){
+          console.log(e);
+        }
+
+        requestAnimationFrame(scan);
+      };
+
+      scan();
+
+    }catch(error){
+
+      console.error(error);
+
+      const tracking =
+        prompt(
+          "Camera scan available nahi hai.\nReturn Tracking ID enter karein:"
+        );
+
+      if(tracking){
+        await findAndReceiveReturn(tracking.trim());
+      }
+    }
+
+  }else{
+
+    const tracking =
+      prompt(
+        "Camera scanner supported nahi hai.\nReturn Tracking ID enter karein:"
+      );
+
+    if(tracking){
+      await findAndReceiveReturn(tracking.trim());
+    }
+  }
+}
+
+
+async function findAndReceiveReturn(tracking){
+
+  if(!tracking){
+    return;
+  }
+
+  try{
+
+    const user =
+      firebase.auth().currentUser;
+
+    const snap =
+      await db.collection("returns")
+        .where("sellerId","==",user.uid)
+        .get();
+
+    let found = null;
+
+    snap.forEach(doc=>{
+
+      const r = doc.data();
+
+      const id =
+        r.trackingNumber ||
+        r.returnTrackingNumber ||
+        r.trackingId ||
+        doc.id;
+
+      if(String(id) === String(tracking)){
+        found = {
+          id:doc.id,
+          ...r
+        };
+      }
+
+    });
+
+    if(!found){
+
+      return alert(
+        "Ye Return Tracking ID nahi mila."
+      );
+    }
+
+    if(
+      found.status === "received_by_seller" ||
+      found.status === "returned"
+    ){
+
+      return alert(
+        "Ye return pehle hi seller receive kar chuka hai."
+      );
+    }
+
+    await markSellerReturnReceived(found.id);
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Return scan verify nahi ho paya: " +
+      error.message
+    );
+
+  }
 }
 async function updateSellerOrderStatus(orderId){
 
