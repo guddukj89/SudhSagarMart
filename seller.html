@@ -890,47 +890,6 @@ button:hover{
 
 /* MOBILE */
 
-@media (max-width:800px){
-
-  #sellerPanel > .sellerProfileCard{
-    position:relative !important;
-    left:auto !important;
-    top:auto !important;
-    width:auto !important;
-    margin:10px !important;
-    padding:18px !important;
-    border-radius:14px !important;
-    box-shadow:0 3px 14px rgba(20,40,80,.08) !important;
-  }
-
-  #businessBox{
-    min-height:auto !important;
-  }
-
-  #businessBox > .menu{
-    position:relative !important;
-    left:auto !important;
-    top:auto !important;
-    bottom:auto !important;
-    width:auto !important;
-    margin:10px !important;
-    padding:14px !important;
-    border-radius:14px !important;
-    box-shadow:0 3px 14px rgba(20,40,80,.08) !important;
-  }
-
-  #businessBox > .menu button{
-    padding:14px !important;
-    font-size:15px !important;
-  }
-
-  #businessBox > .card:not(.menu){
-    margin-left:10px !important;
-    margin-right:10px !important;
-    width:auto !important;
-    max-width:none !important;
-  }
-}
 </style>
 </head>
 
@@ -2995,7 +2954,77 @@ body{
     width:100% !important;
     margin:10px 0 !important;
   }
+/* existing CSS */
+
+/* 👇 YAHAN SE NAYA CSS PASTE KARO 👇 */
+
+@media (max-width:800px){
+
+  #sellerPanel{
+    display:block !important;
+    width:100% !important;
+    padding:10px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  #sellerPanel .sellerProfileCard{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    width:100% !important;
+    max-width:none !important;
+    height:auto !important;
+    max-height:none !important;
+    margin:0 0 12px 0 !important;
+    padding:16px !important;
+    box-sizing:border-box !important;
+    border-radius:12px !important;
+    overflow:visible !important;
+  }
+
+  #businessBox{
+    display:block !important;
+    width:100% !important;
+    margin:0 0 12px 0 !important;
+    padding:0 !important;
+  }
+
+  #businessBox > .menu{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    width:100% !important;
+    height:auto !important;
+    max-height:none !important;
+    margin:0 0 12px 0 !important;
+    padding:14px !important;
+    box-sizing:border-box !important;
+    border-radius:12px !important;
+    overflow:visible !important;
+  }
+
+  #businessBox > .menu button{
+    width:100% !important;
+    min-height:44px !important;
+    margin:4px 0 !important;
+    padding:12px 14px !important;
+    box-sizing:border-box !important;
+    text-align:left !important;
+  }
+
+  #sellerPanel > .card:not(.sellerProfileCard){
+    position:relative !important;
+    width:100% !important;
+    max-width:none !important;
+    margin:0 0 12px 0 !important;
+    box-sizing:border-box !important;
+  }
+
 }
+
+/* 👆 NAYA CSS END 👆 */
 
 </style>
 
