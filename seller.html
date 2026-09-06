@@ -3436,6 +3436,302 @@ body{
     margin:10px 0 !important;
   }
 }
+/* =========================================================
+   FINAL SELLER PANEL - FLIPKART / AMAZON STYLE
+   ========================================================= */
+
+/* Seller panel main area */
+#sellerPanel{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:15px 20px 30px 285px !important;
+  box-sizing:border-box !important;
+  background:#f5f7fb !important;
+  min-height:100vh !important;
+}
+
+/* =========================
+   SELLER PROFILE - LEFT
+   ========================= */
+
+#sellerPanel > .sellerProfileCard{
+  position:fixed !important;
+  left:0 !important;
+  top:68px !important;
+  width:255px !important;
+  height:245px !important;
+  margin:0 !important;
+  padding:18px 16px !important;
+  box-sizing:border-box !important;
+  background:#ffffff !important;
+  border:0 !important;
+  border-right:1px solid #e5e9f0 !important;
+  border-radius:0 !important;
+  box-shadow:2px 0 10px rgba(0,0,0,.06) !important;
+  z-index:1000 !important;
+  overflow:hidden !important;
+}
+
+/* Profile heading */
+#sellerPanel > .sellerProfileCard h2{
+  font-size:19px !important;
+  margin:0 0 14px !important;
+  color:#172337 !important;
+}
+
+/* Profile information */
+#sellerPanel > .sellerProfileCard p{
+  font-size:13px !important;
+  margin:9px 0 !important;
+  color:#4b5563 !important;
+  line-height:1.35 !important;
+}
+
+#sellerPanel > .sellerProfileCard b{
+  color:#172337 !important;
+}
+
+/* KYC */
+#sellerPanel > .sellerProfileCard #kycStatus{
+  margin:12px 0 !important;
+  padding:8px 10px !important;
+  border-radius:7px !important;
+  background:#e8f7ee !important;
+  color:#16803c !important;
+  font-size:13px !important;
+  font-weight:bold !important;
+}
+
+/* Logout */
+#sellerPanel > .sellerProfileCard button{
+  width:100% !important;
+  margin-top:5px !important;
+  min-height:38px !important;
+  border-radius:7px !important;
+}
+
+
+/* =========================
+   BUSINESS SIDEBAR
+   ========================= */
+
+#businessBox{
+  display:block !important;
+  position:static !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+}
+
+/* Business menu card */
+#businessBox > .menu{
+  position:fixed !important;
+  left:0 !important;
+  top:325px !important;
+  bottom:0 !important;
+  width:255px !important;
+  margin:0 !important;
+  padding:15px 12px 20px !important;
+  box-sizing:border-box !important;
+  background:#ffffff !important;
+  border:0 !important;
+  border-right:1px solid #e5e9f0 !important;
+  border-radius:0 !important;
+  box-shadow:2px 0 10px rgba(0,0,0,.05) !important;
+  overflow-y:auto !important;
+  z-index:999 !important;
+}
+
+/* Seller Business title */
+#businessBox > .menu h2{
+  font-size:18px !important;
+  margin:4px 8px 13px !important;
+  color:#172337 !important;
+}
+
+/* Sidebar buttons */
+#businessBox > .menu button{
+  display:block !important;
+  width:100% !important;
+  min-height:42px !important;
+  margin:3px 0 !important;
+  padding:10px 13px !important;
+  box-sizing:border-box !important;
+  border:0 !important;
+  border-radius:7px !important;
+  background:#ffffff !important;
+  color:#263238 !important;
+  text-align:left !important;
+  font-size:14px !important;
+  font-weight:500 !important;
+  cursor:pointer !important;
+  transition:all .15s ease !important;
+}
+
+/* Hover */
+#businessBox > .menu button:hover{
+  background:#f0f6ff !important;
+  color:#1565c0 !important;
+  transform:none !important;
+}
+
+/* =========================
+   MAIN CONTENT
+   ========================= */
+
+#sellerPanel > .card:not(.sellerProfileCard){
+  position:relative !important;
+  width:100% !important;
+  max-width:none !important;
+  margin:0 0 14px !important;
+  padding:20px !important;
+  box-sizing:border-box !important;
+  background:#ffffff !important;
+  border:1px solid #e5e9f0 !important;
+  border-radius:10px !important;
+  box-shadow:0 2px 10px rgba(20,40,80,.05) !important;
+}
+
+/* Business box ke andar agar koi card aaye */
+#businessBox > .card:not(.menu){
+  width:100% !important;
+  max-width:none !important;
+  margin:0 0 14px !important;
+  box-sizing:border-box !important;
+}
+
+/* Card headings */
+#sellerPanel .card h2{
+  color:#172337 !important;
+  font-size:20px !important;
+  margin-top:0 !important;
+}
+
+/* =========================
+   WEEKLY SETTLEMENT
+   ========================= */
+
+#sellerPanel .card h2{
+  line-height:1.3 !important;
+}
+
+#sellerPanel .card p{
+  line-height:1.5 !important;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width:800px){
+
+  #sellerPanel{
+    padding:10px !important;
+    background:#f5f7fb !important;
+  }
+
+  /* Profile normal card */
+  #sellerPanel > .sellerProfileCard{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    width:100% !important;
+    height:auto !important;
+    margin:0 0 10px !important;
+    padding:16px !important;
+    border:1px solid #e5e9f0 !important;
+    border-radius:10px !important;
+    box-shadow:0 2px 8px rgba(20,40,80,.05) !important;
+    overflow:visible !important;
+  }
+
+  /* Business menu normal */
+  #businessBox{
+    position:relative !important;
+    width:100% !important;
+    margin:0 !important;
+  }
+
+  #businessBox > .menu{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    width:100% !important;
+    max-height:none !important;
+    margin:0 0 10px !important;
+    padding:12px !important;
+    border:1px solid #e5e9f0 !important;
+    border-radius:10px !important;
+    box-shadow:0 2px 8px rgba(20,40,80,.05) !important;
+    overflow:visible !important;
+  }
+
+  #businessBox > .menu h2{
+    font-size:17px !important;
+    margin:3px 6px 10px !important;
+  }
+
+  #businessBox > .menu button{
+    min-height:44px !important;
+    font-size:14px !important;
+    padding:11px 12px !important;
+  }
+
+  /* Main cards */
+  #sellerPanel > .card:not(.sellerProfileCard){
+    width:100% !important;
+    margin:0 0 10px !important;
+    padding:15px !important;
+    border-radius:10px !important;
+  }
+
+  #businessBox > .card:not(.menu){
+    width:100% !important;
+    margin:0 0 10px !important;
+  }
+
+}
+
+
+/* =========================
+   SMALL MOBILE
+   ========================= */
+
+@media (max-width:480px){
+
+  #sellerPanel{
+    padding:8px !important;
+  }
+
+  #sellerPanel > .sellerProfileCard{
+    padding:14px !important;
+  }
+
+  #sellerPanel > .sellerProfileCard h2{
+    font-size:18px !important;
+  }
+
+  #sellerPanel > .sellerProfileCard p{
+    font-size:12px !important;
+  }
+
+  #businessBox > .menu{
+    padding:10px !important;
+  }
+
+  #businessBox > .menu button{
+    font-size:13px !important;
+    min-height:42px !important;
+  }
+
+  #sellerPanel > .card:not(.sellerProfileCard){
+    padding:13px !important;
+  }
+
+}
 </style>
 
 </head>
