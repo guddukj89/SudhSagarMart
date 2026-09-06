@@ -4659,6 +4659,117 @@ th,td{
     gap:15px !important;
   }
 }
+/* ===== FINAL WELCOME SCREEN LAYOUT FIX ===== */
+
+#sellerWelcomeScreen{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  margin:0 !important;
+  padding:90px 25px 30px !important;
+  box-sizing:border-box !important;
+  background:#f5f8ff !important;
+  z-index:2147483647 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+
+#sellerWelcomeScreen .sellerWelcomeCard{
+  display:block !important;
+  width:100% !important;
+  max-width:1000px !important;
+  margin:0 auto !important;
+  padding:45px 35px !important;
+  box-sizing:border-box !important;
+  text-align:center !important;
+  background:#fff !important;
+}
+
+#sellerWelcomeScreen .sellerWelcomeCard h1{
+  display:block !important;
+  width:100% !important;
+  font-size:38px !important;
+  line-height:1.25 !important;
+  margin:10px 0 15px !important;
+}
+
+#sellerWelcomeScreen .sellerWelcomeCard h2{
+  display:block !important;
+  font-size:30px !important;
+  line-height:1.3 !important;
+  margin:15px 0 !important;
+}
+
+#sellerWelcomeScreen .sellerWelcomeText{
+  display:block !important;
+  width:100% !important;
+  max-width:700px !important;
+  margin:15px auto 25px !important;
+  line-height:1.6 !important;
+}
+
+#sellerWelcomeScreen .sellerDashboardBtn{
+  display:block !important;
+  width:auto !important;
+  min-width:280px !important;
+  margin:20px auto !important;
+}
+
+#sellerWelcomeScreen .sellerBenefits{
+  display:flex !important;
+  width:100% !important;
+  justify-content:center !important;
+  align-items:flex-start !important;
+  flex-wrap:wrap !important;
+  gap:35px !important;
+  margin:45px auto 0 !important;
+}
+
+#sellerWelcomeScreen .sellerBenefit{
+  display:block !important;
+  width:130px !important;
+  flex:0 0 130px !important;
+}
+
+#sellerWelcomeScreen .sellerBenefitIcon{
+  margin:0 auto 10px !important;
+}
+
+/* Mobile */
+@media(max-width:700px){
+
+  #sellerWelcomeScreen{
+    padding:55px 12px 25px !important;
+  }
+
+  #sellerWelcomeScreen .sellerWelcomeCard{
+    padding:30px 16px !important;
+  }
+
+  #sellerWelcomeScreen .sellerWelcomeCard h1{
+    font-size:28px !important;
+  }
+
+  #sellerWelcomeScreen .sellerWelcomeCard h2{
+    font-size:24px !important;
+  }
+
+  #sellerWelcomeScreen .sellerDashboardBtn{
+    width:100% !important;
+    min-width:0 !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefits{
+    gap:18px !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefit{
+    width:105px !important;
+    flex:0 0 105px !important;
+  }
+}
+
 </style>
 
 </head>
