@@ -8836,6 +8836,16 @@ async function sendAdminNotification(type, title, message, link=""){
   }
 
 }
+    const profile = document.querySelector(".sellerProfileCard");
+const business = document.getElementById("businessBox");
+
+if(profile){
+  profile.style.display = "none";
+}
+
+if(business){
+  business.style.display = "none";
+}
     function openSellerMainDashboard(){
 
   const welcome = document.getElementById("sellerWelcomeScreen");
