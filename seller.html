@@ -1153,6 +1153,14 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
 </button>
 
 <button onclick="showSellerNotifications()">Notifications</button>
+    
+    <button onclick="showSellerSettings()">Settings</button>
+
+<button onclick="showSellerBank()">Bank Account</button>
+
+<button onclick="showSellerComplaint()">Complaint / Raise Complaint</button>
+
+<button onclick="showSellerHelpdesk()">Helpdesk</button>
 
 </div>
 
@@ -6372,7 +6380,389 @@ function filterSellerCustomers(){
 /* =====================================================
    LOGOUT
 ===================================================== */
+/* =====================================================
+   SELLER SETTINGS
+   ===================================================== */
 
+async function showSellerSettings(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  try{
+
+    const doc = await db.collection("sellers").doc(user.uid).get();
+    const seller = doc.exists ? doc.data() : {};
+
+    const old = document.getElementById("sellerSettingsModal");
+    if(old) old.remove();
+
+    const modal = document.createElement("div");
+    modal.id = "sellerSettingsModal";
+
+    modal.innerHTML = `
+      <div style="
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.55);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        z-index:99999;
+        padding:15px;
+      ">
+
+        <div style="
+          background:#fff;
+          width:100%;
+          max-width:520px;
+          max-height:90vh;
+          overflow-y:auto;
+          border-radius:14px;
+          padding:22px;
+          box-sizing:border-box;
+        ">
+
+          <h2 style="margin-top:0;">Seller Settings</h2>
+
+          <label><b>Seller Name</b></label>
+          <input id="settingSellerName"
+            value="${seller.name || ""}"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <label><b>Mobile</b></label>
+          <input id="settingSellerMobile"
+            value="${seller.mobile || ""}"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <label><b>State</b></label>
+          <input id="settingSellerState"
+            value="${seller.state || ""}"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <label><b>District</b></label>
+          <input id="settingSellerDistrict"
+            value="${seller.district || ""}"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <label><b>Village / City</b></label>
+          <input id="settingSellerVillage"
+            value="${seller.village || ""}"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <button onclick="saveSellerSettings()"
+            style="
+              width:100%;
+              padding:12px;
+              border:0;
+              border-radius:8px;
+              background:#0879d1;
+              color:#fff;
+              font-weight:bold;
+              cursor:pointer;
+            ">
+            Save Settings
+          </button>
+
+          <button onclick="document.getElementById('sellerSettingsModal').remove()"
+            style="
+              width:100%;
+              padding:12px;
+              margin-top:10px;
+              border:0;
+              border-radius:8px;
+              background:#e53935;
+              color:#fff;
+              font-weight:bold;
+              cursor:pointer;
+            ">
+            Close
+          </button>
+
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+  }catch(error){
+
+    console.error(error);
+    alert("Settings load nahi ho paaya: " + error.message);
+
+  }
+}
+
+
+/* SAVE SELLER SETTINGS */
+
+async function saveSellerSettings(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  try{
+
+    await db.collection("sellers").doc(user.uid).update({
+
+      name: document.getElementById("settingSellerName").value.trim(),
+
+      mobile: document.getElementById("settingSellerMobile").value.trim(),
+
+      state: document.getElementById("settingSellerState").value.trim(),
+
+      district: document.getElementById("settingSellerDistrict").value.trim(),
+
+      village: document.getElementById("settingSellerVillage").value.trim(),
+
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+
+    });
+
+    alert("Settings successfully save ho gayi.");
+
+    document.getElementById("sellerSettingsModal").remove();
+
+    /* Refresh seller information */
+    if(typeof openSellerPanel === "function"){
+      openSellerPanel();
+    }
+
+  }catch(error){
+
+    console.error(error);
+    alert("Settings save nahi ho payi: " + error.message);
+
+  }
+}
+
+
+/* =====================================================
+   SELLER BANK ACCOUNT
+   ===================================================== */
+
+async function showSellerBank(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  try{
+
+    const doc = await db.collection("sellers").doc(user.uid).get();
+    const seller = doc.exists ? doc.data() : {};
+
+    const old = document.getElementById("sellerBankModal");
+    if(old) old.remove();
+
+    const modal = document.createElement("div");
+    modal.id = "sellerBankModal";
+
+    modal.innerHTML = `
+      <div style="
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.55);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        z-index:99999;
+        padding:15px;
+      ">
+
+        <div style="
+          background:#fff;
+          width:100%;
+          max-width:520px;
+          border-radius:14px;
+          padding:22px;
+          box-sizing:border-box;
+        ">
+
+          <h2 style="margin-top:0;">Bank Account</h2>
+
+          <p style="font-size:13px;color:#666;">
+            Settlement ke liye apni bank details save karein.
+          </p>
+
+          <label><b>Account Holder Name</b></label>
+          <input id="bankHolderName"
+            value="${seller.bankHolderName || seller.name || ""}"
+            placeholder="Account Holder Name"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <label><b>Bank Name</b></label>
+          <input id="bankName"
+            value="${seller.bankName || ""}"
+            placeholder="Bank Name"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <label><b>Account Number</b></label>
+          <input id="bankAccountNumber"
+            type="password"
+            value="${seller.bankAccount || ""}"
+            placeholder="Bank Account Number"
+            inputmode="numeric"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <label><b>Confirm Account Number</b></label>
+          <input id="bankAccountConfirm"
+            type="password"
+            value="${seller.bankAccount || ""}"
+            placeholder="Confirm Account Number"
+            inputmode="numeric"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;"
+          >
+
+          <label><b>IFSC Code</b></label>
+          <input id="bankIfsc"
+            value="${seller.ifsc || ""}"
+            placeholder="Example: SBIN0001234"
+            style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;text-transform:uppercase;"
+          >
+
+          <button onclick="saveSellerBank()"
+            style="
+              width:100%;
+              padding:12px;
+              border:0;
+              border-radius:8px;
+              background:#0879d1;
+              color:#fff;
+              font-weight:bold;
+              cursor:pointer;
+            ">
+            Save Bank Details
+          </button>
+
+          <button onclick="document.getElementById('sellerBankModal').remove()"
+            style="
+              width:100%;
+              padding:12px;
+              margin-top:10px;
+              border:0;
+              border-radius:8px;
+              background:#e53935;
+              color:#fff;
+              font-weight:bold;
+              cursor:pointer;
+            ">
+            Close
+          </button>
+
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+  }catch(error){
+
+    console.error(error);
+    alert("Bank details load nahi ho payi: " + error.message);
+
+  }
+}
+
+
+/* SAVE BANK DETAILS */
+
+async function saveSellerBank(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  const holderName =
+    document.getElementById("bankHolderName").value.trim();
+
+  const bankName =
+    document.getElementById("bankName").value.trim();
+
+  const account =
+    document.getElementById("bankAccountNumber").value.trim();
+
+  const confirmAccount =
+    document.getElementById("bankAccountConfirm").value.trim();
+
+  const ifsc =
+    document.getElementById("bankIfsc").value.trim().toUpperCase();
+
+
+  if(!holderName){
+    return alert("Account Holder Name enter karein.");
+  }
+
+  if(!bankName){
+    return alert("Bank Name enter karein.");
+  }
+
+  if(!account){
+    return alert("Bank Account Number enter karein.");
+  }
+
+  if(account !== confirmAccount){
+    return alert("Account Number match nahi kar raha.");
+  }
+
+  if(!/^[0-9]{9,18}$/.test(account)){
+    return alert("Bank Account Number sahi enter karein.");
+  }
+
+  if(!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)){
+    return alert("IFSC Code sahi enter karein.");
+  }
+
+
+  try{
+
+    await db.collection("sellers").doc(user.uid).update({
+
+      bankHolderName: holderName,
+
+      bankName: bankName,
+
+      bankAccount: account,
+
+      ifsc: ifsc,
+
+      bankDetailsUpdatedAt:
+        firebase.firestore.FieldValue.serverTimestamp(),
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    });
+
+    alert("Bank Account details successfully save ho gayi.");
+
+    document.getElementById("sellerBankModal").remove();
+
+  }catch(error){
+
+    console.error(error);
+    alert("Bank details save nahi ho payi: " + error.message);
+
+  }
+}
 async function logoutSeller(){
 
  try{
