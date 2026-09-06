@@ -4769,7 +4769,71 @@ th,td{
     flex:0 0 105px !important;
   }
 }
+/* ===== FINAL SELLER WELCOME SCREEN FIX ===== */
 
+/* Welcome screen ke time sidebar/menu hide */
+#sellerPanel:has(#sellerWelcomeScreen:not([style*="display: none"])) .sellerProfileCard,
+#sellerPanel:has(#sellerWelcomeScreen:not([style*="display: none"])) #businessBox{
+  display:none !important;
+}
+
+/* Welcome screen content */
+#sellerWelcomeScreen{
+  width:100% !important;
+  min-height:100vh !important;
+  box-sizing:border-box !important;
+  margin:0 !important;
+  padding:40px 25px !important;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+
+/* Welcome card */
+#sellerWelcomeScreen .sellerWelcomeCard{
+  width:100% !important;
+  max-width:950px !important;
+  margin:20px auto !important;
+  box-sizing:border-box !important;
+}
+
+/* Benefits horizontal */
+#sellerWelcomeScreen .sellerBenefits{
+  width:100% !important;
+  display:grid !important;
+  grid-template-columns:repeat(4,1fr) !important;
+  gap:18px !important;
+  align-items:stretch !important;
+}
+
+/* Benefit cards */
+#sellerWelcomeScreen .sellerBenefit{
+  width:auto !important;
+  min-width:0 !important;
+  flex:none !important;
+  box-sizing:border-box !important;
+  text-align:center !important;
+}
+
+/* Mobile */
+@media(max-width:600px){
+  #sellerWelcomeScreen{
+    padding:25px 15px !important;
+  }
+
+  #sellerWelcomeScreen .sellerWelcomeCard{
+    margin:10px auto !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefits{
+    grid-template-columns:repeat(2,1fr) !important;
+    gap:12px !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefit{
+    width:auto !important;
+  }
+}
 </style>
 
 </head>
