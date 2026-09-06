@@ -76,6 +76,9 @@ th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14p
 <button class="navbtn" onclick="showSection('customers',this)">👥 Customers</button>
 <button class="navbtn" onclick="showSection('payments',this)">💰 Payments</button>
 <button class="navbtn" onclick="showSection('categories',this)">📁 Categories</button>
+  <button class="navbtn" onclick="showSection('complaints',this)">
+📩 Complaints & Helpdesk
+</button>
 <button class="navbtn" onclick="showSection('settings',this)">⚙️ Settings</button>
 </aside>
 
@@ -187,7 +190,28 @@ th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14p
 <tbody id="categoryTable"></tbody></table></div></div>
 </section>
 
-<section id="settings" class="section">
+  <!-- COMPLAINTS & HELPDESK -->
+<section id="complaints" class="section">
+
+<h1>📩 Complaints & Helpdesk</h1>
+
+<div class="card">
+  <h2>Seller Complaints / Tickets</h2>
+
+  <input
+    class="search"
+    id="complaintSearch"
+    oninput="filterAdminComplaints()"
+    placeholder="Search ticket, seller, mobile..."
+  >
+
+  <div id="adminComplaints">
+    Loading complaints...
+  </div>
+</div>
+
+</section>
+  <section id="settings" class="section">
 <h1>Admin Settings</h1>
 <div class="notice">⚠️ Store data is now connected to Firebase Firestore. Admin login shown here is only the panel login; production security should also use Firebase Authentication + Firestore rules.</div>
 <div class="card"><h2>Store Settings</h2>
