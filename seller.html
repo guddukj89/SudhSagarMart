@@ -8836,7 +8836,15 @@ async function sendAdminNotification(type, title, message, link=""){
   }
 
 }
-    const profile = document.querySelector(".sellerProfileCard");
+    
+    function openSellerMainDashboard(){
+
+  const welcome = document.getElementById("sellerWelcomeScreen");
+
+  if(welcome){
+    welcome.style.display = "none";
+  }
+        const profile = document.querySelector(".sellerProfileCard");
 const business = document.getElementById("businessBox");
 
 if(profile){
@@ -8846,13 +8854,6 @@ if(profile){
 if(business){
   business.style.display = "none";
 }
-    function openSellerMainDashboard(){
-
-  const welcome = document.getElementById("sellerWelcomeScreen");
-
-  if(welcome){
-    welcome.style.display = "none";
-  }
 
   showSellerDashboard();
 }
