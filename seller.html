@@ -1066,7 +1066,7 @@ Logout
     <button
       type="button"
       class="sellerDashboardBtn"
-      onclick="showSellerDashboard()">
+      onclick="openSellerMainDashboard()"
       Go to Dashboard →
     </button>
 
@@ -4609,6 +4609,54 @@ th,td{
 
   .sellerWelcomeSlogan{
     font-size:17px;
+  }
+}
+/* ===== FULL SCREEN SELLER WELCOME FIX ===== */
+
+#sellerWelcomeScreen{
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  min-height:100vh !important;
+  margin:0 !important;
+  padding:90px 20px 30px !important;
+  box-sizing:border-box !important;
+  background:#f5f8ff !important;
+  z-index:99999 !important;
+  overflow:auto !important;
+}
+
+#sellerWelcomeScreen .sellerWelcomeCard{
+  width:100% !important;
+  max-width:950px !important;
+  margin:0 auto !important;
+}
+
+/* Mobile */
+@media(max-width:700px){
+
+  #sellerWelcomeScreen{
+    padding:45px 12px 25px !important;
+  }
+
+  #sellerWelcomeScreen .sellerWelcomeCard{
+    padding:30px 16px !important;
+  }
+
+  #sellerWelcomeScreen .sellerWelcomeCard h1{
+    font-size:28px !important;
+  }
+
+  #sellerWelcomeScreen .sellerWelcomeText{
+    font-size:15px !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefits{
+    gap:15px !important;
   }
 }
 </style>
@@ -8612,6 +8660,16 @@ async function sendAdminNotification(type, title, message, link=""){
 
   }
 
+}
+    function openSellerMainDashboard(){
+
+  const welcome = document.getElementById("sellerWelcomeScreen");
+
+  if(welcome){
+    welcome.style.display = "none";
+  }
+
+  showSellerDashboard();
 }
 // ================= END SELLER NOTIFICATION =================
 async function logoutSeller(){
