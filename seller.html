@@ -3402,7 +3402,7 @@ window.onload=function(){
   }
 
 }
-    async function showSellerReturns(){
+   async function showSellerReturns(){
 
   const user = firebase.auth().currentUser;
 
@@ -3419,87 +3419,368 @@ window.onload=function(){
     const returns = [];
 
     snap.forEach(doc=>{
+
       returns.push({
         id:doc.id,
         ...doc.data()
       });
+
     });
 
     returns.sort((a,b)=>{
+
       const ad = a.createdAt?.seconds || 0;
       const bd = b.createdAt?.seconds || 0;
+
       return bd-ad;
+
     });
 
+    const totalReturns = returns.length;
+
+    const pendingReturns = returns.filter(r=>{
+
+      const s = String(r.status || "").toLowerCase();
+
+      return ![
+        "received_by_seller",
+        "returned",
+        "cancelled",
+        "completed"
+      ].includes(s);
+
+    }).length;
+
+    const receivedReturns = returns.filter(r=>{
+
+      const s = String(r.status || "").toLowerCase();
+
+      return [
+        "received_by_seller",
+        "returned",
+        "completed"
+      ].includes(s);
+
+    }).length;
+
+
     let html = `
-      <div style="
-        position:fixed;
-        inset:0;
-        background:rgba(0,0,0,.65);
-        z-index:99999;
-        overflow:auto;
-        padding:20px;
-      ">
 
-        <div style="
-          max-width:800px;
-          margin:20px auto;
-          background:#fff;
-          border-radius:14px;
-          padding:20px;
-        ">
+      <div
+        id="sellerReturnOverlay"
+        style="
+          position:fixed;
+          inset:0;
+          background:#f4f6f8;
+          z-index:99999;
+          overflow:auto;
+        "
+      >
 
-          <h2 style="margin-top:0;">
-            Return Tracking
-          </h2>
+        <!-- HEADER -->
 
-          <button
-            onclick="scanSellerReturn()"
+        <div
+          style="
+            background:#ffffff;
+            border-bottom:1px solid #e1e5ea;
+            padding:18px 22px;
+            position:sticky;
+            top:0;
+            z-index:10;
+          "
+        >
+
+          <div
             style="
-              width:100%;
-              padding:13px;
-              border:0;
-              border-radius:8px;
-              background:#1565c0;
-              color:#fff;
-              font-weight:bold;
-              cursor:pointer;
-              margin-bottom:15px;
-            ">
-            Scan Return
-          </button>
+              max-width:1100px;
+              margin:auto;
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+              gap:15px;
+              flex-wrap:wrap;
+            "
+          >
+
+            <div>
+
+              <h2
+                style="
+                  margin:0;
+                  font-size:24px;
+                  color:#172033;
+                "
+              >
+                Return Tracking
+              </h2>
+
+              <div
+                style="
+                  margin-top:5px;
+                  color:#687385;
+                  font-size:14px;
+                "
+              >
+                Manage seller returns and received parcels
+              </div>
+
+            </div>
+
+
+            <button
+              onclick="scanSellerReturn()"
+              style="
+                border:0;
+                padding:11px 18px;
+                border-radius:8px;
+                background:#1565c0;
+                color:white;
+                font-weight:bold;
+                cursor:pointer;
+              "
+            >
+              Scan Return
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- MAIN -->
+
+        <div
+          style="
+            max-width:1100px;
+            margin:20px auto;
+            padding:0 15px 30px;
+          "
+        >
+
+
+          <!-- SUMMARY -->
+
+          <div
+            style="
+              display:grid;
+              grid-template-columns:repeat(3,1fr);
+              gap:15px;
+              margin-bottom:20px;
+            "
+          >
+
+            <div
+              style="
+                background:#ffffff;
+                border:1px solid #e3e7ed;
+                border-radius:12px;
+                padding:18px;
+              "
+            >
+
+              <div
+                style="
+                  color:#687385;
+                  font-size:14px;
+                "
+              >
+                Total Returns
+              </div>
+
+              <div
+                style="
+                  margin-top:7px;
+                  font-size:26px;
+                  font-weight:bold;
+                  color:#172033;
+                "
+              >
+                ${totalReturns}
+              </div>
+
+            </div>
+
+
+            <div
+              style="
+                background:#ffffff;
+                border:1px solid #e3e7ed;
+                border-radius:12px;
+                padding:18px;
+              "
+            >
+
+              <div
+                style="
+                  color:#687385;
+                  font-size:14px;
+                "
+              >
+                Pending Returns
+              </div>
+
+              <div
+                style="
+                  margin-top:7px;
+                  font-size:26px;
+                  font-weight:bold;
+                  color:#f57c00;
+                "
+              >
+                ${pendingReturns}
+              </div>
+
+            </div>
+
+
+            <div
+              style="
+                background:#ffffff;
+                border:1px solid #e3e7ed;
+                border-radius:12px;
+                padding:18px;
+              "
+            >
+
+              <div
+                style="
+                  color:#687385;
+                  font-size:14px;
+                "
+              >
+                Received / Completed
+              </div>
+
+              <div
+                style="
+                  margin-top:7px;
+                  font-size:26px;
+                  font-weight:bold;
+                  color:#008f5a;
+                "
+              >
+                ${receivedReturns}
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- SEARCH -->
+
+          <div
+            style="
+              background:#ffffff;
+              border:1px solid #e3e7ed;
+              border-radius:12px;
+              padding:15px;
+              margin-bottom:18px;
+            "
+          >
+
+            <input
+              id="sellerReturnSearch"
+              type="text"
+              placeholder="Search Order ID, Return ID, Tracking ID or Customer..."
+              oninput="filterSellerReturns()"
+              style="
+                width:100%;
+                box-sizing:border-box;
+                padding:13px 14px;
+                border:1px solid #ccd3dc;
+                border-radius:8px;
+                font-size:15px;
+                outline:none;
+              "
+            >
+
+          </div>
+
+
+          <!-- RETURN LIST -->
 
           <div id="sellerReturnList">
+
     `;
+
 
     if(!returns.length){
 
       html += `
-        <div style="
-          padding:25px;
-          text-align:center;
-          background:#f5f7fa;
-          border-radius:10px;
-        ">
-          Abhi koi return nahi hai.
+
+        <div
+          style="
+            background:#ffffff;
+            border:1px solid #e3e7ed;
+            border-radius:12px;
+            padding:45px 20px;
+            text-align:center;
+          "
+        >
+
+          <div
+            style="
+              font-size:42px;
+              margin-bottom:10px;
+            "
+          >
+            📦
+          </div>
+
+          <h3
+            style="
+              margin:0 0 8px;
+              color:#172033;
+            "
+          >
+            No Returns Yet
+          </h3>
+
+          <p
+            style="
+              margin:0;
+              color:#687385;
+            "
+          >
+            Abhi aapke seller account par koi return nahi hai.
+          </p>
+
         </div>
+
       `;
 
     }else{
 
+
       returns.forEach(r=>{
 
-        const status = r.status || "return_requested";
+        const status =
+          String(r.status || "return_requested");
+
+        const statusLower =
+          status.toLowerCase();
+
 
         const customer =
           r.customerName ||
           r.customer?.name ||
+          r.customer?.fullName ||
           "-";
+
+
+        const mobile =
+          r.customerMobile ||
+          r.mobile ||
+          r.customer?.mobile ||
+          "";
+
 
         const orderId =
           r.orderId ||
           r.orderID ||
           "-";
+
 
         const tracking =
           r.trackingNumber ||
@@ -3507,98 +3788,354 @@ window.onload=function(){
           r.trackingId ||
           r.id;
 
-        let receiveButton = "";
+
+        const reason =
+          r.reason ||
+          r.returnReason ||
+          "-";
+
+
+        const productName =
+          r.productName ||
+          r.product?.name ||
+          r.itemName ||
+          "-";
+
+
+        let statusText = status;
+
+        if(statusLower === "return_requested"){
+          statusText = "Return Requested";
+        }
+        else if(statusLower === "received_by_seller"){
+          statusText = "Received by Seller";
+        }
+        else if(statusLower === "returned"){
+          statusText = "Returned";
+        }
+        else if(statusLower === "cancelled"){
+          statusText = "Cancelled";
+        }
+
+
+        let statusBg = "#fff4e5";
+        let statusColor = "#d66b00";
 
         if(
-          status !== "received_by_seller" &&
-          status !== "returned"
+          statusLower === "received_by_seller" ||
+          statusLower === "returned" ||
+          statusLower === "completed"
+        ){
+
+          statusBg = "#e8f7ef";
+          statusColor = "#008f5a";
+
+        }
+        else if(statusLower === "cancelled"){
+
+          statusBg = "#fdecec";
+          statusColor = "#d32f2f";
+
+        }
+        else if(
+          statusLower === "pickup" ||
+          statusLower === "picked_up" ||
+          statusLower === "in_transit"
+        ){
+
+          statusBg = "#eaf3ff";
+          statusColor = "#1565c0";
+
+        }
+
+
+        let receiveButton = "";
+
+
+        if(
+          statusLower !== "received_by_seller" &&
+          statusLower !== "returned" &&
+          statusLower !== "completed" &&
+          statusLower !== "cancelled"
         ){
 
           receiveButton = `
+
             <button
               onclick="markSellerReturnReceived('${r.id}')"
               style="
                 width:100%;
                 padding:12px;
-                margin-top:10px;
+                margin-top:14px;
                 border:0;
                 border-radius:8px;
                 background:#008f5a;
                 color:white;
                 font-weight:bold;
                 cursor:pointer;
-              ">
-              Receive / Scan Return
+              "
+            >
+              ✓ Receive Return
             </button>
+
           `;
+
         }
 
+
         html += `
-          <div style="
-            border:1px solid #e1e5ea;
-            border-radius:12px;
-            padding:15px;
-            margin-bottom:12px;
-            background:#fff;
-          ">
 
-            <div style="
-              display:flex;
-              justify-content:space-between;
-              gap:10px;
-              flex-wrap:wrap;
-            ">
+          <div
+            class="seller-return-card"
+            data-search="${String(
+              orderId + " " +
+              tracking + " " +
+              customer + " " +
+              mobile + " " +
+              productName + " " +
+              reason + " " +
+              r.id
+            ).toLowerCase()}"
+            style="
+              background:#ffffff;
+              border:1px solid #e1e5ea;
+              border-radius:12px;
+              padding:18px;
+              margin-bottom:14px;
+              box-shadow:0 2px 8px rgba(20,40,80,.04);
+            "
+          >
 
-              <b>Order ID: ${orderId}</b>
 
-              <span style="
-                padding:5px 10px;
-                border-radius:20px;
-                background:#eef4ff;
-                color:#1565c0;
-                font-weight:bold;
-              ">
-                ${status}
+            <!-- TOP -->
+
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                align-items:flex-start;
+                gap:12px;
+                flex-wrap:wrap;
+              "
+            >
+
+              <div>
+
+                <div
+                  style="
+                    font-size:16px;
+                    font-weight:bold;
+                    color:#172033;
+                  "
+                >
+                  Order #${orderId}
+                </div>
+
+                <div
+                  style="
+                    margin-top:4px;
+                    font-size:13px;
+                    color:#687385;
+                  "
+                >
+                  Return ID: ${r.id}
+                </div>
+
+              </div>
+
+
+              <span
+                style="
+                  padding:7px 12px;
+                  border-radius:20px;
+                  background:${statusBg};
+                  color:${statusColor};
+                  font-size:13px;
+                  font-weight:bold;
+                "
+              >
+                ${statusText}
               </span>
 
             </div>
 
-            <hr>
 
-            <p>
-              <b>Return Tracking:</b><br>
-              ${tracking}
-            </p>
+            <hr
+              style="
+                border:0;
+                border-top:1px solid #edf0f3;
+                margin:15px 0;
+              "
+            >
 
-            <p>
-              <b>Customer:</b> ${customer}
-            </p>
 
-            <p>
-              <b>Reason:</b>
-              ${r.reason || "-"}
-            </p>
+            <!-- DETAILS -->
 
-            <p>
-              <b>Return Status:</b>
-              ${status}
-            </p>
+            <div
+              style="
+                display:grid;
+                grid-template-columns:repeat(2,1fr);
+                gap:14px;
+              "
+            >
+
+              <div>
+
+                <div
+                  style="
+                    font-size:12px;
+                    color:#7b8491;
+                    margin-bottom:3px;
+                  "
+                >
+                  Product
+                </div>
+
+                <div
+                  style="
+                    font-weight:600;
+                    color:#263238;
+                  "
+                >
+                  ${productName}
+                </div>
+
+              </div>
+
+
+              <div>
+
+                <div
+                  style="
+                    font-size:12px;
+                    color:#7b8491;
+                    margin-bottom:3px;
+                  "
+                >
+                  Customer
+                </div>
+
+                <div
+                  style="
+                    font-weight:600;
+                    color:#263238;
+                  "
+                >
+                  ${customer}
+                </div>
+
+              </div>
+
+
+              <div>
+
+                <div
+                  style="
+                    font-size:12px;
+                    color:#7b8491;
+                    margin-bottom:3px;
+                  "
+                >
+                  Return Tracking
+                </div>
+
+                <div
+                  style="
+                    font-weight:600;
+                    color:#1565c0;
+                    word-break:break-all;
+                  "
+                >
+                  ${tracking}
+                </div>
+
+              </div>
+
+
+              <div>
+
+                <div
+                  style="
+                    font-size:12px;
+                    color:#7b8491;
+                    margin-bottom:3px;
+                  "
+                >
+                  Customer Mobile
+                </div>
+
+                <div
+                  style="
+                    font-weight:600;
+                    color:#263238;
+                  "
+                >
+                  ${mobile || "-"}
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- REASON -->
+
+            <div
+              style="
+                margin-top:15px;
+                padding:12px;
+                background:#f7f9fb;
+                border-radius:8px;
+              "
+            >
+
+              <div
+                style="
+                  font-size:12px;
+                  color:#7b8491;
+                  margin-bottom:4px;
+                "
+              >
+                Return Reason
+              </div>
+
+              <div
+                style="
+                  color:#263238;
+                  font-size:14px;
+                "
+              >
+                ${reason}
+              </div>
+
+            </div>
+
 
             ${receiveButton}
 
           </div>
+
         `;
+
       });
+
     }
 
+
     html += `
+
           </div>
 
+
+          <!-- CLOSE -->
+
           <button
-            onclick="this.closest('div[style*=fixed]').remove()"
+            onclick="
+              document.getElementById('sellerReturnOverlay').remove()
+            "
             style="
               width:100%;
-              padding:12px;
+              padding:13px;
               margin-top:10px;
               border:0;
               border-radius:8px;
@@ -3606,15 +4143,24 @@ window.onload=function(){
               color:white;
               font-weight:bold;
               cursor:pointer;
-            ">
-            Close
+            "
+          >
+            Close Return Tracking
           </button>
 
+
         </div>
+
       </div>
+
     `;
 
-    document.body.insertAdjacentHTML("beforeend",html);
+
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      html
+    );
+
 
   }catch(error){
 
@@ -3626,8 +4172,43 @@ window.onload=function(){
     );
 
   }
+
 }
 
+
+function filterSellerReturns(){
+
+  const input =
+    document.getElementById("sellerReturnSearch");
+
+  if(!input){
+    return;
+  }
+
+  const search =
+    input.value.toLowerCase().trim();
+
+
+  document
+    .querySelectorAll(".seller-return-card")
+    .forEach(card=>{
+
+      const data =
+        card.getAttribute("data-search") || "";
+
+      if(data.includes(search)){
+
+        card.style.display = "";
+
+      }else{
+
+        card.style.display = "none";
+
+      }
+
+    });
+
+}
 
 async function markSellerReturnReceived(returnId){
 
