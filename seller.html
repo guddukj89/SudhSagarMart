@@ -3496,7 +3496,189 @@ th,td{
   border:1px solid #999;
   padding:12px;
 }
+/* =====================================================
+   FINAL SELLER PANEL - FLIPKART / AMAZON STYLE
+===================================================== */
 
+#sellerPanel{
+  position:relative !important;
+  display:block !important;
+  width:100% !important;
+  padding-left:285px !important;
+  padding-right:20px !important;
+  box-sizing:border-box !important;
+  min-height:calc(100vh - 65px) !important;
+}
+
+/* LEFT PROFILE */
+#sellerPanel > .sellerProfileCard{
+  position:fixed !important;
+  left:0 !important;
+  top:68px !important;
+  width:260px !important;
+  height:205px !important;
+  margin:0 !important;
+  padding:18px 16px !important;
+  box-sizing:border-box !important;
+  background:#ffffff !important;
+  border:1px solid #e5e9f0 !important;
+  border-radius:0 !important;
+  box-shadow:2px 0 12px rgba(0,0,0,.08) !important;
+  overflow:hidden !important;
+  z-index:1001 !important;
+}
+
+#sellerPanel > .sellerProfileCard h2{
+  margin:0 0 15px !important;
+  font-size:19px !important;
+  color:#172033 !important;
+}
+
+#sellerPanel > .sellerProfileCard p{
+  margin:7px 0 !important;
+  font-size:13px !important;
+  color:#4b5563 !important;
+}
+
+#sellerPanel > .sellerProfileCard b{
+  color:#172033 !important;
+}
+
+#sellerPanel > .sellerProfileCard .red{
+  margin-top:8px !important;
+  padding:10px !important;
+  border-radius:7px !important;
+}
+
+/* LEFT BUSINESS MENU */
+#businessBox{
+  position:relative !important;
+  display:block !important;
+  width:100% !important;
+  min-height:500px !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+#businessBox > .menu{
+  position:fixed !important;
+  left:0 !important;
+  top:273px !important;
+  bottom:0 !important;
+  width:260px !important;
+  margin:0 !important;
+  padding:15px 12px 25px !important;
+  box-sizing:border-box !important;
+  background:#ffffff !important;
+  border:1px solid #e5e9f0 !important;
+  border-radius:0 !important;
+  box-shadow:2px 0 12px rgba(0,0,0,.08) !important;
+  overflow-y:auto !important;
+  z-index:1000 !important;
+}
+
+#businessBox > .menu h2{
+  margin:5px 10px 15px !important;
+  font-size:18px !important;
+  color:#172033 !important;
+}
+
+#businessBox > .menu button{
+  width:100% !important;
+  display:block !important;
+  text-align:left !important;
+  padding:12px 14px !important;
+  margin:3px 0 !important;
+  box-sizing:border-box !important;
+  background:#ffffff !important;
+  color:#263238 !important;
+  border:0 !important;
+  border-radius:7px !important;
+  font-size:14px !important;
+  font-weight:500 !important;
+  cursor:pointer !important;
+  transition:.2s !important;
+}
+
+#businessBox > .menu button:hover{
+  background:#eef5ff !important;
+  color:#0879d1 !important;
+  transform:translateX(3px) !important;
+}
+
+/* MAIN CONTENT */
+#sellerPanel > .card:not(.sellerProfileCard){
+  width:100% !important;
+  max-width:none !important;
+  margin:10px 0 !important;
+  box-sizing:border-box !important;
+}
+
+#businessBox > .card:not(.menu){
+  width:100% !important;
+  max-width:none !important;
+  margin:10px 0 !important;
+  box-sizing:border-box !important;
+}
+
+/* MOBILE */
+@media (max-width:800px){
+
+  #sellerPanel{
+    display:block !important;
+    width:100% !important;
+    padding:10px !important;
+    margin:0 !important;
+    min-height:auto !important;
+  }
+
+  #sellerPanel > .sellerProfileCard{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    width:100% !important;
+    height:auto !important;
+    margin:0 0 12px 0 !important;
+    padding:16px !important;
+    border-radius:12px !important;
+    box-shadow:0 2px 10px rgba(0,0,0,.08) !important;
+    overflow:visible !important;
+  }
+
+  #businessBox{
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  #businessBox > .menu{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    width:100% !important;
+    height:auto !important;
+    max-height:none !important;
+    margin:0 0 12px 0 !important;
+    padding:14px !important;
+    border-radius:12px !important;
+    box-shadow:0 2px 10px rgba(0,0,0,.08) !important;
+    overflow:visible !important;
+  }
+
+  #businessBox > .menu button{
+    width:100% !important;
+    min-height:44px !important;
+    padding:12px 14px !important;
+    margin:4px 0 !important;
+  }
+
+  #sellerPanel > .card:not(.sellerProfileCard),
+  #businessBox > .card:not(.menu){
+    width:100% !important;
+    margin:10px 0 !important;
+  }
+}
 </style>
 
 </head>
