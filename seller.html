@@ -6763,6 +6763,511 @@ async function saveSellerBank(){
 
   }
 }
+    /* =====================================================
+   SELLER COMPLAINT / RAISE COMPLAINT
+   ===================================================== */
+
+async function showSellerComplaint(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  const old = document.getElementById("sellerComplaintModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "sellerComplaintModal";
+
+  modal.innerHTML = `
+    <div style="
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+      padding:15px;
+    ">
+
+      <div style="
+        background:#fff;
+        width:100%;
+        max-width:520px;
+        max-height:90vh;
+        overflow-y:auto;
+        border-radius:14px;
+        padding:22px;
+        box-sizing:border-box;
+      ">
+
+        <h2 style="margin-top:0;">Raise Complaint</h2>
+
+        <label><b>Complaint Category</b></label>
+        <select id="complaintCategory"
+          style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;">
+          <option value="">Select Category</option>
+          <option>Order Issue</option>
+          <option>Payment / Settlement</option>
+          <option>Product Issue</option>
+          <option>Return Issue</option>
+          <option>KYC Issue</option>
+          <option>Account Issue</option>
+          <option>Delivery Issue</option>
+          <option>Other</option>
+        </select>
+
+        <label><b>Order ID (Optional)</b></label>
+        <input id="complaintOrderId"
+          placeholder="Enter Order ID"
+          style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;">
+
+        <label><b>Subject</b></label>
+        <input id="complaintSubject"
+          placeholder="Complaint subject"
+          style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;">
+
+        <label><b>Complaint Details</b></label>
+        <textarea id="complaintDetails"
+          rows="5"
+          placeholder="Apni complaint details likhein..."
+          style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;resize:vertical;"></textarea>
+
+        <button onclick="submitSellerComplaint()"
+          style="
+            width:100%;
+            padding:12px;
+            border:0;
+            border-radius:8px;
+            background:#0879d1;
+            color:#fff;
+            font-weight:bold;
+            cursor:pointer;
+          ">
+          Submit Complaint
+        </button>
+
+        <button onclick="document.getElementById('sellerComplaintModal').remove()"
+          style="
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            border:0;
+            border-radius:8px;
+            background:#e53935;
+            color:#fff;
+            font-weight:bold;
+            cursor:pointer;
+          ">
+          Close
+        </button>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+
+/* SUBMIT COMPLAINT */
+
+async function submitSellerComplaint(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  const category =
+    document.getElementById("complaintCategory").value.trim();
+
+  const orderId =
+    document.getElementById("complaintOrderId").value.trim();
+
+  const subject =
+    document.getElementById("complaintSubject").value.trim();
+
+  const details =
+    document.getElementById("complaintDetails").value.trim();
+
+  if(!category){
+    return alert("Complaint category select karein.");
+  }
+
+  if(!subject){
+    return alert("Complaint subject enter karein.");
+  }
+
+  if(!details){
+    return alert("Complaint details enter karein.");
+  }
+
+  try{
+
+    const complaintRef =
+      await db.collection("complaints").add({
+
+        sellerId:user.uid,
+
+        sellerName:
+          currentSeller?.name || "",
+
+        sellerMobile:
+          currentSeller?.mobile || "",
+
+        category:category,
+
+        orderId:orderId,
+
+        subject:subject,
+
+        details:details,
+
+        status:"Open",
+
+        createdAt:
+          firebase.firestore.FieldValue.serverTimestamp(),
+
+        updatedAt:
+          firebase.firestore.FieldValue.serverTimestamp()
+
+      });
+
+    alert(
+      "Complaint successfully submit ho gayi.\nComplaint ID: "
+      + complaintRef.id
+    );
+
+    document.getElementById("sellerComplaintModal").remove();
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Complaint submit nahi ho payi: "
+      + error.message
+    );
+
+  }
+}
+
+
+/* =====================================================
+   SELLER HELPDESK
+   ===================================================== */
+
+async function showSellerHelpdesk(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  const old = document.getElementById("sellerHelpdeskModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "sellerHelpdeskModal";
+
+  modal.innerHTML = `
+    <div style="
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+      padding:15px;
+    ">
+
+      <div style="
+        background:#fff;
+        width:100%;
+        max-width:600px;
+        max-height:90vh;
+        overflow-y:auto;
+        border-radius:14px;
+        padding:22px;
+        box-sizing:border-box;
+      ">
+
+        <h2 style="margin-top:0;">Seller Helpdesk</h2>
+
+        <p style="color:#555;">
+          Seller support ke liye ticket raise karein.
+        </p>
+
+        <button onclick="showSellerSupportTicketForm()"
+          style="
+            width:100%;
+            padding:12px;
+            border:0;
+            border-radius:8px;
+            background:#0879d1;
+            color:#fff;
+            font-weight:bold;
+            cursor:pointer;
+          ">
+          Create Support Ticket
+        </button>
+
+        <div id="sellerHelpdeskTickets"
+          style="margin-top:18px;">
+          Loading tickets...
+        </div>
+
+        <button onclick="document.getElementById('sellerHelpdeskModal').remove()"
+          style="
+            width:100%;
+            padding:12px;
+            margin-top:15px;
+            border:0;
+            border-radius:8px;
+            background:#e53935;
+            color:#fff;
+            font-weight:bold;
+            cursor:pointer;
+          ">
+          Close
+        </button>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  loadSellerSupportTickets();
+}
+
+
+/* CREATE SUPPORT TICKET FORM */
+
+function showSellerSupportTicketForm(){
+
+  const box =
+    document.getElementById("sellerHelpdeskTickets");
+
+  if(!box) return;
+
+  box.innerHTML = `
+
+    <div style="
+      border:1px solid #ddd;
+      border-radius:10px;
+      padding:15px;
+      margin-top:15px;
+    ">
+
+      <h3>New Support Ticket</h3>
+
+      <label><b>Issue Type</b></label>
+
+      <select id="supportCategory"
+        style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;">
+        <option value="">Select Issue</option>
+        <option>Technical Problem</option>
+        <option>Payment / Settlement</option>
+        <option>Order Problem</option>
+        <option>Return Problem</option>
+        <option>KYC Problem</option>
+        <option>Product Problem</option>
+        <option>Other</option>
+      </select>
+
+      <label><b>Message</b></label>
+
+      <textarea id="supportMessage"
+        rows="5"
+        placeholder="Apni problem likhein..."
+        style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box;resize:vertical;"></textarea>
+
+      <button onclick="submitSellerSupportTicket()"
+        style="
+          width:100%;
+          padding:12px;
+          border:0;
+          border-radius:8px;
+          background:#0879d1;
+          color:#fff;
+          font-weight:bold;
+          cursor:pointer;
+        ">
+        Submit Ticket
+      </button>
+
+    </div>
+  `;
+}
+
+
+/* SUBMIT SUPPORT TICKET */
+
+async function submitSellerSupportTicket(){
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    return alert("Seller login required.");
+  }
+
+  const category =
+    document.getElementById("supportCategory").value.trim();
+
+  const message =
+    document.getElementById("supportMessage").value.trim();
+
+  if(!category){
+    return alert("Issue type select karein.");
+  }
+
+  if(!message){
+    return alert("Problem details likhein.");
+  }
+
+  try{
+
+    const ticketRef =
+      await db.collection("supportTickets").add({
+
+        sellerId:user.uid,
+
+        sellerName:
+          currentSeller?.name || "",
+
+        sellerMobile:
+          currentSeller?.mobile || "",
+
+        category:category,
+
+        message:message,
+
+        status:"Open",
+
+        adminReply:"",
+
+        createdAt:
+          firebase.firestore.FieldValue.serverTimestamp(),
+
+        updatedAt:
+          firebase.firestore.FieldValue.serverTimestamp()
+
+      });
+
+    alert(
+      "Support ticket create ho gaya.\nTicket ID: "
+      + ticketRef.id
+    );
+
+    loadSellerSupportTickets();
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Support ticket create nahi ho paya: "
+      + error.message
+    );
+
+  }
+}
+
+
+/* LOAD SUPPORT TICKETS */
+
+async function loadSellerSupportTickets(){
+
+  const user = firebase.auth().currentUser;
+
+  const box =
+    document.getElementById("sellerHelpdeskTickets");
+
+  if(!user || !box) return;
+
+  try{
+
+    const snap =
+      await db.collection("supportTickets")
+      .where("sellerId","==",user.uid)
+      .get();
+
+    if(snap.empty){
+
+      box.innerHTML += `
+        <p style="text-align:center;color:#666;">
+          Abhi koi support ticket nahi hai.
+        </p>
+      `;
+
+      return;
+    }
+
+    let html = `
+      <h3>My Support Tickets</h3>
+    `;
+
+    snap.forEach(doc => {
+
+      const data = doc.data();
+
+      html += `
+        <div style="
+          border:1px solid #ddd;
+          border-radius:10px;
+          padding:13px;
+          margin:10px 0;
+          background:#fafafa;
+        ">
+
+          <b>Ticket ID:</b> ${doc.id}<br>
+
+          <b>Issue:</b>
+          ${data.category || ""}<br>
+
+          <b>Message:</b>
+          ${data.message || ""}<br>
+
+          <b>Status:</b>
+          ${data.status || "Open"}<br>
+
+          ${
+            data.adminReply
+            ?
+            `<b>Admin Reply:</b> ${data.adminReply}`
+            :
+            `<span style="color:#777;">
+              Admin reply pending
+            </span>`
+          }
+
+        </div>
+      `;
+
+    });
+
+    box.innerHTML = html;
+
+  }catch(error){
+
+    console.error(error);
+
+    box.innerHTML = `
+      <p style="color:red;">
+        Helpdesk load nahi ho paya.
+      </p>
+    `;
+
+  }
+}
 async function logoutSeller(){
 
  try{
