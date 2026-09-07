@@ -1145,7 +1145,53 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
 
 <div id="businessBox" class="hidden">
 
+<!-- SELLER QUICK OVERVIEW -->
+<div class="sellerQuickOverview">
 
+  <h2>Seller Home</h2>
+
+  <div class="sellerQuickGrid">
+
+    <div class="sellerQuickCard" onclick="showSellerOrders()">
+      <span>📦</span>
+      <b>Orders</b>
+      <small>Orders dekhein</small>
+    </div>
+
+    <div class="sellerQuickCard" onclick="openAddProduct()">
+      <span>➕</span>
+      <b>Add Product</b>
+      <small>Naya product add karein</small>
+    </div>
+
+    <div class="sellerQuickCard" onclick="showMyProducts()">
+      <span>🛍️</span>
+      <b>My Products</b>
+      <small>Products manage karein</small>
+    </div>
+
+    <div class="sellerQuickCard" onclick="showPaymentsSettlement()">
+      <span>💰</span>
+      <b>Payments</b>
+      <small>Sales & settlement</small>
+    </div>
+
+    <div class="sellerQuickCard" onclick="showSellerReturns()">
+      <span>🔄</span>
+      <b>Returns</b>
+      <small>Return tracking</small>
+    </div>
+
+    <div class="sellerQuickCard" onclick="showSellerNotifications()">
+      <span>🔔</span>
+      <b>Notifications</b>
+      <small>Important updates</small>
+    </div>
+
+  </div>
+
+</div>
+    
 <div class="card menu">
 
 <h2> Seller Business</h2>
@@ -3794,6 +3840,80 @@ body{
     padding:13px !important;
   }
 
+}
+/* ===== SELLER QUICK OVERVIEW ===== */
+
+.sellerQuickOverview{
+  width:100%;
+  box-sizing:border-box;
+  margin:0 0 15px 0;
+  padding:15px;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.sellerQuickOverview h2{
+  margin:0 0 12px 0;
+  font-size:20px;
+}
+
+.sellerQuickGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.sellerQuickCard{
+  min-height:90px;
+  padding:14px;
+  box-sizing:border-box;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  background:#fff;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  transition:.2s;
+}
+
+.sellerQuickCard:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,.10);
+}
+
+.sellerQuickCard span{
+  font-size:24px;
+  margin-bottom:6px;
+}
+
+.sellerQuickCard b{
+  font-size:15px;
+}
+
+.sellerQuickCard small{
+  margin-top:3px;
+  font-size:11px;
+  color:#666;
+}
+
+/* Mobile */
+@media(max-width:700px){
+  .sellerQuickGrid{
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
+
+  .sellerQuickOverview{
+    padding:10px;
+  }
+
+  .sellerQuickCard{
+    min-height:82px;
+    padding:10px;
+  }
 }
 </style>
 
