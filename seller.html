@@ -1145,94 +1145,44 @@ PAN, Aadhaar/ID aur Shop Proof company verification ke liye use honge.
 
 <div id="businessBox" class="hidden">
 
-<!-- SELLER QUICK OVERVIEW -->
-<div class="sellerQuickOverview">
+<!-- SELLER BUSINESS MENU -->
+<div class="card menu" style="
+  width:100%;
+  box-sizing:border-box;
+  margin:0 0 15px 0;
+  padding:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+">
 
-  <h2>Seller Home</h2>
+  <button onclick="showSellerDashboard()">Dashboard</button>
 
-  <div class="sellerQuickGrid">
+  <button onclick="openAddProduct()">Add Product</button>
 
-    <div class="sellerQuickCard" onclick="showSellerOrders()">
-      <span>📦</span>
-      <b>Orders</b>
-      <small>Orders dekhein</small>
-    </div>
+  <button onclick="showMyProducts()">My Products</button>
 
-    <div class="sellerQuickCard" onclick="openAddProduct()">
-      <span>➕</span>
-      <b>Add Product</b>
-      <small>Naya product add karein</small>
-    </div>
+  <button onclick="showSellerOrders()">Orders</button>
 
-    <div class="sellerQuickCard" onclick="showMyProducts()">
-      <span>🛍️</span>
-      <b>My Products</b>
-      <small>Products manage karein</small>
-    </div>
+  <button onclick="showPaymentsSettlement()">Payments & Settlement</button>
 
-    <div class="sellerQuickCard" onclick="showPaymentsSettlement()">
-      <span>💰</span>
-      <b>Payments</b>
-      <small>Sales & settlement</small>
-    </div>
+  <button onclick="showSellerCustomers()">Customers</button>
 
-    <div class="sellerQuickCard" onclick="showSellerReturns()">
-      <span>🔄</span>
-      <b>Returns</b>
-      <small>Return tracking</small>
-    </div>
+  <button onclick="showSellerReturns()">Return Tracking</button>
 
-    <div class="sellerQuickCard" onclick="showSellerNotifications()">
-      <span>🔔</span>
-      <b>Notifications</b>
-      <small>Important updates</small>
-    </div>
+  <button onclick="showSellerNotifications()">Notifications</button>
 
-  </div>
+  <button onclick="showSellerSettings()">Settings</button>
+
+  <button onclick="showSellerBank()">Bank Account</button>
+
+  <button onclick="showSellerComplaint()">
+    Complaint / Raise Complaint
+  </button>
+
+  <button onclick="showSellerHelpdesk()">Helpdesk</button>
 
 </div>
-    
-<div class="card menu">
-
-<h2> Seller Business</h2>
-    
-<button onclick="showSellerDashboard()">Dashboard</button>
-
-<button onclick="openAddProduct()">
- Add Product
-</button>
-
-<button onclick="showMyProducts()">
- My Products
-</button>
-
-<button onclick="showSellerOrders()">
-   Orders
-</button>
-  
-<button onclick="showPaymentsSettlement()">
- Payments & Settlement 
-</button>
-
-<button onclick="showSellerCustomers()">
- Customers
-</button>
-    <button onclick="showSellerReturns()">
-  Return Tracking
-</button>
-
-<button onclick="showSellerNotifications()">Notifications</button>
-    
-    <button onclick="showSellerSettings()">Settings</button>
-
-<button onclick="showSellerBank()">Bank Account</button>
-
-<button onclick="showSellerComplaint()">Complaint / Raise Complaint</button>
-
-<button onclick="showSellerHelpdesk()">Helpdesk</button>
-
-</div>
-
 
 <!-- ================= ADD PRODUCT ================= -->
 
