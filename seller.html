@@ -5218,6 +5218,147 @@ body > header,
 }
 
 /* ===== END ADMIN STYLE SELLER PANEL ===== */
+
+/* ===== SIMPLE SELLER PANEL FINAL ===== */
+
+/* Main seller area */
+#sellerPanel{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:15px 20px 30px 205px !important;
+  box-sizing:border-box !important;
+  background:#f5f7fb !important;
+}
+
+/* Seller profile */
+#sellerPanel .sellerProfileCard{
+  position:fixed !important;
+  left:0 !important;
+  top:0 !important;
+  width:185px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  z-index:9999 !important;
+}
+
+/* Seller business menu */
+#businessBox{
+  position:fixed !important;
+  left:0 !important;
+  top:260px !important;
+  width:185px !important;
+  height:calc(100vh - 260px) !important;
+  overflow-y:auto !important;
+  margin:0 !important;
+  padding:10px !important;
+  box-sizing:border-box !important;
+  z-index:9998 !important;
+}
+
+/* Menu heading */
+#businessBox .menu h2{
+  font-size:15px !important;
+  margin:5px 0 10px !important;
+}
+
+/* Menu buttons */
+#businessBox .menu button{
+  width:100% !important;
+  min-height:40px !important;
+  margin:3px 0 !important;
+  padding:8px 9px !important;
+  font-size:12px !important;
+  text-align:left !important;
+  box-sizing:border-box !important;
+}
+
+/* Welcome content */
+#sellerWelcomeScreen{
+  width:100% !important;
+  max-width:none !important;
+  box-sizing:border-box !important;
+}
+
+/* Benefits in one row */
+#sellerWelcomeScreen .sellerBenefits{
+  display:grid !important;
+  grid-template-columns:repeat(4,1fr) !important;
+  gap:10px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+/* Each benefit */
+#sellerWelcomeScreen .sellerBenefit{
+  width:auto !important;
+  min-width:0 !important;
+  padding:12px 6px !important;
+  text-align:center !important;
+  box-sizing:border-box !important;
+}
+
+/* Benefit text */
+#sellerWelcomeScreen .sellerBenefit b{
+  font-size:13px !important;
+}
+
+/* Benefit icon */
+#sellerWelcomeScreen .sellerBenefitIcon{
+  font-size:18px !important;
+}
+
+/* Cards */
+#sellerPanel > .card:not(.sellerProfileCard){
+  width:100% !important;
+  max-width:none !important;
+  box-sizing:border-box !important;
+  margin:12px 0 !important;
+}
+
+/* ===== MOBILE SELLER PANEL ===== */
+@media(max-width:700px){
+
+  #sellerPanel{
+    padding:10px 10px 25px 10px !important;
+  }
+
+  /* Mobile me profile normal position */
+  #sellerPanel .sellerProfileCard{
+    position:relative !important;
+    width:100% !important;
+    left:auto !important;
+    top:auto !important;
+    margin-bottom:10px !important;
+  }
+
+  /* Mobile business menu */
+  #businessBox{
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    width:100% !important;
+    height:auto !important;
+    max-height:none !important;
+    margin:10px 0 !important;
+  }
+
+  #businessBox .menu button{
+    min-height:44px !important;
+    font-size:13px !important;
+    text-align:left !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefits{
+    grid-template-columns:repeat(2,1fr) !important;
+    gap:8px !important;
+  }
+
+  #sellerWelcomeScreen .sellerBenefit{
+    padding:10px 5px !important;
+  }
+
+}
 </style>
 
 </head>
