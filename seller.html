@@ -5704,6 +5704,98 @@ body > header,
   }
 
 }
+
+/* ===== FINAL SELLER DISPLAY FIX ===== */
+
+/* Seller panel full width */
+#sellerPanel{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:15px 20px 30px 20px !important;
+  box-sizing:border-box !important;
+  background:#f5f7fb !important;
+  min-height:100vh !important;
+}
+
+/* Old left profile/sidebar hide */
+#sellerPanel > .sellerProfileCard{
+  display:none !important;
+}
+
+/* Business area full width */
+#businessBox{
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+}
+
+/* Seller menu at top */
+#businessBox > .menu{
+  width:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  padding:10px !important;
+  margin:0 0 15px 0 !important;
+  overflow-x:auto !important;
+  white-space:nowrap !important;
+  box-sizing:border-box !important;
+  background:#fff !important;
+  border-radius:10px !important;
+}
+
+/* Menu heading hide */
+#businessBox > .menu h2{
+  display:none !important;
+}
+
+/* Menu buttons */
+#businessBox > .menu button{
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-width:max-content !important;
+  margin:0 !important;
+  padding:10px 14px !important;
+  white-space:nowrap !important;
+}
+
+/* Other seller cards */
+#businessBox > .card:not(.menu){
+  width:100% !important;
+  max-width:none !important;
+  margin:10px 0 !important;
+  box-sizing:border-box !important;
+}
+
+/* Mobile */
+@media (max-width:800px){
+  #sellerPanel{
+    padding:10px !important;
+  }
+
+  #businessBox > .menu{
+    gap:6px !important;
+    padding:8px !important;
+  }
+
+  #businessBox > .menu button{
+    padding:9px 12px !important;
+    font-size:12px !important;
+  }
+}
+
+@media (max-width:400px){
+  #sellerPanel{
+    padding:7px !important;
+  }
+
+  #businessBox > .menu button{
+    padding:8px 10px !important;
+    font-size:11px !important;
+  }
+}
 </style>
 
 </head>
