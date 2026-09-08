@@ -21,25 +21,87 @@
           <span class="text-xl font-bold tracking-wide">SellerHub</span>
         </div>
 
-        <nav class="space-y-1">
-          <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-indigo-600/20 text-indigo-400 rounded-xl font-medium">
-            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-            <span>Dashboard</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-xl font-medium">
-            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-            <span>Products</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-xl font-medium">
-            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-            <span>Orders</span>
-          </a>
-          <!-- Back to main website link -->
-          <a href="index.html" class="flex items-center space-x-3 px-4 py-3 text-emerald-400 hover:bg-slate-800 rounded-xl font-medium mt-6 border-t border-slate-800">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-            <span>Back to Store</span>
-          </a>
-        </nav>
+   <nav class="space-y-1">
+
+  <button onclick="openSellerFeature('dashboard')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+    <span>Dashboard</span>
+  </button>
+
+  <button onclick="openSellerFeature('products')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="package" class="w-5 h-5"></i>
+    <span>Products</span>
+  </button>
+
+  <button onclick="openSellerFeature('orders')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+    <span>Orders</span>
+  </button>
+
+  <button onclick="openSellerFeature('payments')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="wallet" class="w-5 h-5"></i>
+    <span>Payments & Settlement</span>
+  </button>
+
+  <button onclick="openSellerFeature('earnings')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="badge-indian-rupee" class="w-5 h-5"></i>
+    <span>Earnings & Commission</span>
+  </button>
+
+  <button onclick="openSellerFeature('customers')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="users" class="w-5 h-5"></i>
+    <span>Customers</span>
+  </button>
+
+  <button onclick="openSellerFeature('returns')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+    <span>Return Tracking</span>
+  </button>
+
+  <button onclick="openSellerFeature('notifications')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="bell" class="w-5 h-5"></i>
+    <span>Notifications</span>
+  </button>
+
+  <button onclick="openSellerFeature('settings')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="settings" class="w-5 h-5"></i>
+    <span>Settings</span>
+  </button>
+
+  <button onclick="openSellerFeature('bank')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="building-2" class="w-5 h-5"></i>
+    <span>Bank Account</span>
+  </button>
+
+  <button onclick="openSellerFeature('complaint')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="message-square-warning" class="w-5 h-5"></i>
+    <span>Complaint / Raise Complaint</span>
+  </button>
+
+  <button onclick="openSellerFeature('helpdesk')"
+    class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-xl font-medium text-left">
+    <i data-lucide="headphones" class="w-5 h-5"></i>
+    <span>Helpdesk</span>
+  </button>
+
+  <a href="index.html"
+    class="flex items-center space-x-3 px-4 py-3 text-emerald-400 hover:bg-slate-800 rounded-xl font-medium mt-6 border-t border-slate-800">
+    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+    <span>Back to Store</span>
+  </a>
+
+</nav>    
       </div>
 
       <div class="flex items-center space-x-3 p-3 bg-slate-800/60 rounded-xl border border-slate-700/50">
@@ -158,6 +220,29 @@
     const closeModal = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
     closeBtn.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
+    
+    function openSellerFeature(feature){
+
+  const names = {
+    dashboard: "Seller Dashboard",
+    products: "Products",
+    orders: "Orders",
+    payments: "Payments & Settlement",
+    earnings: "Earnings & Commission Statement",
+    customers: "Customers",
+    returns: "Return Tracking",
+    notifications: "Notifications",
+    settings: "Seller Settings",
+    bank: "Bank Account",
+    complaint: "Complaint / Raise Complaint",
+    helpdesk: "Seller Helpdesk"
+  };
+
+  alert(
+    (names[feature] || "Seller Feature") +
+    "\n\nYe section ab add ho gaya hai.\nAb isme actual Firebase functionality connect karenge."
+  );
+}
   </script>
 </body>
 </html>
