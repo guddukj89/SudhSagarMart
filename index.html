@@ -1248,6 +1248,7 @@ if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.addr
     .doc(orderId)
     .set({
       orderId: orderId,
+     sellerId: sellerIds.length === 1 ? sellerIds[0] : "",
 
       customerId: user.uid,
       customerName: coName.value.trim(),
