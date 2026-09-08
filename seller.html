@@ -108,10 +108,11 @@
         <button onclick="openPage('customers',this)"><i data-lucide="users"></i><span>Customers</span></button>
         <button onclick="openPage('returns',this)"><i data-lucide="rotate-ccw"></i><span>Return Tracking</span></button>
         <button onclick="openPage('notifications',this)"><i data-lucide="bell"></i><span>Notifications</span></button>
+        <button onclick="openPage('reports',this)"><i data-lucide="bar-chart-3"></i><span>Reports</span></button>
         <button onclick="openPage('account',this)"><i data-lucide="settings"></i><span>Settings</span></button>
         <button onclick="openPage('account',this)"><i data-lucide="landmark"></i><span>Bank Account</span></button>
-        <button onclick="alert('Complaint section ready. Firebase complaint collection can be connected next.')"><i data-lucide="message-square-warning"></i><span>Complaint / Raise Complaint</span></button>
-        <button onclick="alert('Seller Helpdesk')"><i data-lucide="headphones"></i><span>Helpdesk</span></button>
+        <button onclick="openPage('complaints',this)"><i data-lucide="message-square-warning"></i><span>Complaint / Raise Complaint</span></button>
+        <button onclick="openPage('helpdesk',this)"><i data-lucide="headphones"></i><span>Helpdesk</span></button>
         <button onclick="location.href='index.html'" style="color:#34d399;margin-top:6px;border-top:1px solid rgba(255,255,255,.05);padding-top:14px"><i data-lucide="arrow-left"></i><span>Back to Store</span></button>
       </div>
       <div style="margin-top:18px;padding:10px 8px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:#aebdce">
@@ -196,6 +197,29 @@
       <section id="notifications" class="page">
         <h1>Notifications</h1>
         <div class="panel"><div id="notificationsTable"></div></div>
+      </section>
+
+      <section id="complaints" class="page">
+        <h1>Complaint / Raise Complaint</h1>
+        <div class="panel">
+          <div class="form-grid">
+            <div class="field"><label>Subject</label><input id="complaintSubject" placeholder="Issue subject"></div>
+            <div class="field"><label>Order ID (optional)</label><input id="complaintOrderId" placeholder="e.g. ORD12345"></div>
+            <div class="field full"><label>Complaint Details</label><textarea id="complaintMessage" placeholder="Apni problem detail me likhiye"></textarea></div>
+          </div>
+          <button class="btn" style="margin-top:14px" onclick="submitComplaint()">Submit Complaint</button>
+          <div id="complaintMsg"></div>
+        </div>
+        <div class="panel" style="margin-top:14px"><h2>My Complaints</h2><div id="complaintsTable"></div></div>
+      </section>
+
+      <section id="helpdesk" class="page">
+        <h1>Seller Helpdesk</h1>
+        <div class="cards">
+          <div class="card"><small>Support</small><div style="font-weight:700;margin-top:7px">Seller Support</div><p class="muted">Account, KYC, orders aur payments ke liye complaint section se ticket raise karein.</p></div>
+          <div class="card"><small>Quick Help</small><div style="font-weight:700;margin-top:7px">Common Issues</div><p class="muted">Product approval, order status, return aur settlement ki updates related section me live milengi.</p></div>
+        </div>
+        <div class="panel" style="margin-top:14px"><h2>Need Help?</h2><p class="muted">Complaint / Raise Complaint me ticket submit karein. Company/admin reply milne par yahan complaint status update hoga.</p><button class="btn" onclick="openPage('complaints')">Raise a Complaint</button></div>
       </section>
 
       <section id="account" class="page">
@@ -319,7 +343,8 @@ function startRealtime(){
   listen(db.collection("payments").where("sellerId","==",uid),snap=>{paymentsCache=[];snap.forEach(d=>paymentsCache.push({id:d.id,...d.data()}));paymentsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderPayments();renderEarnings();renderDashboard();},"Payments");
   listen(db.collection("returns").where("sellerId","==",uid),snap=>{returnsCache=[];snap.forEach(d=>returnsCache.push({id:d.id,...d.data()}));returnsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderReturns();},"Returns");
   listen(db.collection("notifications").where("sellerId","==",uid),snap=>{notificationsCache=[];snap.forEach(d=>notificationsCache.push({id:d.id,...d.data()}));notificationsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderNotifications();renderDashboard();},"Notifications");
-  renderProducts();renderOrders();renderReturns();renderNotifications();renderCustomers();renderEarnings();renderPayments();renderDashboard();renderReports();
+  listen(db.collection("complaints").where("sellerId","==",uid),snap=>{complaintsCache=[];snap.forEach(d=>complaintsCache.push({id:d.id,...d.data()}));complaintsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderComplaints();},"Complaints");
+  renderProducts();renderOrders();renderReturns();renderNotifications();renderCustomers();renderEarnings();renderPayments();renderComplaints();renderDashboard();renderReports();
 }
 function showError(name,e){const msg="Firebase "+name+" error: "+(e.code||e.message);console.error(msg);}
 function openPage(id,btn){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const page=document.getElementById(id);if(page)page.classList.add("active");document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));if(btn)btn.classList.add("active");if(window.lucide)lucide.createIcons();}
@@ -388,6 +413,9 @@ function renderReports(){
   const box=document.getElementById("reportSummary"); if(!box)return;
   box.innerHTML=`<div class="cards"><div class="card"><small>Total Orders</small><div class="big">${ordersCache.length}</div></div><div class="card"><small>Delivered</small><div class="big">${delivered}</div></div><div class="card"><small>Cancelled</small><div class="big">${cancelled}</div></div><div class="card"><small>Products</small><div class="big">${productsCache.length}</div></div></div>`;
 }
+
+function renderComplaints(){const box=document.getElementById("complaintsTable");if(!box)return;box.innerHTML=complaintsCache.length?`<table><tr><th>Date</th><th>Subject</th><th>Order</th><th>Status</th><th>Reply</th></tr>${complaintsCache.map(c=>`<tr><td>${dateText(c.createdAt)}</td><td><b>${esc(c.subject||"Complaint")}</b><br><small class="muted">${esc(c.message||"")}</small></td><td>${esc(c.orderId||"-")}</td><td>${statusHtml(c.status||"open")}</td><td>${esc(c.adminReply||c.reply||"Awaiting company reply")}</td></tr>`).join("")}</table>`:'<div class="empty">Abhi koi complaint nahi hai.</div>';}
+async function submitComplaint(){const subject=document.getElementById("complaintSubject").value.trim(),orderId=document.getElementById("complaintOrderId").value.trim(),message=document.getElementById("complaintMessage").value.trim(),msg=document.getElementById("complaintMsg");msg.className="error";msg.textContent="";if(!subject||!message){msg.textContent="Subject aur complaint details bhariye.";return;}try{await db.collection("complaints").add({sellerId:currentUser.uid,sellerEmail:currentUser.email||sellerData?.email||"",subject,orderId,message,status:"open",createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});document.getElementById("complaintSubject").value="";document.getElementById("complaintOrderId").value="";document.getElementById("complaintMessage").value="";msg.className="success";msg.textContent="Complaint Firebase me submit ho gayi.";}catch(e){msg.textContent="Complaint submit failed: "+e.message;}}
 
 async function saveAccount(){const data={ownerName:document.getElementById("accOwner").value.trim(),shopName:document.getElementById("accShop").value.trim(),mobile:document.getElementById("accMobile").value.trim(),shopAddress:document.getElementById("accAddress").value.trim(),bankAccount:document.getElementById("accBank").value.trim(),ifsc:document.getElementById("accIfsc").value.trim(),upi:document.getElementById("accUpi").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection("sellers").doc(currentUser.uid).set(data,{merge:true});sellerData={...sellerData,...data};await loadSeller();document.getElementById("accMsg").className="success";document.getElementById("accMsg").textContent="Account details Firebase me save ho gaye.";}catch(e){document.getElementById("accMsg").className="error";document.getElementById("accMsg").textContent=e.message;}}
 </script>
