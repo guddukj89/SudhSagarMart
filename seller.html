@@ -8,6 +8,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-storage-compat.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -108,11 +109,10 @@
         <button onclick="openPage('customers',this)"><i data-lucide="users"></i><span>Customers</span></button>
         <button onclick="openPage('returns',this)"><i data-lucide="rotate-ccw"></i><span>Return Tracking</span></button>
         <button onclick="openPage('notifications',this)"><i data-lucide="bell"></i><span>Notifications</span></button>
-        <button onclick="openPage('reports',this)"><i data-lucide="bar-chart-3"></i><span>Reports</span></button>
         <button onclick="openPage('account',this)"><i data-lucide="settings"></i><span>Settings</span></button>
         <button onclick="openPage('account',this)"><i data-lucide="landmark"></i><span>Bank Account</span></button>
-        <button onclick="openPage('complaints',this)"><i data-lucide="message-square-warning"></i><span>Complaint / Raise Complaint</span></button>
-        <button onclick="openPage('helpdesk',this)"><i data-lucide="headphones"></i><span>Helpdesk</span></button>
+        <button onclick="alert('Complaint section ready. Firebase complaint collection can be connected next.')"><i data-lucide="message-square-warning"></i><span>Complaint / Raise Complaint</span></button>
+        <button onclick="alert('Seller Helpdesk')"><i data-lucide="headphones"></i><span>Helpdesk</span></button>
         <button onclick="location.href='index.html'" style="color:#34d399;margin-top:6px;border-top:1px solid rgba(255,255,255,.05);padding-top:14px"><i data-lucide="arrow-left"></i><span>Back to Store</span></button>
       </div>
       <div style="margin-top:18px;padding:10px 8px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:#aebdce">
@@ -199,29 +199,6 @@
         <div class="panel"><div id="notificationsTable"></div></div>
       </section>
 
-      <section id="complaints" class="page">
-        <h1>Complaint / Raise Complaint</h1>
-        <div class="panel">
-          <div class="form-grid">
-            <div class="field"><label>Subject</label><input id="complaintSubject" placeholder="Issue subject"></div>
-            <div class="field"><label>Order ID (optional)</label><input id="complaintOrderId" placeholder="e.g. ORD12345"></div>
-            <div class="field full"><label>Complaint Details</label><textarea id="complaintMessage" placeholder="Apni problem detail me likhiye"></textarea></div>
-          </div>
-          <button class="btn" style="margin-top:14px" onclick="submitComplaint()">Submit Complaint</button>
-          <div id="complaintMsg"></div>
-        </div>
-        <div class="panel" style="margin-top:14px"><h2>My Complaints</h2><div id="complaintsTable"></div></div>
-      </section>
-
-      <section id="helpdesk" class="page">
-        <h1>Seller Helpdesk</h1>
-        <div class="cards">
-          <div class="card"><small>Support</small><div style="font-weight:700;margin-top:7px">Seller Support</div><p class="muted">Account, KYC, orders aur payments ke liye complaint section se ticket raise karein.</p></div>
-          <div class="card"><small>Quick Help</small><div style="font-weight:700;margin-top:7px">Common Issues</div><p class="muted">Product approval, order status, return aur settlement ki updates related section me live milengi.</p></div>
-        </div>
-        <div class="panel" style="margin-top:14px"><h2>Need Help?</h2><p class="muted">Complaint / Raise Complaint me ticket submit karein. Company/admin reply milne par yahan complaint status update hoga.</p><button class="btn" onclick="openPage('complaints')">Raise a Complaint</button></div>
-      </section>
-
       <section id="account" class="page">
         <h1>Seller Account</h1>
         <div class="panel">
@@ -248,11 +225,28 @@
   <div class="modal-box">
     <h2>Add Product</h2>
     <div class="form-grid">
-      <div class="field"><label>Product Name</label><input id="prodName"></div>
-      <div class="field"><label>Category</label><input id="prodCategory"></div>
-      <div class="field"><label>Price</label><input id="prodPrice" type="number" min="0"></div>
-      <div class="field"><label>Stock</label><input id="prodStock" type="number" min="0"></div>
-      <div class="field full"><label>Description</label><textarea id="prodDesc"></textarea></div>
+      <div class="field full">
+        <label>Product Image <span style="color:#c62828">*</span></label>
+        <input id="prodImage" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewProductImage(event)">
+        <small class="muted">JPG, PNG ya WebP • maximum 5 MB</small>
+        <div id="prodImagePreview" style="display:none;margin-top:10px">
+          <img id="prodImagePreviewImg" alt="Product preview" style="width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid #d8dee7">
+        </div>
+      </div>
+      <div class="field"><label>Product Name <span style="color:#c62828">*</span></label><input id="prodName" placeholder="e.g. White T-shirt"></div>
+      <div class="field"><label>Category <span style="color:#c62828">*</span></label>
+        <select id="prodCategory">
+          <option value="">Select Category</option>
+          <option>Fashion</option><option>Electronics</option><option>Mobile & Accessories</option>
+          <option>Home & Kitchen</option><option>Grocery</option><option>Beauty & Personal Care</option>
+          <option>Health</option><option>Shoes & Footwear</option><option>Clothing</option>
+          <option>Toys & Baby</option><option>Sports & Fitness</option><option>Books & Stationery</option>
+          <option>Automotive</option><option>Jewellery & Accessories</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Price (₹) <span style="color:#c62828">*</span></label><input id="prodPrice" type="number" min="0" step="0.01" placeholder="149"></div>
+      <div class="field"><label>Stock <span style="color:#c62828">*</span></label><input id="prodStock" type="number" min="0" step="1" placeholder="50"></div>
+      <div class="field full"><label>Description</label><textarea id="prodDesc" placeholder="Product ke baare me details..."></textarea></div>
     </div>
     <div class="modal-actions">
       <button class="btn secondary" onclick="hideProductModal()">Cancel</button>
@@ -276,6 +270,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
+const storage=firebase.storage();
 let currentUser=null,sellerData=null;
 let productsCache=[],ordersCache=[],paymentsCache=[],returnsCache=[],notificationsCache=[];
 let unsub=[];
@@ -308,31 +303,27 @@ auth.onAuthStateChanged(async user=>{
   clearListeners();currentUser=user;
   if(!user){showApp(false);return;}
   showApp(true);
-  try{await loadSeller();startRealtime();}catch(e){console.error("Seller initialization failed:",e);showApp(true);}
+  try{await loadSeller();startRealtime();}catch(e){console.error(e);alert("Seller data load nahi hua: "+e.message);}
 });
 
 async function loadSeller(){
   const snap=await db.collection("sellers").doc(currentUser.uid).get();
   sellerData=snap.exists?snap.data():{uid:currentUser.uid,email:currentUser.email,shopName:"Seller Shop",ownerName:"Seller",kycStatus:"pending",accountStatus:"pending"};
-  const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v??"";};
-  const setValue=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v??"";};
-  setText("sideShop",sellerData.shopName||"Seller Shop");
-  setText("sideEmail",sellerData.email||currentUser.email);
-  setValue("accOwner",sellerData.ownerName||sellerData.name||"");
-  setValue("accShop",sellerData.shopName||"");
-  setValue("accMobile",sellerData.mobile||"");
-  setValue("accEmail",sellerData.email||currentUser.email);
-  setValue("accAddress",sellerData.shopAddress||sellerData.address||"");
-  setValue("accBank",sellerData.bankAccount||"");
-  setValue("accIfsc",sellerData.ifsc||"");
-  setValue("accUpi",sellerData.upi||"");
+  document.getElementById("sideShop").textContent=sellerData.shopName||"Seller Shop";
+  document.getElementById("sideEmail").textContent=sellerData.email||currentUser.email;
+  document.getElementById("accOwner").value=sellerData.ownerName||sellerData.name||"";
+  document.getElementById("accShop").value=sellerData.shopName||"";
+  document.getElementById("accMobile").value=sellerData.mobile||"";
+  document.getElementById("accEmail").value=sellerData.email||currentUser.email;
+  document.getElementById("accAddress").value=sellerData.shopAddress||sellerData.address||"";
+  document.getElementById("accBank").value=sellerData.bankAccount||"";
+  document.getElementById("accIfsc").value=sellerData.ifsc||"";
+  document.getElementById("accUpi").value=sellerData.upi||"";
   const st=sellerData.accountStatus||sellerData.status||"pending",kyc=sellerData.kycStatus||st,n=document.getElementById("approvalNotice");
-  if(n){
-    if(st==="pending"||kyc==="pending")n.innerHTML='<div class="notice"><b>Account pending approval:</b> Company KYC approve karegi tab selling/order processing fully enable hoga.</div>';
-    else if(st==="rejected"||kyc==="rejected")n.innerHTML='<div class="notice"><b>Account rejected:</b> Seller Account me rejection details check karein.</div>';
-    else if(st==="blocked")n.innerHTML='<div class="notice"><b>Account blocked:</b> Company se contact karein.</div>';
-    else n.innerHTML='<div class="notice" style="border-left-color:#16803c;background:#eefbf2"><b>✓ Seller approved</b> — Firebase se live data sync ho raha hai.</div>';
-  }
+  if(st==="pending"||kyc==="pending")n.innerHTML='<div class="notice"><b>Account pending approval:</b> Company KYC approve karegi tab selling/order processing fully enable hoga.</div>';
+  else if(st==="rejected"||kyc==="rejected")n.innerHTML='<div class="notice"><b>Account rejected:</b> Seller Account me rejection details check karein.</div>';
+  else if(st==="blocked")n.innerHTML='<div class="notice"><b>Account blocked:</b> Company se contact karein.</div>';
+  else n.innerHTML='<div class="notice" style="border-left-color:#16803c;background:#eefbf2"><b>✓ Seller approved</b> — Firebase se live data sync ho raha hai.</div>';
 }
 
 function startRealtime(){
@@ -343,27 +334,74 @@ function startRealtime(){
   listen(db.collection("payments").where("sellerId","==",uid),snap=>{paymentsCache=[];snap.forEach(d=>paymentsCache.push({id:d.id,...d.data()}));paymentsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderPayments();renderEarnings();renderDashboard();},"Payments");
   listen(db.collection("returns").where("sellerId","==",uid),snap=>{returnsCache=[];snap.forEach(d=>returnsCache.push({id:d.id,...d.data()}));returnsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderReturns();},"Returns");
   listen(db.collection("notifications").where("sellerId","==",uid),snap=>{notificationsCache=[];snap.forEach(d=>notificationsCache.push({id:d.id,...d.data()}));notificationsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderNotifications();renderDashboard();},"Notifications");
-  listen(db.collection("complaints").where("sellerId","==",uid),snap=>{complaintsCache=[];snap.forEach(d=>complaintsCache.push({id:d.id,...d.data()}));complaintsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderComplaints();},"Complaints");
-  renderProducts();renderOrders();renderReturns();renderNotifications();renderCustomers();renderEarnings();renderPayments();renderComplaints();renderDashboard();renderReports();
+  renderProducts();renderOrders();renderReturns();renderNotifications();renderCustomers();renderEarnings();renderPayments();renderDashboard();renderReports();
 }
 function showError(name,e){const msg="Firebase "+name+" error: "+(e.code||e.message);console.error(msg);}
 function openPage(id,btn){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const page=document.getElementById(id);if(page)page.classList.add("active");document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));if(btn)btn.classList.add("active");if(window.lucide)lucide.createIcons();}
 
 function renderProducts(){
   const box=document.getElementById("productsTable");if(!box)return;
-  box.innerHTML=productsCache.length?`<table><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Action</th></tr>${productsCache.map(p=>`<tr><td><b>${esc(p.name||p.productName)}</b><br><small class="muted">${esc(p.description||"")}</small></td><td>${esc(p.category||"")}</td><td>${money(p.price)}</td><td>${Number(p.stock||0)}</td><td>${statusHtml(p.status||"pending")}</td><td><button class="btn secondary" onclick="editProduct('${esc(p.id)}')">Edit</button> <button class="btn danger" onclick="deleteProduct('${esc(p.id)}')">Delete</button></td></tr>`).join("")}</table>`:'<div class="empty">Abhi koi product nahi hai.</div>';
+  box.innerHTML=productsCache.length?`<table><tr><th>Image</th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Action</th></tr>${productsCache.map(p=>`<tr><td>${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="Product" style="width:52px;height:52px;object-fit:cover;border-radius:7px;border:1px solid #eee">`:'—'}</td><td><b>${esc(p.name||p.productName)}</b><br><small class="muted">${esc(p.description||"")}</small></td><td>${esc(p.category||"")}</td><td>${money(p.price)}</td><td>${Number(p.stock||0)}</td><td>${statusHtml(p.status||"pending")}</td><td><button class="btn secondary" onclick="editProduct('${esc(p.id)}')">Edit</button> <button class="btn danger" onclick="deleteProduct('${esc(p.id)}')">Delete</button></td></tr>`).join("")}</table>`:'<div class="empty">Abhi koi product nahi hai.</div>';
+}
+function previewProductImage(event){
+  const file=event.target.files?.[0];
+  const box=document.getElementById("prodImagePreview");
+  const img=document.getElementById("prodImagePreviewImg");
+  if(!file){box.style.display="none";return;}
+  if(file.size>5*1024*1024){alert("Product image maximum 5 MB honi chahiye.");event.target.value="";box.style.display="none";return;}
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){alert("Sirf JPG, PNG ya WebP image upload karein.");event.target.value="";box.style.display="none";return;}
+  img.src=URL.createObjectURL(file);box.style.display="block";
 }
 function showProductModal(){document.getElementById("productModal").classList.add("show");}
-function hideProductModal(){document.getElementById("productModal").classList.remove("show");["prodName","prodCategory","prodPrice","prodStock","prodDesc"].forEach(id=>document.getElementById(id).value="");document.getElementById("prodMsg").textContent="";document.querySelector("#productModal h2").textContent="Add Product";document.getElementById("productModal").dataset.editId="";}
-function editProduct(id){const p=productsCache.find(x=>x.id===id);if(!p)return;showProductModal();document.querySelector("#productModal h2").textContent="Edit Product";document.getElementById("productModal").dataset.editId=id;document.getElementById("prodName").value=p.name||p.productName||"";document.getElementById("prodCategory").value=p.category||"";document.getElementById("prodPrice").value=p.price??"";document.getElementById("prodStock").value=p.stock??"";document.getElementById("prodDesc").value=p.description||"";}
+function hideProductModal(){
+  document.getElementById("productModal").classList.remove("show");
+  ["prodName","prodCategory","prodPrice","prodStock","prodDesc","prodImage"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("prodImagePreview").style.display="none";
+  document.getElementById("prodMsg").textContent="";
+  document.querySelector("#productModal h2").textContent="Add Product";
+  document.getElementById("productModal").dataset.editId="";
+}
+function editProduct(id){
+  const p=productsCache.find(x=>x.id===id);if(!p)return;showProductModal();
+  document.querySelector("#productModal h2").textContent="Edit Product";
+  document.getElementById("productModal").dataset.editId=id;
+  document.getElementById("prodName").value=p.name||p.productName||"";
+  document.getElementById("prodCategory").value=p.category||"";
+  document.getElementById("prodPrice").value=p.price??"";
+  document.getElementById("prodStock").value=p.stock??"";
+  document.getElementById("prodDesc").value=p.description||"";
+  if(p.imageUrl){document.getElementById("prodImagePreviewImg").src=p.imageUrl;document.getElementById("prodImagePreview").style.display="block";}
+}
 async function addProduct(){
-  const name=document.getElementById("prodName").value.trim(),category=document.getElementById("prodCategory").value.trim(),price=Number(document.getElementById("prodPrice").value),stock=Number(document.getElementById("prodStock").value),description=document.getElementById("prodDesc").value.trim(),msg=document.getElementById("prodMsg"),editId=document.getElementById("productModal").dataset.editId;
-  msg.className="error";msg.textContent="";if(!name||!category||!Number.isFinite(price)||price<0||!Number.isFinite(stock)||stock<0){msg.textContent="Product details sahi bharo.";return;}
+  const name=document.getElementById("prodName").value.trim();
+  const category=document.getElementById("prodCategory").value;
+  const price=Number(document.getElementById("prodPrice").value);
+  const stock=Number(document.getElementById("prodStock").value);
+  const description=document.getElementById("prodDesc").value.trim();
+  const imageFile=document.getElementById("prodImage").files?.[0];
+  const msg=document.getElementById("prodMsg");
+  const editId=document.getElementById("productModal").dataset.editId;
+  msg.className="error";msg.textContent="";
+  if(!name||!category||!Number.isFinite(price)||price<0||!Number.isFinite(stock)||stock<0){msg.textContent="Product name, category, price aur stock sahi bharo.";return;}
+  if(!editId&&!imageFile){msg.textContent="Product image upload karna zaroori hai.";return;}
+  if(imageFile){
+    if(imageFile.size>5*1024*1024){msg.textContent="Image maximum 5 MB honi chahiye.";return;}
+    if(!["image/jpeg","image/png","image/webp"].includes(imageFile.type)){msg.textContent="Sirf JPG, PNG ya WebP image upload karein.";return;}
+  }
   try{
+    msg.className="muted";msg.textContent=imageFile?"Image upload ho rahi hai...":"Product update ho raha hai...";
     const data={sellerId:currentUser.uid,name,category,price,stock,description,status:"pending",approved:false,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-    if(editId)await db.collection("products").doc(editId).update(data);else await db.collection("products").add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    msg.className="success";msg.textContent=editId?"Product update ho gaya; approval ke liye pending hai.":"Product Firebase me save ho gaya; approval ke liye pending hai.";setTimeout(hideProductModal,500);
-  }catch(e){msg.textContent=e.message;}
+    if(imageFile){
+      const safeName=imageFile.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+      const imageRef=storage.ref().child(`sellers/${currentUser.uid}/products/${Date.now()}_${safeName}`);
+      const upload=await imageRef.put(imageFile,{contentType:imageFile.type});
+      data.imageUrl=await upload.ref.getDownloadURL();
+    }
+    if(editId)await db.collection("products").doc(editId).update(data);
+    else await db.collection("products").add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    msg.className="success";msg.textContent=editId?"Product update ho gaya; approval ke liye pending hai.":"Product aur image Firebase me save ho gaya; approval ke liye pending hai.";
+    setTimeout(hideProductModal,700);
+  }catch(e){msg.className="error";msg.textContent=e.message;}
 }
 async function deleteProduct(id){if(!confirm("Product delete karna hai?"))return;try{await db.collection("products").doc(id).delete();}catch(e){alert("Delete failed: "+e.message);}}
 
@@ -376,47 +414,30 @@ async function updateOrderStatus(id,status){try{await db.collection("orders").do
 
 function getCommissionRate(){const n=Number(sellerData?.commission??sellerData?.commissionRate??10);return Math.max(0,Math.min(100,n))/100;}
 function calcFinance(){let gross=0,commission=0,deliveredGross=0;ordersCache.forEach(o=>{const amount=Number(o.amount??o.total??0);gross+=amount;const st=String(o.status||o.orderStatus||"").toLowerCase();if(st==="delivered"){deliveredGross+=amount;commission+=Number(o.commission??amount*getCommissionRate());}});let paid=0;paymentsCache.forEach(p=>{if(String(p.status||"").toLowerCase()==="paid")paid+=Number(p.amount||0);});const net=Math.max(0,deliveredGross-commission),pending=Math.max(0,net-paid);return {gross,commission,deliveredGross,paid,net,pending};}
-function renderPayments(){
-  const f=calcFinance();
-  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  set("pGross",money(f.gross)); set("pCommission",money(f.commission)); set("pEarning",money(f.net)); set("pPaid",money(f.paid)); set("kPending",money(f.pending));
-  const next=paymentsCache.find(p=>String(p.status||"").toLowerCase()==="pending"&&p.settlementDate);
-  set("kNext",next?dateText(next.settlementDate):"7-day cycle");
-  const box=document.getElementById("paymentsTable");
-  if(box) box.innerHTML=paymentsCache.length?`<table><tr><th>Date</th><th>Amount</th><th>Status</th><th>Reference</th></tr>${paymentsCache.map(p=>`<tr><td>${dateText(p.createdAt)}</td><td>${money(p.amount)}</td><td>${statusHtml(p.status)}</td><td>${esc(p.reference||p.txn||"-")}</td></tr>`).join("")}</table>`:'<div class="empty">Abhi payout history nahi hai. Delivered orders ke settlement ke baad company payment record yahan dalegi.</div>';
-}
-
+function renderPayments(){const f=calcFinance();document.getElementById("pGross").textContent=money(f.gross);document.getElementById("pCommission").textContent=money(f.commission);document.getElementById("pEarning").textContent=money(f.net);document.getElementById("pPaid").textContent=money(f.paid);document.getElementById("kPending").textContent=money(f.pending);document.getElementById("kNext").textContent=paymentsCache.find(p=>String(p.status||"").toLowerCase()==="pending"&&p.settlementDate)?dateText(paymentsCache.find(p=>String(p.status||"").toLowerCase()==="pending").settlementDate):"7-day cycle";document.getElementById("paymentsTable").innerHTML=paymentsCache.length?`<table><tr><th>Date</th><th>Amount</th><th>Status</th><th>Reference</th></tr>${paymentsCache.map(p=>`<tr><td>${dateText(p.createdAt)}</td><td>${money(p.amount)}</td><td>${statusHtml(p.status)}</td><td>${esc(p.reference||p.txn||"-")}</td></tr>`).join("")}</table>`:'<div class="empty">Abhi payout history nahi hai. Delivered orders ke settlement ke baad company payment record yahan dalegi.</div>';}
 function renderEarnings(){const f=calcFinance();document.getElementById("eGross").textContent=money(f.gross);document.getElementById("eCommission").textContent=money(f.commission);document.getElementById("eNet").textContent=money(f.net);document.getElementById("ePending").textContent=money(f.pending);document.getElementById("earningsTable").innerHTML=ordersCache.length?`<table><tr><th>Order</th><th>Amount</th><th>Commission</th><th>Seller Earning</th><th>Status</th></tr>${ordersCache.map(o=>{const a=Number(o.amount??o.total??0),del=String(o.status||o.orderStatus||"").toLowerCase()==="delivered",c=del?Number(o.commission??a*getCommissionRate()):0;return `<tr><td>#${esc(o.orderId||o.orderNo||o.id.slice(0,8))}</td><td>${money(a)}</td><td>${money(c)}</td><td>${money(Math.max(0,a-c))}</td><td>${statusHtml(o.status||o.orderStatus)}</td></tr>`}).join("")}</table>`:'<div class="empty">Earnings data order aane ke baad dikhega.</div>';}
 
 function renderReturns(){const box=document.getElementById("returnsTable");box.innerHTML=returnsCache.length?`<table><tr><th>Order</th><th>Reason</th><th>Status</th><th>Date</th><th>Action</th></tr>${returnsCache.map(r=>`<tr><td>#${esc(r.orderId||r.orderNo||"-")}</td><td>${esc(r.reason||"-")}</td><td>${statusHtml(r.status||"pending")}</td><td>${dateText(r.createdAt)}</td><td><select onchange="updateReturnStatus('${esc(r.id)}',this.value)">${["pending","approved","rejected","picked_up","refunded","completed"].map(s=>`<option ${String(r.status||"pending").toLowerCase()===s?"selected":""}>${s}</option>`).join("")}</select></td></tr>`).join("")}</table>`:'<div class="empty">No return requests.</div>';}
 async function updateReturnStatus(id,status){try{await db.collection("returns").doc(id).update({status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Return update failed: "+e.message);}}
-function renderNotifications(){
-  const box=document.getElementById("notificationsTable");
-  if(box) box.innerHTML=notificationsCache.length?`<table><tr><th>Notification</th><th>Status</th><th>Date</th><th>Action</th></tr>${notificationsCache.map(n=>`<tr><td><b>${esc(n.title||"Notification")}</b><br><span class="muted">${esc(n.message||"")}</span></td><td>${statusHtml(n.status||"unread")}</td><td>${dateText(n.createdAt)}</td><td>${String(n.status||"unread").toLowerCase()!=="read"?`<button class="btn secondary" onclick="markRead('${esc(n.id)}')">Mark read</button>`:"✓ Read"}</td></tr>`).join("")}</table>`:'<div class="empty">No notifications.</div>';
-  const recent=document.getElementById("recentNotifications");
-  if(recent) recent.innerHTML=notificationsCache.slice(0,5).map(n=>`<div style="padding:8px 0;border-bottom:1px solid #eee"><b>${esc(n.title||"Notification")}</b><br><small class="muted">${esc(n.message||"")}</small></div>`).join("")||'<div class="empty">No notifications.</div>';
-}
-
+function renderNotifications(){const box=document.getElementById("notificationsTable");box.innerHTML=notificationsCache.length?`<table><tr><th>Notification</th><th>Status</th><th>Date</th><th>Action</th></tr>${notificationsCache.map(n=>`<tr><td><b>${esc(n.title||"Notification")}</b><br><span class="muted">${esc(n.message||"")}</span></td><td>${statusHtml(n.status||"unread")}</td><td>${dateText(n.createdAt)}</td><td>${String(n.status||"unread").toLowerCase()!=="read"?`<button class="btn secondary" onclick="markRead('${esc(n.id)}')">Mark read</button>`:"✓ Read"}</td></tr>`).join("")}</table>`:'<div class="empty">No notifications.</div>';document.getElementById("recentNotifications").innerHTML=notificationsCache.slice(0,5).map(n=>`<div style="padding:8px 0;border-bottom:1px solid #eee"><b>${esc(n.title||"Notification")}</b><br><small class="muted">${esc(n.message||"")}</small></div>`).join("")||'<div class="empty">No notifications.</div>';}
 async function markRead(id){try{await db.collection("notifications").doc(id).update({status:"read",readAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Notification update failed: "+e.message);}}
-function renderCustomers(){const map={};ordersCache.forEach(o=>{const key=o.customerUid||o.customerEmail||o.mobile||o.customerName||"unknown";if(!map[key])map[key]={name:o.customerName||o.name||"Customer",mobile:o.mobile||"-",email:o.customerEmail||"-",orders:0,total:0};map[key].orders++;map[key].total+=Number(o.amount??o.total??0);});const rows=Object.values(map);const box=document.getElementById("customersTable");if(!box)return;box.innerHTML=rows.length?`<table><tr><th>Customer</th><th>Mobile</th><th>Email</th><th>Orders</th><th>Total</th></tr>${rows.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.mobile)}</td><td>${esc(c.email)}</td><td>${c.orders}</td><td>${money(c.total)}</td></tr>`).join("")}</table>`:'<div class="empty">Customer order aane par customer list yahan automatically banegi.</div>';}
+function renderCustomers(){const map={};ordersCache.forEach(o=>{const key=o.customerUid||o.customerEmail||o.mobile||o.customerName||"unknown";if(!map[key])map[key]={name:o.customerName||o.name||"Customer",mobile:o.mobile||"-",email:o.customerEmail||"-",orders:0,total:0};map[key].orders++;map[key].total+=Number(o.amount??o.total??0);});const rows=Object.values(map);document.getElementById("customersTable").innerHTML=rows.length?`<table><tr><th>Customer</th><th>Mobile</th><th>Email</th><th>Orders</th><th>Total</th></tr>${rows.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.mobile)}</td><td>${esc(c.email)}</td><td>${c.orders}</td><td>${money(c.total)}</td></tr>`).join("")}</table>`:'<div class="empty">Customer order aane par customer list yahan automatically banegi.</div>';}
 function renderDashboard(){
-  const f=calcFinance(); const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  set("kSales",money(f.gross)); set("kOrders",ordersCache.length); set("kProducts",productsCache.filter(p=>p.status!=="rejected"&&p.approved!==false).length);
-  const customers={}; ordersCache.forEach(o=>customers[o.customerUid||o.customerEmail||o.mobile||o.customerName||o.id]=1); set("kCustomers",Object.keys(customers).length);
-  const today=new Date(); today.setHours(0,0,0,0); let todaySales=0;
+  const f=calcFinance();
+  document.getElementById("kSales").textContent=money(f.gross);
+  document.getElementById("kOrders").textContent=ordersCache.length;
+  document.getElementById("kProducts").textContent=productsCache.filter(p=>p.status!=="rejected"&&p.approved!==false).length;
+  const customers={}; ordersCache.forEach(o=>customers[o.customerUid||o.customerEmail||o.mobile||o.customerName||o.id]=1);
+  document.getElementById("kCustomers").textContent=Object.keys(customers).length;
+  const today=new Date(); today.setHours(0,0,0,0);
+  let todaySales=0;
   ordersCache.forEach(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(o.createdAt||0);if(d>=today)todaySales+=Number(o.amount??o.total??0);});
-  set("kToday",money(todaySales)); set("kPendingOrders",ordersCache.filter(o=>!['delivered','cancelled','completed'].includes(String(o.status||o.orderStatus||'pending').toLowerCase())).length); set("kReturns",returnsCache.length); set("kPending",money(f.pending));
+  document.getElementById("kToday").textContent=money(todaySales);
+  document.getElementById("kPendingOrders").textContent=ordersCache.filter(o=>!['delivered','cancelled','completed'].includes(String(o.status||o.orderStatus||'pending').toLowerCase())).length;
+  document.getElementById("kReturns").textContent=returnsCache.length;
+  document.getElementById("kPending").textContent=money(f.pending);
 }
-
-function renderReports(){
-  const delivered=ordersCache.filter(o=>String(o.status||o.orderStatus||"").toLowerCase()==="delivered").length; const cancelled=ordersCache.filter(o=>String(o.status||o.orderStatus||"").toLowerCase()==="cancelled").length;
-  const box=document.getElementById("reportSummary"); if(!box)return;
-  box.innerHTML=`<div class="cards"><div class="card"><small>Total Orders</small><div class="big">${ordersCache.length}</div></div><div class="card"><small>Delivered</small><div class="big">${delivered}</div></div><div class="card"><small>Cancelled</small><div class="big">${cancelled}</div></div><div class="card"><small>Products</small><div class="big">${productsCache.length}</div></div></div>`;
-}
-
-function renderComplaints(){const box=document.getElementById("complaintsTable");if(!box)return;box.innerHTML=complaintsCache.length?`<table><tr><th>Date</th><th>Subject</th><th>Order</th><th>Status</th><th>Reply</th></tr>${complaintsCache.map(c=>`<tr><td>${dateText(c.createdAt)}</td><td><b>${esc(c.subject||"Complaint")}</b><br><small class="muted">${esc(c.message||"")}</small></td><td>${esc(c.orderId||"-")}</td><td>${statusHtml(c.status||"open")}</td><td>${esc(c.adminReply||c.reply||"Awaiting company reply")}</td></tr>`).join("")}</table>`:'<div class="empty">Abhi koi complaint nahi hai.</div>';}
-async function submitComplaint(){const subject=document.getElementById("complaintSubject").value.trim(),orderId=document.getElementById("complaintOrderId").value.trim(),message=document.getElementById("complaintMessage").value.trim(),msg=document.getElementById("complaintMsg");msg.className="error";msg.textContent="";if(!subject||!message){msg.textContent="Subject aur complaint details bhariye.";return;}try{await db.collection("complaints").add({sellerId:currentUser.uid,sellerEmail:currentUser.email||sellerData?.email||"",subject,orderId,message,status:"open",createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});document.getElementById("complaintSubject").value="";document.getElementById("complaintOrderId").value="";document.getElementById("complaintMessage").value="";msg.className="success";msg.textContent="Complaint Firebase me submit ho gayi.";}catch(e){msg.textContent="Complaint submit failed: "+e.message;}}
-
+function renderReports(){const delivered=ordersCache.filter(o=>String(o.status||o.orderStatus||"").toLowerCase()==="delivered").length,cancelled=ordersCache.filter(o=>String(o.status||o.orderStatus||"").toLowerCase()==="cancelled").length;document.getElementById("reportSummary").innerHTML=`<div class="cards"><div class="card"><small>Total Orders</small><div class="big">${ordersCache.length}</div></div><div class="card"><small>Delivered</small><div class="big">${delivered}</div></div><div class="card"><small>Cancelled</small><div class="big">${cancelled}</div></div><div class="card"><small>Products</small><div class="big">${productsCache.length}</div></div></div>`;}
 async function saveAccount(){const data={ownerName:document.getElementById("accOwner").value.trim(),shopName:document.getElementById("accShop").value.trim(),mobile:document.getElementById("accMobile").value.trim(),shopAddress:document.getElementById("accAddress").value.trim(),bankAccount:document.getElementById("accBank").value.trim(),ifsc:document.getElementById("accIfsc").value.trim(),upi:document.getElementById("accUpi").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection("sellers").doc(currentUser.uid).set(data,{merge:true});sellerData={...sellerData,...data};await loadSeller();document.getElementById("accMsg").className="success";document.getElementById("accMsg").textContent="Account details Firebase me save ho gaye.";}catch(e){document.getElementById("accMsg").className="error";document.getElementById("accMsg").textContent=e.message;}}
 </script>
 </body>
