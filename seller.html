@@ -683,7 +683,18 @@ async function addProduct(){
 }
 async function deleteProduct(id){if(!confirm("Product delete karna hai?"))return;try{await db.collection("products").doc(id).delete();}catch(e){alert("Delete failed: "+e.message);}}
 
-function orderStatusOptions(current){return ["Pending","Confirmed","Processing","Shipped","Out for Delivery","Delivered","Cancelled"].map(s=>`<option ${String(current||"").toLowerCase()===s.toLowerCase()?"selected":""}>${s}</option>`).join("");}
+function orderStatusOptions(current){
+  return [
+    "Pending",
+    "Confirmed",
+    "Packed",
+    "Ready for Pickup",
+    "Picked Up",
+    "Cancelled"
+  ].map(s =>
+    `<option ${String(current||"").toLowerCase()===s.toLowerCase()?"selected":""}>${s}</option>`
+  ).join("");
+}
 function renderOrders(){
   const box=document.getElementById("ordersTable");if(!box)return;
   box.innerHTML=ordersCache.length?`<table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Amount</th><th>Payment</th><th>Status</th><th>Action</th></tr>${ordersCache.map(o=>`<tr><td><b>#${esc(o.orderId||o.orderNo||o.id.slice(0,8))}</b><br><small>${dateText(o.createdAt)}</small></td><td>${esc(o.customerName||o.name||"-")}<br><small>${esc(o.mobile||"")}</small></td><td>${Number(o.itemCount||o.products?.length||o.items?.length||1)}</td><td>${money(o.amount??o.total)}</td><td>${esc(o.paymentMethod||"-")}</td><td>${statusHtml(o.status||o.orderStatus||"Pending")}</td><td><select onchange="updateOrderStatus('${esc(o.id)}',this.value)">${orderStatusOptions(o.status||o.orderStatus)}</select></td></tr>`).join("")}</table>`:'<div class="empty">No orders yet. Customer order aane par yahan live dikhega.</div>';
