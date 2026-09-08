@@ -1676,6 +1676,129 @@ async function showOrders(){
   }
 
 }
+ async function cancelCustomerOrder(orderId){
+
+  if(!currentUser){
+    return alert("Please login first.");
+  }
+
+  const reason = prompt(
+    "Order cancel karne ka reason likhein:\n\n" +
+    "1. Mujhe order ki zarurat nahi hai\n" +
+    "2. Galat product order ho gaya\n" +
+    "3. Delivery late ho rahi hai\n" +
+    "4. Price zyada hai\n" +
+    "5. Dusra reason\n\n" +
+    "Reason number ya apna reason likhein:"
+  );
+
+  if(!reason){
+    return;
+  }
+
+  try{
+
+    const ref = firebase.firestore()
+      .collection("orders")
+      .doc(orderId);
+
+    const snap = await ref.get();
+
+    if(!snap.exists){
+      return alert("Order nahi mila.");
+    }
+
+    const order = snap.data();
+
+    // Sirf isi customer ka order
+    if(
+      order.customerId !== currentUser.uid &&
+      order.customerUid !== currentUser.uid
+    ){
+      return alert("Aap is order ko cancel nahi kar sakte.");
+    }
+
+    // Already cancelled
+    if(
+      String(order.status || order.orderStatus || "")
+        .toLowerCase() === "cancelled"
+    ){
+      return alert("Ye order already cancelled hai.");
+    }
+
+    // Delivered order cancel nahi hoga
+    if(
+      String(order.status || order.orderStatus || "")
+        .toLowerCase() === "delivered"
+    ){
+      return alert("Delivered order cancel nahi kiya ja sakta.");
+    }
+
+    // 7 days check
+    let createdTime = null;
+
+    if(order.createdAt && order.createdAt.toDate){
+      createdTime = order.createdAt.toDate();
+    }else if(order.createdAt){
+      createdTime = new Date(order.createdAt);
+    }
+
+    if(!createdTime || isNaN(createdTime.getTime())){
+      return alert("Order date nahi mili. Cancellation possible nahi hai.");
+    }
+
+    const now = new Date();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+    if(now.getTime() - createdTime.getTime() > sevenDays){
+      return alert(
+        "Order ko 7 din se zyada ho gaye hain.\n\n" +
+        "Ab customer order cancel nahi kar sakta."
+      );
+    }
+
+    const ok = confirm(
+      "Kya aap ye order cancel karna chahte hain?\n\n" +
+      "Order ID: " + (order.orderId || orderId) +
+      "\nReason: " + reason
+    );
+
+    if(!ok){
+      return;
+    }
+
+    await ref.update({
+
+      status: "Cancelled",
+      orderStatus: "Cancelled",
+
+      cancellationReason: reason,
+
+      cancelledBy: "customer",
+      cancelledByUid: currentUser.uid,
+
+      cancelledAt:
+        firebase.firestore.FieldValue.serverTimestamp(),
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    });
+
+    alert("Order successfully cancelled.");
+
+    showOrders();
+
+  }catch(error){
+
+    console.error("Cancel Order Error:",error);
+
+    alert(
+      "Order cancel nahi ho paya.\n\n" +
+      error.message
+    );
+  }
+}
  function openLanguage(){
   const languages = [
     "English",
@@ -3214,6 +3337,27 @@ function sellerOrders(){
           <b>Total:</b> ₹${o.total || 0}<br>
 
           <b>Status:</b> ${o.status || "Order Placed"}<br>
+          ${
+  String(o.status || "").toLowerCase() !== "cancelled" &&
+  String(o.status || "").toLowerCase() !== "delivered"
+  ?
+  `<button
+    onclick="cancelCustomerOrder('${o.id}')"
+    style="
+      margin-top:10px;
+      background:#d32f2f;
+      color:white;
+      border:0;
+      padding:8px 14px;
+      border-radius:6px;
+      font-weight:600;
+      cursor:pointer;
+    ">
+    Cancel Order
+  </button>`
+  :
+  ""
+}
 
           <b>Payment:</b> ${o.payment || "-"}
 
