@@ -1509,10 +1509,17 @@ async function showOrders(){
   }
 
   const box=document.getElementById("orders");
+
+  if(!box){
+    alert("Orders section nahi mila.");
+    return;
+  }
+
   box.innerHTML='<div class="empty">Orders loading...</div>';
   openModal("ordersModal");
 
   try{
+
     const snap=await db.collection("orders")
       .where("customerId","==",currentUser.uid)
       .get();
@@ -1523,33 +1530,79 @@ async function showOrders(){
     }
 
     const customerOrders=snap.docs
-      .map(d=>({id:d.id,...d.data()}))
-      .sort((a,b)=>{
-        const at=a.createdAt?.toMillis?.()||0;
-        const bt=b.createdAt?.toMillis?.()||0;
+      .map(function(doc){
+        return {
+          id:doc.id,
+          ...doc.data()
+        };
+      })
+      .sort(function(a,b){
+        const at=a.createdAt && a.createdAt.toMillis
+          ? a.createdAt.toMillis()
+          : 0;
+
+        const bt=b.createdAt && b.createdAt.toMillis
+          ? b.createdAt.toMillis()
+          : 0;
+
         return bt-at;
       });
 
-    box.innerHTML=customerOrders.map(o=>{
-      const status=o.status||o.orderStatus||"Pending";
-      const amount=Number(o.amount??o.total??0);
+    box.innerHTML=customerOrders.map(function(o){
+
+      const status=o.status || o.orderStatus || "Pending";
+      const amount=Number(
+        o.amount !== undefined
+          ? o.amount
+          : (o.total || 0)
+      );
 
       return `
-        <div class="cartRow">
+        <div class="cartRow" style="display:block;margin-bottom:15px;">
+
           <div>
-            <b>#${escapeHtml(o.orderId||o.orderNo||o.id)}</b><br>
-            ₹${amount.toLocaleString('en-IN')}<br>
-            <small>${escapeHtml(o.customerName||"")}</small>
+            <b>Order ID: #${escapeHtml(o.orderId || o.orderNo || o.id)}</b><br>
+            ₹${amount.toLocaleString('en-IN')}
           </div>
 
-          <b>${escapeHtml(status)}</b>
+          <div style="margin-top:12px;">
+            <b>Order Tracking</b>
+
+            <div style="
+              margin-top:10px;
+              padding:10px;
+              border-left:3px solid #198754;
+            ">
+              ${trackingStep("Order Placed",status)}
+              ${trackingStep("Order Confirmed",status)}
+              ${trackingStep("Packed",status)}
+              ${trackingStep("Ready for Pickup",status)}
+              ${trackingStep("Picked Up",status)}
+              ${trackingStep("Out for Delivery",status)}
+              ${trackingStep("Delivered",status)}
+            </div>
+          </div>
+
+          <div style="margin-top:8px;">
+            <b>Current Status:</b>
+            ${escapeHtml(status)}
+          </div>
+
         </div>
       `;
+
     }).join("");
 
-  }catch(e){
-    console.error(e);
-    box.innerHTML='<div class="empty">Orders load nahi ho paaye.</div>';
+  }catch(error){
+
+    console.error("My Orders Error:",error);
+
+    box.innerHTML=`
+      <div class="empty">
+        Orders load nahi ho paaye.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>
+    `;
   }
 }
  function openLanguage(){
