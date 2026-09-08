@@ -290,21 +290,25 @@ auth.onAuthStateChanged(async user=>{
 async function loadSeller(){
   const snap=await db.collection("sellers").doc(currentUser.uid).get();
   sellerData=snap.exists?snap.data():{uid:currentUser.uid,email:currentUser.email,shopName:"Seller Shop",ownerName:"Seller",kycStatus:"pending",accountStatus:"pending"};
-  document.getElementById("sideShop").textContent=sellerData.shopName||"Seller Shop";
-  document.getElementById("sideEmail").textContent=sellerData.email||currentUser.email;
-  document.getElementById("accOwner").value=sellerData.ownerName||sellerData.name||"";
-  document.getElementById("accShop").value=sellerData.shopName||"";
-  document.getElementById("accMobile").value=sellerData.mobile||"";
-  document.getElementById("accEmail").value=sellerData.email||currentUser.email;
-  document.getElementById("accAddress").value=sellerData.shopAddress||sellerData.address||"";
-  document.getElementById("accBank").value=sellerData.bankAccount||"";
-  document.getElementById("accIfsc").value=sellerData.ifsc||"";
-  document.getElementById("accUpi").value=sellerData.upi||"";
+  const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v??"";};
+  const setValue=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v??"";};
+  setText("sideShop",sellerData.shopName||"Seller Shop");
+  setText("sideEmail",sellerData.email||currentUser.email);
+  setValue("accOwner",sellerData.ownerName||sellerData.name||"");
+  setValue("accShop",sellerData.shopName||"");
+  setValue("accMobile",sellerData.mobile||"");
+  setValue("accEmail",sellerData.email||currentUser.email);
+  setValue("accAddress",sellerData.shopAddress||sellerData.address||"");
+  setValue("accBank",sellerData.bankAccount||"");
+  setValue("accIfsc",sellerData.ifsc||"");
+  setValue("accUpi",sellerData.upi||"");
   const st=sellerData.accountStatus||sellerData.status||"pending",kyc=sellerData.kycStatus||st,n=document.getElementById("approvalNotice");
-  if(st==="pending"||kyc==="pending")n.innerHTML='<div class="notice"><b>Account pending approval:</b> Company KYC approve karegi tab selling/order processing fully enable hoga.</div>';
-  else if(st==="rejected"||kyc==="rejected")n.innerHTML='<div class="notice"><b>Account rejected:</b> Seller Account me rejection details check karein.</div>';
-  else if(st==="blocked")n.innerHTML='<div class="notice"><b>Account blocked:</b> Company se contact karein.</div>';
-  else n.innerHTML='<div class="notice" style="border-left-color:#16803c;background:#eefbf2"><b>✓ Seller approved</b> — Firebase se live data sync ho raha hai.</div>';
+  if(n){
+    if(st==="pending"||kyc==="pending")n.innerHTML='<div class="notice"><b>Account pending approval:</b> Company KYC approve karegi tab selling/order processing fully enable hoga.</div>';
+    else if(st==="rejected"||kyc==="rejected")n.innerHTML='<div class="notice"><b>Account rejected:</b> Seller Account me rejection details check karein.</div>';
+    else if(st==="blocked")n.innerHTML='<div class="notice"><b>Account blocked:</b> Company se contact karein.</div>';
+    else n.innerHTML='<div class="notice" style="border-left-color:#16803c;background:#eefbf2"><b>✓ Seller approved</b> — Firebase se live data sync ho raha hai.</div>';
+  }
 }
 
 function startRealtime(){
