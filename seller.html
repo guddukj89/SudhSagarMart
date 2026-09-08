@@ -279,7 +279,28 @@
       </select></div>
       <div class="field"><label>Price</label><input id="prodPrice" type="number" min="0"></div>
       <div class="field"><label>Stock</label><input id="prodStock" type="number" min="0"></div>
-      <div class="field"><label>Product Image</label><input id="prodImage" type="file" accept="image/jpeg,image/png,image/webp"></div>
+      <div class="field full">
+  <label>Product Images — Maximum 5</label>
+
+  <input id="prodImage1" type="file"
+         accept="image/jpeg,image/png,image/webp">
+
+  <input id="prodImage2" type="file"
+         accept="image/jpeg,image/png,image/webp">
+
+  <input id="prodImage3" type="file"
+         accept="image/jpeg,image/png,image/webp">
+
+  <input id="prodImage4" type="file"
+         accept="image/jpeg,image/png,image/webp">
+
+  <input id="prodImage5" type="file"
+         accept="image/jpeg,image/png,image/webp">
+
+  <small style="color:#777;">
+    Maximum 5 images, each up to 5 MB.
+  </small>
+</div>
       <div class="field full"><label>Description</label><textarea id="prodDesc"></textarea></div>
     </div>
     <div class="modal-actions">
@@ -480,19 +501,185 @@ async function uploadProductImage(file){
   await ref.put(file);
   return await ref.getDownloadURL();
 }
+  async function uploadProductImages(files){
+  const urls = [];
+
+  for(const file of files){
+    if(!file) continue;
+
+    if(!file.type.startsWith("image/")){
+      throw new Error("Sirf image file upload karein.");
+    }
+
+    if(file.size > 5 * 1024 * 1024){
+      throw new Error("Har image maximum 5 MB ki honi chahiye.");
+    }
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+    const ref = storage.ref()
+      .child(`sellers/${currentUser.uid}/products/${Date.now()}_${safeName}`);
+
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+
+    urls.push(url);
+  }
+
+  return urls;
+}
 async function addProduct(){
-  const name=document.getElementById("prodName").value.trim(),category=document.getElementById("prodCategory").value.trim(),price=Number(document.getElementById("prodPrice").value),stock=Number(document.getElementById("prodStock").value),description=document.getElementById("prodDesc").value.trim(),imageFile=document.getElementById("prodImage").files[0],msg=document.getElementById("prodMsg"),editId=document.getElementById("productModal").dataset.editId;
-  msg.className="error";msg.textContent="";if(!name||!category||!Number.isFinite(price)||price<0||!Number.isFinite(stock)||stock<0){msg.textContent="Product details sahi bharo.";return;}
-  if(String(sellerData?.accountStatus||sellerData?.status||'pending').toLowerCase()!=='approved'){msg.textContent='Company approval ke baad product add hoga.';return;}
+
+  const name = document.getElementById("prodName").value.trim();
+  const category = document.getElementById("prodCategory").value.trim();
+  const price = Number(document.getElementById("prodPrice").value);
+  const stock = Number(document.getElementById("prodStock").value);
+  const description = document.getElementById("prodDesc").value.trim();
+
+  const msg = document.getElementById("prodMsg");
+  const editId = document.getElementById("productModal").dataset.editId;
+
+  msg.className = "error";
+  msg.textContent = "";
+
+  if(
+    !name ||
+    !category ||
+    !Number.isFinite(price) ||
+    price < 0 ||
+    !Number.isFinite(stock) ||
+    stock < 0
+  ){
+    msg.textContent = "Product details sahi bharo.";
+    return;
+  }
+
   try{
-    msg.textContent='';
-    let imageUrl='';
-    if(imageFile){msg.className='muted';msg.textContent='Product image upload ho rahi hai...';imageUrl=await uploadProductImage(imageFile);}
-    const data={sellerId:currentUser.uid,sellerName:sellerData?.shopName||sellerData?.businessName||'Seller',sellerShop:sellerData?.shopName||'',name,productName:name,category,price,stock,description,status:"pending",approved:false,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-    if(imageUrl){data.imageUrl=imageUrl;data.imageURL=imageUrl;data.image=imageUrl;}
-    if(editId)await db.collection("products").doc(editId).update(data);else await db.collection("products").add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    msg.className="success";msg.textContent=editId?"Product update ho gaya; approval ke liye pending hai.":"Product Firebase me save ho gaya; approval ke liye pending hai.";setTimeout(hideProductModal,700);
-  }catch(e){msg.className="error";msg.textContent=e.message;}
+
+    if(!currentUser){
+      msg.textContent = "Pehle seller login karein.";
+      return;
+    }
+
+    const accountStatus = String(
+      sellerData?.accountStatus ||
+      sellerData?.status ||
+      "pending"
+    ).toLowerCase();
+
+    if(accountStatus !== "approved"){
+      msg.textContent = "Company approval ke baad product add kar sakte hain.";
+      return;
+    }
+
+    msg.className = "muted";
+    msg.textContent = "Product save ho raha hai...";
+
+    /* 5 image files collect karo */
+    const imageFiles = [
+      document.getElementById("prodImage1")?.files?.[0],
+      document.getElementById("prodImage2")?.files?.[0],
+      document.getElementById("prodImage3")?.files?.[0],
+      document.getElementById("prodImage4")?.files?.[0],
+      document.getElementById("prodImage5")?.files?.[0]
+    ].filter(Boolean);
+
+    /* Images upload */
+    let imageUrls = [];
+
+    if(imageFiles.length){
+
+      msg.textContent =
+        `Images upload ho rahi hain... ${imageFiles.length}/5`;
+
+      imageUrls = await uploadProductImages(imageFiles);
+    }
+
+    /* Seller information */
+    const sellerName =
+      sellerData?.shopName ||
+      sellerData?.businessName ||
+      sellerData?.ownerName ||
+      currentUser.displayName ||
+      "Seller";
+
+    const data = {
+      sellerId: currentUser.uid,
+
+      sellerName: sellerName,
+      sellerShop: sellerData?.shopName || "",
+
+      name: name,
+      productName: name,
+
+      category: category,
+
+      price: price,
+      stock: stock,
+
+      description: description,
+
+      status: "pending",
+      approved: false,
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    /* 5 images Firestore me save */
+    if(imageUrls.length){
+
+      data.imageUrls = imageUrls;
+
+      /* Pehli image ko old fields me bhi rakhenge */
+      data.imageUrl = imageUrls[0];
+      data.imageURL = imageUrls[0];
+      data.image = imageUrls[0];
+
+      /* Individual image fields bhi */
+      imageUrls.forEach((url, index) => {
+        data["image" + (index + 1)] = url;
+      });
+    }
+
+    if(editId){
+
+      await db
+        .collection("products")
+        .doc(editId)
+        .update(data);
+
+      msg.className = "success";
+      msg.textContent =
+        "Product update ho gaya. Approval ke liye pending hai.";
+
+    }else{
+
+      await db
+        .collection("products")
+        .add({
+          ...data,
+          createdAt:
+            firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+      msg.className = "success";
+      msg.textContent =
+        "Product Firebase me save ho gaya. Approval ke liye pending hai.";
+    }
+
+    setTimeout(() => {
+      hideProductModal();
+    }, 1500);
+
+  }catch(e){
+
+    console.error("Product save error:", e);
+
+    msg.className = "error";
+    msg.textContent =
+      e.message || "Product save nahi ho paya.";
+  }
 }
 async function deleteProduct(id){if(!confirm("Product delete karna hai?"))return;try{await db.collection("products").doc(id).delete();}catch(e){alert("Delete failed: "+e.message);}}
 
