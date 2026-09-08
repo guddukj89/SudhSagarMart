@@ -284,7 +284,7 @@ auth.onAuthStateChanged(async user=>{
   clearListeners();currentUser=user;
   if(!user){showApp(false);return;}
   showApp(true);
-  try{await loadSeller();startRealtime();}catch(e){console.error(e);alert("Seller data load nahi hua: "+e.message);}
+  try{await loadSeller();startRealtime();}catch(e){console.error("Seller initialization failed:",e);showApp(true);}
 });
 
 async function loadSeller(){
@@ -351,30 +351,44 @@ async function updateOrderStatus(id,status){try{await db.collection("orders").do
 
 function getCommissionRate(){const n=Number(sellerData?.commission??sellerData?.commissionRate??10);return Math.max(0,Math.min(100,n))/100;}
 function calcFinance(){let gross=0,commission=0,deliveredGross=0;ordersCache.forEach(o=>{const amount=Number(o.amount??o.total??0);gross+=amount;const st=String(o.status||o.orderStatus||"").toLowerCase();if(st==="delivered"){deliveredGross+=amount;commission+=Number(o.commission??amount*getCommissionRate());}});let paid=0;paymentsCache.forEach(p=>{if(String(p.status||"").toLowerCase()==="paid")paid+=Number(p.amount||0);});const net=Math.max(0,deliveredGross-commission),pending=Math.max(0,net-paid);return {gross,commission,deliveredGross,paid,net,pending};}
-function renderPayments(){const f=calcFinance();document.getElementById("pGross").textContent=money(f.gross);document.getElementById("pCommission").textContent=money(f.commission);document.getElementById("pEarning").textContent=money(f.net);document.getElementById("pPaid").textContent=money(f.paid);document.getElementById("kPending").textContent=money(f.pending);document.getElementById("kNext").textContent=paymentsCache.find(p=>String(p.status||"").toLowerCase()==="pending"&&p.settlementDate)?dateText(paymentsCache.find(p=>String(p.status||"").toLowerCase()==="pending").settlementDate):"7-day cycle";document.getElementById("paymentsTable").innerHTML=paymentsCache.length?`<table><tr><th>Date</th><th>Amount</th><th>Status</th><th>Reference</th></tr>${paymentsCache.map(p=>`<tr><td>${dateText(p.createdAt)}</td><td>${money(p.amount)}</td><td>${statusHtml(p.status)}</td><td>${esc(p.reference||p.txn||"-")}</td></tr>`).join("")}</table>`:'<div class="empty">Abhi payout history nahi hai. Delivered orders ke settlement ke baad company payment record yahan dalegi.</div>';}
+function renderPayments(){
+  const f=calcFinance();
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set("pGross",money(f.gross)); set("pCommission",money(f.commission)); set("pEarning",money(f.net)); set("pPaid",money(f.paid)); set("kPending",money(f.pending));
+  const next=paymentsCache.find(p=>String(p.status||"").toLowerCase()==="pending"&&p.settlementDate);
+  set("kNext",next?dateText(next.settlementDate):"7-day cycle");
+  const box=document.getElementById("paymentsTable");
+  if(box) box.innerHTML=paymentsCache.length?`<table><tr><th>Date</th><th>Amount</th><th>Status</th><th>Reference</th></tr>${paymentsCache.map(p=>`<tr><td>${dateText(p.createdAt)}</td><td>${money(p.amount)}</td><td>${statusHtml(p.status)}</td><td>${esc(p.reference||p.txn||"-")}</td></tr>`).join("")}</table>`:'<div class="empty">Abhi payout history nahi hai. Delivered orders ke settlement ke baad company payment record yahan dalegi.</div>';
+}
+
 function renderEarnings(){const f=calcFinance();document.getElementById("eGross").textContent=money(f.gross);document.getElementById("eCommission").textContent=money(f.commission);document.getElementById("eNet").textContent=money(f.net);document.getElementById("ePending").textContent=money(f.pending);document.getElementById("earningsTable").innerHTML=ordersCache.length?`<table><tr><th>Order</th><th>Amount</th><th>Commission</th><th>Seller Earning</th><th>Status</th></tr>${ordersCache.map(o=>{const a=Number(o.amount??o.total??0),del=String(o.status||o.orderStatus||"").toLowerCase()==="delivered",c=del?Number(o.commission??a*getCommissionRate()):0;return `<tr><td>#${esc(o.orderId||o.orderNo||o.id.slice(0,8))}</td><td>${money(a)}</td><td>${money(c)}</td><td>${money(Math.max(0,a-c))}</td><td>${statusHtml(o.status||o.orderStatus)}</td></tr>`}).join("")}</table>`:'<div class="empty">Earnings data order aane ke baad dikhega.</div>';}
 
 function renderReturns(){const box=document.getElementById("returnsTable");box.innerHTML=returnsCache.length?`<table><tr><th>Order</th><th>Reason</th><th>Status</th><th>Date</th><th>Action</th></tr>${returnsCache.map(r=>`<tr><td>#${esc(r.orderId||r.orderNo||"-")}</td><td>${esc(r.reason||"-")}</td><td>${statusHtml(r.status||"pending")}</td><td>${dateText(r.createdAt)}</td><td><select onchange="updateReturnStatus('${esc(r.id)}',this.value)">${["pending","approved","rejected","picked_up","refunded","completed"].map(s=>`<option ${String(r.status||"pending").toLowerCase()===s?"selected":""}>${s}</option>`).join("")}</select></td></tr>`).join("")}</table>`:'<div class="empty">No return requests.</div>';}
 async function updateReturnStatus(id,status){try{await db.collection("returns").doc(id).update({status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Return update failed: "+e.message);}}
-function renderNotifications(){const box=document.getElementById("notificationsTable");box.innerHTML=notificationsCache.length?`<table><tr><th>Notification</th><th>Status</th><th>Date</th><th>Action</th></tr>${notificationsCache.map(n=>`<tr><td><b>${esc(n.title||"Notification")}</b><br><span class="muted">${esc(n.message||"")}</span></td><td>${statusHtml(n.status||"unread")}</td><td>${dateText(n.createdAt)}</td><td>${String(n.status||"unread").toLowerCase()!=="read"?`<button class="btn secondary" onclick="markRead('${esc(n.id)}')">Mark read</button>`:"✓ Read"}</td></tr>`).join("")}</table>`:'<div class="empty">No notifications.</div>';document.getElementById("recentNotifications").innerHTML=notificationsCache.slice(0,5).map(n=>`<div style="padding:8px 0;border-bottom:1px solid #eee"><b>${esc(n.title||"Notification")}</b><br><small class="muted">${esc(n.message||"")}</small></div>`).join("")||'<div class="empty">No notifications.</div>';}
-async function markRead(id){try{await db.collection("notifications").doc(id).update({status:"read",readAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Notification update failed: "+e.message);}}
-function renderCustomers(){const map={};ordersCache.forEach(o=>{const key=o.customerUid||o.customerEmail||o.mobile||o.customerName||"unknown";if(!map[key])map[key]={name:o.customerName||o.name||"Customer",mobile:o.mobile||"-",email:o.customerEmail||"-",orders:0,total:0};map[key].orders++;map[key].total+=Number(o.amount??o.total??0);});const rows=Object.values(map);document.getElementById("customersTable").innerHTML=rows.length?`<table><tr><th>Customer</th><th>Mobile</th><th>Email</th><th>Orders</th><th>Total</th></tr>${rows.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.mobile)}</td><td>${esc(c.email)}</td><td>${c.orders}</td><td>${money(c.total)}</td></tr>`).join("")}</table>`:'<div class="empty">Customer order aane par customer list yahan automatically banegi.</div>';}
-function renderDashboard(){
-  const f=calcFinance();
-  document.getElementById("kSales").textContent=money(f.gross);
-  document.getElementById("kOrders").textContent=ordersCache.length;
-  document.getElementById("kProducts").textContent=productsCache.filter(p=>p.status!=="rejected"&&p.approved!==false).length;
-  const customers={}; ordersCache.forEach(o=>customers[o.customerUid||o.customerEmail||o.mobile||o.customerName||o.id]=1);
-  document.getElementById("kCustomers").textContent=Object.keys(customers).length;
-  const today=new Date(); today.setHours(0,0,0,0);
-  let todaySales=0;
-  ordersCache.forEach(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(o.createdAt||0);if(d>=today)todaySales+=Number(o.amount??o.total??0);});
-  document.getElementById("kToday").textContent=money(todaySales);
-  document.getElementById("kPendingOrders").textContent=ordersCache.filter(o=>!['delivered','cancelled','completed'].includes(String(o.status||o.orderStatus||'pending').toLowerCase())).length;
-  document.getElementById("kReturns").textContent=returnsCache.length;
-  document.getElementById("kPending").textContent=money(f.pending);
+function renderNotifications(){
+  const box=document.getElementById("notificationsTable");
+  if(box) box.innerHTML=notificationsCache.length?`<table><tr><th>Notification</th><th>Status</th><th>Date</th><th>Action</th></tr>${notificationsCache.map(n=>`<tr><td><b>${esc(n.title||"Notification")}</b><br><span class="muted">${esc(n.message||"")}</span></td><td>${statusHtml(n.status||"unread")}</td><td>${dateText(n.createdAt)}</td><td>${String(n.status||"unread").toLowerCase()!=="read"?`<button class="btn secondary" onclick="markRead('${esc(n.id)}')">Mark read</button>`:"✓ Read"}</td></tr>`).join("")}</table>`:'<div class="empty">No notifications.</div>';
+  const recent=document.getElementById("recentNotifications");
+  if(recent) recent.innerHTML=notificationsCache.slice(0,5).map(n=>`<div style="padding:8px 0;border-bottom:1px solid #eee"><b>${esc(n.title||"Notification")}</b><br><small class="muted">${esc(n.message||"")}</small></div>`).join("")||'<div class="empty">No notifications.</div>';
 }
-function renderReports(){const delivered=ordersCache.filter(o=>String(o.status||o.orderStatus||"").toLowerCase()==="delivered").length,cancelled=ordersCache.filter(o=>String(o.status||o.orderStatus||"").toLowerCase()==="cancelled").length;document.getElementById("reportSummary").innerHTML=`<div class="cards"><div class="card"><small>Total Orders</small><div class="big">${ordersCache.length}</div></div><div class="card"><small>Delivered</small><div class="big">${delivered}</div></div><div class="card"><small>Cancelled</small><div class="big">${cancelled}</div></div><div class="card"><small>Products</small><div class="big">${productsCache.length}</div></div></div>`;}
+
+async function markRead(id){try{await db.collection("notifications").doc(id).update({status:"read",readAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Notification update failed: "+e.message);}}
+function renderCustomers(){const map={};ordersCache.forEach(o=>{const key=o.customerUid||o.customerEmail||o.mobile||o.customerName||"unknown";if(!map[key])map[key]={name:o.customerName||o.name||"Customer",mobile:o.mobile||"-",email:o.customerEmail||"-",orders:0,total:0};map[key].orders++;map[key].total+=Number(o.amount??o.total??0);});const rows=Object.values(map);const box=document.getElementById("customersTable");if(!box)return;box.innerHTML=rows.length?`<table><tr><th>Customer</th><th>Mobile</th><th>Email</th><th>Orders</th><th>Total</th></tr>${rows.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.mobile)}</td><td>${esc(c.email)}</td><td>${c.orders}</td><td>${money(c.total)}</td></tr>`).join("")}</table>`:'<div class="empty">Customer order aane par customer list yahan automatically banegi.</div>';}
+function renderDashboard(){
+  const f=calcFinance(); const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set("kSales",money(f.gross)); set("kOrders",ordersCache.length); set("kProducts",productsCache.filter(p=>p.status!=="rejected"&&p.approved!==false).length);
+  const customers={}; ordersCache.forEach(o=>customers[o.customerUid||o.customerEmail||o.mobile||o.customerName||o.id]=1); set("kCustomers",Object.keys(customers).length);
+  const today=new Date(); today.setHours(0,0,0,0); let todaySales=0;
+  ordersCache.forEach(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(o.createdAt||0);if(d>=today)todaySales+=Number(o.amount??o.total??0);});
+  set("kToday",money(todaySales)); set("kPendingOrders",ordersCache.filter(o=>!['delivered','cancelled','completed'].includes(String(o.status||o.orderStatus||'pending').toLowerCase())).length); set("kReturns",returnsCache.length); set("kPending",money(f.pending));
+}
+
+function renderReports(){
+  const delivered=ordersCache.filter(o=>String(o.status||o.orderStatus||"").toLowerCase()==="delivered").length; const cancelled=ordersCache.filter(o=>String(o.status||o.orderStatus||"").toLowerCase()==="cancelled").length;
+  const box=document.getElementById("reportSummary"); if(!box)return;
+  box.innerHTML=`<div class="cards"><div class="card"><small>Total Orders</small><div class="big">${ordersCache.length}</div></div><div class="card"><small>Delivered</small><div class="big">${delivered}</div></div><div class="card"><small>Cancelled</small><div class="big">${cancelled}</div></div><div class="card"><small>Products</small><div class="big">${productsCache.length}</div></div></div>`;
+}
+
 async function saveAccount(){const data={ownerName:document.getElementById("accOwner").value.trim(),shopName:document.getElementById("accShop").value.trim(),mobile:document.getElementById("accMobile").value.trim(),shopAddress:document.getElementById("accAddress").value.trim(),bankAccount:document.getElementById("accBank").value.trim(),ifsc:document.getElementById("accIfsc").value.trim(),upi:document.getElementById("accUpi").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection("sellers").doc(currentUser.uid).set(data,{merge:true});sellerData={...sellerData,...data};await loadSeller();document.getElementById("accMsg").className="success";document.getElementById("accMsg").textContent="Account details Firebase me save ho gaye.";}catch(e){document.getElementById("accMsg").className="error";document.getElementById("accMsg").textContent=e.message;}}
 </script>
 </body>
