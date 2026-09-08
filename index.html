@@ -1500,110 +1500,320 @@ let currentIndex = steps.indexOf(normalizedStatus);
 
 
 async function showOrders(){
+
   closeMenu();
 
-  if(!currentUser){
-    alert("My Orders dekhne ke liye pehle login karein.");
-    openModal("accountModal");
-    return;
-  }
-
-  const box=document.getElementById("orders");
+  const box = document.getElementById("orders");
 
   if(!box){
     alert("Orders section nahi mila.");
     return;
   }
 
-  box.innerHTML='<div class="empty">Orders loading...</div>';
+  box.innerHTML = '<div class="empty">Orders loading...</div>';
   openModal("ordersModal");
 
   try{
 
-    const snap=await db.collection("orders")
-      .where("customerId","==",currentUser.uid)
-      .get();
+    const user = firebase.auth().currentUser;
 
-    if(snap.empty){
-      box.innerHTML='<div class="empty">No orders yet</div>';
+    if(!user){
+      box.innerHTML = '<div class="empty">Please login first.</div>';
       return;
     }
 
-    const customerOrders=snap.docs
-      .map(function(doc){
-        return {
-          id:doc.id,
-          ...doc.data()
-        };
-      })
-      .sort(function(a,b){
-        const at=a.createdAt && a.createdAt.toMillis
-          ? a.createdAt.toMillis()
-          : 0;
+    /*
+      customerId aur customerUid dono check karenge,
+      taki purane aur naye orders dono dikhen.
+    */
 
-        const bt=b.createdAt && b.createdAt.toMillis
-          ? b.createdAt.toMillis()
-          : 0;
+    const [snap1, snap2] = await Promise.all([
+      db.collection("orders")
+        .where("customerId","==",user.uid)
+        .get(),
 
-        return bt-at;
-      });
+      db.collection("orders")
+        .where("customerUid","==",user.uid)
+        .get()
+    ]);
 
-    box.innerHTML=customerOrders.map(function(o){
+    const orderMap = {};
 
-      const status=o.status || o.orderStatus || "Pending";
-      const amount=Number(
-        o.amount !== undefined
-          ? o.amount
-          : (o.total || 0)
-      );
+    snap1.forEach(function(doc){
+      orderMap[doc.id] = {
+        id: doc.id,
+        ...doc.data()
+      };
+    });
 
-      return `
-        <div class="cartRow" style="display:block;margin-bottom:15px;">
+    snap2.forEach(function(doc){
+      orderMap[doc.id] = {
+        id: doc.id,
+        ...doc.data()
+      };
+    });
+
+    const customerOrders = Object.values(orderMap);
+
+    customerOrders.sort(function(a,b){
+
+      const ta = a.createdAt && a.createdAt.toMillis
+        ? a.createdAt.toMillis()
+        : 0;
+
+      const tb = b.createdAt && b.createdAt.toMillis
+        ? b.createdAt.toMillis()
+        : 0;
+
+      return tb - ta;
+    });
+
+    if(customerOrders.length === 0){
+
+      box.innerHTML =
+        '<div class="empty">No orders yet.</div>';
+
+      return;
+    }
+
+    box.innerHTML = "";
+
+    customerOrders.forEach(function(order){
+
+      const orderId =
+        order.orderId ||
+        order.orderNo ||
+        order.id ||
+        "N/A";
+
+      const status =
+        order.status ||
+        order.orderStatus ||
+        "Pending";
+
+      const payment =
+        order.payment ||
+        order.paymentMethod ||
+        "N/A";
+
+      const total =
+        Number(order.total || order.amount || 0);
+
+      let orderDate = "Date unavailable";
+
+      if(order.createdAt){
+
+        if(typeof order.createdAt.toDate === "function"){
+
+          orderDate =
+            order.createdAt.toDate().toLocaleString();
+
+        }else if(order.createdAt.seconds){
+
+          orderDate =
+            new Date(
+              order.createdAt.seconds * 1000
+            ).toLocaleString();
+
+        }
+      }
+
+      const items =
+        Array.isArray(order.items)
+          ? order.items
+          : Array.isArray(order.products)
+            ? order.products
+            : [];
+
+      let itemsHtml = "";
+
+      if(items.length){
+
+        items.forEach(function(item){
+
+          const name =
+            item.productName ||
+            item.name ||
+            "Product";
+
+          const qty =
+            Number(item.quantity || item.qty || 1);
+
+          const price =
+            Number(item.price || 0);
+
+          const image =
+            item.image ||
+            item.imageUrl ||
+            item.imageURL ||
+            "";
+
+          itemsHtml += `
+            <div style="
+              display:flex;
+              gap:10px;
+              align-items:center;
+              padding:10px 0;
+              border-bottom:1px solid #eee;
+            ">
+
+              ${
+                image
+                ? `<img
+                    src="${escapeHtml(image)}"
+                    style="
+                      width:55px;
+                      height:55px;
+                      object-fit:cover;
+                      border-radius:8px;
+                    "
+                  >`
+                : `<div style="
+                    width:55px;
+                    height:55px;
+                    border-radius:8px;
+                    background:#f2f2f2;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                  ">🛍️</div>`
+              }
+
+              <div style="flex:1;">
+                <div style="font-weight:600;">
+                  ${escapeHtml(name)}
+                </div>
+
+                <div style="
+                  font-size:13px;
+                  color:#777;
+                ">
+                  Qty: ${qty} × ₹${price}
+                </div>
+              </div>
+
+            </div>
+          `;
+        });
+
+      }else{
+
+        itemsHtml =
+          '<div style="color:#777;">Order items unavailable.</div>';
+      }
+
+      const statusLower =
+        String(status).toLowerCase();
+
+      let statusColor = "#777";
+
+      if(
+        statusLower.includes("deliver") ||
+        statusLower.includes("complete")
+      ){
+        statusColor = "green";
+
+      }else if(
+        statusLower.includes("cancel")
+      ){
+        statusColor = "red";
+
+      }else if(
+        statusLower.includes("pending") ||
+        statusLower.includes("placed")
+      ){
+        statusColor = "#d97706";
+      }
+
+      const div = document.createElement("div");
+
+      div.style.cssText = `
+        border:1px solid #e5e5e5;
+        border-radius:12px;
+        padding:14px;
+        margin-bottom:14px;
+        background:#fff;
+      `;
+
+      div.innerHTML = `
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          gap:10px;
+          margin-bottom:8px;
+        ">
 
           <div>
-            <b>Order ID: #${escapeHtml(o.orderId || o.orderNo || o.id)}</b><br>
-            ₹${amount.toLocaleString('en-IN')}
-          </div>
-
-          <div style="margin-top:12px;">
-            <b>Order Tracking</b>
+            <div style="
+              font-weight:700;
+              font-size:16px;
+            ">
+              Order #${escapeHtml(String(orderId))}
+            </div>
 
             <div style="
-              margin-top:10px;
-              padding:10px;
-              border-left:3px solid #198754;
+              font-size:12px;
+              color:#777;
+              margin-top:4px;
             ">
-              ${trackingStep("Order Placed",status)}
-              ${trackingStep("Order Confirmed",status)}
-              ${trackingStep("Packed",status)}
-              ${trackingStep("Ready for Pickup",status)}
-              ${trackingStep("Picked Up",status)}
-              ${trackingStep("Out for Delivery",status)}
-              ${trackingStep("Delivered",status)}
+              ${escapeHtml(orderDate)}
             </div>
           </div>
 
-          <div style="margin-top:8px;">
-            <b>Current Status:</b>
-            ${escapeHtml(status)}
+          <div style="
+            font-weight:700;
+            color:${statusColor};
+            text-align:right;
+          ">
+            ${escapeHtml(String(status))}
           </div>
 
         </div>
+
+        <div style="
+          margin:10px 0;
+        ">
+          ${itemsHtml}
+        </div>
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          margin-top:12px;
+          padding-top:10px;
+          border-top:1px solid #eee;
+        ">
+
+          <span>
+            Payment: ${escapeHtml(String(payment))}
+          </span>
+
+          <strong>
+            Total: ₹${total}
+          </strong>
+
+        </div>
+
       `;
 
-    }).join("");
+      box.appendChild(div);
+
+    });
 
   }catch(error){
 
-    console.error("My Orders Error:",error);
+    console.error("My Orders Error:", error);
 
-    box.innerHTML=`
+    box.innerHTML = `
       <div class="empty">
-        Orders load nahi ho paaye.<br>
-        <small>${escapeHtml(error.message || "Unknown error")}</small>
+        My Orders load nahi ho pa raha.<br><br>
+        ${escapeHtml(error.message || "Unknown error")}
       </div>
     `;
+
   }
+
 }
  function openLanguage(){
   const languages = [
