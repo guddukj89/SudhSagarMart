@@ -3463,11 +3463,6 @@ ${`
 }
 window.trackCustomerOrder = async function(orderId){
 
-    alert("TRACK FUNCTION RUN HO GAYA");
-   alert(
-  "FIREBASE USER CHECK: " +
-  (firebase.auth().currentUser ? "YES" : "NO")
-);
     const loggedUser = firebase.auth().currentUser;
 
 if(!loggedUser){
@@ -3476,14 +3471,10 @@ if(!loggedUser){
 
   try{
 
-    alert("FIREBASE SE ORDER DATA LAA RAHE HAIN");
-
 const doc = await firebase.firestore()
   .collection("orders")
   .doc(orderId)
   .get();
-
-alert("ORDER DATA MIL GAYA");
 
     if(!doc.exists){
       return alert("Order nahi mila.");
