@@ -3464,10 +3464,15 @@ ${`
 window.trackCustomerOrder = async function(orderId){
 
     alert("TRACK FUNCTION RUN HO GAYA");
-alert("CURRENT USER CHECK: " + (currentUser ? "YES" : "NO"));
-    if(!currentUser){
+   alert(
+  "FIREBASE USER CHECK: " +
+  (firebase.auth().currentUser ? "YES" : "NO")
+);
+    const loggedUser = firebase.auth().currentUser;
+
+if(!loggedUser){
     return alert("Please login first.");
-  }
+}
 
   try{
 
