@@ -1497,7 +1497,34 @@ let currentIndex = steps.indexOf(normalizedStatus);
     </div>
   `;
 }
+function canCustomerCancelOrder(order){
+  const status = String(
+    order.status || order.orderStatus || ""
+  ).toLowerCase();
 
+  // Cancelled / Delivered order cancel nahi ho sakta
+  if(status === "cancelled" || status === "delivered"){
+    return false;
+  }
+
+  let createdTime = null;
+
+  if(order.createdAt && typeof order.createdAt.toDate === "function"){
+    createdTime = order.createdAt.toDate();
+  }else if(order.createdAt && order.createdAt.seconds){
+    createdTime = new Date(order.createdAt.seconds * 1000);
+  }else if(order.createdAt){
+    createdTime = new Date(order.createdAt);
+  }
+
+  if(!createdTime || isNaN(createdTime.getTime())){
+    return false;
+  }
+
+  const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+  return (Date.now() - createdTime.getTime()) <= sevenDays;
+}
 
 async function showOrders(){
 
@@ -3338,8 +3365,7 @@ function sellerOrders(){
 
           <b>Status:</b> ${o.status || "Order Placed"}<br>
           ${
-  String(o.status || "").toLowerCase() !== "cancelled" &&
-  String(o.status || "").toLowerCase() !== "delivered"
+  canCustomerCancelOrder(o)
   ?
   `<button
     onclick="cancelCustomerOrder('${o.id}')"
