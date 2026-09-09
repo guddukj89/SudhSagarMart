@@ -1751,7 +1751,7 @@ async function showOrders(){
 
 }
  async function cancelCustomerOrder(orderId){
-
+const currentUser = firebase.auth().currentUser;
   if(!currentUser){
     return alert("Please login first.");
   }
@@ -3493,8 +3493,8 @@ alert("ORDER DATA MIL GAYA");
 alert("ORDER DATA MIL GAYA");
     // Security check
     if(
-      o.customerId !== currentUser.uid &&
-      o.customerUid !== currentUser.uid
+      o.customerId !== loggedUser.uid &&
+      o.customerUid !== loggedUser.uid
     ){
       return alert("Aapko is order ki tracking dekhne ki permission nahi hai.");
     }
