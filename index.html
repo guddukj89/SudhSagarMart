@@ -4038,17 +4038,35 @@ function signupUser(){
 
     })
 
-    .then(function(){
+   .then(function(){
 
-        localStorage.setItem("ssm_user_name", name);
-        localStorage.setItem("ssm_user_mobile", mobile);
+    const createdUser = auth.currentUser;
 
-        alert("Account successfully created! 🎉");
+    return firebase.firestore()
+        .collection("customers")
+        .doc(createdUser.uid)
+        .set({
+            uid: createdUser.uid,
+            name: name,
+            mobile: mobile,
+            email: email,
+            phoneVerified: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
 
-        showAccount();
+})
 
-    })
+.then(function(){
 
+    localStorage.setItem("ssm_user_name", name);
+    localStorage.setItem("ssm_user_mobile", mobile);
+
+    alert("Account successfully created! 🎉");
+
+    showAccount();
+
+})
     .catch(function(error){
 
         console.error("SIGNUP ERROR:", error);
