@@ -3464,7 +3464,7 @@ ${`
 window.trackCustomerOrder = async function(orderId){
 
     alert("TRACK FUNCTION RUN HO GAYA");
-
+alert("CURRENT USER CHECK: " + (currentUser ? "YES" : "NO"));
     if(!currentUser){
     return alert("Please login first.");
   }
