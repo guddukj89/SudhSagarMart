@@ -1687,7 +1687,7 @@ async function showOrders(){
 
   <button
     type="button"
-    onclick="alert('Track button working'); alert(typeof trackCustomerOrder);"
+    onclick="trackCustomerOrder('${order.id}')"
     style="
       background:#1976d2;
       color:white;
@@ -1707,7 +1707,7 @@ async function showOrders(){
     `
     <button
       type="button"
-    onclick="alert('Cancel button working'); alert(typeof cancelCustomerOrder);"
+    onclick="cancelCustomerOrder('${order.id}')"
       style="
         background:#e53935;
         color:white;
