@@ -3384,7 +3384,23 @@ function sellerOrders(){
   :
   ""
 }
-
+${`
+  <button
+    onclick="trackCustomerOrder('${o.id}')"
+    style="
+      margin-top:10px;
+      background:#1976d2;
+      color:white;
+      border:0;
+      padding:8px 14px;
+      border-radius:6px;
+      font-weight:600;
+      cursor:pointer;
+    "
+  >
+    📦 Track Order
+  </button>
+`}
           <b>Payment:</b> ${o.payment || "-"}
 
         </div>
@@ -3398,7 +3414,225 @@ function sellerOrders(){
 
   `;
 }
+// =========================
+// CUSTOMER ORDER TRACKING
+// =========================
+async function trackCustomerOrder(orderId){
 
+  if(!currentUser){
+    return alert("Please login first.");
+  }
+
+  try{
+
+    const snap = await firebase.firestore()
+      .collection("orders")
+      .doc(orderId)
+      .get();
+
+    if(!snap.exists){
+      return alert("Order nahi mila.");
+    }
+
+    const order = snap.data();
+
+    // Security check
+    if(
+      order.customerId !== currentUser.uid &&
+      order.customerUid !== currentUser.uid
+    ){
+      return alert("Aap is order ko track nahi kar sakte.");
+    }
+
+    const rawStatus = String(
+      order.status || order.orderStatus || "Pending"
+    ).toLowerCase().trim();
+
+    if(rawStatus === "cancelled"){
+      return alert(
+        "❌ Order Cancelled\n\n" +
+        "Order ID: " + (order.orderId || orderId)
+      );
+    }
+
+    const steps = [
+      "Order Placed",
+      "Confirmed",
+      "Packed",
+      "Shipped",
+      "Out for Delivery",
+      "Delivered"
+    ];
+
+    let currentIndex = 0;
+
+    if(rawStatus.includes("confirm")){
+      currentIndex = 1;
+    }else if(rawStatus.includes("pack")){
+      currentIndex = 2;
+    }else if(rawStatus.includes("ship")){
+      currentIndex = 3;
+    }else if(
+      rawStatus.includes("out for delivery") ||
+      rawStatus.includes("outfordelivery")
+    ){
+      currentIndex = 4;
+    }else if(rawStatus.includes("deliver")){
+      currentIndex = 5;
+    }
+
+    const timeline = steps.map((step,index)=>{
+
+      const completed = index <= currentIndex;
+
+      return `
+        <div style="
+          display:flex;
+          align-items:flex-start;
+          gap:12px;
+          margin:0 0 16px 0;
+        ">
+
+          <div style="
+            width:30px;
+            height:30px;
+            min-width:30px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:${completed ? "#d32f2f" : "#ddd"};
+            color:${completed ? "white" : "#777"};
+            font-weight:700;
+          ">
+            ${completed ? "✓" : index + 1}
+          </div>
+
+          <div style="padding-top:5px;">
+            <div style="
+              font-weight:${completed ? "700" : "400"};
+              color:${completed ? "#222" : "#888"};
+            ">
+              ${step}
+            </div>
+
+            ${
+              index === currentIndex
+              ? `<small style="color:#d32f2f;">
+                   Current Status
+                 </small>`
+              : ""
+            }
+          </div>
+
+        </div>
+      `;
+    }).join("");
+
+    const oldTracking = document.getElementById("customerTrackingModal");
+
+    if(oldTracking){
+      oldTracking.remove();
+    }
+
+    const modal = document.createElement("div");
+
+    modal.id = "customerTrackingModal";
+
+    modal.style.cssText = `
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      z-index:99999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:15px;
+    `;
+
+    modal.innerHTML = `
+      <div style="
+        width:100%;
+        max-width:420px;
+        background:white;
+        border-radius:12px;
+        padding:18px;
+        max-height:85vh;
+        overflow:auto;
+      ">
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          margin-bottom:15px;
+        ">
+
+          <h3 style="margin:0;">
+            📦 Track Order
+          </h3>
+
+          <button
+            onclick="document.getElementById('customerTrackingModal').remove()"
+            style="
+              border:0;
+              background:none;
+              font-size:22px;
+              cursor:pointer;
+            "
+          >
+            ×
+          </button>
+
+        </div>
+
+        <div style="
+          background:#f7f7f7;
+          padding:10px;
+          border-radius:8px;
+          margin-bottom:18px;
+        ">
+          <b>Order ID:</b>
+          ${order.orderId || orderId}
+          <br>
+
+          <b>Current Status:</b>
+          ${order.status || order.orderStatus || "Pending"}
+        </div>
+
+        ${timeline}
+
+        <button
+          onclick="document.getElementById('customerTrackingModal').remove()"
+          style="
+            width:100%;
+            padding:11px;
+            border:0;
+            border-radius:7px;
+            background:#d32f2f;
+            color:white;
+            font-weight:600;
+            cursor:pointer;
+          "
+        >
+          Close
+        </button>
+
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+  }catch(error){
+
+    console.error("Tracking Error:",error);
+
+    alert(
+      "Order tracking open nahi ho paya.\n\n" +
+      error.message
+    );
+  }
+}
 
 // ======================================
 // SELLER PROFILE
