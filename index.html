@@ -1667,10 +1667,6 @@ const orderItems = Array.isArray(order.items)
 
 let productHtml = "";
 
-const orderItems = Array.isArray(order.items)
-  ? order.items
-  : (Array.isArray(order.products) ? order.products : []);
-
 orderItems.forEach(function(item){
 
   const productName =
@@ -1692,7 +1688,7 @@ orderItems.forEach(function(item){
   const price =
     Number(item.price || item.sellingPrice || item.amount || 0);
 
-  productHtml += `
+    productHtml += `
     <div style="
       display:flex;
       gap:12px;
