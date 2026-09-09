@@ -3471,7 +3471,14 @@ window.trackCustomerOrder = async function(orderId){
 
   try{
 
-    const doc = await db.collection("orders").doc(orderId).get();
+    alert("FIREBASE SE ORDER DATA LAA RAHE HAIN");
+
+const doc = await firebase.firestore()
+  .collection("orders")
+  .doc(orderId)
+  .get();
+
+alert("ORDER DATA MIL GAYA");
 
     if(!doc.exists){
       return alert("Order nahi mila.");
