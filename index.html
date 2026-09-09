@@ -1687,7 +1687,7 @@ async function showOrders(){
 
   <button
     type="button"
-    onclick="trackCustomerOrder('${order.id}')"
+    onclick="if(typeof window.trackCustomerOrder==='function'){window.trackCustomerOrder('${order.id}')}else{alert('Tracking function nahi mili')}"
     style="
       background:#1976d2;
       color:white;
