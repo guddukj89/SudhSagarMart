@@ -4713,7 +4713,161 @@ function verifySignupOTP() {
             alert("OTP galat hai ya expire ho gaya.");
         });
 }
- </script>
+ // ===============================
+// LOAD SAVED LOCATION (CONTINUED)
+// ===============================
+
+    else if(gps && gps.address){
+        locationText.innerText = gps.address;
+    } else {
+        locationText.innerText = "Set Delivery Address";
+    }
+}
+
+// ===============================
+// UI HELPERS & INITIALIZATION
+// ===============================
+
+function openMenu(){
+    document.getElementById("overlay").classList.add("show");
+    document.getElementById("drawer").classList.add("open");
+}
+
+function closeMenu(){
+    document.getElementById("overlay").classList.remove("show");
+    document.getElementById("drawer").classList.remove("open");
+}
+
+function openModal(id){
+    const el = document.getElementById(id);
+    if(el) el.classList.add("show");
+}
+
+function closeModal(id){
+    const el = document.getElementById(id);
+    if(el) el.classList.remove("show");
+}
+
+function home(){
+    closeMenu();
+    activeCategory = "All";
+    document.querySelectorAll(".chip").forEach(x => x.classList.remove("active"));
+    if(document.querySelector(".chip")) document.querySelector(".chip").classList.add("active");
+    renderProducts(products);
+    window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function allProducts(){
+    closeMenu();
+    filterCategory("All");
+}
+
+function openWishlist(){
+    closeMenu();
+    renderWishlist();
+    openModal("wishlistModal");
+}
+
+function renderWishlist(){
+    const box = document.getElementById("wishlist");
+    if(!wishlist.length){
+        box.innerHTML = '<div class="empty">Your wishlist is empty</div>';
+        return;
+    }
+    box.innerHTML = wishlist.map((p, i) => `
+        <div class="cartRow">
+            <div>
+                <b>${p[1]}</b><br>
+                <span style="color:#008b75;font-weight:bold;">₹${p[2]}</span>
+            </div>
+            <div>
+                <button class="primary" onclick="addCartFromWishlist(${i})">Add to Cart</button>
+                <button onclick="removeWishlist(${i})">Remove</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+function addCartFromWishlist(i){
+    const item = wishlist[i];
+    const index = products.findIndex(p => p[1] === item[1]);
+    if(index !== -1){
+        addCart(index);
+    }
+}
+
+function removeWishlist(i){
+    wishlist.splice(i, 1);
+    save();
+    renderWishlist();
+    renderProducts(activeCategory === "All" ? products : products.filter(p => p[0] === activeCategory));
+}
+
+function openAccount(){
+    closeMenu();
+    const user = firebase.auth().currentUser;
+    if(user){
+        alert("Logged in as: " + (user.email || user.phoneNumber || user.uid));
+    } else {
+        alert("Please log in to manage your account details.");
+    }
+}
+
+function help(){
+    closeMenu();
+    alert("Support & Help:\nEmail: support@sudhsagarmart.com\nHours: 9:00 AM - 9:00 PM");
+}
+
+function openLegalPolicies(){
+    closeMenu();
+    openTerms();
+}
+
+function openSeller(){
+    closeMenu();
+    openModal("sellerModal");
+}
+
+function submitSeller(){
+    const name = document.getElementById("sellerName").value.trim();
+    const shop = document.getElementById("shopName").value.trim();
+    const mobile = document.getElementById("sellerMobile").value.trim();
+    
+    if(!name || !shop || !mobile){
+        return alert("Please fill all required seller details.");
+    }
+    
+    document.getElementById("sellerMsg").innerText = "✅ Application submitted for review!";
+    document.getElementById("sellerMsg").style.color = "#278a43";
+    setTimeout(() => closeModal("sellerModal"), 1500);
+}
+
+function deleteAccount(){
+    closeMenu();
+    if(confirm("Are you sure you want to request account deletion?")){
+        alert("Please contact support to complete account deletion.");
+    }
+}
+
+// Google Maps Callback Initialization
+function initMap(){
+    const mapDiv = document.getElementById("map");
+    if(!mapDiv) return;
+    mapDiv.style.display = "block";
+    const defaultLoc = { lat: 25.6, lng: 85.1 }; // Default coordinates
+    window.map = new google.maps.Map(mapDiv, {
+        zoom: 12,
+        center: defaultLoc
+    });
+}
+
+// Global Initialization
+window.addEventListener("DOMContentLoaded", () => {
+    renderCategories();
+    renderProducts();
+    loadSavedLocation();
+});
+
 <div class="modal" id="accountModal">
 <div class="box">
 
