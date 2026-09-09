@@ -1786,8 +1786,8 @@ async function showOrders(){
 
     // Sirf isi customer ka order
     if(
-      order.customerId !== currentUser.uid &&
-      order.customerUid !== currentUser.uid
+     order.customerId !== firebase.auth().currentUser.uid &&
+order.customerUid !== firebase.auth().currentUser.uid
     ){
       return alert("Aap is order ko cancel nahi kar sakte.");
     }
