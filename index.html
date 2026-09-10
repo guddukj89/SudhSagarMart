@@ -2855,8 +2855,27 @@ function help(){
         "admin@sudhsagarmart.online"
     );
 
-}
+} // help() function ka closing bracket
 
+// Free WhatsApp Notification Function
+function sendFreeWhatsAppNotification(userMobile, orderId, status, totalAmount) {
+  let message = "";
+
+  if (status === "CONFIRMED") {
+    message = `Namaste! Sudh Sagar Mart par aapka Order #${orderId} (Rs.${totalAmount}) confirm ho gaya hai. Dhanyawad!`;
+  } 
+  else if (status === "OUT_FOR_DELIVERY") {
+    message = `Good news! Aapka Sudh Sagar Mart Order #${orderId} aaj deliver karne ke liye nikal chuka hai. Kripya ghar par rahein.`;
+  } 
+  else if (status === "DELIVERED") {
+    message = `Aapka Order #${orderId} successfully deliver ho gaya hai. Sudh Sagar Mart se shopping karne ke liye dhanyawad!`;
+  }
+
+  const cleanMobile = String(userMobile).replace(/\D/g, '');
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=91${cleanMobile}&text=${encodeURIComponent(message)}`;
+  
+  window.open(whatsappUrl, '_blank');
+}
 
 // ===============================
 // SELLER
