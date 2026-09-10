@@ -4342,33 +4342,27 @@ function logoutUser(){
 
 
 function showAccount(){
+  const user = auth.currentUser;
+  if(!user){
+    showLogin();
+    return;
+  }
 
-    const user = auth.currentUser;
+  let old = document.getElementById("accountModal");
+  if(old) old.remove();
 
-    if(!user){
-        showLogin();
-        return;
-    }
-
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("signupBox").style.display="none";
-    document.getElementById("accountLoggedIn").style.display="block";
-
-    document.getElementById("userInfo").innerHTML =
-        "<b>Email:</b> " + (user.email || "Not available");
-
-    document.getElementById("profileName").value =
-        user.displayName || "";
-
-    document.getElementById("profileMobile").value =
-        user.phoneNumber || "";
-
-    if(user.photoURL){
-        document.getElementById("profilePhoto").src = user.photoURL;
-        document.getElementById("profilePhoto").style.display = "block";
-    }
-
-    loadCustomerProfile();
+  const modal = document.createElement("div");
+  modal.className = "modal show";
+  modal.id = "accountModal";
+  modal.innerHTML = `
+    <div class="box">
+      <span class="close" onclick="closeModal('accountModal')">×</span>
+      <h2>👤 My Account</h2>
+      <p style="margin: 15px 0; font-size:14px; line-height:1.5;">Logged in as:<br><b>${user.email || "User"}</b></p>
+      <button class="primary" style="background:#d32f2f; width:100%; margin-top:10px" onclick="logoutUser()">Logout</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
 }
 function loadCustomerProfile(){
 
