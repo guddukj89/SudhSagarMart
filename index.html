@@ -2765,12 +2765,9 @@ function openAccount(){
 
     if(user){
 
-        alert(
-            "👤 Logged in\n\n" +
-            (user.email || "User account")
-        );
+    showAccount();
 
-    }
+}
     else{
 
         const email =
