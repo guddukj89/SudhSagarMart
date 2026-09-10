@@ -2756,54 +2756,54 @@ function removeWishlist(i){
 // ACCOUNT
 // ===============================
 
-function openAccount(){
+function openAccount() {
+  closeMenu();
+  const user = firebase.auth().currentUser;
 
-    closeMenu();
+  if (!user) {
+    let old = document.getElementById("accountModal");
+    if (old) old.remove();
 
-    const user =
-        auth.currentUser;
+    const modal = document.createElement("div");
+    modal.className = "modal show";
+    modal.id = "accountModal";
+    modal.innerHTML = `
+      <div class="box">
+        <span class="close" onclick="closeModal('accountModal')">×</span>
+        <h2>👤 Account Login</h2>
+        <input id="loginEmail" type="email" placeholder="Email Address">
+        <input id="loginPass" type="password" placeholder="Password">
+        <button class="primary" style="margin-top:10px" onclick="loginUser()">Login</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    return;
+  }
 
-    if(user){
+  let old = document.getElementById("accountModal");
+  if (old) old.remove();
 
-    showAccount();
-
-}
-    else{
-
-        const email =
-            prompt("Login ke liye Email dalein:");
-
-        if(!email) return;
-
-        const password =
-            prompt("Password dalein:");
-
-        if(!password) return;
-
-        auth.signInWithEmailAndPassword(
-            email,
-            password
-        )
-        .then(function(){
-
-            alert(
-                "✅ Login successful"
-            );
-
-        })
-        .catch(function(error){
-
-            alert(
-                "Login failed: " +
-                error.message
-            );
-
-        });
-
-    }
-
+  const modal = document.createElement("div");
+  modal.className = "modal show";
+  modal.id = "accountModal";
+  modal.innerHTML = `
+    <div class="box">
+      <span class="close" onclick="closeModal('accountModal')">×</span>
+      <h2>👤 My Account</h2>
+      <p style="margin: 10px 0; font-size:14px;">Logged in as:<br><b>${user.email}</b></p>
+      <button class="primary" style="background:#d32f2f; margin-top:15px" onclick="logoutUser()">Logout</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
 }
 
+function logoutUser() {
+  firebase.auth().signOut().then(() => {
+    alert("Logged out successfully!");
+    closeModal("accountModal");
+    location.reload();
+  });
+}
 
 // ===============================
 // SETTINGS
