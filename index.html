@@ -2536,7 +2536,7 @@ function loadSavedLocation(){
 // GOOGLE MAP INITIALIZE
 // ===============================
 
-function initMap(){
+window.initMap = function(){
 
     const defaultLocation = {
         lat:20.5937,
@@ -4850,17 +4850,7 @@ function deleteAccount(){
     }
 }
 
-// Google Maps Callback Initialization
-function initMap(){
-    const mapDiv = document.getElementById("map");
-    if(!mapDiv) return;
-    mapDiv.style.display = "block";
-    const defaultLoc = { lat: 25.6, lng: 85.1 }; // Default coordinates
-    window.map = new google.maps.Map(mapDiv, {
-        zoom: 12,
-        center: defaultLoc
-    });
-}
+} // close Account Deletion function
 
 // Global Initialization
 window.addEventListener("DOMContentLoaded", () => {
