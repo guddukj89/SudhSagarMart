@@ -17,33 +17,27 @@
     <!-- Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTwfL2U5WEq9zXBHQOWLMY9yGt93SJuGU&defer"></script>
 
-    <style>
-        #google_translate_element {
-            display: none !important;
-        }
-        .goog-te-banner-frame {
-            display: none !important;
-        }
-        body {
-            top: 0 !important;
-        }
-    </style>
+   <style>
+    #google_translate_element { display: none !important; }
+    .goog-te-banner-frame { display: none !important; }
+    body { top: 0 !important; }
+    .logo { font-size:21px; font-weight:800; color:#a00080; white-space:nowrap; }
+</style>
 
-    <script>
-        function googleTranslateInit(){
-            new google.translate.TranslateElement({
-                pageLanguage: "en",
-                includedLanguages: "en,hi,bn,te,mr,ta,gu,ur,kn,ml,pa,as,or,sa,ne,sd,ks,mai,kok,mni,brx,doi,sat",
-                autoDisplay: false
-            }, "google_translate_element");
-        }
-    </script>
-    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateInit"></script>
+<script>
+    function googleTranslateInit(){
+        new google.translate.TranslateElement({
+            pageLanguage: "en",
+            includedLanguages: "en,hi,bn,te,mr,ta,gu,ur,kn,ml,pa,as,or,sa,ne,sd,ks,mai,kok,mni,brx,doi,sat",
+            autoDisplay: false
+        }, "google_translate_element");
+    }
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateInit"></script>
 </head>
 <body>
-    <div id="google_translate_element"></div>
+  <div id="google_translate_element"></div>
  <style>
-.logo{font-size:21px;font-weight:800;color:#a00080;white-space:nowrap}
 .search{flex:1;padding:11px;border:1px solid #bbb;border-radius:8px}
 .icon{border:0;background:#fff;font-size:22px;cursor:pointer}
 .nav{display:flex;gap:22px;padding:0 14px 10px;font-size:13px}
