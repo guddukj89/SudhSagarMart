@@ -274,6 +274,7 @@ Your Favorites
 <div class="drawerItem" onclick="showOrders()">📦 My Orders</div>
 <div class="drawerItem" onclick="openWishlist()">❤️ My Wishlist</div>
 <div class="drawerItem" onclick="openLocation()">📍 My Addresses</div>
+<div class="drawerItem" onclick="openBankDetails()">🏦 Bank & Refund Details</div>
 <div class="drawerItem" onclick="openSettings()">⚙️ Settings</div>
 <div class="drawerItem" onclick="help()">❓ Help & Support</div>
 <div class="drawerItem" onclick="openLegalPolicies()">⚖️ Legal & Policies</div>
@@ -4851,8 +4852,90 @@ window.addEventListener("DOMContentLoaded", () => {
     renderProducts();
     loadSavedLocation();
 });
-</script>
+ window.openBankDetails = function() {
+  if (typeof closeMenu === "function") closeMenu();
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Kripya pehle login karein.");
+    return;
+  }
+  
+  const modal = document.getElementById("bankModal");
+  if (modal) modal.classList.add("show");
 
+  firebase.firestore().collection("users").doc(user.uid).get().then((doc) => {
+    if (doc.exists && doc.data().bankDetails) {
+      const b = doc.data().bankDetails;
+      document.getElementById("refundUpi").value = b.upi || "";
+      document.getElementById("accHolder").value = b.holderName || "";
+      document.getElementById("accNumber").value = b.accNo || "";
+      document.getElementById("accIfsc").value = b.ifsc || "";
+    }
+  });
+};
+
+window.closeBankModal = function() {
+  const modal = document.getElementById("bankModal");
+  if (modal) modal.classList.remove("show");
+};
+
+window.saveBankDetails = function() {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Kripya pehle login karein.");
+    return;
+  }
+
+  const upi = document.getElementById("refundUpi").value.trim();
+  const holderName = document.getElementById("accHolder").value.trim();
+  const accNo = document.getElementById("accNumber").value.trim();
+  const ifsc = document.getElementById("accIfsc").value.trim();
+
+  if (!upi && (!accNo || !ifsc)) {
+    alert("Kripya UPI ID ya Bank Account details me se koi ek zaroor bharein.");
+    return;
+  }
+
+  firebase.firestore().collection("users").doc(user.uid).set({
+    bankDetails: {
+      upi: upi,
+      holderName: holderName,
+      accNo: accNo,
+      ifsc: ifsc,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }
+  }, { merge: true }).then(() => {
+    alert("Bank & Refund details safaltapurvak save ho gayi hain!");
+    window.closeBankModal();
+  }).catch((err) => {
+    alert("Error: " + err.message);
+  });
+};
+</script>
+<!-- Bank & Refund Details Modal -->
+<div class="modal" id="bankModal">
+  <div class="box">
+    <span class="close" onclick="closeBankModal()">&times;</span>
+    <h2>🏦 Bank & Refund Details</h2>
+    <p style="font-size:12px; color:#666;">Return refund ka paisa ishi account me aayega.</p>
+
+    <label style="font-weight:bold; font-size:13px;">UPI ID (Fast Refund)</label>
+    <input type="text" id="refundUpi" placeholder="e.g. example@upi">
+
+    <p style="text-align:center; font-weight:bold; color:#888; margin:8px 0;">-- YA --</p>
+
+    <label style="font-weight:bold; font-size:13px;">Account Holder Name</label>
+    <input type="text" id="accHolder" placeholder="Name on Bank Account">
+
+    <label style="font-weight:bold; font-size:13px;">Account Number</label>
+    <input type="text" id="accNumber" placeholder="Enter Account Number">
+
+    <label style="font-weight:bold; font-size:13px;">IFSC Code</label>
+    <input type="text" id="accIfsc" placeholder="Enter IFSC Code">
+
+    <button type="button" class="primary" style="margin-top:15px;" onclick="saveBankDetails()">Save Refund Details</button>
+  </div>
+</div>
 <div class="modal" id="accountModal">
 <div class="box">
 
