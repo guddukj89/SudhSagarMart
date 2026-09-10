@@ -4807,16 +4807,6 @@ function removeWishlist(i){
     renderProducts(activeCategory === "All" ? products : products.filter(p => p[0] === activeCategory));
 }
 
-function openAccount(){
-    closeMenu();
-    const user = firebase.auth().currentUser;
-    if(user){
-        alert("Logged in as: " + (user.email || user.phoneNumber || user.uid));
-    } else {
-        alert("Please log in to manage your account details.");
-    }
-}
-
 function help(){
     closeMenu();
     alert("Support & Help:\nEmail: support@sudhsagarmart.com\nHours: 9:00 AM - 9:00 PM");
