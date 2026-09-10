@@ -2799,9 +2799,11 @@ function openAccount() {
 
 function logoutUser() {
   firebase.auth().signOut().then(() => {
-    alert("Logged out successfully!");
-    closeModal("accountModal");
+    let modal = document.getElementById("accountModal");
+    if (modal) modal.remove();
     location.reload();
+  }).catch((error) => {
+    alert("Logout Error: " + error.message);
   });
 }
 
