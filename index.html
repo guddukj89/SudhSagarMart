@@ -1,48 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <!-- Swiper CSS & JS -->
-<!-- Swiper CSS & JS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudh Sagar Mart</title>
 
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU" defer></script>
+    <!-- Swiper CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+    
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTwfL2U5WEq9zXBHQOWLMY9yGt93SJuGU&defer"></script>
+
+    <style>
+        #google_translate_element {
+            display: none !important;
+        }
+        .goog-te-banner-frame {
+            display: none !important;
+        }
+        body {
+            top: 0 !important;
+        }
+    </style>
+
+    <script>
+        function googleTranslateInit(){
+            new google.translate.TranslateElement({
+                pageLanguage: "en",
+                includedLanguages: "en,hi,bn,te,mr,ta,gu,ur,kn,ml,pa,as,or,sa,ne,sd,ks,mai,kok,mni,brx,doi,sat",
+                autoDisplay: false
+            }, "google_translate_element");
+        }
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateInit"></script>
+</head>
+<body>
+    <div id="google_translate_element"></div>
  <style>
-#google_translate_element{
-  display:none !important;
-}
-.goog-te-banner-frame{
-  display:none !important;
-}
-body{
-  top:0 !important;
-}
-</style>
-
-<div id="google_translate_element"></div>
-
-<script>
-function googleTranslateInit(){
-  new google.translate.TranslateElement({
-    pageLanguage:"en",
-    includedLanguages:"en,hi,bn,te,mr,ta,gu,ur,kn,ml,pa,as,or,sa,ne,sd,ks,mai,kok,mni,brx,doi,sat",
-    autoDisplay:false
-  },"google_translate_element");
-}
-</script>
-
-<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateInit"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Sudh Sagar Mart</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
-body{background:#f6f6f8;color:#222}
-header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #ddd}
-.top{display:flex;align-items:center;gap:10px;padding:10px 14px}
 .logo{font-size:21px;font-weight:800;color:#a00080;white-space:nowrap}
 .search{flex:1;padding:11px;border:1px solid #bbb;border-radius:8px}
 .icon{border:0;background:#fff;font-size:22px;cursor:pointer}
