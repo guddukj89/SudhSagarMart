@@ -696,8 +696,85 @@ function orderStatusOptions(current){
   ).join("");
 }
 function renderOrders(){
-  const box=document.getElementById("ordersTable");if(!box)return;
-  box.innerHTML=ordersCache.length?`<table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Amount</th><th>Payment</th><th>Status</th><th>Action</th></tr>${ordersCache.map(o=>`<tr><td><b>#${esc(o.orderId||o.orderNo||o.id.slice(0,8))}</b><br><small>${dateText(o.createdAt)}</small></td><td>${esc(o.customerName||o.name||"-")}<br><small>${esc(o.mobile||"")}</small></td><td>${Number(o.itemCount||o.products?.length||o.items?.length||1)}</td><td>${money(o.amount??o.total)}</td><td>${esc(o.paymentMethod||"-")}</td><td>${statusHtml(o.status||o.orderStatus||"Pending")}</td><td><select onchange="updateOrderStatus('${esc(o.id)}',this.value)">${orderStatusOptions(o.status||o.orderStatus)}</select></td></tr>`).join("")}</table>`:'<div class="empty">No orders yet. Customer order aane par yahan live dikhega.</div>';
+  const box=document.getElementById("ordersTable");
+  if(!box)return;
+
+  box.innerHTML=ordersCache.length?`
+    <table>
+      <tr>
+        <th>Order</th>
+        <th>Customer</th>
+        <th>Items</th>
+        <th>Amount</th>
+        <th>Payment</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+
+      ${ordersCache.map(o=>`
+        <tr>
+          <td>
+            <b>#${esc(o.orderId||o.orderNo||o.id.slice(0,8))}</b>
+            <br>
+            <small>${dateText(o.createdAt)}</small>
+          </td>
+
+          <td>
+            <b>${esc(o.customerName||o.name||"Customer")}</b>
+            <br>
+            📱 ${esc(o.mobile||o.customerMobile||"-")}
+            <br>
+            📧 ${esc(o.customerEmail||o.email||"-")}
+            <br>
+            📍 ${esc(o.address||o.deliveryAddress||"-")}
+          </td>
+
+          <td>
+            ${Number(
+              o.itemCount ||
+              o.products?.length ||
+              o.items?.length ||
+              1
+            )}
+          </td>
+
+          <td>
+            ${money(o.amount??o.total??0)}
+          </td>
+
+          <td>
+            <b>${esc(
+              o.paymentMethod ||
+              o.payment ||
+              "Cash on Delivery"
+            )}</b>
+            <br>
+            <small>${esc(o.paymentStatus||"Pending")}</small>
+          </td>
+
+          <td>
+            ${esc(o.status||o.orderStatus||"Pending")}
+          </td>
+
+          <td>
+            <button
+              class="btn secondary"
+              onclick="viewOrderDetails('${o.id}')">
+              View Details
+            </button>
+
+            <br><br>
+
+            <select
+              onchange="updateOrderStatus('${o.id}',this.value)">
+              ${orderStatusOptions(o.status||o.orderStatus)}
+            </select>
+          </td>
+        </tr>
+      `).join("")}
+
+    </table>
+  ` : '<div class="empty">No orders yet. Customer order aane par yahan live dikhega.</div>';
 }
 async function updateOrderStatus(id,status){try{await db.collection("orders").doc(id).update({status,orderStatus:status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Order status update failed: "+e.message);}}
 
