@@ -776,6 +776,111 @@ function renderOrders(){
     </table>
   ` : '<div class="empty">No orders yet. Customer order aane par yahan live dikhega.</div>';
 }
+  function viewOrderDetails(id){
+
+  const o = ordersCache.find(x => x.id === id);
+
+  if(!o){
+    return alert("Order details nahi mile.");
+  }
+
+  const items = Array.isArray(o.items)
+    ? o.items
+    : (Array.isArray(o.products) ? o.products : []);
+
+  const productsText = items.length
+    ? items.map(item => {
+
+        const name =
+          item.productName ||
+          item.name ||
+          item.title ||
+          "Product";
+
+        const qty =
+          Number(item.quantity || item.qty || 1);
+
+        const price =
+          Number(
+            item.price ||
+            item.sellingPrice ||
+            item.amount ||
+            0
+          );
+
+        return `• ${name} × ${qty} = ${money(price * qty)}`;
+
+      }).join("\n")
+    : "Product details available nahi hain.";
+
+  const orderId =
+    o.orderId ||
+    o.orderNo ||
+    o.id;
+
+  const customerName =
+    o.customerName ||
+    o.name ||
+    "Customer";
+
+  const mobile =
+    o.mobile ||
+    o.customerMobile ||
+    "-";
+
+  const email =
+    o.customerEmail ||
+    o.email ||
+    "-";
+
+  const address =
+    o.address ||
+    o.deliveryAddress ||
+    "-";
+
+  const paymentMethod =
+    o.paymentMethod ||
+    o.payment ||
+    "Cash on Delivery";
+
+  const paymentStatus =
+    o.paymentStatus ||
+    "Pending";
+
+  const status =
+    o.status ||
+    o.orderStatus ||
+    "Pending";
+
+  const total =
+    Number(o.amount ?? o.total ?? 0);
+
+  alert(
+`ORDER DETAILS
+
+Order ID: #${orderId}
+
+Customer: ${customerName}
+
+Mobile: ${mobile}
+
+Email: ${email}
+
+Address:
+${address}
+
+Payment: ${paymentMethod}
+
+Payment Status: ${paymentStatus}
+
+Total: ${money(total)}
+
+Status: ${status}
+
+PRODUCTS
+${productsText}`
+  );
+}
 async function updateOrderStatus(id,status){try{await db.collection("orders").doc(id).update({status,orderStatus:status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Order status update failed: "+e.message);}}
 
 function getCommissionRate(){const n=Number(sellerData?.commission??sellerData?.commissionRate??10);return Math.max(0,Math.min(100,n))/100;}
