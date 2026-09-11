@@ -476,7 +476,60 @@ function startRealtime(){
   listen(db.collection("orders").where("sellerId","==",uid),snap=>{ordersCache=[];snap.forEach(d=>ordersCache.push({id:d.id,...d.data()}));ordersCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderOrders();renderDashboard();renderReports();renderCustomers();renderEarnings();renderPayments();},"Orders");
   listen(db.collection("payments").where("sellerId","==",uid),snap=>{paymentsCache=[];snap.forEach(d=>paymentsCache.push({id:d.id,...d.data()}));paymentsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderPayments();renderEarnings();renderDashboard();},"Payments");
   listen(db.collection("returns").where("sellerId","==",uid),snap=>{returnsCache=[];snap.forEach(d=>returnsCache.push({id:d.id,...d.data()}));returnsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderReturns();},"Returns");
-  listen(db.collection("notifications").where("sellerId","==",uid),snap=>{notificationsCache=[];snap.forEach(d=>notificationsCache.push({id:d.id,...d.data()}));notificationsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderNotifications();renderDashboard();},"Notifications");
+  listen(
+  db.collection("notifications").where("sellerId","==",uid),
+  snap=>{
+
+    const changes = snap.docChanges();
+
+    notificationsCache=[];
+
+    snap.forEach(d=>{
+      notificationsCache.push({
+        id:d.id,
+        ...d.data()
+      });
+    });
+
+    notificationsCache.sort(
+      (a,b)=>
+        (b.createdAt?.seconds||0) -
+        (a.createdAt?.seconds||0)
+    );
+
+    renderNotifications();
+    renderDashboard();
+
+    // Purani notifications par ring nahi bajegi
+    if(!notificationFirstLoad){
+
+      changes.forEach(change=>{
+
+        if(change.type !== "added") return;
+
+        const n = {
+          id: change.doc.id,
+          ...change.doc.data()
+        };
+
+        if(
+          String(n.type||"").toLowerCase()
+          === "new_order"
+        ){
+
+          showSellerOrderAlert(n);
+
+        }
+
+      });
+
+    }
+
+    notificationFirstLoad=false;
+
+  },
+  "Notifications"
+);
   listen(db.collection("complaints").where("sellerId","==",uid),snap=>{complaintsCache=[];snap.forEach(d=>complaintsCache.push({id:d.id,...d.data()}));complaintsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderComplaints();},"Complaints");
   renderProducts();renderOrders();renderReturns();renderNotifications();renderCustomers();renderEarnings();renderPayments();renderComplaints();renderDashboard();renderReports();
 }
