@@ -1432,15 +1432,26 @@ async function placeOrder(){
 
           const id = "SSM" + Date.now().toString().slice(-8);
 
-          orders.unshift({
-            id:id,
-            total:total,
-            status:"Payment Successful",
-            payment:"Razorpay",
-            razorpayOrderId:paymentResponse.razorpay_order_id,
-            razorpayPaymentId:paymentResponse.razorpay_payment_id,
-            time:new Date().toLocaleString()
-          });
+await saveOrderToFirestore(
+  id,
+  "Payment Successful",
+  "Razorpay",
+  {
+    paymentStatus: "Paid",
+    razorpayOrderId: paymentResponse.razorpay_order_id,
+    razorpayPaymentId: paymentResponse.razorpay_payment_id
+  }
+);
+
+orders.unshift({
+  id:id,
+  total:total,
+  status:"Payment Successful",
+  payment:"Razorpay",
+  razorpayOrderId:paymentResponse.razorpay_order_id,
+  razorpayPaymentId:paymentResponse.razorpay_payment_id,
+  time:new Date().toLocaleString()
+});
 
           cart=[];
           save();
