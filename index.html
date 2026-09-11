@@ -1573,7 +1573,7 @@ function loadSellerProducts() {
         p.category || "General",
         p.title || p.name || "Product",
         Number(p.price) || 0,
-        Number(p.oldPrice) || 0,
+        Number(p.oldPrice) || Number(p.price) || 0,
         p.image || p.imageUrl || "",
         p.stock !== undefined ? Number(p.stock) : 10
       ]);
