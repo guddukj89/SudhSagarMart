@@ -104,6 +104,28 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+ // Pincode Check Function
+const serviceablePincodes = ["800001", "800002", "800003", "110001", "400001"];
+
+function checkDelivery() {
+    const pin = document.getElementById("pincodeInput").value.trim();
+    const msg = document.getElementById("pincodeMsg");
+
+    if (!/^\d{6}$/.test(pin)) {
+        msg.style.color = "red";
+        msg.innerText = "Sahi 6-digit pincode daalein!";
+        return;
+    }
+
+    if (serviceablePincodes.includes(pin)) {
+        msg.style.color = "green";
+        msg.innerText = "✓ Delivery available for " + pin;
+    } else {
+        msg.style.color = "red";
+        msg.innerText = "✕ Delivery not available for " + pin;
+    }
+}
+     
 </script>
  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -124,8 +146,14 @@ const auth = firebase.auth();
 </div>
 <div id="map" style="height:300px;margin:12px;border-radius:12px;display:none;"></div>
 <div class="delivery">
-🚚 <b id="deliveryText">Delivery available</b> in selected service areas
+    <span>📍 Delivery Check:</span>
+    <div class="pincode-box">
+        <input type="text" id="pincodeInput" placeholder="Pincode daalein" maxlength="6">
+        <button onclick="checkDelivery()">Check</button>
+    </div>
+    <div id="pincodeMsg"></div>
 </div>
+    
 </header>
 
 <div class="categories" id="categories"></div>
