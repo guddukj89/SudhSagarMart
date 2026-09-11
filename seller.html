@@ -899,6 +899,121 @@ function renderEarnings(){const f=calcFinance();document.getElementById("eGross"
 
 function renderReturns(){const box=document.getElementById("returnsTable");box.innerHTML=returnsCache.length?`<table><tr><th>Order</th><th>Reason</th><th>Status</th><th>Date</th><th>Action</th></tr>${returnsCache.map(r=>`<tr><td>#${esc(r.orderId||r.orderNo||"-")}</td><td>${esc(r.reason||"-")}</td><td>${statusHtml(r.status||"pending")}</td><td>${dateText(r.createdAt)}</td><td><select onchange="updateReturnStatus('${esc(r.id)}',this.value)">${["pending","approved","rejected","picked_up","refunded","completed"].map(s=>`<option ${String(r.status||"pending").toLowerCase()===s?"selected":""}>${s}</option>`).join("")}</select></td></tr>`).join("")}</table>`:'<div class="empty">No return requests.</div>';}
 async function updateReturnStatus(id,status){try{await db.collection("returns").doc(id).update({status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Return update failed: "+e.message);}}
+// ======================================
+// SELLER NEW ORDER ALERT / RING
+// ======================================
+
+let notificationFirstLoad = true;
+
+function playSellerOrderRing(){
+
+  try{
+
+    const AudioContext =
+      window.AudioContext || window.webkitAudioContext;
+
+    if(!AudioContext) return;
+
+    const ctx = new AudioContext();
+
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.35,
+      ctx.currentTime + 0.03
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      ctx.currentTime + 0.45
+    );
+
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.45);
+
+  }catch(error){
+
+    console.log("Order ring blocked:", error);
+
+  }
+}
+
+
+function showSellerOrderAlert(notification){
+
+  playSellerOrderRing();
+
+  // Browser notification
+  if(
+    "Notification" in window &&
+    Notification.permission === "granted"
+  ){
+
+    new Notification(
+      notification.title || "🛒 New Order Received",
+      {
+        body:
+          notification.message ||
+          "Aapko naya customer order mila hai.",
+        icon: "https://sudhsagarmart.online/favicon.ico"
+      }
+    );
+
+  }
+
+  // Page title blink
+  const oldTitle = document.title;
+
+  document.title = "🔔 NEW ORDER!";
+
+  setTimeout(function(){
+    document.title = oldTitle;
+  }, 5000);
+
+  // Screen alert
+  alert(
+    "🔔 NEW ORDER RECEIVED!\n\n" +
+    (notification.message || "Naya order receive hua hai.")
+  );
+}
+
+
+function enableSellerNotifications(){
+
+  if(
+    "Notification" in window &&
+    Notification.permission === "default"
+  ){
+
+    Notification.requestPermission()
+      .then(function(permission){
+
+        console.log(
+          "Seller notification permission:",
+          permission
+        );
+
+      })
+      .catch(function(error){
+
+        console.log(
+          "Notification permission error:",
+          error
+        );
+
+      });
+
+  }
+
+}  
 function renderNotifications(){
   const box=document.getElementById("notificationsTable");
   if(box) box.innerHTML=notificationsCache.length?`<table><tr><th>Notification</th><th>Status</th><th>Date</th><th>Action</th></tr>${notificationsCache.map(n=>`<tr><td><b>${esc(n.title||"Notification")}</b><br><span class="muted">${esc(n.message||"")}</span></td><td>${statusHtml(n.status||"unread")}</td><td>${dateText(n.createdAt)}</td><td>${String(n.status||"unread").toLowerCase()!=="read"?`<button class="btn secondary" onclick="markRead('${esc(n.id)}')">Mark read</button>`:"✓ Read"}</td></tr>`).join("")}</table>`:'<div class="empty">No notifications.</div>';
