@@ -4305,27 +4305,18 @@ function forgotPassword(){
 
 }
 
-
-function logoutUser(){
-
+function logoutUser() {
     auth.signOut()
-
-    .then(function(){
-
+    .then(function() {
         alert("Logout successful.");
-
-        showLogin();
-
+        const modal = document.getElementById("accountModal");
+        if (modal) modal.remove();
+        location.reload();
     })
-
-    .catch(function(error){
-
+    .catch(function(error) {
         alert(error.message);
-
     });
-
 }
-
 
 function showAccount(){
   const user = auth.currentUser;
