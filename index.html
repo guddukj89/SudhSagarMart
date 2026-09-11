@@ -1562,7 +1562,32 @@ function canCustomerCancelOrder(order){
 
   return (Date.now() - createdTime.getTime()) <= sevenDays;
 }
+// Firestore se Seller ke Add kiye gaye Products Fetch karna
+function loadSellerProducts() {
+  firebase.firestore().collection("products").onSnapshot((snapshot) => {
+    let liveProducts = [];
+    snapshot.forEach((doc) => {
+      let p = doc.data();
+      // Array format: [category, title, price, oldPrice, image, stock]
+      liveProducts.push([
+        p.category || "General",
+        p.title || p.name || "Product",
+        Number(p.price) || 0,
+        Number(p.oldPrice) || 0,
+        p.image || p.imageUrl || "",
+        p.stock !== undefined ? Number(p.stock) : 10
+      ]);
+    });
 
+    if (liveProducts.length > 0) {
+      products = liveProducts; // Main array update
+      renderProducts(products); // UI refresh
+    }
+  });
+}
+
+// Page load hote hi run hoga
+window.addEventListener("DOMContentLoaded", loadSellerProducts);
 async function showOrders(){
 
   closeMenu();
