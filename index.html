@@ -1339,15 +1339,16 @@ async function placeOrder(){
 
     closeModal("checkoutModal");
 
-    alert(
-      "Order placed successfully!\n\nOrder ID: " + id
-    );
-// WhatsApp SMS Trigger
-const phone = coMobile.value;
-const msg = `Hello ${coName.value}! 👋\n\nSudh Sagar Mart par aapka order successfully place ho gaya hai! 🎉\n\n📦 *Order ID:* ${id}\n💰 *Total Amount:* ₹${total}\n\nAapka order jaldi hi deliver kar diya jayega. Dhanyawad! 🙏`;
+      // 1. WhatsApp pehle open hoga (Pop-up block nahi hoga)
+      const phone = coMobile.value;
+      const msg = `Hello ${coName.value}! 👋\n\nSudh Sagar Mart par aapka order successfully place ho gaya hai! 🎉\n\n📦 *Order ID:* ${id}\n💰 *Total Amount:* ₹${total}\n\nAapka order jaldi hi deliver kar diya jayega. Dhanyawad! 🙏`;
 
-window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-    showOrders();
+      window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+
+      // 2. Alert baad mein aayega
+      alert("Order placed successfully!\n\nOrder ID: " + id);
+
+      showOrders();
 
   }catch(error){
 
