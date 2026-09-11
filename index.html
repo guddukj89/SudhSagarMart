@@ -673,14 +673,14 @@ const categories=[
 ];
 
 let products=[
-["Grocery","Basmati Rice 5 KG",450,500,"https://images.unsplash.com/photo-1586201375761-83865001e31c"],
-["Grocery","Cooking Oil 1 L",145,165,"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5"],
-["Women Fashion","Designer Saree",599,899,"https://images.unsplash.com/photo-1610030469983-98e550d6193c"],
-["Men Fashion","Men Cotton T-Shirt",299,499,"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"],
-["Footwear","Sports Shoes",799,1200,"https://images.unsplash.com/photo-1542291026-7eec264c27ff"],
-["Beauty","Beauty Care Kit",399,599,"https://images.unsplash.com/photo-1596462502278-27bfdc403348"],
-["Electronics","Wireless Headphones",699,999,"https://images.unsplash.com/photo-1505740420928-5e560c06d30e"],
-["Home & Kitchen","Kitchen Set",899,1299,"https://images.unsplash.com/photo-1556911220-e15b29be8c8f"]
+["Grocery", "Basmati Rice 5 KG", 450, 500, "https://images.unsplash.com/photo-1586201375761-83865001e31c", 10],
+["Grocery", "Cooking Oil 1 L", 145, 165, "https://images.unsplash.com/photo-1474979266404-7eaacbcd37c5", 0],
+["Women Fashion", "Designer Saree", 599, 699, "https://images.unsplash.com/photo-1610030469983-98e550d6193c", 5],
+["Men Fashion", "Men Cotton T-Shirt", 299, 499, "https://images.unsplash.com/photo-1521572267360-ee0c2909d518", 0],
+["Footwear", "Sports Shoes", 799, 1200, "https://images.unsplash.com/photo-1542291026-7eec264c27ff", 12],
+["Beauty", "Beauty Care Kit", 399, 599, "https://images.unsplash.com/photo-1596462502278-27bfdc403348", 8],
+["Electronics", "Wireless Headphones", 699, 999, "https://images.unsplash.com/photo-1505740420928-5e560c06d30e", 0],
+["Home & Kitchen", "Kitchen Set", 899, 1299, "https://images.unsplash.com/photo-1556911220-e15b29be8c8f", 4]
 ];
 
 let cart=JSON.parse(localStorage.getItem("ssm_cart")||"[]");
@@ -705,54 +705,49 @@ function renderCategories(){
     ).join("");
 }
 function renderProducts(list=products){
-document.getElementById("products").innerHTML=list.map(p=>{
-let i=products.indexOf(p);
-let discount=Math.round(((p[3]-p[2])/p[3])*100);
-let liked=wishlist.some(x=>x[1]===p[1]);
+  document.getElementById("products").innerHTML=list.map(p=>{
+    let i=products.indexOf(p);
+    let discount=Math.round(((p[3]-p[2])/p[3])*100);
+    let liked=wishlist.some(x=>x[1]===p[1]);
+    
+    // Stock Check Logic (p[5] <= 0 check)
+    let isOut = p[5] !== undefined ? (p[5] <= 0) : false;
 
-return `<div class="product">
-<img src="${p[4]}" alt="${p[1]}">
+    return `<div class="product">
+      <img src="${p[4]}" alt="${p[1]}">
+      
+      <div class="info">
+        <div class="category">${p[0]}</div>
+        <h3>${p[1]}</h3>
+        <div>
+          <span class="price">₹${p[2]}</span>
+          <span class="old">₹${p[3]}</span>
+          <span style="color:#d00;font-size:11px;font-weight:bold">${discount}% OFF</span>
+        </div>
+        
+        <!-- Stock Status Badge -->
+        <div class="stock" style="color:${isOut ? 'red' : 'green'}; font-weight:bold; margin-top:4px;">
+          ${isOut ? '❌ Out of Stock' : '✅ In Stock'}
+        </div>
+        
+        <div style="display:flex;gap:8px;margin-top:7px">
+          <button class="add" onclick="${isOut ? '' : `addToCart(${i})`}" ${isOut ? 'disabled style="background:#ccc;cursor:not-allowed;"' : ''}>
+            🛒 ${isOut ? 'Unavailable' : 'Add to Cart'}
+          </button>
+          
+          <button class="primary" type="button" onclick="${isOut ? '' : `buyNow(${i})`}" style="width:100%;margin-top:6px;${isOut ? 'background:#ccc;cursor:not-allowed;' : ''}" ${isOut ? 'disabled' : ''}>
+            ⚡ ${isOut ? 'Out of Stock' : 'Buy Now'}
+          </button>
+          
+          <button onclick="toggleWishlist(${i})" style="border:1px solid #ddd;background:#fff;border-radius:7px;padding:5px 12px;font-size:20px;cursor:pointer">
+            ${liked ? "❤️" : "🤍"}
+          </button>
+        </div>
+      </div>
+    </div>`
+  }).join("") || '<div class="empty">No products found</div>';
 
-<div class="info">
-<div class="category">${p[0]}</div>
-
-<h3>${p[1]}</h3>
-
-<div>
-<span class="price">₹${p[2]}</span>
-<span class="old">₹${p[3]}</span>
-<span style="color:#d00;font-size:11px;font-weight:bold">
- ${discount}% OFF
-</span>
-</div>
-
-<div class="stock">✅ In stock</div>
-
-<div style="display:flex;gap:6px;margin-top:7px">
-<button class="add" onclick="addCart(${i})">
-🛒 Add to Cart
-</button>
-
-<button
-    class="primary"
-    type="button"
-    onclick="buyNow(${i})"
-    style="width:100%;margin-top:6px;">
-    ⚡ Buy Now
-</button>
-
-<button onclick="toggleWishlist(${i})"
-style="border:1px solid #ddd;background:#fff;border-radius:7px;padding:8px 12px;font-size:20px;cursor:pointer">
-${liked?"❤️":"♡"}
-</button>
-</div>
-
-</div>
-</div>`;
-}).join("")||'<div class="empty">No products found</div>';
-
-document.getElementById("productCount").innerText=
-list.length+" products available";
+  document.getElementById("productCount").innerText = list.length + " products available";
 }
 function filterCategory(c){
 activeCategory=c;
