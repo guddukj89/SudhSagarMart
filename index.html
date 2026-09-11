@@ -1667,9 +1667,11 @@ async function showOrders(){
         "Pending";
 
       const payment =
-        order.payment ||
-        order.paymentMethod ||
-        "N/A";
+          order.payment ||
+          order.paymentMethod ||
+          order.payMethod ||
+          order.paymentMode ||
+          "Cash on Delivery";
 
       const total =
         Number(order.total || order.amount || 0);
