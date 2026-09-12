@@ -1280,27 +1280,52 @@ if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.addr
     .doc(orderId)
     .set({
       orderId: orderId,
-     sellerId: sellerIds.length === 1 ? sellerIds[0] : "",
+orderNo: orderId,
 
-      customerId: user.uid,
-      customerName: coName.value.trim(),
-      customerMobile: coMobile.value.trim(),
-      customerAddress: coAddress.value.trim(),
+sellerId: sellerIds.length === 1 ? sellerIds[0] : "",
+sellerIds: sellerIds,
 
-      items: orderItems,
-      sellerIds: sellerIds,
+customerId: user.uid,
+customerUid: user.uid,
+customerName: coName.value.trim(),
+customerMobile: coMobile.value.trim(),
+mobile: coMobile.value.trim(),
+customerAddress: coAddress.value.trim(),
+address: coAddress.value.trim(),
+customerEmail: user.email || "",
 
-      total: Number(orderItems.reduce(
-        (sum, x) => sum + x.itemTotal, 0
-      )),
+items: orderItems,
+products: orderItems,
 
-      status: status,
-      payment: paymentMethod,
+itemCount: orderItems.reduce(
+  (sum, x) => sum + Number(x.quantity || 1),
+  0
+),
 
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+total: Number(orderItems.reduce(
+  (sum, x) => sum + x.itemTotal,
+  0
+)),
 
-      ...paymentData
-    });
+amount: Number(orderItems.reduce(
+  (sum, x) => sum + x.itemTotal,
+  0
+)),
+
+status: status,
+orderStatus: status,
+
+payment: paymentMethod,
+paymentMethod: paymentMethod,
+
+paymentStatus:
+  paymentMethod === "Razorpay"
+    ? "Paid"
+    : "Pending",
+
+createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+
+...paymentData
 }
 async function placeOrder(){
   if(!coName.value || !coMobile.value || !coAddress.value){
@@ -1434,7 +1459,7 @@ async function placeOrder(){
 
 await saveOrderToFirestore(
   id,
-  "Payment Successful",
+  "Order Placed",
   "Razorpay",
   {
     paymentStatus: "Paid",
@@ -1446,7 +1471,7 @@ await saveOrderToFirestore(
 orders.unshift({
   id:id,
   total:total,
-  status:"Payment Successful",
+  status:"Order Placed",
   payment:"Razorpay",
   razorpayOrderId:paymentResponse.razorpay_order_id,
   razorpayPaymentId:paymentResponse.razorpay_payment_id,
