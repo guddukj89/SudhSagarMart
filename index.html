@@ -1326,7 +1326,6 @@ paymentStatus:
 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
 
 ...paymentData
-}
 async function placeOrder(){
   if(!coName.value || !coMobile.value || !coAddress.value){
     return alert("Please fill all delivery details");
