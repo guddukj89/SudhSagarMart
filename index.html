@@ -1610,8 +1610,9 @@ function loadSellerProducts() {
         p.category || "General",
         p.title || p.name || "Product",
         Number(p.price) || 0,
-        Number(p.oldPrice) || Number(p.price) || 0,
+        Number(p.mrp) || Number(p.price) || 0,
         p.image || p.imageUrl || "",
+        Number(p.stock) || 0,
         p.productId || doc.id,
         p.sellerId || "",
         p.sellerName || p.shopName || "Seller"
