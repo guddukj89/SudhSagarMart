@@ -1257,9 +1257,9 @@ if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.addr
   }
 
   const orderItems = cart.map(x => ({
-    productId: x.p[5] || "",
-    sellerId: x.p[6] || "",
-    sellerName: x.p[7] || "",
+    productId: x.p[6] || "",
+    sellerId: x.p[7] || "",
+    sellerName: x.p[8] || "",
     category: x.p[0] || "",
     productName: x.p[1] || "",
     price: Number(x.p[2] || 0),
