@@ -548,7 +548,10 @@ function showProductModal(){
   if(String(sellerData?.accountStatus||sellerData?.status||'pending').toLowerCase()!=='approved'){alert('Company approval ke baad hi product add kar sakte hain.');return;}
   document.getElementById("productModal").classList.add("show");
 }
-function hideProductModal(){document.getElementById("productModal").classList.remove("show");["prodName","prodCategory","prodPrice","prodStock","prodDesc"].forEach(id=>document.getElementById(id).value="");document.getElementById("prodImage").value="";document.getElementById("prodMsg").textContent="";document.querySelector("#productModal h2").textContent="Add Product";document.getElementById("productModal").dataset.editId="";}
+function hideProductModal(){document.getElementById("productModal").classList.remove("show");["prodName","prodCategory","prodPrice","prodStock","prodDesc"].forEach(id=>document.getElementById(id).value="");["prodImage1","prodImage2","prodImage3","prodImage4","prodImage5"].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.value="";
+});document.getElementById("prodMsg").textContent="";document.querySelector("#productModal h2").textContent="Add Product";document.getElementById("productModal").dataset.editId="";}
 function editProduct(id){const p=productsCache.find(x=>x.id===id);if(!p)return;showProductModal();document.querySelector("#productModal h2").textContent="Edit Product";document.getElementById("productModal").dataset.editId=id;document.getElementById("prodName").value=p.name||p.productName||"";document.getElementById("prodCategory").value=p.category||"";document.getElementById("prodPrice").value=p.price??"";document.getElementById("prodStock").value=p.stock??"";document.getElementById("prodDesc").value=p.description||"";}
 async function uploadProductImage(file){
   if(!file)return '';
