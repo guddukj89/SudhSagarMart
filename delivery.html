@@ -3,29 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delivery Boy Dashboard</title>
+  <title>Sudhsagar Mart Delivery Partner</title>
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 15px; }
-    h2 { color: #333; text-align: center; }
-    .card { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #eef2f5; margin: 0; padding: 15px; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .header h2 { margin: 0; font-size: 18px; color: #333; }
+    
+    .login-box { background: #fff; padding: 25px; border-radius: 10px; max-width: 400px; margin: 50px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .login-box input { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid #ccc; border-radius: 6px; }
+
+    .card { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #2196f3; }
+    .card.completed { border-left-color: #4caf50; }
+    
+    .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 15px; }
+    .btn-primary { background-color: #2196f3; color: white; }
     .btn-start { background-color: #ff9800; color: white; }
     .btn-complete { background-color: #4caf50; color: white; }
-    .maps-link { display: block; margin: 10px 0; color: #2196f3; text-decoration: none; font-weight: bold; }
+    .btn-logout { background-color: #f44336; color: white; padding: 6px 12px; border-radius: 5px; border: none; font-size: 12px; cursor: pointer; }
+    
+    .maps-link { display: inline-block; margin: 10px 0; color: #2196f3; text-decoration: none; font-weight: bold; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+    .tab-btn { flex: 1; padding: 10px; border: none; background: #ddd; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .tab-btn.active { background: #2196f3; color: white; }
   </style>
 </head>
 <body>
 
-  <h2>🚚 Delivery Partner Dashboard</h2>
-  <div id="assignedOrdersList">Loading orders...</div>
+  <!-- LOGIN CONTAINER -->
+  <div id="loginSection" class="login-box" style="display: none;">
+    <h3 style="margin-top:0; text-align:center; color:#2196f3;">🛍️ Sudhsagar Mart Delivery Partner</h3>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="Enter delivery email">
+    <label>Password</label>
+    <input type="password" id="loginPassword" placeholder="Enter password">
+    <button class="btn btn-primary" onclick="loginDeliveryBoy()">Login</button>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="dashboardSection" style="display: none;">
+    <div class="header">
+      <h2>🛍️ Sudhsagar Mart Delivery Partner</h2>
+      <span id="userEmailDisplay" style="font-size: 13px; color: #666;"></span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button id="tabActive" class="tab-btn active" onclick="switchTab('active')">Active Orders</button>
+      <button id="tabCompleted" class="tab-btn" onclick="switchTab('completed')">Completed History</button>
+    </div>
+
+    <!-- ORDERS CONTAINER -->
+    <div id="assignedOrdersList">Loading orders...</div>
+  </div>
 
   <script>
-    // 1. Apni Firebase Config Yahan Daalein
+    // 1. Apni Complete Firebase Config Daalein
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "sudhsagarmart.firebaseapp.com",
@@ -34,74 +74,121 @@
       messagingSenderId: "YOUR_SENDER_ID",
       appId: "YOUR_APP_ID"
     };
-    
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
 
-    // 2. Currently Logged-in Delivery Boy ke Orders Load karna
-    firebase.auth().onAuthStateChanged((user) => {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let currentUserId = null;
+    let activeTab = 'active';
+
+    // 2. Auth State Listener
+    auth.onAuthStateChanged((user) => {
       if (user) {
-        loadDeliveryBoyOrders(user.uid);
+        currentUserId = user.uid;
+        document.getElementById("userEmailDisplay").innerText = user.email;
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("dashboardSection").style.display = "block";
+        loadOrders();
       } else {
-        document.getElementById("assignedOrdersList").innerHTML = "<p style='text-align:center;'>Kripya pehle Login karein.</p>";
+        currentUserId = null;
+        document.getElementById("loginSection").style.display = "block";
+        document.getElementById("dashboardSection").style.display = "none";
       }
     });
 
-    // 3. Firestore Se Assigned Orders Real-time Fetch karna
-    function loadDeliveryBoyOrders(deliveryBoyId) {
-      db.collection("orders")
-        .where("deliveryBoyId", "==", deliveryBoyId)
-        .where("status", "in", ["Ready for Pickup", "Out for Delivery"])
-        .onSnapshot((snapshot) => {
-          const container = document.getElementById("assignedOrdersList");
-          container.innerHTML = "";
-
-          if (snapshot.empty) {
-            container.innerHTML = "<p style='text-align:center;'>Abhi koi active delivery assign nahi hai.</p>";
-            return;
-          }
-
-          snapshot.forEach((doc) => {
-            const order = doc.data();
-            const orderId = doc.id;
-
-            container.innerHTML += `
-              <div class="card">
-                <h3>Order #${orderId.substring(0, 8)}</h3>
-                <p><b>Customer:</b> ${order.customerName || 'N/A'}</p>
-                <p><b>Phone:</b> <a href="tel:${order.customerMobile}">${order.customerMobile}</a></p>
-                <p><b>Address:</b> ${order.customerAddress}</p>
-                <p><b>Amount:</b> ₹${order.total} (${order.payment})</p>
-                
-                <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customerAddress)}" target="_blank">
-                  📍 Open in Google Maps
-                </a>
-
-                ${order.status === "Ready for Pickup" ? `
-                  <button class="btn btn-start" onclick="updateOrderStatus('${orderId}', 'Out for Delivery')">Start Delivery</button>
-                ` : ''}
-
-                ${order.status === "Out for Delivery" ? `
-                  <button class="btn btn-complete" onclick="updateOrderStatus('${orderId}', 'Delivered')">Mark as Delivered</button>
-                ` : ''}
-              </div>
-            `;
-          });
-        });
+    // 3. Login Functionality
+    function loginDeliveryBoy() {
+      const email = document.getElementById("loginEmail").value;
+      const pass = document.getElementById("loginPassword").value;
+      
+      auth.signInWithEmailAndPassword(email, pass)
+        .catch((err) => alert("Login Failed: " + err.message));
     }
 
-    // 4. Status Update Function
-    function updateOrderStatus(orderId, newStatus) {
-      db.collection("orders").doc(orderId).update({
-        status: newStatus,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        alert("Status updated: " + newStatus);
-      })
-      .catch((error) => {
-        alert("Error: " + error.message);
+    // 4. Logout Functionality
+    function logout() {
+      auth.signOut();
+    }
+
+    // 5. Tab Switching
+    function switchTab(tab) {
+      activeTab = tab;
+      document.getElementById("tabActive").classList.toggle("active", tab === 'active');
+      document.getElementById("tabCompleted").classList.toggle("active", tab === 'completed');
+      loadOrders();
+    }
+
+    // 6. Real-time Order Loader
+    function loadOrders() {
+      if (!currentUserId) return;
+
+      const container = document.getElementById("assignedOrdersList");
+      container.innerHTML = "<p style='text-align:center;'>Loading...</p>";
+
+      let query = db.collection("orders").where("deliveryBoyId", "==", currentUserId);
+
+      if (activeTab === 'active') {
+        query = query.where("status", "in", ["Ready for Pickup", "Out for Delivery"]);
+      } else {
+        query = query.where("status", "==", "Delivered");
+      }
+
+      query.onSnapshot((snapshot) => {
+        container.innerHTML = "";
+
+        if (snapshot.empty) {
+          container.innerHTML = `<p style='text-align:center; margin-top:30px; color:#666;'>No ${activeTab} orders found.</p>`;
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          const order = doc.data();
+          const orderId = doc.id;
+
+          container.innerHTML += `
+            <div class="card ${order.status === 'Delivered' ? 'completed' : ''}">
+              <div style="display:flex; justify-shadow:space-between; align-items:center;">
+                <h4 style="margin:0;">Order #${orderId.substring(0, 8)}</h4>
+                <span style="background:#eee; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:bold;">${order.status}</span>
+              </div>
+              <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+              <p style="margin:5px 0;"><b>Customer:</b> ${order.customerName || 'N/A'}</p>
+              <p style="margin:5px 0;"><b>Phone:</b> <a href="tel:${order.customerMobile}">${order.customerMobile}</a></p>
+              <p style="margin:5px 0;"><b>Address:</b> ${order.customerAddress || 'N/A'}</p>
+              <p style="margin:5px 0;"><b>Amount:</b> ₹${order.total || 0} (${order.payment || 'COD'})</p>
+              
+              ${order.status !== 'Delivered' ? `
+                <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customerAddress)}" target="_blank">
+                  📍 Open Location in Google Maps
+                </a>
+              ` : ''}
+
+              ${order.status === "Ready for Pickup" ? `
+                <button class="btn btn-start" onclick="updateOrderStatus('${orderId}', 'Out for Delivery')">Start Delivery</button>
+              ` : ''}
+
+              ${order.status === "Out for Delivery" ? `
+                <button class="btn btn-complete" onclick="updateOrderStatus('${orderId}', 'Delivered')">Mark as Delivered</button>
+              ` : ''}
+            </div>
+          `;
+        });
       });
+    }
+
+    // 7. Status Update Handler
+    function updateOrderStatus(orderId, newStatus) {
+      if (confirm(`Are you sure you want to mark this order as "${newStatus}"?`)) {
+        db.collection("orders").doc(orderId).update({
+          status: newStatus,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => alert("Order status updated successfully!"))
+        .catch((err) => alert("Error updating status: " + err.message));
+      }
     }
   </script>
 </body>
