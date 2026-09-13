@@ -477,7 +477,72 @@ function startRealtime(){
   const uid=currentUser.uid;
   const listen=(q,ok,name)=>unsub.push(q.onSnapshot(ok,e=>{console.error(name,e);showError(name,e);}));
   listen(db.collection("products").where("sellerId","==",uid),snap=>{productsCache=[];snap.forEach(d=>productsCache.push({id:d.id,...d.data()}));productsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderProducts();renderReports();},"Products");
-  listen(db.collection("orders").where("sellerId","==",uid),snap=>{ordersCache=[];snap.forEach(d=>ordersCache.push({id:d.id,...d.data()}));ordersCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderOrders();renderDashboard();renderReports();renderCustomers();renderEarnings();renderPayments();},"Orders");
+  listen(
+  db.collection("orders").where("sellerId","==",uid),
+
+  snap=>{
+
+    const changes = snap.docChanges();
+
+    ordersCache = [];
+
+    snap.forEach(d=>{
+
+      ordersCache.push({
+        id:d.id,
+        ...d.data()
+      });
+
+    });
+
+    ordersCache.sort(
+      (a,b)=>
+        (b.createdAt?.seconds||0) -
+        (a.createdAt?.seconds||0)
+    );
+
+    renderOrders();
+    renderDashboard();
+    renderReports();
+    renderCustomers();
+    renderEarnings();
+    renderPayments();
+
+    // Naya order aane par seller alert
+    if(!orderFirstLoad){
+
+      changes.forEach(change=>{
+
+        if(change.type !== "added") return;
+
+        const o={
+          id:change.doc.id,
+          ...change.doc.data()
+        };
+
+        showSellerOrderAlert({
+
+          type:"new_order",
+
+          title:"🛒 New Order Received",
+
+          message:
+            `Order #${o.orderId||o.orderNo||o.id} - ` +
+            `${money(o.amount??o.total??0)}`
+
+        });
+
+      });
+
+    }
+
+    // Purane orders par first load me ring nahi
+    orderFirstLoad=false;
+
+  },
+
+  "Orders"
+);
   listen(db.collection("payments").where("sellerId","==",uid),snap=>{paymentsCache=[];snap.forEach(d=>paymentsCache.push({id:d.id,...d.data()}));paymentsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderPayments();renderEarnings();renderDashboard();},"Payments");
   listen(db.collection("returns").where("sellerId","==",uid),snap=>{returnsCache=[];snap.forEach(d=>returnsCache.push({id:d.id,...d.data()}));returnsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderReturns();},"Returns");
   listen(
