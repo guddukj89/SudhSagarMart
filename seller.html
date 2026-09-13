@@ -891,9 +891,10 @@ function renderOrders(){
     "-";
 
   const address =
-    o.address ||
-    o.deliveryAddress ||
-    "-";
+  o.customerAddress ||
+  o.address ||
+  o.deliveryAddress ||
+  "-";
 
   const paymentMethod =
     o.paymentMethod ||
