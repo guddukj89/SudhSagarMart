@@ -1254,7 +1254,67 @@ function renderNotifications(){
 }
 
 async function markRead(id){try{await db.collection("notifications").doc(id).update({status:"read",readAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Notification update failed: "+e.message);}}
-function renderCustomers(){const map={};ordersCache.forEach(o=>{const key=o.customerUid||o.customerEmail||o.mobile||o.customerName||"unknown";if(!map[key])map[key]={name:o.customerName||o.name||"Customer",mobile:o.mobile||"-",email:o.customerEmail||"-",orders:0,total:0};map[key].orders++;map[key].total+=Number(o.amount??o.total??0);});const rows=Object.values(map);const box=document.getElementById("customersTable");if(!box)return;box.innerHTML=rows.length?`<table><tr><th>Customer</th><th>Mobile</th><th>Email</th><th>Orders</th><th>Total</th></tr>${rows.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.mobile)}</td><td>${esc(c.email)}</td><td>${c.orders}</td><td>${money(c.total)}</td></tr>`).join("")}</table>`:'<div class="empty">Customer order aane par customer list yahan automatically banegi.</div>';}
+function renderCustomers(){
+  const map={};
+
+  ordersCache.forEach(o=>{
+
+    const key =
+      o.customerUid ||
+      o.customerId ||
+      o.customerEmail ||
+      o.mobile ||
+      o.customerMobile ||
+      o.customerName ||
+      "unknown";
+
+    if(!map[key]){
+      map[key]={
+        name:o.customerName||o.name||"Customer",
+        mobile:o.mobile||o.customerMobile||"-",
+        email:o.customerEmail||o.email||"-",
+        orders:0,
+        total:0
+      };
+    }
+
+    map[key].orders++;
+
+    map[key].total += Number(
+      o.amount ?? o.total ?? 0
+    );
+  });
+
+  const rows=Object.values(map);
+
+  const box=document.getElementById("customersTable");
+
+  if(!box)return;
+
+  box.innerHTML=rows.length?`
+    <table>
+      <tr>
+        <th>Customer</th>
+        <th>Mobile</th>
+        <th>Email</th>
+        <th>Orders</th>
+        <th>Total</th>
+      </tr>
+
+      ${rows.map(c=>`
+        <tr>
+          <td><b>${esc(c.name)}</b></td>
+          <td>${esc(c.mobile)}</td>
+          <td>${esc(c.email)}</td>
+          <td>${c.orders}</td>
+          <td>${money(c.total)}</td>
+        </tr>
+      `).join("")}
+
+    </table>
+  `:
+  '<div class="empty">Customer order aane par customer list yahan automatically banegi.</div>';
+}
 function renderDashboard(){
   const f=calcFinance(); const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set("kSales",money(f.gross)); set("kOrders",ordersCache.length); set("kProducts",productsCache.filter(p=>p.status!=="rejected"&&p.approved!==false).length);
