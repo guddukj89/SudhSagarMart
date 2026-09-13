@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Boy Dashboard</title>
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 15px; }
+    h2 { color: #333; text-align: center; }
+    .card { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+    .btn-start { background-color: #ff9800; color: white; }
+    .btn-complete { background-color: #4caf50; color: white; }
+    .maps-link { display: block; margin: 10px 0; color: #2196f3; text-decoration: none; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h2>🚚 Delivery Partner Dashboard</h2>
+  <div id="assignedOrdersList">Loading orders...</div>
+
+  <script>
+    // 1. Apni Firebase Config Yahan Daalein
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "sudhsagarmart.firebaseapp.com",
+      projectId: "sudhsagarmart",
+      storageBucket: "sudhsagarmart.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 2. Currently Logged-in Delivery Boy ke Orders Load karna
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        loadDeliveryBoyOrders(user.uid);
+      } else {
+        document.getElementById("assignedOrdersList").innerHTML = "<p style='text-align:center;'>Kripya pehle Login karein.</p>";
+      }
+    });
+
+    // 3. Firestore Se Assigned Orders Real-time Fetch karna
+    function loadDeliveryBoyOrders(deliveryBoyId) {
+      db.collection("orders")
+        .where("deliveryBoyId", "==", deliveryBoyId)
+        .where("status", "in", ["Ready for Pickup", "Out for Delivery"])
+        .onSnapshot((snapshot) => {
+          const container = document.getElementById("assignedOrdersList");
+          container.innerHTML = "";
+
+          if (snapshot.empty) {
+            container.innerHTML = "<p style='text-align:center;'>Abhi koi active delivery assign nahi hai.</p>";
+            return;
+          }
+
+          snapshot.forEach((doc) => {
+            const order = doc.data();
+            const orderId = doc.id;
+
+            container.innerHTML += `
+              <div class="card">
+                <h3>Order #${orderId.substring(0, 8)}</h3>
+                <p><b>Customer:</b> ${order.customerName || 'N/A'}</p>
+                <p><b>Phone:</b> <a href="tel:${order.customerMobile}">${order.customerMobile}</a></p>
+                <p><b>Address:</b> ${order.customerAddress}</p>
+                <p><b>Amount:</b> ₹${order.total} (${order.payment})</p>
+                
+                <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customerAddress)}" target="_blank">
+                  📍 Open in Google Maps
+                </a>
+
+                ${order.status === "Ready for Pickup" ? `
+                  <button class="btn btn-start" onclick="updateOrderStatus('${orderId}', 'Out for Delivery')">Start Delivery</button>
+                ` : ''}
+
+                ${order.status === "Out for Delivery" ? `
+                  <button class="btn btn-complete" onclick="updateOrderStatus('${orderId}', 'Delivered')">Mark as Delivered</button>
+                ` : ''}
+              </div>
+            `;
+          });
+        });
+    }
+
+    // 4. Status Update Function
+    function updateOrderStatus(orderId, newStatus) {
+      db.collection("orders").doc(orderId).update({
+        status: newStatus,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        alert("Status updated: " + newStatus);
+      })
+      .catch((error) => {
+        alert("Error: " + error.message);
+      });
+    }
+  </script>
+</body>
+</html>
