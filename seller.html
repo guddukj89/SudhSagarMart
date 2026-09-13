@@ -470,6 +470,10 @@ async function submitKYC(){
 }
 
 function startRealtime(){
+
+  orderFirstLoad = true;
+  notificationFirstLoad = true;
+
   const uid=currentUser.uid;
   const listen=(q,ok,name)=>unsub.push(q.onSnapshot(ok,e=>{console.error(name,e);showError(name,e);}));
   listen(db.collection("products").where("sellerId","==",uid),snap=>{productsCache=[];snap.forEach(d=>productsCache.push({id:d.id,...d.data()}));productsCache.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderProducts();renderReports();},"Products");
