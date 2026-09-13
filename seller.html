@@ -747,6 +747,8 @@ function orderStatusOptions(current){
     "Packed",
     "Ready for Pickup",
     "Picked Up",
+    "Delivered",
+    "Completed",
     "Cancelled"
   ].map(s =>
     `<option ${String(current||"").toLowerCase()===s.toLowerCase()?"selected":""}>${s}</option>`
