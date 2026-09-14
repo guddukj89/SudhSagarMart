@@ -85,8 +85,20 @@
       <div class="field"><label>Mobile</label><input id="regMobile" placeholder="10 digit mobile"></div>
       <div class="field"><label>Email</label><input id="regEmail" type="email" placeholder="seller@example.com"></div>
       <div class="field"><label>Password</label><input id="regPassword" type="password" placeholder="Minimum 6 characters"></div>
-      <button class="btn" style="width:100%;margin-top:8px" onclick="registerSeller()">Create Seller Account</button>
+      <button class="btn" style="width:100%;margin-top:8px" onclick="sendRegisterOtp()">Create Seller Account</button>
       <div id="regMsg"></div>
+      <div id="registerOtpBox" style="display:none;margin-top:12px">
+  <div class="field">
+    <label>Mobile OTP</label>
+    <input id="regOtp" inputmode="numeric" maxlength="6" placeholder="6 digit OTP">
+  </div>
+
+  <div id="registerRecaptcha"></div>
+
+  <button class="btn" style="width:100%;margin-top:8px" onclick="verifyRegisterOtp()">
+    Verify OTP & Create Account
+  </button>
+</div>
     </div>
   </div>
 </div>
@@ -343,30 +355,88 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&l
 function dateText(v){if(!v)return "-";try{const d=v.toDate?v.toDate():new Date(v);return d.toLocaleDateString("en-IN");}catch(e){return "-";}}
 function statusHtml(s){const x=String(s||"pending");return `<span class="status">${esc(x)}</span>`;}
 function showAuth(type){document.getElementById("loginTab").classList.toggle("active",type==="login");document.getElementById("registerTab").classList.toggle("active",type!=="login");document.getElementById("loginForm").classList.toggle("active",type==="login");document.getElementById("registerForm").classList.toggle("active",type!=="login");}
-
-async function registerSeller(){
-  const owner=document.getElementById("regOwner").value.trim(),shop=document.getElementById("regShop").value.trim(),mobile=document.getElementById("regMobile").value.trim(),email=document.getElementById("regEmail").value.trim(),password=document.getElementById("regPassword").value,msg=document.getElementById("regMsg");
-  msg.className="error";msg.textContent="";
-  if(!owner||!shop||!/^[0-9]{10}$/.test(mobile)||!email||password.length<6){msg.textContent="Owner, shop, 10 digit mobile, email aur 6+ character password bhariye.";return;}
-  try{
-    const cred=await auth.createUserWithEmailAndPassword(email,password),uid=cred.user.uid;
-    await db.collection("sellers").doc(uid).set({uid,name:owner,ownerName:owner,shopName:shop,mobile,email,role:"seller",kycStatus:"pending",accountStatus:"pending",createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    msg.className="success";msg.textContent="Account create ho gaya. Company approval ke baad selling start hogi.";
-  }catch(e){msg.textContent=e.message;}
-}
-async function loginSeller(){const email=document.getElementById("loginEmail").value.trim(),password=document.getElementById("loginPassword").value,msg=document.getElementById("loginMsg");msg.className="error";msg.textContent="";try{await auth.signInWithEmailAndPassword(email,password);}catch(e){msg.textContent=e.message;}}
-async function logoutSeller(){await auth.signOut();}
-
+  
 function clearListeners(){unsub.forEach(fn=>{try{fn()}catch(e){}});unsub=[];}
 function showApp(on){document.getElementById("authScreen").style.display=on?"none":"flex";document.getElementById("app").style.display=on?"block":"none";}
 
 if(window.lucide) lucide.createIcons();
 
 auth.onAuthStateChanged(async user=>{
-  clearListeners();currentUser=user;
-  if(!user){showApp(false);return;}
-  showApp(true);
-  try{await loadSeller();startRealtime();}catch(e){console.error("Seller initialization failed:",e);showApp(true);}
+
+  clearListeners();
+  currentUser=user;
+
+  if(!user){
+    showApp(false);
+    sellerOtpGateOpen=false;
+    return;
+  }
+
+  try{
+
+    await loadSeller();
+
+    if(sessionStorage.getItem("sellerRegistrationOtp")==="1"){
+      showApp(false);
+      return;
+    }
+
+    let lastOtp=0;
+
+    if(sellerData && sellerData.sellerOtpVerifiedAt){
+
+      if(typeof sellerData.sellerOtpVerifiedAt.toMillis==="function"){
+        lastOtp=sellerData.sellerOtpVerifiedAt.toMillis();
+      }else{
+        lastOtp=new Date(sellerData.sellerOtpVerifiedAt).getTime();
+      }
+
+    }
+
+    const twentyFourHours=24*60*60*1000;
+
+    const otpStillValid=
+      lastOtp>0 &&
+      (Date.now()-lastOtp)<twentyFourHours;
+
+    if(otpStillValid){
+
+      sellerOtpGateOpen=true;
+      showApp(true);
+      startRealtime();
+      return;
+
+    }
+
+    showApp(false);
+
+    const loginBox=document.getElementById("loginOtpBox");
+
+    if(loginBox){
+      loginBox.style.display="block";
+    }
+
+    const loginMsg=document.getElementById("loginMsg");
+
+    if(loginMsg){
+      loginMsg.className="success";
+      loginMsg.textContent=
+        "🔐 Security OTP required. Mobile par OTP verify karein.";
+    }
+
+    await sendSellerLoginOtp();
+
+  }catch(e){
+
+    console.error(
+      "Seller initialization failed:",
+      e
+    );
+
+    showApp(false);
+
+  }
+
 });
 
 async function loadSeller(){
