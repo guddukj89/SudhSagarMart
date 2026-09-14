@@ -4,69 +4,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sudhsagar Mart Delivery Partner</title>
-  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background: #eef2f5; margin: 0; padding: 15px; }
-    
-    .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .header h2 { margin: 0; font-size: 18px; color: #333; }
-    
-    .login-box { background: #fff; padding: 25px; border-radius: 10px; max-width: 400px; margin: 50px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .login-box input { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid #ccc; border-radius: 6px; }
-
-    .card { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #2196f3; }
-    .card.completed { border-left-color: #4caf50; }
-    
-    .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 15px; }
-    .btn-primary { background-color: #2196f3; color: white; }
-    .btn-start { background-color: #ff9800; color: white; }
-    .btn-complete { background-color: #4caf50; color: white; }
-    .btn-logout { background-color: #f44336; color: white; padding: 6px 12px; border-radius: 5px; border: none; font-size: 12px; cursor: pointer; }
-    
-    .maps-link { display: inline-block; margin: 10px 0; color: #2196f3; text-decoration: none; font-weight: bold; }
-    .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-    .tab-btn { flex: 1; padding: 10px; border: none; background: #ddd; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .tab-btn.active { background: #2196f3; color: white; }
+    *{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+    body{background:#eef2f5;margin:0;padding:15px}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;padding:15px;border-radius:10px;margin-bottom:20px;box-shadow:0 2px 4px rgba(0,0,0,.05)}
+    .header h2{margin:0;font-size:18px;color:#333}
+    .login-box{background:#fff;padding:25px;border-radius:10px;max-width:400px;margin:50px auto;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+    .login-box input{width:100%;padding:12px;margin:8px 0 15px;border:1px solid #ccc;border-radius:6px}
+    .card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-left:5px solid #2196f3}
+    .card.completed{border-left-color:#4caf50}
+    .btn{padding:12px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;width:100%;margin-top:10px;font-size:15px}
+    .btn-primary{background:#2196f3;color:white}.btn-start{background:#ff9800;color:white}
+    .btn-complete{background:#4caf50;color:white}.btn-scan{background:#673ab7;color:white}
+    .btn-secondary{background:#607d8b;color:white}
+    .btn-logout{background:#f44336;color:white;padding:6px 12px;border-radius:5px;border:none;font-size:12px;cursor:pointer}
+    .maps-link{display:inline-block;margin:10px 0;color:#2196f3;text-decoration:none;font-weight:bold}
+    .tabs{display:flex;gap:10px;margin-bottom:15px}
+    .tab-btn{flex:1;padding:10px;border:none;background:#ddd;border-radius:6px;font-weight:bold;cursor:pointer}
+    .tab-btn.active{background:#2196f3;color:white}
+    .scanner-box{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    #qr-reader{width:100%;max-width:520px;margin:auto}
+    .scanner-result{padding:10px;margin-top:10px;border-radius:6px;background:#f1f3f5;font-size:13px}
+    .otp-box{margin-top:12px;padding:12px;background:#f7f9fb;border-radius:8px;border:1px solid #e0e5ea}
+    .otp-box input{width:100%;padding:12px;border:1px solid #bbb;border-radius:6px;text-align:center;font-size:22px;letter-spacing:5px}
+    .step{padding:8px 10px;border-radius:6px;background:#f2f4f6;margin-top:8px;font-size:13px}
+    .step.ok{background:#e8f7ed;color:#168646}
   </style>
 </head>
 <body>
 
-  <!-- LOGIN CONTAINER -->
-  <div id="loginSection" class="login-box" style="display: none;">
-    <h3 style="margin-top:0; text-align:center; color:#2196f3;">🛍️ Sudhsagar Mart Delivery Partner</h3>
-    <label>Email</label>
-    <input type="email" id="loginEmail" placeholder="Enter delivery email">
-    <label>Password</label>
-    <input type="password" id="loginPassword" placeholder="Enter password">
-    <button class="btn btn-primary" onclick="loginDeliveryBoy()">Login</button>
+<div id="loginSection" class="login-box" style="display:none;">
+  <h3 style="margin-top:0;text-align:center;color:#2196f3;">🛍️ Sudhsagar Mart Delivery Partner</h3>
+  <label>Email</label>
+  <input type="email" id="loginEmail" placeholder="Enter delivery email">
+  <label>Password</label>
+  <input type="password" id="loginPassword" placeholder="Enter password">
+  <button class="btn btn-primary" onclick="loginDeliveryBoy()">Login</button>
+</div>
+
+<div id="dashboardSection" style="display:none;">
+  <div class="header">
+    <h2>🛍️ Sudhsagar Mart Delivery Partner</h2>
+    <span id="userEmailDisplay" style="font-size:13px;color:#666;"></span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
   </div>
 
-  <!-- MAIN DASHBOARD -->
-  <div id="dashboardSection" style="display: none;">
-    <div class="header">
-      <h2>🛍️ Sudhsagar Mart Delivery Partner</h2>
-      <span id="userEmailDisplay" style="font-size: 13px; color: #666;"></span>
-      <button class="btn-logout" onclick="logout()">Logout</button>
+  <div class="scanner-box">
+    <h3 style="margin:0 0 8px;">📷 Parcel Scanner</h3>
+    <p style="margin:0 0 10px;color:#666;font-size:13px;">Parcel ka QR/Barcode scan karke hi pickup ya delivery process aage badhega.</p>
+    <button class="btn btn-scan" onclick="openScanner()">📷 Scan Parcel</button>
+    <div id="scannerArea" style="display:none;margin-top:12px;">
+      <div id="qr-reader"></div>
+      <button class="btn btn-secondary" onclick="closeScanner()">Close Scanner</button>
+      <div id="scannerResult" class="scanner-result">Waiting for scan...</div>
     </div>
-
-    <!-- TABS -->
-    <div class="tabs">
-      <button id="tabActive" class="tab-btn active" onclick="switchTab('active')">Active Orders</button>
-      <button id="tabCompleted" class="tab-btn" onclick="switchTab('completed')">Completed History</button>
-    </div>
-
-    <!-- ORDERS CONTAINER -->
-    <div id="assignedOrdersList">Loading orders...</div>
   </div>
 
-  <script>
-    // 1. Apni Complete Firebase Config Daalein
-    const firebaseConfig = {
+  <div class="tabs">
+    <button id="tabActive" class="tab-btn active" onclick="switchTab('active')">Active Orders</button>
+    <button id="tabCompleted" class="tab-btn" onclick="switchTab('completed')">Completed History</button>
+  </div>
+
+  <div id="assignedOrdersList">Loading orders...</div>
+</div>
+
+<script>
+const firebaseConfig = {
   apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SJuGU",
   authDomain: "sudhsagarmart.firebaseapp.com",
   projectId: "sudhsagarmart",
@@ -76,170 +83,255 @@
   measurementId: "G-VZY41YWFXP"
 };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+const auth=firebase.auth();
 
-    let currentUserId = null;
-    let activeTab = 'active';
+let currentUserId=null;
+let activeTab='active';
+let unsubscribeOrders=null;
+let qrScanner=null;
+let scannedOrderId=null;
+let scannerCallback=null;
 
-    // 2. Auth State Listener
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        currentUserId = user.uid;
-        document.getElementById("userEmailDisplay").innerText = user.email;
-        document.getElementById("loginSection").style.display = "none";
-        document.getElementById("dashboardSection").style.display = "block";
-        loadOrders();
-      } else {
-        currentUserId = null;
-        document.getElementById("loginSection").style.display = "block";
-        document.getElementById("dashboardSection").style.display = "none";
-      }
-    });
-
-    // 3. Login Functionality
-    function loginDeliveryBoy() {
-      const email = document.getElementById("loginEmail").value;
-      const pass = document.getElementById("loginPassword").value;
-      
-      auth.signInWithEmailAndPassword(email, pass)
-        .catch((err) => alert("Login Failed: " + err.message));
-    }
-
-    // 4. Logout Functionality
-    function logout() {
-      auth.signOut();
-    }
-
-    // 5. Tab Switching
-    function switchTab(tab) {
-      activeTab = tab;
-      document.getElementById("tabActive").classList.toggle("active", tab === 'active');
-      document.getElementById("tabCompleted").classList.toggle("active", tab === 'completed');
-      loadOrders();
-    }
-
-    // 6. Real-time Order Loader
-    function loadOrders() {
-      if (!currentUserId) return;
-
-      const container = document.getElementById("assignedOrdersList");
-      container.innerHTML = "<p style='text-align:center;'>Loading...</p>";
-
-      let query = db.collection("orders").where("deliveryBoyId", "==", currentUserId);
-
-      if (activeTab === 'active') {
-        query = query.where("status", "in", ["Ready for Pickup", "Out for Delivery"]);
-      } else {
-        query = query.where("status", "==", "Delivered");
-      }
-
-      query.onSnapshot((snapshot) => {
-        container.innerHTML = "";
-
-        if (snapshot.empty) {
-          container.innerHTML = `<p style='text-align:center; margin-top:30px; color:#666;'>No ${activeTab} orders found.</p>`;
-          return;
-        }
-
-        snapshot.forEach((doc) => {
-          const order = doc.data();
-          const orderId = doc.id;
-
-          container.innerHTML += `
-            <div class="card ${order.status === 'Delivered' ? 'completed' : ''}">
-              <div style="display:flex; justify-shadow:space-between; align-items:center;">
-                <h4 style="margin:0;">Order #${orderId.substring(0, 8)}</h4>
-                <span style="background:#eee; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:bold;">${order.status}</span>
-              </div>
-              <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
-              <p style="margin:5px 0;"><b>Customer:</b> ${order.customerName || 'N/A'}</p>
-              <p style="margin:5px 0;"><b>Phone:</b> <a href="tel:${order.customerMobile}">${order.customerMobile}</a></p>
-              <p style="margin:5px 0;"><b>Address:</b> ${order.customerAddress || 'N/A'}</p>
-              <p style="margin:5px 0;"><b>Amount:</b> ₹${order.total || 0} (${order.payment || 'COD'})</p>
-              
-              ${order.status !== 'Delivered' ? `
-                <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customerAddress)}" target="_blank">
-                  📍 Open Location in Google Maps
-                </a>
-              ` : ''}
-
-              ${order.status === "Ready for Pickup" ? `
-                <button class="btn btn-start" onclick="updateOrderStatus('${orderId}', 'Out for Delivery')">Start Delivery</button>
-              ` : ''}
-
-              ${order.status === "Out for Delivery" ? `
-                <button class="btn btn-complete" onclick="updateOrderStatus('${orderId}', 'Delivered')">Mark as Delivered</button>
-              ` : ''}
-            </div>
-          `;
-        });
-      });
-    }
-
-    // 7. Status Update Handler
-    async function updateOrderStatus(orderId, newStatus) {
-
-  if(!currentUserId) return;
-
-  if(!confirm(
-    `Are you sure you want to mark this order as "${newStatus}"?`
-  )) return;
-
-  try {
-
-    const ref = db.collection("orders").doc(orderId);
-    const snap = await ref.get();
-
-    if(!snap.exists){
-      throw new Error("Order nahi mila.");
-    }
-
-    const order = snap.data();
-
-    if(order.deliveryBoyId !== currentUserId){
-      throw new Error("Ye order aapko assign nahi hai.");
-    }
-
-    if(
-      newStatus === "Out for Delivery" &&
-      order.status !== "Ready for Pickup"
-    ){
-      throw new Error("Order Ready for Pickup nahi hai.");
-    }
-
-    if(
-      newStatus === "Delivered" &&
-      order.status !== "Out for Delivery"
-    ){
-      throw new Error("Order Out for Delivery nahi hai.");
-    }
-
-    await ref.update({
-
-      status: newStatus,
-
-      orderStatus: newStatus,
-
-      updatedAt:
-        firebase.firestore.FieldValue.serverTimestamp(),
-
-      deliveryUpdatedAt:
-        firebase.firestore.FieldValue.serverTimestamp()
-
-    });
-
-    alert("Order status updated successfully!");
-
-  }catch(err){
-
-    alert("Error updating status: " + err.message);
-
+auth.onAuthStateChanged(user=>{
+  if(user){
+    currentUserId=user.uid;
+    document.getElementById("userEmailDisplay").innerText=user.email||"";
+    document.getElementById("loginSection").style.display="none";
+    document.getElementById("dashboardSection").style.display="block";
+    loadOrders();
+  }else{
+    currentUserId=null;
+    if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
+    document.getElementById("loginSection").style.display="block";
+    document.getElementById("dashboardSection").style.display="none";
   }
+});
+
+function loginDeliveryBoy(){
+  const email=document.getElementById("loginEmail").value.trim();
+  const pass=document.getElementById("loginPassword").value;
+  auth.signInWithEmailAndPassword(email,pass).catch(err=>alert("Login Failed: "+err.message));
+}
+function logout(){closeScanner();auth.signOut()}
+
+function switchTab(tab){
+  activeTab=tab;
+  document.getElementById("tabActive").classList.toggle("active",tab==="active");
+  document.getElementById("tabCompleted").classList.toggle("active",tab==="completed");
+  loadOrders();
+}
+
+function loadOrders(){
+  if(!currentUserId)return;
+  const container=document.getElementById("assignedOrdersList");
+  container.innerHTML="<p style='text-align:center;'>Loading...</p>";
+  if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
+
+  let query=db.collection("orders").where("deliveryBoyId","==",currentUserId);
+  if(activeTab==="active"){
+    query=query.where("status","in",["Ready for Pickup","Picked Up","Out for Delivery"]);
+  }else{
+    query=query.where("status","==","Delivered");
+  }
+
+  unsubscribeOrders=query.onSnapshot(snapshot=>{
+    container.innerHTML="";
+    if(snapshot.empty){
+      container.innerHTML=`<p style="text-align:center;margin-top:30px;color:#666;">No ${activeTab} orders found.</p>`;
+      return;
     }
-  </script>
+    snapshot.forEach(doc=>{
+      container.innerHTML+=renderOrderCard(doc.data(),doc.id);
+    });
+  },err=>{
+    container.innerHTML=`<p style="color:#c00;text-align:center;">Orders load failed: ${escapeHtml(err.message)}</p>`;
+  });
+}
+
+function renderOrderCard(order,orderId){
+  const status=order.status||order.orderStatus||"Processing";
+  const address=order.customerAddress||order.address||"N/A";
+  const phone=order.customerMobile||order.mobile||order.phone||"";
+  const name=order.customerName||order.customer||"N/A";
+  const amount=order.total??order.amount??0;
+  const payment=order.payment||order.paymentMethod||"COD";
+  let action="";
+
+  if(status==="Ready for Pickup"){
+    action=`<button class="btn btn-scan" onclick="scanForPickup('${escapeAttr(orderId)}')">📷 Scan Parcel to Confirm Pickup</button>`;
+  }else if(status==="Picked Up"){
+    action=`<button class="btn btn-start" onclick="startDelivery('${escapeAttr(orderId)}')">🚚 Start Delivery</button>`;
+  }else if(status==="Out for Delivery"){
+    action=`<button class="btn btn-complete" onclick="scanForDelivery('${escapeAttr(orderId)}')">📷 Scan Parcel & Verify Customer OTP</button>`;
+  }
+
+  return `<div class="card ${status==="Delivered"?"completed":""}">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <h4 style="margin:0;">Order #${escapeHtml(orderId.substring(0,8))}</h4>
+      <span style="background:#eee;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:bold;">${escapeHtml(status)}</span>
+    </div>
+    <hr style="border:0;border-top:1px solid #eee;margin:10px 0;">
+    <p style="margin:5px 0;"><b>Customer:</b> ${escapeHtml(name)}</p>
+    <p style="margin:5px 0;"><b>Phone:</b> <a href="tel:${escapeAttr(phone)}">${escapeHtml(phone)}</a></p>
+    <p style="margin:5px 0;"><b>Address:</b> ${escapeHtml(address)}</p>
+    <p style="margin:5px 0;"><b>Amount:</b> ₹${escapeHtml(String(amount))} (${escapeHtml(payment)})</p>
+    ${status!=="Delivered"?`<a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank">📍 Open Location in Google Maps</a>`:""}
+    <div class="step ok">Current step: ${escapeHtml(status)}</div>
+    ${action}
+    <div id="deliveryAction-${escapeAttr(orderId)}"></div>
+  </div>`;
+}
+
+function scanForPickup(orderId){
+  scannedOrderId=orderId;
+  openScanner(scannedId=>confirmPickup(orderId,scannedId));
+}
+function scanForDelivery(orderId){
+  scannedOrderId=orderId;
+  openScanner(scannedId=>prepareDeliveryOtp(orderId,scannedId));
+}
+
+function openScanner(callback){
+  scannerCallback=callback||null;
+  document.getElementById("scannerArea").style.display="block";
+  document.getElementById("scannerResult").innerText="Camera start ho raha hai...";
+  if(qrScanner){try{qrScanner.clear()}catch(e){}qrScanner=null}
+
+  qrScanner=new Html5Qrcode("qr-reader");
+  qrScanner.start(
+    {facingMode:"environment"},
+    {fps:10,qrbox:{width:250,height:250}},
+    async decodedText=>{
+      const scannedId=normalizeScan(decodedText);
+      document.getElementById("scannerResult").innerText="Scanned: "+scannedId;
+      const cb=scannerCallback;
+      scannerCallback=null;
+      try{await qrScanner.stop()}catch(e){}
+      try{await qrScanner.clear()}catch(e){}
+      qrScanner=null;
+      closeScanner();
+      if(cb)await cb(scannedId);
+    },
+    ()=>{}
+  ).catch(err=>{
+    document.getElementById("scannerResult").innerText="Camera error: "+err;
+  });
+}
+
+function closeScanner(){
+  if(qrScanner){
+    const s=qrScanner;
+    qrScanner=null;
+    s.stop().catch(()=>{}).finally(()=>{try{s.clear()}catch(e){}});
+  }
+  const area=document.getElementById("scannerArea");
+  if(area)area.style.display="none";
+}
+
+function normalizeScan(value){
+  const s=String(value||"").trim();
+  if(s.indexOf("SSM|")===0)return s.substring(4).trim();
+  if(s.indexOf("SSM-P-")===0)return s.substring(6).trim();
+  return s;
+}
+
+async function getAssignedOrder(orderId){
+  if(!currentUserId)throw new Error("Login required.");
+  const snap=await db.collection("orders").doc(orderId).get();
+  if(!snap.exists)throw new Error("Parcel/order nahi mila.");
+  const order=snap.data();
+  if(order.deliveryBoyId!==currentUserId)throw new Error("Ye parcel aapko assign nahi hai.");
+  return {ref:snap.ref,order};
+}
+
+async function confirmPickup(orderId,scannedId){
+  if(normalizeScan(scannedId)!==normalizeScan(orderId)){
+    alert("Galat parcel scan hua hai. Is order ka parcel scan karo.");
+    return;
+  }
+  try{
+    const {ref,order}=await getAssignedOrder(orderId);
+    if((order.status||order.orderStatus)!=="Ready for Pickup")throw new Error("Order Ready for Pickup status me nahi hai.");
+    if(!confirm("Parcel scan ho gaya. Kya aapne parcel pickup kar liya hai?"))return;
+    await ref.update({
+      status:"Picked Up",
+      orderStatus:"Picked Up",
+      pickupConfirmedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("✅ Pickup confirmed. Ab Start Delivery dabayein.");
+  }catch(err){alert("Pickup failed: "+err.message)}
+}
+
+async function startDelivery(orderId){
+  try{
+    const {ref,order}=await getAssignedOrder(orderId);
+    if((order.status||order.orderStatus)!=="Picked Up")throw new Error("Pehle parcel pickup confirm karo.");
+    if(!confirm("Parcel lekar delivery ke liye nikalna hai?"))return;
+    await ref.update({
+      status:"Out for Delivery",
+      orderStatus:"Out for Delivery",
+      deliveryStartedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(err){alert("Start delivery failed: "+err.message)}
+}
+
+async function prepareDeliveryOtp(orderId,scannedId){
+  if(normalizeScan(scannedId)!==normalizeScan(orderId)){
+    alert("Galat parcel scan hua hai. Is order ka parcel scan karo.");
+    return;
+  }
+  try{
+    const {order}=await getAssignedOrder(orderId);
+    if((order.status||order.orderStatus)!=="Out for Delivery")throw new Error("Order Out for Delivery status me nahi hai.");
+    const box=document.getElementById("deliveryAction-"+orderId);
+    if(!box)return;
+    box.innerHTML=`<div class="otp-box">
+      <b>Customer Verification</b>
+      <p style="font-size:13px;color:#666;">Customer ke registered mobile par OTP bhejna hoga.</p>
+      <button class="btn btn-primary" onclick="sendDeliveryOtp('${escapeAttr(orderId)}')">📱 Send Customer OTP</button>
+      <div id="otpEntry-${escapeAttr(orderId)}"></div>
+    </div>`;
+  }catch(err){alert("Delivery scan failed: "+err.message)}
+}
+
+async function sendDeliveryOtp(orderId){
+  try{
+    const {order}=await getAssignedOrder(orderId);
+    if((order.status||order.orderStatus)!=="Out for Delivery")throw new Error("Order Out for Delivery status me nahi hai.");
+
+    /*
+      SMS OTP must be generated/sent and verified by a trusted backend.
+      This frontend intentionally does not generate/store a plaintext OTP.
+      The UI is ready for the Cloud Function/SMS provider connection.
+    */
+    alert("Customer OTP SMS backend abhi connect nahi hai. SMS provider + Cloud Function connect hone ke baad yahin se OTP jayega.");
+
+    const box=document.getElementById("otpEntry-"+orderId);
+    if(box)box.innerHTML=`<input id="otp-${escapeAttr(orderId)}" inputmode="numeric" maxlength="6" placeholder="Customer OTP">
+      <button class="btn btn-complete" onclick="verifyDeliveryOtp('${escapeAttr(orderId)}')">✅ Verify OTP & Deliver</button>`;
+  }catch(err){alert("OTP request failed: "+err.message)}
+}
+
+async function verifyDeliveryOtp(orderId){
+  const otpInput=document.getElementById("otp-"+orderId);
+  const otp=(otpInput?.value||"").trim();
+  if(!/^\d{4,6}$/.test(otp)){alert("Valid OTP enter karo.");return}
+
+  /*
+    Final OTP verification must be done by a backend/Cloud Function.
+    Do not compare a Firestore plaintext OTP in this client.
+  */
+  alert("OTP backend verification abhi connect karna baki hai. SMS provider + Cloud Function connect hone ke baad Verify OTP se Delivered hoga.");
+}
+
+function escapeHtml(value){
+  return String(value??"").replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+}
+function escapeAttr(value){return escapeHtml(value)}
+</script>
 </body>
 </html>
