@@ -693,7 +693,12 @@ async function verifyLoginOtp(){
     msg.textContent="Pehle OTP send karein.";
     return;
   }
-
+if(!auth.currentUser || auth.currentUser.uid !== loginOtpUid){
+  msg.className="error";
+  msg.textContent=
+    "Login session change ho gaya. Dobara Login karke OTP bhejein.";
+  return;
+}
   try{
 
     await loginConfirmationResult.confirm(code);
