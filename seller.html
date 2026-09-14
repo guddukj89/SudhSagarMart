@@ -94,6 +94,14 @@
           onclick="verifyLoginOtp()">
     Verify OTP & Open Seller Panel
   </button>
+        
+        <button
+  id="resendLoginOtpBtn"
+  class="btn secondary"
+  style="width:100%;margin-top:8px"
+  onclick="resendSellerLoginOtp()">
+  🔄 Resend OTP
+</button>
 
 </div>
     </div>
@@ -380,7 +388,8 @@ let registerRecaptcha = null;
 let loginRecaptcha = null;
 let pendingSellerRegistration = null;
 let sellerOtpGateOpen = false;
-
+let loginResendTimer = null;
+let loginResendSeconds = 0;
 async function sendRegisterOtp(){
 
   const owner=document.getElementById("regOwner").value.trim();
@@ -622,7 +631,52 @@ async function sendSellerLoginOtp(){
   }
 }
 
+async function resendSellerLoginOtp(){
 
+  const msg=document.getElementById("loginMsg");
+
+  try{
+
+    if(!currentUser || !sellerData){
+      throw new Error("Seller account load nahi hua.");
+    }
+
+    const mobile=String(sellerData.mobile||"").replace(/\D/g,"");
+
+    if(!/^[0-9]{10}$/.test(mobile)){
+      throw new Error("Seller account me valid 10 digit mobile number nahi hai.");
+    }
+
+    if(!loginRecaptcha){
+      loginRecaptcha=new firebase.auth.RecaptchaVerifier(
+        "loginRecaptcha",
+        {
+          size:"normal"
+        }
+      );
+    }
+
+    loginConfirmationResult =
+      await currentUser.reauthenticateWithPhoneNumber(
+        "+91"+mobile,
+        loginRecaptcha
+      );
+
+    if(msg){
+      msg.className="success";
+      msg.textContent="🔄 Naya OTP mobile par bhej diya gaya hai.";
+    }
+
+  }catch(e){
+
+    if(msg){
+      msg.className="error";
+      msg.textContent="Resend OTP failed: "+e.message;
+    }
+
+  }
+
+}
 async function verifyLoginOtp(){
 
   const code=document.getElementById("loginOtp").value.trim();
