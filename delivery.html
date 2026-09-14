@@ -67,13 +67,14 @@
   <script>
     // 1. Apni Complete Firebase Config Daalein
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "sudhsagarmart.firebaseapp.com",
-      projectId: "sudhsagarmart",
-      storageBucket: "sudhsagarmart.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
+  apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SJuGU",
+  authDomain: "sudhsagarmart.firebaseapp.com",
+  projectId: "sudhsagarmart",
+  storageBucket: "sudhsagarmart.firebasestorage.app",
+  messagingSenderId: "682379938859",
+  appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e",
+  measurementId: "G-VZY41YWFXP"
+};
 
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
@@ -180,15 +181,64 @@
     }
 
     // 7. Status Update Handler
-    function updateOrderStatus(orderId, newStatus) {
-      if (confirm(`Are you sure you want to mark this order as "${newStatus}"?`)) {
-        db.collection("orders").doc(orderId).update({
-          status: newStatus,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(() => alert("Order status updated successfully!"))
-        .catch((err) => alert("Error updating status: " + err.message));
-      }
+    async function updateOrderStatus(orderId, newStatus) {
+
+  if(!currentUserId) return;
+
+  if(!confirm(
+    `Are you sure you want to mark this order as "${newStatus}"?`
+  )) return;
+
+  try {
+
+    const ref = db.collection("orders").doc(orderId);
+    const snap = await ref.get();
+
+    if(!snap.exists){
+      throw new Error("Order nahi mila.");
+    }
+
+    const order = snap.data();
+
+    if(order.deliveryBoyId !== currentUserId){
+      throw new Error("Ye order aapko assign nahi hai.");
+    }
+
+    if(
+      newStatus === "Out for Delivery" &&
+      order.status !== "Ready for Pickup"
+    ){
+      throw new Error("Order Ready for Pickup nahi hai.");
+    }
+
+    if(
+      newStatus === "Delivered" &&
+      order.status !== "Out for Delivery"
+    ){
+      throw new Error("Order Out for Delivery nahi hai.");
+    }
+
+    await ref.update({
+
+      status: newStatus,
+
+      orderStatus: newStatus,
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp(),
+
+      deliveryUpdatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    });
+
+    alert("Order status updated successfully!");
+
+  }catch(err){
+
+    alert("Error updating status: " + err.message);
+
+  }
     }
   </script>
 </body>
