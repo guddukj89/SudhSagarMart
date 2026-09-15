@@ -1666,7 +1666,7 @@ function loadSellerProducts() {
         p.title || p.name || "Product",
         Number(p.price) || 0,
         Number(p.mrp) || Number(p.price) || 0,
-        p.image || p.imageUrl || "",
+        p.image || (Array.isArray(p.images) ? p.images[0] : "") || "",
         Number(p.stock) || 0,
         p.productId || doc.id,
         p.sellerId || "",
