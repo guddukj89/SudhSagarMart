@@ -5502,7 +5502,48 @@ async function savelocation(){
                  padding-top:15px;
                  ">
             </div>
+<div style="
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+    flex-wrap:wrap;
+">
 
+    <button
+        onclick="addCart(galleryProductIndex)"
+        style="
+        flex:1;
+        min-width:180px;
+        padding:14px;
+        border:0;
+        border-radius:8px;
+        background:#ff9f00;
+        color:#fff;
+        font-size:17px;
+        font-weight:bold;
+        cursor:pointer;
+        ">
+        🛒 Add to Cart
+    </button>
+
+    <button
+        onclick="buyNow(galleryProductIndex)"
+        style="
+        flex:1;
+        min-width:180px;
+        padding:14px;
+        border:0;
+        border-radius:8px;
+        background:#fb641b;
+        color:#fff;
+        font-size:17px;
+        font-weight:bold;
+        cursor:pointer;
+        ">
+        ⚡ Buy Now
+    </button>
+
+</div>
         </div>
 
     </div>
@@ -5514,7 +5555,7 @@ let galleryIndex = 0;
 let galleryProduct = null;
 
 function openProductGallery(index) {
-
+galleryProductIndex = index;
     const product = products[index] || liveProducts[index];
 
     if (!product) {
