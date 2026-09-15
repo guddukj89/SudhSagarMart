@@ -1242,7 +1242,7 @@ function addCart(i){
  function buyNow(i){
 
     cart = [{
-        p: products[i],
+        p: products[i] || liveProducts[i],
         qty: 1
     }];
 
