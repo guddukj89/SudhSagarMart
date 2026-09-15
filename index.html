@@ -1297,7 +1297,7 @@ function openCart(){renderCart();openModal("cartModal")}
 function renderCart(){
 let box=document.getElementById("cartItems");
 if(!cart.length){box.innerHTML='<div class="empty">Your cart is empty</div>';document.getElementById("cartTotal").innerText="";return}
-box.innerHTML=cart.map((x,i)=>`<div class="cartRow"><div>${x.p[1]}<br><b>₹${x.p[2]}</b></div><div class="qty"><button onclick="changeQty(${i},-1)">−</button> ${x.qty} <button onclick="changeQty(${i},1)">+</button><br><button onclick="removeCart(${i})">Remove</button></div></div>`).join("");
+box.innerHTML=cart.map((x,i)=>`<div class="cartRow" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #ddd;"><img src="${x.p[4] || ''}" alt="${x.p[1] || 'Product'}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;background:#f5f5f5;"><div style="flex:1;"><b>${x.p[1]}</b><br><b>₹${x.p[2]}</b></div><div class="qty"><button onclick="changeQty(${i},-1)">−</button> ${x.qty} <button onclick="changeQty(${i},1)">+</button><br><button onclick="removeCart(${i})">Remove</button></div></div>`).join("");
 document.getElementById("cartTotal").innerText="Total: ₹"+cart.reduce((s,x)=>s+x.p[2]*x.qty,0);
 }
 function changeQty(i,n){cart[i].qty+=n;if(cart[i].qty<=0)cart.splice(i,1);save();renderCart()}
