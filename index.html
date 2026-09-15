@@ -5515,7 +5515,7 @@ let galleryProduct = null;
 
 function openProductGallery(index) {
 
-    const product = products[index];
+    const product = products[index] || liveProducts[index];
 
     if (!product) {
         console.error("Product not found:", index);
