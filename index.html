@@ -5145,5 +5145,148 @@ Login
 
 </div>
 </div>
+    <script>
+async function savelocation(){
+
+  const msg = document.getElementById("areaMsg");
+  const locationText = document.getElementById("locationText");
+
+  if(!navigator.geolocation){
+    msg.innerText = "❌ Is device/browser me GPS available nahi hai.";
+    msg.style.color = "red";
+    return;
+  }
+
+  msg.innerText = "📍 Aapki current location pata ki ja rahi hai...";
+  msg.style.color = "#a00080";
+
+  navigator.geolocation.getCurrentPosition(
+    function(position){
+
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      if(typeof google === "undefined" || !google.maps){
+        msg.innerText = "❌ Location service load nahi hui. Internet check karein.";
+        msg.style.color = "red";
+        return;
+      }
+
+      const geocoder = new google.maps.Geocoder();
+
+      geocoder.geocode(
+        {
+          location: {
+            lat: lat,
+            lng: lng
+          }
+        },
+        function(results,status){
+
+          if(status !== "OK" || !results || !results.length){
+            msg.innerText = "❌ Address nahi mil paya. Dobara try karein.";
+            msg.style.color = "red";
+            return;
+          }
+
+          const result = results[0];
+          const components = result.address_components || [];
+
+          let pincode = "";
+          let city = "";
+          let area = "";
+
+          components.forEach(function(c){
+
+            const types = c.types || [];
+
+            if(types.includes("postal_code")){
+              pincode = c.long_name;
+            }
+
+            if(
+              types.includes("locality") ||
+              types.includes("postal_town") ||
+              types.includes("administrative_area_level_2")
+            ){
+              if(!city) city = c.long_name;
+            }
+
+            if(
+              types.includes("sublocality") ||
+              types.includes("sublocality_level_1") ||
+              types.includes("neighborhood")
+            ){
+              if(!area) area = c.long_name;
+            }
+
+          });
+
+          const address = result.formatted_address || "";
+
+          document.getElementById("address").value = address;
+          document.getElementById("city").value = city;
+          document.getElementById("pincode").value = pincode;
+
+          document.getElementById("pincodeInput").value = pincode;
+
+          if(typeof checkDelivery === "function"){
+            checkDelivery();
+          }
+
+          locationText.innerText =
+            (area ? area + ", " : "") +
+            (city || "Current Location");
+
+          localStorage.setItem(
+            "ssm_current_location",
+            JSON.stringify({
+              latitude: lat,
+              longitude: lng,
+              address: address,
+              city: city,
+              pincode: pincode,
+              area: area
+            })
+          );
+
+          msg.innerHTML =
+            "✅ Current location mil gayi.<br>" +
+            "<small>" + address + "</small>";
+
+          msg.style.color = "green";
+
+        }
+      );
+
+    },
+
+    function(error){
+
+      let text = "❌ Location nahi mil payi.";
+
+      if(error.code === 1){
+        text = "❌ Location permission Allow karein.";
+      }
+      else if(error.code === 2){
+        text = "❌ GPS location available nahi hai.";
+      }
+      else if(error.code === 3){
+        text = "❌ Location lene me time lag gaya. Dobara try karein.";
+      }
+
+      msg.innerText = text;
+      msg.style.color = "red";
+
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    }
+  );
+}
+</script>
 </body>
 </html>
