@@ -5532,9 +5532,10 @@ function openProductGallery(index) {
 if (galleryImages.length === 0 && product[4]) {
     galleryImages = [product[4]];
 }
-
+if (typeof showExtraProductDetails === "function") {
+    showExtraProductDetails(product[11]);
+}
     galleryIndex = 0;
-showExtraProductDetails(product[11]);
     // Title
     const title = document.getElementById("galleryProductTitle");
     if (title) {
