@@ -769,7 +769,12 @@ function renderProducts(list=products){
     let isOut = p[5] !== undefined ? (p[5] <= 0) : false;
 
     return `<div class="product">
-      <img src="${p[4]}" alt="${p[1]}">
+      <img
+    src="${p[4]}"
+    alt="${p[1]}"
+    onclick="openProductGallery(${i})"
+    style="cursor:pointer;"
+>
       
       <div class="info">
         <div class="category">${p[0]}</div>
@@ -1662,16 +1667,30 @@ function loadSellerProducts() {
       let p = doc.data();
 
       liveProducts.push([
-        p.category || "General",
-        p.title || p.name || "Product",
-        Number(p.price) || 0,
-        Number(p.mrp) || Number(p.price) || 0,
-        p.image || (Array.isArray(p.images) ? p.images[0] : "") || "",
-        Number(p.stock) || 0,
-        p.productId || doc.id,
-        p.sellerId || "",
-        p.sellerName || p.shopName || "Seller"
-      ]);
+    p.category || "General",
+    p.title || p.name || "Product",
+    Number(p.price) || 0,
+    Number(p.mrp) || Number(p.price) || 0,
+
+    // Main image - existing code ke liye
+    p.image || (Array.isArray(p.images) ? p.images[0] : "") || "",
+
+    Number(p.stock) || 0,
+    p.productId || doc.id,
+    p.sellerId || "",
+    p.sellerName || p.shopName || "Seller",
+
+    // 10 = saari images
+    Array.isArray(p.images)
+        ? p.images.filter(Boolean)
+        : (p.image ? [p.image] : []),
+
+    // 11 = description
+    p.description || p.details || p.productDescription || "",
+
+    // 11 = Firebase ka poora product data
+    p
+]);
     });
 
     if (liveProducts.length > 0) {
@@ -5329,6 +5348,164 @@ async function savelocation(){
 }
   );
 }
+<!-- PRODUCT IMAGE / DETAIL GALLERY -->
+<div id="productGalleryModal"
+     style="
+     display:none;
+     position:fixed;
+     inset:0;
+     z-index:99999;
+     background:rgba(0,0,0,.92);
+     overflow:auto;
+     padding:20px;
+     box-sizing:border-box;
+     ">
+
+    <button onclick="closeProductGallery()"
+            style="
+            position:fixed;
+            top:15px;
+            right:15px;
+            z-index:100001;
+            background:#fff;
+            border:0;
+            border-radius:50%;
+            width:42px;
+            height:42px;
+            font-size:24px;
+            cursor:pointer;
+            ">
+        ×
+    </button>
+
+    <div style="
+         max-width:900px;
+         margin:40px auto;
+         background:#fff;
+         border-radius:12px;
+         padding:15px;
+         box-sizing:border-box;
+         ">
+
+        <!-- MAIN IMAGE -->
+        <div style="
+             position:relative;
+             width:100%;
+             text-align:center;
+             background:#f5f5f5;
+             border-radius:10px;
+             overflow:hidden;
+             ">
+
+            <img id="galleryMainImage"
+                 src=""
+                 alt="Product"
+                 style="
+                 width:100%;
+                 max-height:500px;
+                 object-fit:contain;
+                 display:block;
+                 ">
+
+            <button onclick="galleryPreviousImage()"
+                    style="
+                    position:absolute;
+                    left:10px;
+                    top:50%;
+                    transform:translateY(-50%);
+                    border:0;
+                    border-radius:50%;
+                    width:45px;
+                    height:45px;
+                    font-size:25px;
+                    cursor:pointer;
+                    background:rgba(255,255,255,.9);
+                    ">
+                ‹
+            </button>
+
+            <button onclick="galleryNextImage()"
+                    style="
+                    position:absolute;
+                    right:10px;
+                    top:50%;
+                    transform:translateY(-50%);
+                    border:0;
+                    border-radius:50%;
+                    width:45px;
+                    height:45px;
+                    font-size:25px;
+                    cursor:pointer;
+                    background:rgba(255,255,255,.9);
+                    ">
+                ›
+            </button>
+
+        </div>
+
+        <!-- ALL IMAGE THUMBNAILS -->
+        <div id="galleryThumbnails"
+             style="
+             display:flex;
+             gap:8px;
+             overflow-x:auto;
+             margin-top:12px;
+             padding-bottom:5px;
+             ">
+        </div>
+
+        <!-- PRODUCT DETAILS -->
+        <div style="margin-top:18px;">
+
+            <h2 id="galleryProductTitle"
+                style="margin:0 0 10px;">
+            </h2>
+
+            <div id="galleryProductDescription"
+                 style="
+                 color:#555;
+                 line-height:1.5;
+                 white-space:pre-wrap;
+                 margin-bottom:15px;
+                 ">
+            </div>
+
+            <div id="galleryProductPrice"
+                 style="
+                 font-size:22px;
+                 font-weight:bold;
+                 margin-bottom:8px;
+                 ">
+            </div>
+
+            <div id="galleryProductMrp"
+                 style="margin-bottom:8px;">
+            </div>
+
+            <div id="galleryProductStock"
+                 style="margin-bottom:8px;">
+            </div>
+
+            <div id="galleryProductCategory"
+                 style="margin-bottom:8px;">
+            </div>
+
+            <div id="galleryProductSeller"
+                 style="margin-bottom:8px;">
+            </div>
+
+            <div id="galleryExtraDetails"
+                 style="
+                 margin-top:15px;
+                 border-top:1px solid #ddd;
+                 padding-top:15px;
+                 ">
+            </div>
+
+        </div>
+
+    </div>
+</div>        
 </script>
 </body>
 </html>
