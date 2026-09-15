@@ -5526,16 +5526,15 @@ function openProductGallery(index) {
 
     // Saari product images
     galleryImages = Array.isArray(product[9])
-        ? product[9].filter(Boolean)
-        : [];
+    ? product[9]
+    : [];
 
-    // Agar images array nahi hai to main image
-    if (galleryImages.length === 0 && product[4]) {
-        galleryImages = [product[4]];
-    }
+if (galleryImages.length === 0 && product[4]) {
+    galleryImages = [product[4]];
+}
 
     galleryIndex = 0;
-
+showExtraProductDetails(product[11]);
     // Title
     const title = document.getElementById("galleryProductTitle");
     if (title) {
@@ -5600,7 +5599,7 @@ function openProductGallery(index) {
     }
 
     // Firebase ke extra details
-    showExtraProductDetails(product[12]);
+    showExtraProductDetails(product[11]);
 
     // Images render
     renderGalleryImages();
@@ -5632,6 +5631,29 @@ function renderGalleryImages() {
 
     thumbnails.innerHTML = "";
 
+    // Images ko safe string URLs me convert karo
+    galleryImages = Array.isArray(galleryImages)
+        ? galleryImages
+            .map(function(img) {
+                if (typeof img === "string") {
+                    return img.trim();
+                }
+
+                if (img && typeof img === "object") {
+                    return (
+                        img.url ||
+                        img.image ||
+                        img.src ||
+                        ""
+                    ).toString().trim();
+                }
+
+                return "";
+            })
+            .filter(Boolean)
+        : [];
+
+    // Koi image nahi hai
     if (galleryImages.length === 0) {
 
         mainImage.removeAttribute("src");
@@ -5643,24 +5665,59 @@ function renderGalleryImages() {
         return;
     }
 
-    // Main image
-    mainImage.src = galleryImages[galleryIndex];
+    // Index safe rakho
+    if (
+        galleryIndex < 0 ||
+        galleryIndex >= galleryImages.length
+    ) {
+        galleryIndex = 0;
+    }
+
+    // =========================
+    // MAIN IMAGE
+    // =========================
+
+    const currentImage = galleryImages[galleryIndex];
+
+    mainImage.src = currentImage;
+
     mainImage.alt =
-        galleryProduct ? (galleryProduct[1] || "Product") : "Product";
+        galleryProduct
+            ? (galleryProduct[1] || "Product")
+            : "Product";
+
+    // Agar main image load na ho
+    mainImage.onerror = function() {
+
+        console.error(
+            "Image load failed:",
+            currentImage
+        );
+
+        this.removeAttribute("src");
+        this.alt = "Image unavailable";
+    };
 
 
-    // Saare thumbnails
-    galleryImages.forEach((img, i) => {
+    // =========================
+    // THUMBNAILS
+    // =========================
+
+    galleryImages.forEach(function(img, i) {
 
         const thumb =
             document.createElement("img");
 
         thumb.src = img;
 
+        thumb.alt =
+            "Product image " + (i + 1);
+
+        thumb.loading = "lazy";
+
         thumb.style.width = "70px";
         thumb.style.height = "70px";
         thumb.style.objectFit = "cover";
-
         thumb.style.border =
             "2px solid " +
             (i === galleryIndex ? "#000" : "#ddd");
@@ -5668,18 +5725,32 @@ function renderGalleryImages() {
         thumb.style.borderRadius = "8px";
         thumb.style.cursor = "pointer";
         thumb.style.flexShrink = "0";
+        thumb.style.background = "#f5f5f5";
 
-        thumb.onclick = function () {
+        // Broken thumbnail ko hide karo
+        thumb.onerror = function() {
+            this.style.display = "none";
+        };
+
+        // Thumbnail click
+        thumb.onclick = function(e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (galleryIndex === i) {
+                return;
+            }
 
             galleryIndex = i;
 
             renderGalleryImages();
-
         };
 
         thumbnails.appendChild(thumb);
 
     });
+
 }
 
 
