@@ -71,7 +71,12 @@
 
   <div id="assignedOrdersList">Loading orders...</div>
 </div>
+let lastOrderCount = 0; // Top par paste karein
 
+function playNotificationSound() {
+  const audio = new Audio("https://actions.google.com/sounds/v1/notifications/beep_short.ogg");
+  audio.play().catch(e => console.log("Audio play blocked by browser."));
+}
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SJuGU",
@@ -125,61 +130,91 @@ function switchTab(tab){
 }
 
 function loadOrders(){
-  if(!currentUserId)return;
-  const container=document.getElementById("assignedOrdersList");
-  container.innerHTML="<p style='text-align:center;'>Loading...</p>";
-  if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
+  if(!currentUserId) return;
+  const container = document.getElementById("assignedOrdersList");
+  
+  if(unsubscribeOrders){ unsubscribeOrders(); unsubscribeOrders = null; }
 
-  let query=db.collection("orders").where("deliveryBoyId","==",currentUserId);
-  if(activeTab==="active"){
-    query=query.where("status","in",["Ready for Pickup","Picked Up","Out for Delivery"]);
-  }else{
-    query=query.where("status","==","Delivered");
+  let query = db.collection("orders").where("deliveryBoyId", "==", currentUserId);
+  if(activeTab === "active"){
+    query = query.where("status", "in", ["Ready for Pickup", "Picked Up", "Out for Delivery"]);
+  } else {
+    query = query.where("status", "==", "Delivered");
   }
 
-  unsubscribeOrders=query.onSnapshot(snapshot=>{
+  unsubscribeOrders = query.onSnapshot(snapshot => {
+    // 🔔 New Notification Check
+    if(!snapshot.empty && snapshot.docs.length > lastOrderCount && activeTab === 'active'){
+      playNotificationSound();
+      alert("🔔 Naya Order Pickup ke liye Ready hai!");
+    }
+    lastOrderCount = snapshot.docs.length;
+
     if(snapshot.empty){
-      container.innerHTML=`<p style="text-align:center;margin-top:30px;color:#666;">No ${activeTab} orders found.</p>`;
+      container.innerHTML = `<p style="text-align:center;margin-top:30px;color:#666;">No ${activeTab} orders found.</p>`;
       return;
     }
+    
     let htmlBuffer = "";
-    snapshot.forEach(doc=>{
-      htmlBuffer += renderOrderCard(doc.data(),doc.id);
+    snapshot.forEach(doc => {
+      htmlBuffer += renderOrderCard(doc.data(), doc.id);
     });
     container.innerHTML = htmlBuffer;
-  },err=>{
-    container.innerHTML=`<p style="color:#c00;text-align:center;">Orders load failed: ${escapeHtml(err.message)}</p>`;
+  }, err => {
+    container.innerHTML = `<p style="color:#c00;text-align:center;">Orders load failed: ${escapeHtml(err.message)}</p>`;
   });
 }
+function renderOrderCard(order, orderId){
+  const status = order.status || order.orderStatus || "Processing";
+  
+  // Customer Details
+  const address = order.customerAddress || order.address || "N/A";
+  const phone = order.customerMobile || order.mobile || order.phone || "";
+  const name = order.customerName || order.customer || "N/A";
+  
+  // Seller / Shop Details
+  const shopName = order.shopName || order.sellerName || "Sudhsagar Main Store";
+  const shopAddress = order.shopAddress || order.pickupAddress || "Main Market, Store Location";
+  const shopPhone = order.shopPhone || order.sellerPhone || "";
 
-function renderOrderCard(order,orderId){
-  const status=order.status||order.orderStatus||"Processing";
-  const address=order.customerAddress||order.address||"N/A";
-  const phone=order.customerMobile||order.mobile||order.phone||"";
-  const name=order.customerName||order.customer||"N/A";
-  const amount=order.total??order.amount??0;
-  const payment=order.payment||order.paymentMethod||"COD";
-  let action="";
+  const amount = order.total ?? order.amount ?? 0;
+  const payment = order.payment || order.paymentMethod || "COD";
+  let action = "";
 
-  if(status==="Ready for Pickup"){
-    action=`<button class="btn btn-scan" onclick="scanForPickup('${escapeAttr(orderId)}')">📷 Scan Parcel to Confirm Pickup</button>`;
-  }else if(status==="Picked Up"){
-    action=`<button class="btn btn-start" onclick="startDelivery('${escapeAttr(orderId)}')">🚚 Start Delivery</button>`;
-  }else if(status==="Out for Delivery"){
-    action=`<button class="btn btn-complete" onclick="scanForDelivery('${escapeAttr(orderId)}')">📷 Scan Parcel & Verify Customer OTP</button>`;
+  if(status === "Ready for Pickup"){
+    action = `<button class="btn btn-scan" onclick="scanForPickup('${escapeAttr(orderId)}')">📷 Scan Parcel to Confirm Pickup</button>`;
+  } else if(status === "Picked Up"){
+    action = `<button class="btn btn-start" onclick="startDelivery('${escapeAttr(orderId)}')">🚚 Start Delivery</button>`;
+  } else if(status === "Out for Delivery"){
+    action = `<button class="btn btn-complete" onclick="scanForDelivery('${escapeAttr(orderId)}')">📷 Scan Parcel & Verify Customer OTP</button>`;
   }
 
-  return `<div class="card ${status==="Delivered"?"completed":""}">
+  return `<div class="card ${status === "Delivered" ? "completed" : ""}">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
       <h4 style="margin:0;">Order #${escapeHtml(orderId.substring(0,8))}</h4>
       <span style="background:#eee;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:bold;">${escapeHtml(status)}</span>
     </div>
     <hr style="border:0;border-top:1px solid #eee;margin:10px 0;">
-    <p style="margin:5px 0;"><b>Customer:</b> ${escapeHtml(name)}</p>
-    <p style="margin:5px 0;"><b>Phone:</b> <a href="tel:${escapeAttr(phone)}">${escapeHtml(phone)}</a></p>
-    <p style="margin:5px 0;"><b>Address:</b> ${escapeHtml(address)}</p>
-    <p style="margin:5px 0;"><b>Amount:</b> ₹${escapeHtml(String(amount))} (${escapeHtml(payment)})</p>
-    ${status!=="Delivered"?`<a class="maps-link" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}" target="_blank">📍 Navigate in Google Maps</a>`:""}
+    
+    <!-- 🏬 PICKUP SHOP DETAILS SECTION -->
+    <div style="background:#fff8e1;padding:10px;border-radius:6px;margin-bottom:10px;border:1px solid #ffe082;">
+      <h5 style="margin:0 0 5px;color:#b78103;">🏬 Pickup From (Shop):</h5>
+      <p style="margin:3px 0;"><b>Shop Name:</b> ${escapeHtml(shopName)}</p>
+      <p style="margin:3px 0;"><b>Address:</b> ${escapeHtml(shopAddress)}</p>
+      ${shopPhone ? `<p style="margin:3px 0;"><b>Phone:</b> <a href="tel:${escapeAttr(shopPhone)}">${escapeHtml(shopPhone)}</a></p>` : ''}
+      <a class="maps-link" style="color:#d97706;font-size:13px;" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(shopAddress)}" target="_blank">📍 Navigate to Shop</a>
+    </div>
+
+    <!-- 👤 CUSTOMER DETAILS SECTION -->
+    <div style="background:#f1f8e9;padding:10px;border-radius:6px;margin-bottom:10px;border:1px solid #c5e1a5;">
+      <h5 style="margin:0 0 5px;color:#33691e;">🏠 Deliver To (Customer):</h5>
+      <p style="margin:3px 0;"><b>Customer:</b> ${escapeHtml(name)}</p>
+      <p style="margin:3px 0;"><b>Phone:</b> <a href="tel:${escapeAttr(phone)}">${escapeHtml(phone)}</a></p>
+      <p style="margin:3px 0;"><b>Address:</b> ${escapeHtml(address)}</p>
+      <p style="margin:3px 0;"><b>Amount:</b> ₹${escapeHtml(String(amount))} (${escapeHtml(payment)})</p>
+      ${status !== "Delivered" ? `<a class="maps-link" style="font-size:13px;" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}" target="_blank">📍 Navigate to Customer Location</a>` : ""}
+    </div>
+
     <div class="step ok">Current step: ${escapeHtml(status)}</div>
     ${action}
     <div id="deliveryAction-${escapeAttr(orderId)}"></div>
