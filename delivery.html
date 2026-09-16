@@ -420,5 +420,108 @@
       } catch (e) { alert("Error: " + e.message); }
     };
   </script>
+  <!-- Open Box & Return QC Modal -->
+<div id="qc-modal" class="modal">
+  <div class="modal-content">
+    <h3>Open Box / Return QC Check</h3>
+    <div style="text-align: left; margin: 15px 0;">
+      <label><input type="checkbox" id="qc-tag"> Product Tag Intact</label><br><br>
+      <label><input type="checkbox" id="qc-box"> Original Packaging Available</label><br><br>
+      <label><input type="checkbox" id="qc-damage"> No Physical Damage</label>
+    </div>
+    <select id="qc-status" style="width:100%; padding:8px; margin-bottom:10px;">
+      <option value="Passed">QC Passed - Accept Item</option>
+      <option value="Failed">QC Failed - Reject Item</option>
+    </select>
+    <button class="btn-confirm" onclick="submitQC()">Submit QC Status</button>
+    <button class="btn-close" onclick="closeModal('qc-modal')">Cancel</button>
+  </div>
+</div>
+
+<script>
+  window.openQCModal = (orderId) => {
+    window.currentQCOrderId = orderId;
+    document.getElementById('qc-modal').style.display = 'flex';
+  };
+
+  window.submitQC = async () => {
+    const isPassed = document.getElementById('qc-status').value === "Passed";
+    const statusText = isPassed ? "Return Accepted" : "Return Rejected (QC Failed)";
+    
+    alert("QC Result: " + statusText);
+    closeModal('qc-modal');
+  };
+</script>
+  <!-- Undelivered / Re-attempt Reason Modal -->
+<div id="failed-modal" class="modal">
+  <div class="modal-content">
+    <h3>Mark Undelivered</h3>
+    <select id="fail-reason" style="width:100%; padding:10px; margin: 15px 0;">
+      <option value="Customer Unavailable">Customer Unavailable</option>
+      <option value="Wrong Address">Wrong Address / Shifted</option>
+      <option value="Customer Refused">Customer Refused Order</option>
+      <option value="Phone Unreachable">Phone Unreachable / Switched Off</option>
+    </select>
+    <button class="btn-confirm" style="background:#dc3545;" onclick="submitFailedAttempt()">Confirm Failed Attempt</button>
+    <button class="btn-close" onclick="closeModal('failed-modal')">Cancel</button>
+  </div>
+</div>
+
+<script>
+  window.openFailedModal = (orderId) => {
+    window.currentFailedOrderId = orderId;
+    document.getElementById('failed-modal').style.display = 'flex';
+  };
+
+  window.submitFailedAttempt = () => {
+    const reason = document.getElementById('fail-reason').value;
+    alert("Order marked undelivered. Reason: " + reason);
+    closeModal('failed-modal');
+  };
+</script>
+  <!-- Attendance & Incentive Widget -->
+<div style="background:#fff; padding:15px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <strong>Daily Attendance</strong>
+      <p id="punch-status" style="font-size:12px; color:#777;">Not Punched In</p>
+    </div>
+    <button id="punch-btn" onclick="togglePunch()" style="background:#28a745; color:white; border:none; padding:8px 15px; border-radius:20px; font-weight:bold; cursor:pointer;">PUNCH IN</button>
+  </div>
+  <hr style="margin:10px 0; border:0; border-top:1px solid #eee;">
+  <div>
+    <small>Daily Incentive Goal (Target: 15 Orders)</small>
+    <div style="background:#e0e6ed; border-radius:10px; height:10px; margin-top:5px; overflow:hidden;">
+      <div id="incentive-progress" style="background:#ff9800; width:40%; height:100%;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let isPunchedIn = false;
+  window.togglePunch = () => {
+    isPunchedIn = !isPunchedIn;
+    const btn = document.getElementById('punch-btn');
+    const txt = document.getElementById('punch-status');
+    if(isPunchedIn) {
+      btn.innerText = "PUNCH OUT";
+      btn.style.background = "#dc3545";
+      txt.innerText = "Punched In at " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    } else {
+      btn.innerText = "PUNCH IN";
+      btn.style.background = "#28a745";
+      txt.innerText = "Punched Out";
+    }
+  };
+  <!-- Settings & Support Options -->
+<div style="background:#fff; padding:15px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+  <h4>Help & Account Settings</h4>
+  <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+    <button onclick="alert('Admin Helpdesk: +91 9876543210')" style="padding:10px; border:1px solid #ddd; border-radius:6px; background:#fff; text-align:left; cursor:pointer;">📞 Call Support / Helpdesk</button>
+    <button onclick="alert('Change Password feature opened.')" style="padding:10px; border:1px solid #ddd; border-radius:6px; background:#fff; text-align:left; cursor:pointer;">🔒 Change Password</button>
+    <button onclick="alert('Terms & Privacy Policy: Delivery partner agreement strictly applies.')" style="padding:10px; border:1px solid #ddd; border-radius:6px; background:#fff; text-align:left; cursor:pointer;">📜 Terms & Privacy Policy</button>
+  </div>
+</div>
+</script>
 </body>
 </html>
