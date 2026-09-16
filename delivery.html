@@ -3,83 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sudhsagar Mart - Delivery Dashboard</title>
+  <title>Sudhsagar Mart - Runsheet & Route Optimization</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
     body { background-color: #f4f6f9; padding: 15px; color: #333; }
     
-    /* Header Section */
-    .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .header { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 15px; }
     .brand { font-size: 16px; font-weight: bold; color: #2c3e50; }
-    .user-email { font-size: 12px; color: #7f8c8d; display: block; margin-top: 2px; }
     
-    .status-toggle { padding: 8px 16px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; }
-    .status-online { background-color: #2ecc71; color: white; }
-    .status-offline { background-color: #e74c3c; color: white; }
+    .runsheet-card { background: #007bff; color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+    .runsheet-card h3 { font-size: 16px; margin-bottom: 5px; }
+    .runsheet-card p { font-size: 13px; opacity: 0.9; }
 
-    /* Dashboard Quick Stats */
-    .stats-container { display: flex; gap: 10px; margin: 15px 0; }
-    .stat-card { flex: 1; background: #fff; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .stat-card small { font-size: 11px; color: #95a5a6; font-weight: 600; text-transform: uppercase; }
-    .stat-card h3 { margin-top: 5px; color: #2c3e50; font-size: 18px; }
-
-    /* Filter Tabs */
-    .tab-container { display: flex; gap: 10px; margin-bottom: 15px; }
-    .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; background: #e0e6ed; color: #555; }
-    .tab-btn.active { background: #3498db; color: white; }
-
-    /* Order Item Cards */
-    .order-card { background: #fff; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #3498db; }
-    .order-card.delivered { border-left-color: #2ecc71; }
-    .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; }
-    .order-id { font-weight: bold; color: #34495e; }
-    .order-status-badge { font-size: 11px; background: #ebf5fb; color: #2980b9; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
+    .route-btn { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    
+    .order-card { background: #fff; border-radius: 10px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #007bff; position: relative; }
+    .seq-number { position: absolute; right: 15px; top: 15px; background: #e3f2fd; color: #0d47a1; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; }
     
     .info-row { font-size: 13px; margin-bottom: 6px; color: #555; }
-    .info-row strong { color: #333; }
-
-    /* Action Links & Buttons */
-    .action-links { display: flex; gap: 8px; margin: 12px 0 8px 0; }
-    .btn-link { flex: 1; text-align: center; padding: 8px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold; color: white; }
-    .btn-call { background-color: #17a2b8; }
-    .btn-map { background-color: #27ae60; }
-
-    .btn-update { width: 100%; padding: 10px; border: none; border-radius: 6px; background-color: #3498db; color: white; font-weight: bold; cursor: pointer; font-size: 13px; margin-top: 5px; }
-    .btn-update:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+    .btn-action { width: 100%; padding: 10px; border: none; border-radius: 6px; background-color: #007bff; color: white; font-weight: bold; cursor: pointer; font-size: 13px; margin-top: 8px; }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation / Header -->
   <div class="header">
-    <div>
-      <div class="brand">Sudhsagar Mart Delivery</div>
-      <span id="partner-email" class="user-email">Loading email...</span>
-    </div>
-    <button id="duty-btn" class="status-toggle status-online" onclick="toggleDuty()">ONLINE</button>
+    <div class="brand">Sudhsagar Mart Delivery Partner</div>
+    <small id="partner-email">Loading...</small>
   </div>
 
-  <!-- Realtime Stats Bar -->
-  <div class="stats-container">
-    <div class="stat-card">
-      <small>Completed Orders</small>
-      <h3 id="stat-count">0</h3>
-    </div>
-    <div class="stat-card">
-      <small>Total Earnings</small>
-      <h3 id="stat-earnings">₹0</h3>
-    </div>
+  <!-- Active Runsheet Banner -->
+  <div class="runsheet-card">
+    <h3 id="runsheet-id">Runsheet: Loading...</h3>
+    <p id="total-assigned">Total Assigned Orders: 0</p>
   </div>
 
-  <!-- Tab Options -->
-  <div class="tab-container">
-    <button id="tab-active" class="tab-btn active" onclick="switchTab('active')">Active Orders</button>
-    <button id="tab-history" class="tab-btn" onclick="switchTab('history')">Completed History</button>
-  </div>
+  <!-- Route Optimization Trigger Button -->
+  <button class="route-btn" onclick="openOptimizedRoute()">
+    📍 Start Optimized Route Navigation
+  </button>
 
-  <!-- Dynamic Orders List -->
+  <h4 style="margin-bottom: 10px; color: #555;">Optimized Sequence List</h4>
   <div id="orders-container">
-    <p style="text-align: center; color: #777; margin-top: 20px;">Orders loading...</p>
+    <p style="text-align: center; color: #777;">Runsheet check ho rahi hai...</p>
   </div>
 
   <script type="module">
@@ -87,9 +52,8 @@
     import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // Firebase Configurations
     const firebaseConfig = {
-      apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE", // 👈 Apni Real Firebase API Key dalein
+      apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE",
       authDomain: "sudhsagarmart.firebaseapp.com",
       projectId: "sudhsagarmart",
       storageBucket: "sudhsagarmart.firebasestorage.app",
@@ -101,135 +65,106 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let currentUserId = null;
-    let activeTab = 'active';
-    let isOnline = true;
+    let activeOrders = [];
 
-    // Verify Authentication State
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        currentUserId = user.uid;
         document.getElementById('partner-email').innerText = user.email;
-        loadOrders();
+        loadRunsheetData(user.uid);
       } else {
-        alert("Kripya login karein.");
         window.location.href = "/login.html";
       }
     });
 
-    // Toggle Online/Offline Duty Status
-    window.toggleDuty = () => {
-      const btn = document.getElementById('duty-btn');
-      isOnline = !isOnline;
-      if (isOnline) {
-        btn.innerText = "ONLINE";
-        btn.className = "status-toggle status-online";
-      } else {
-        btn.innerText = "OFFLINE";
-        btn.className = "status-toggle status-offline";
-      }
-    };
-
-    // Tab Switching Functionality
-    window.switchTab = (tab) => {
-      activeTab = tab;
-      document.getElementById('tab-active').classList.toggle('active', tab === 'active');
-      document.getElementById('tab-history').classList.toggle('active', tab === 'history');
-      loadOrders();
-    };
-
-    // Load and Render Realtime Orders from Firestore
-    function loadOrders() {
-      if (!currentUserId) return;
-
+    // Fetch Active Runsheet & Sequence
+    function loadRunsheetData(partnerId) {
       const q = query(
         collection(db, "orders"),
-        where("deliveryBoyId", "==", currentUserId)
+        where("deliveryBoyId", "==", partnerId),
+        where("orderStatus", "in", ["Assigned", "Picked Up", "Out for Delivery"])
       );
 
       onSnapshot(q, (snapshot) => {
         const container = document.getElementById('orders-container');
         container.innerHTML = "";
+        activeOrders = [];
 
-        let completedCount = 0;
-        let totalEarnings = 0;
-        let hasOrders = false;
+        if (snapshot.empty) {
+          container.innerHTML = "<p style='text-align:center; color:#777;'>Koi active runsheet order nahi hai.</p>";
+          document.getElementById('runsheet-id').innerText = "Runsheet: Not Assigned";
+          document.getElementById('total-assigned').innerText = "Total Assigned Orders: 0";
+          return;
+        }
 
+        let seq = 1;
         snapshot.forEach((docSnap) => {
-          const order = docSnap.data();
-          const orderId = docSnap.id;
-
-          const isDelivered = order.orderStatus === "Delivered";
-
-          if (isDelivered) {
-            completedCount++;
-            totalEarnings += (order.deliveryFee || 40); // Standard fee default 40
-          }
-
-          if ((activeTab === 'active' && !isDelivered) || (activeTab === 'history' && isDelivered)) {
-            hasOrders = true;
-            container.appendChild(createOrderCard(orderId, order));
-          }
+          const data = docSnap.data();
+          data.id = docSnap.id;
+          data.sequence = data.routeSequence || seq;
+          activeOrders.push(data);
+          seq++;
         });
 
-        // Update Stats Summary
-        document.getElementById('stat-count').innerText = completedCount;
-        document.getElementById('stat-earnings').innerText = `₹${totalEarnings}`;
+        // Sequence ke hisab se sort karna
+        activeOrders.sort((a, b) => a.sequence - b.sequence);
 
-        if (!hasOrders) {
-          container.innerHTML = `<p style="text-align: center; color: #888; margin-top: 30px;">Koi ${activeTab} orders nahi hain.</p>`;
-        }
-      }, (error) => {
-        console.error("Error loading orders:", error);
-        document.getElementById('orders-container').innerHTML = `<p style="color:red; text-align:center;">Error: ${error.message}</p>`;
+        document.getElementById('runsheet-id').innerText = `Runsheet: RS-${new Date().toISOString().slice(0,10).replace(/-/g,"")}`;
+        document.getElementById('total-assigned').innerText = `Total Assigned Orders: ${activeOrders.length}`;
+
+        activeOrders.forEach((order, index) => {
+          const card = document.createElement('div');
+          card.className = 'order-card';
+          card.innerHTML = `
+            <div class="seq-number">#${index + 1}</div>
+            <div class="info-row"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
+            <div class="info-row"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
+            <div class="info-row"><strong>Address:</strong> ${order.address || 'N/A'}</div>
+            <div class="info-row"><strong>Status:</strong> ${order.orderStatus}</div>
+            <button class="btn-action" onclick="updateOrderStatus('${order.id}', '${order.orderStatus}')">
+              ${getNextStatusText(order.orderStatus)}
+            </button>
+          `;
+          container.appendChild(card);
+        });
       });
     }
 
-    // Dynamic Card Creation HTML
-    function createOrderCard(id, data) {
-      const card = document.createElement('div');
-      card.className = `order-card ${data.orderStatus === 'Delivered' ? 'delivered' : ''}`;
+    // Google Maps Optimized Route Generation
+    window.openOptimizedRoute = () => {
+      if (activeOrders.length === 0) {
+        alert("Route banane ke liye koi active order nahi hai!");
+        return;
+      }
 
-      const nextStatus = getNextStatus(data.orderStatus);
+      const addresses = activeOrders.map(o => encodeURIComponent(o.address));
+      const destination = addresses.pop(); // Aakhri stop
+      const waypoints = addresses.join('|'); // Beech ke stops
 
-      card.innerHTML = `
-        <div class="order-header">
-          <span class="order-id">ID: #${id.substr(0, 8)}</span>
-          <span class="order-status-badge">${data.orderStatus || 'Assigned'}</span>
-        </div>
-        <div class="info-row"><strong>Customer:</strong> ${data.customerName || 'N/A'}</div>
-        <div class="info-row"><strong>Phone:</strong> ${data.customerPhone || 'N/A'}</div>
-        <div class="info-row"><strong>Address:</strong> ${data.address || 'N/A'}</div>
-        <div class="info-row"><strong>Payment:</strong> ₹${data.totalAmount || 0} (${data.paymentMethod || 'COD'})</div>
-        
-        <div class="action-links">
-          <a href="tel:${data.customerPhone}" class="btn-link btn-call">📞 Call Customer</a>
-          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.address || '')}" target="_blank" class="btn-link btn-map">📍 Route Map</a>
-        </div>
+      let mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+      if (waypoints) {
+        mapsUrl += `&waypoints=${waypoints}&dir_action=navigate`;
+      }
 
-        ${nextStatus ? `<button class="btn-update" onclick="advanceOrderStatus('${id}', '${nextStatus}')">Mark as ${nextStatus}</button>` : '<button class="btn-update" disabled>Order Completed</button>'}
-      `;
+      window.open(mapsUrl, '_blank');
+    };
 
-      return card;
+    function getNextStatusText(current) {
+      if (current === "Assigned") return "Mark Picked Up";
+      if (current === "Picked Up") return "Mark Out for Delivery";
+      if (current === "Out for Delivery") return "Mark Delivered";
+      return "Completed";
     }
 
-    function getNextStatus(current) {
-      if (current === "Assigned" || !current) return "Picked Up";
-      if (current === "Picked Up") return "Out for Delivery";
-      if (current === "Out for Delivery") return "Delivered";
-      return null;
-    }
+    window.updateOrderStatus = async (id, current) => {
+      let nextStatus = "Delivered";
+      if (current === "Assigned") nextStatus = "Picked Up";
+      else if (current === "Picked Up") nextStatus = "Out for Delivery";
 
-    // Order Status Handler
-    window.advanceOrderStatus = async (orderId, nextStatus) => {
       try {
-        await updateDoc(doc(db, "orders", orderId), {
-          orderStatus: nextStatus,
-          updatedAt: new Date()
-        });
-        alert(`Order status changed to: ${nextStatus}`);
-      } catch (err) {
-        alert("Status update failed: " + err.message);
+        await updateDoc(doc(db, "orders", id), { orderStatus: nextStatus });
+        alert("Status Update: " + nextStatus);
+      } catch (e) {
+        alert("Error: " + e.message);
       }
     };
   </script>
