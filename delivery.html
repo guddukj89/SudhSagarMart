@@ -47,6 +47,12 @@
     .box-container { background: #f8f9fa; border: 1px dashed #ced4da; padding: 10px; border-radius: 6px; margin-top: 8px; }
     .qr-box { text-align: center; display: none; margin-top: 8px; }
     .qr-box img { width: 150px; height: 150px; }
+
+    /* Modal Styling */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: #fff; padding: 20px; border-radius: 8px; width: 90%; max-width: 380px; }
+    .btn-confirm { background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    .btn-close { background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 4px; margin-left: 5px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -127,7 +133,7 @@
   <div id="support-panel" class="panel">
     <div class="card" style="border-left-color: #dc3545;">
       <h5 style="margin-bottom: 8px;">Emergency Delivery Support</h5>
-      <button class="btn btn-info" onclick="window.location.href='tel:+919800000000'">📞 Call Admin Hotline</button>
+      <button class="btn btn-info" onclick="window.location.href='tel:+919876543210'">📞 Call Admin Hotline</button>
     </div>
 
     <div class="card" style="border-left-color: #ffc107;">
@@ -142,6 +148,39 @@
     </div>
   </div>
 
+  <!-- Open Box & Return QC Modal -->
+  <div id="qc-modal" class="modal">
+    <div class="modal-content">
+      <h3>Open Box / Return QC Check</h3>
+      <div style="text-align: left; margin: 15px 0;">
+        <label><input type="checkbox" id="qc-tag"> Product Tag Intact</label><br><br>
+        <label><input type="checkbox" id="qc-box"> Original Packaging Available</label><br><br>
+        <label><input type="checkbox" id="qc-damage"> No Physical Damage</label>
+      </div>
+      <select id="qc-status" class="select-box" style="margin-bottom:12px;">
+        <option value="Passed">QC Passed - Accept Item</option>
+        <option value="Failed">QC Failed - Reject Item</option>
+      </select>
+      <button class="btn-confirm" onclick="submitQC()">Submit QC Status</button>
+      <button class="btn-close" onclick="closeModal('qc-modal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Undelivered / Re-attempt Reason Modal -->
+  <div id="failed-modal" class="modal">
+    <div class="modal-content">
+      <h3>Mark Undelivered</h3>
+      <select id="fail-reason" class="select-box" style="margin: 15px 0;">
+        <option value="Customer Unavailable">Customer Unavailable</option>
+        <option value="Wrong Address">Wrong Address / Shifted</option>
+        <option value="Customer Refused">Customer Refused Order</option>
+        <option value="Phone Unreachable">Phone Unreachable / Switched Off</option>
+      </select>
+      <button class="btn-confirm" style="background:#dc3545;" onclick="submitFailedAttempt()">Confirm Failed Attempt</button>
+      <button class="btn-close" onclick="closeModal('failed-modal')">Cancel</button>
+    </div>
+  </div>
+
   <!-- Firebase Integration Block -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -149,7 +188,7 @@
     import { getAuth, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE", // 👈 Apni Firebase API Key yahan replace karein
+      apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE",
       authDomain: "sudhsagarmart.firebaseapp.com",
       projectId: "sudhsagarmart",
       storageBucket: "sudhsagarmart.firebasestorage.app",
@@ -253,13 +292,8 @@
         }
 
         activeOrdersList.forEach((order, index) => {
-          // Render Runsheet Card
           runsheetList.appendChild(createRunsheetCard(order, index + 1));
-          
-          // Render Open-box & QC Card
           qcList.appendChild(createQcCard(order));
-
-          // Render Failed Attempt Card
           failedList.appendChild(createFailedCard(order));
         });
       });
@@ -278,7 +312,6 @@
         <div class="info"><strong>Address:</strong> ${order.address || 'N/A'}</div>
         <div class="info"><strong>Amount Due:</strong> ₹${order.totalAmount || 0} (${order.paymentMethod || 'COD'})</div>
         
-        <!-- Payment Module -->
         <div class="box-container">
           <small><strong>1. Collect Payment</strong></small>
           <button class="btn btn-info" onclick="generateQR('${order.id}', ${order.totalAmount || 0}, '${upiId}')">📲 Show Dynamic UPI QR Code</button>
@@ -288,7 +321,6 @@
           </div>
         </div>
 
-        <!-- Verification Module -->
         <div class="box-container">
           <small><strong>2. OTP Verification</strong></small>
           <input type="text" id="otp-${order.id}" class="input-box" placeholder="Enter Customer OTP" maxlength="4">
@@ -305,15 +337,7 @@
       card.innerHTML = `
         <div class="info"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
         <div class="info"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
-        <div class="box-container">
-          <small><strong>Open Box Inspection Status</strong></small>
-          <select id="qc-status-${order.id}" class="select-box">
-            <option value="Intact">Item Intact & Verified OK</option>
-            <option value="Damaged">Item Found Damaged in Box</option>
-            <option value="Missing">Item Missing / Wrong Product</option>
-          </select>
-          <button class="btn btn-main" onclick="saveQcStatus('${order.id}')">Submit Inspection Report</button>
-        </div>
+        <button class="btn btn-main" onclick="openQCModal('${order.id}')">Perform QC Inspection</button>
       `;
       return card;
     }
@@ -325,21 +349,12 @@
       card.innerHTML = `
         <div class="info"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
         <div class="info"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
-        <div class="box-container">
-          <small><strong>Mark Delivery Failure Reason</strong></small>
-          <select id="reason-${order.id}" class="select-box">
-            <option value="Customer Unavailable">Customer Unavailable / Door Closed</option>
-            <option value="Customer Refused">Customer Refused Parcel</option>
-            <option value="Wrong Address">Wrong Address / Moved</option>
-            <option value="Phone Unreachable">Phone Switched Off / Unreachable</option>
-          </select>
-          <button class="btn btn-danger" onclick="markUndelivered('${order.id}')">Submit Attempt Failure</button>
-        </div>
+        <button class="btn btn-danger" onclick="openFailedModal('${order.id}')">Report Attempt Failure</button>
       `;
       return card;
     }
 
-    // Global Interactive Functions
+    // Interactive Functions
     window.openOptimizedRoute = () => {
       if (activeOrdersList.length === 0) {
         alert("Naviagte karne ke liye koi active order nahi hai.");
@@ -377,26 +392,6 @@
       } catch (e) { alert(e.message); }
     };
 
-    window.saveQcStatus = async (id) => {
-      const status = document.getElementById(`qc-status-${id}`).value;
-      try {
-        await updateDoc(doc(db, "orders", id), { openBoxQcStatus: status });
-        alert("Inspection Status Saved: " + status);
-      } catch (e) { alert(e.message); }
-    };
-
-    window.markUndelivered = async (id) => {
-      const reason = document.getElementById(`reason-${id}`).value;
-      try {
-        await updateDoc(doc(db, "orders", id), {
-          orderStatus: "Undelivered Attempt",
-          failedReason: reason,
-          attemptedAt: new Date()
-        });
-        alert("Attempt failure reported: " + reason);
-      } catch (e) { alert(e.message); }
-    };
-
     window.punchIn = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
@@ -419,109 +414,44 @@
         alert("Password Updated Successfully!");
       } catch (e) { alert("Error: " + e.message); }
     };
+
+    // Modal Handlers
+    window.openQCModal = (orderId) => {
+      window.currentQCOrderId = orderId;
+      document.getElementById('qc-modal').style.display = 'flex';
+    };
+
+    window.submitQC = async () => {
+      const isPassed = document.getElementById('qc-status').value === "Passed";
+      try {
+        await updateDoc(doc(db, "orders", window.currentQCOrderId), {
+          qcStatus: isPassed ? "Passed" : "Failed"
+        });
+        alert("QC Result Saved!");
+        closeModal('qc-modal');
+      } catch (e) { alert(e.message); }
+    };
+
+    window.openFailedModal = (orderId) => {
+      window.currentFailedOrderId = orderId;
+      document.getElementById('failed-modal').style.display = 'flex';
+    };
+
+    window.submitFailedAttempt = async () => {
+      const reason = document.getElementById('fail-reason').value;
+      try {
+        await updateDoc(doc(db, "orders", window.currentFailedOrderId), {
+          orderStatus: "Undelivered Attempt",
+          failedReason: reason
+        });
+        alert("Failed Attempt Saved!");
+        closeModal('failed-modal');
+      } catch (e) { alert(e.message); }
+    };
+
+    window.closeModal = (id) => {
+      document.getElementById(id).style.display = 'none';
+    };
   </script>
-  <!-- Open Box & Return QC Modal -->
-<div id="qc-modal" class="modal">
-  <div class="modal-content">
-    <h3>Open Box / Return QC Check</h3>
-    <div style="text-align: left; margin: 15px 0;">
-      <label><input type="checkbox" id="qc-tag"> Product Tag Intact</label><br><br>
-      <label><input type="checkbox" id="qc-box"> Original Packaging Available</label><br><br>
-      <label><input type="checkbox" id="qc-damage"> No Physical Damage</label>
-    </div>
-    <select id="qc-status" style="width:100%; padding:8px; margin-bottom:10px;">
-      <option value="Passed">QC Passed - Accept Item</option>
-      <option value="Failed">QC Failed - Reject Item</option>
-    </select>
-    <button class="btn-confirm" onclick="submitQC()">Submit QC Status</button>
-    <button class="btn-close" onclick="closeModal('qc-modal')">Cancel</button>
-  </div>
-</div>
-
-<script>
-  window.openQCModal = (orderId) => {
-    window.currentQCOrderId = orderId;
-    document.getElementById('qc-modal').style.display = 'flex';
-  };
-
-  window.submitQC = async () => {
-    const isPassed = document.getElementById('qc-status').value === "Passed";
-    const statusText = isPassed ? "Return Accepted" : "Return Rejected (QC Failed)";
-    
-    alert("QC Result: " + statusText);
-    closeModal('qc-modal');
-  };
-</script>
-  <!-- Undelivered / Re-attempt Reason Modal -->
-<div id="failed-modal" class="modal">
-  <div class="modal-content">
-    <h3>Mark Undelivered</h3>
-    <select id="fail-reason" style="width:100%; padding:10px; margin: 15px 0;">
-      <option value="Customer Unavailable">Customer Unavailable</option>
-      <option value="Wrong Address">Wrong Address / Shifted</option>
-      <option value="Customer Refused">Customer Refused Order</option>
-      <option value="Phone Unreachable">Phone Unreachable / Switched Off</option>
-    </select>
-    <button class="btn-confirm" style="background:#dc3545;" onclick="submitFailedAttempt()">Confirm Failed Attempt</button>
-    <button class="btn-close" onclick="closeModal('failed-modal')">Cancel</button>
-  </div>
-</div>
-
-<script>
-  window.openFailedModal = (orderId) => {
-    window.currentFailedOrderId = orderId;
-    document.getElementById('failed-modal').style.display = 'flex';
-  };
-
-  window.submitFailedAttempt = () => {
-    const reason = document.getElementById('fail-reason').value;
-    alert("Order marked undelivered. Reason: " + reason);
-    closeModal('failed-modal');
-  };
-</script>
-  <!-- Attendance & Incentive Widget -->
-<div style="background:#fff; padding:15px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <div>
-      <strong>Daily Attendance</strong>
-      <p id="punch-status" style="font-size:12px; color:#777;">Not Punched In</p>
-    </div>
-    <button id="punch-btn" onclick="togglePunch()" style="background:#28a745; color:white; border:none; padding:8px 15px; border-radius:20px; font-weight:bold; cursor:pointer;">PUNCH IN</button>
-  </div>
-  <hr style="margin:10px 0; border:0; border-top:1px solid #eee;">
-  <div>
-    <small>Daily Incentive Goal (Target: 15 Orders)</small>
-    <div style="background:#e0e6ed; border-radius:10px; height:10px; margin-top:5px; overflow:hidden;">
-      <div id="incentive-progress" style="background:#ff9800; width:40%; height:100%;"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-  let isPunchedIn = false;
-  window.togglePunch = () => {
-    isPunchedIn = !isPunchedIn;
-    const btn = document.getElementById('punch-btn');
-    const txt = document.getElementById('punch-status');
-    if(isPunchedIn) {
-      btn.innerText = "PUNCH OUT";
-      btn.style.background = "#dc3545";
-      txt.innerText = "Punched In at " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    } else {
-      btn.innerText = "PUNCH IN";
-      btn.style.background = "#28a745";
-      txt.innerText = "Punched Out";
-    }
-  };
-  <!-- Settings & Support Options -->
-<div style="background:#fff; padding:15px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-  <h4>Help & Account Settings</h4>
-  <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
-    <button onclick="alert('Admin Helpdesk: +91 9876543210')" style="padding:10px; border:1px solid #ddd; border-radius:6px; background:#fff; text-align:left; cursor:pointer;">📞 Call Support / Helpdesk</button>
-    <button onclick="alert('Change Password feature opened.')" style="padding:10px; border:1px solid #ddd; border-radius:6px; background:#fff; text-align:left; cursor:pointer;">🔒 Change Password</button>
-    <button onclick="alert('Terms & Privacy Policy: Delivery partner agreement strictly applies.')" style="padding:10px; border:1px solid #ddd; border-radius:6px; background:#fff; text-align:left; cursor:pointer;">📜 Terms & Privacy Policy</button>
-  </div>
-</div>
-</script>
 </body>
 </html>
