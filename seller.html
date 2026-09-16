@@ -542,7 +542,8 @@ async function verifyRegisterOtp(){
     }
 
     await loadSeller();
-
+console.log("AUTH UID:", currentUser?.uid);
+console.log("AUTH PHONE:", currentUser?.phoneNumber);
     showApp(true);
     startRealtime();
 
@@ -1290,7 +1291,7 @@ async function loadSeller(){
   if(phone){
 
     try{
-
+console.log("SELLER LOOKUP PHONE:", phone);
       const q = await db
         .collection("sellers")
         .where(
