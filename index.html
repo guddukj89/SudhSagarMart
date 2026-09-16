@@ -15,7 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
     
     <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTwfL2U5WEq9zXBHQOWLMY9yGt93SJuGU&defer"></script>
+    <script src="https://maps.googleapis.com/maps/api/js" defer></script>
 
    <style>
     #google_translate_element { display: none !important; }
@@ -5021,7 +5021,7 @@ async function savelocation(){
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
 
-      if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
+     if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
     msg.innerText = "📍 Location mil gayi, address service load ho rahi hai...";
     msg.style.color = "#a00080";
 
