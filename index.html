@@ -5021,11 +5021,18 @@ async function savelocation(){
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
 
-      if(typeof google === "undefined" || !google.maps){
-        msg.innerText = "❌ Location service load nahi hui. Internet check karein.";
-        msg.style.color = "red";
-        return;
-      }
+      if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
+    msg.innerText = "📍 Location mil gayi, address service load ho rahi hai...";
+    msg.style.color = "#a00080";
+
+    document.getElementById("address").value =
+        "Latitude: " + lat + ", Longitude: " + lng;
+
+    document.getElementById("locationText").innerText =
+        "📍 Current Location: " + lat + ", " + lng;
+
+    return;
+}
 
       const geocoder = new google.maps.Geocoder();
 
