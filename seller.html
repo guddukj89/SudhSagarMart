@@ -892,28 +892,175 @@ auth.onAuthStateChanged(async user=>{
 
 });
 async function loadSeller(){
-  const snap=await db.collection("sellers").doc(currentUser.uid).get();
-  sellerData=snap.exists?snap.data():{uid:currentUser.uid,email:currentUser.email,shopName:"Seller Shop",ownerName:"Seller",name:"Seller",kycStatus:"pending",accountStatus:"pending"};
-  const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v??"";};
-  const setValue=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v??"";};
-  setText("sideShop",sellerData.shopName||"Seller Shop");
-  setText("sideEmail",sellerData.email||currentUser.email);
-  setValue("accOwner",sellerData.ownerName||sellerData.name||"");
-  setValue("accShop",sellerData.shopName||"");
-  setValue("accMobile",sellerData.mobile||"");
-  setValue("accEmail",sellerData.email||currentUser.email);
-  setValue("accAddress",sellerData.shopAddress||sellerData.address||"");
-  setValue("accBank",sellerData.bankAccount||"");
-  setValue("accIfsc",sellerData.ifsc||"");
-  setValue("accUpi",sellerData.upi||"");
+
+  let snap = null;
+
+  // 1. पहले UID से seller खोजें
+  if(currentUser?.uid){
+
+    snap = await db
+      .collection("sellers")
+      .doc(currentUser.uid)
+      .get();
+  }
+
+  // 2. अगर UID से नहीं मिला, तो mobile number से खोजें
+  if(!snap || !snap.exists){
+
+    const phone = currentUser?.phoneNumber || "";
+
+    const mobile = phone
+      .replace("+91","")
+      .replace(/\D/g,"");
+
+    if(mobile){
+
+      const q = await db
+        .collection("sellers")
+        .where("mobile","==",mobile)
+        .limit(1)
+        .get();
+
+      if(!q.empty){
+
+        snap = q.docs[0];
+
+        // पुराने seller UID को preserve करें
+        sellerData = {
+          ...snap.data(),
+          uid: snap.id
+        };
+
+      }
+    }
+  }
+
+  // 3. Seller नहीं मिला
+  if(!snap || !snap.exists){
+
+    sellerData = {
+      uid: currentUser?.uid || "",
+      email: currentUser?.email || "",
+      shopName:"Seller Shop",
+      ownerName:"Seller",
+      name:"Seller",
+      kycStatus:"pending",
+      accountStatus:"pending"
+    };
+
+  }else if(!sellerData){
+
+    sellerData = {
+      ...snap.data(),
+      uid: snap.id
+    };
+
+  }
+
+  const setText=(id,v)=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=v??"";
+  };
+
+  const setValue=(id,v)=>{
+    const el=document.getElementById(id);
+    if(el)el.value=v??"";
+  };
+
+  setText(
+    "sideShop",
+    sellerData.shopName || "Seller Shop"
+  );
+
+  setText(
+    "sideEmail",
+    sellerData.email || currentUser?.email || ""
+  );
+
+  setValue(
+    "accOwner",
+    sellerData.ownerName || sellerData.name || ""
+  );
+
+  setValue(
+    "accShop",
+    sellerData.shopName || ""
+  );
+
+  setValue(
+    "accMobile",
+    sellerData.mobile || ""
+  );
+
+  setValue(
+    "accEmail",
+    sellerData.email || currentUser?.email || ""
+  );
+
+  setValue(
+    "accAddress",
+    sellerData.shopAddress || sellerData.address || ""
+  );
+
+  setValue(
+    "accBank",
+    sellerData.bankAccount || ""
+  );
+
+  setValue(
+    "accIfsc",
+    sellerData.ifsc || ""
+  );
+
+  setValue(
+    "accUpi",
+    sellerData.upi || ""
+  );
+
   loadKYCFields();
-  const st=sellerData.accountStatus||sellerData.status||"pending",kyc=sellerData.kycStatus||st,n=document.getElementById("approvalNotice");
+
+  const st =
+    sellerData.accountStatus ||
+    sellerData.status ||
+    "pending";
+
+  const kyc =
+    sellerData.kycStatus ||
+    st;
+
+  const n =
+    document.getElementById("approvalNotice");
+
   if(n){
-    if(st==="pending")n.innerHTML='<div class="notice"><b>Account pending approval:</b> Company approval ka wait karein.</div>';
-     else if(kyc==="pending"||kyc==="rejected"||kyc==="under_review")n.innerHTML='<div class="notice"><b>KYC status: '+esc(kyc)+'</b> — Settings → KYC Verification me documents complete karein.</div>';
-    else if(st==="rejected"||kyc==="rejected")n.innerHTML='<div class="notice"><b>Account rejected:</b> Seller Account me rejection details check karein.</div>';
-    else if(st==="blocked")n.innerHTML='<div class="notice"><b>Account blocked:</b> Company se contact karein.</div>';
-    else n.innerHTML='<div class="notice" style="border-left-color:#16803c;background:#eefbf2"><b>✓ Seller approved</b> — Firebase se live data sync ho raha hai.</div>';
+
+    if(st==="pending")
+      n.innerHTML=
+        '<div class="notice"><b>Account pending approval:</b> Company approval ka wait karein.</div>';
+
+    else if(
+      kyc==="pending" ||
+      kyc==="rejected" ||
+      kyc==="under_review"
+    )
+      n.innerHTML=
+        '<div class="notice"><b>KYC status: '+
+        esc(kyc)+
+        '</b> — Settings → KYC Verification me documents complete karein.</div>';
+
+    else if(
+      st==="rejected" ||
+      kyc==="rejected"
+    )
+      n.innerHTML=
+        '<div class="notice"><b>Account rejected:</b> Seller Account me rejection details check karein.</div>';
+
+    else if(st==="blocked")
+      n.innerHTML=
+        '<div class="notice"><b>Account blocked:</b> Company se contact karein.</div>';
+
+    else
+      n.innerHTML=
+        '<div class="notice" style="border-left-color:#16803c;background:#eefbf2"><b>✓ Seller approved</b> — Firebase se live data sync ho raha hai.</div>';
   }
 }
 
