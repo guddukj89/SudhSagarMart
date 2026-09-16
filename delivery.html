@@ -324,7 +324,7 @@
         <div class="box-container">
           <small><strong>2. OTP Verification</strong></small>
           <input type="text" id="otp-${order.id}" class="input-box" placeholder="Enter Customer OTP" maxlength="4">
-          <button class="btn btn-success" onclick="verifyDelivery('${order.id}', '${order.deliveryOtp || '1234'}')">✅ Verify OTP & Deliver</button>
+          <button class="btn btn-success" onclick="verifyDelivery('${order.id}')">✅ Verify OTP & Deliver</button>
         </div>
       `;
       return card;
@@ -376,21 +376,92 @@
       box.style.display = "block";
     };
 
-    window.verifyDelivery = async (id, correctOtp) => {
-      const val = document.getElementById(`otp-${id}`).value;
-      if (val !== correctOtp) {
-        alert("Galat OTP! Kripya customer se sahi OTP lein.");
+  window.verifyDelivery = async (id) => {
+  const otpInput = document.getElementById(`otp-${id}`);
+
+  if (!otpInput) {
+    alert("OTP input nahi mila.");
+    return;
+  }
+
+  const enteredOtp = otpInput.value.trim();
+
+  if (!enteredOtp) {
+    alert("Customer se OTP lekar enter karein.");
+    return;
+  }
+
+  if (!/^\d{4,6}$/.test(enteredOtp)) {
+    alert("OTP 4 se 6 digit ka hona chahiye.");
+    return;
+  }
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Login session expire ho gaya. Dobara login karein.");
+    window.location.href = "/login.html";
+    return;
+  }
+
+  try {
+    // Order dobara Firebase se verify karna
+    const orderRef = doc(db, "orders", id);
+
+    const unsubscribe = onSnapshot(orderRef, async (snap) => {
+
+      unsubscribe();
+
+      if (!snap.exists()) {
+        alert("Order nahi mila.");
         return;
       }
-      try {
-        await updateDoc(doc(db, "orders", id), {
-          orderStatus: "Delivered",
-          paymentStatus: "Paid",
-          deliveredAt: new Date()
-        });
-        alert("Order successfully delivered!");
-      } catch (e) { alert(e.message); }
-    };
+
+      const order = snap.data();
+
+      // Delivery partner ownership check
+      if (order.deliveryBoyId !== user.uid) {
+        alert("Ye order aapko assigned nahi hai.");
+        return;
+      }
+
+      // Already delivered check
+      if (order.orderStatus === "Delivered") {
+        alert("Ye order already delivered hai.");
+        return;
+      }
+
+      // OTP database me hona compulsory
+      if (!order.deliveryOtp) {
+        alert("Is order ka delivery OTP generate nahi hua hai. Customer/Admin se contact karein.");
+        return;
+      }
+
+      // OTP verify
+      if (String(enteredOtp) !== String(order.deliveryOtp)) {
+        alert("Galat OTP! Customer se sahi OTP lekar dobara enter karein.");
+        return;
+      }
+
+      // Delivery update
+      await updateDoc(orderRef, {
+        orderStatus: "Delivered",
+        status: "Delivered",
+        deliveredAt: new Date(),
+        deliveredBy: user.uid
+      });
+
+      alert("Order successfully delivered!");
+
+      otpInput.value = "";
+
+    });
+
+  } catch (error) {
+    console.error("Delivery verification error:", error);
+    alert("Delivery update nahi ho paya: " + error.message);
+  }
+}; 
 
     window.punchIn = () => {
       if (navigator.geolocation) {
