@@ -656,115 +656,6 @@ async function sendSellerLoginOtp(){
   }
 }
 
-async function resendSellerLoginOtp(){
-
-  const msg=document.getElementById("loginMsg");
-
-  try{
-
-    if(!currentUser || !sellerData){
-      throw new Error("Seller account load nahi hua.");
-    }
-
-    const mobile=String(sellerData.mobile||"").replace(/\D/g,"");
-
-    if(!/^[0-9]{10}$/.test(mobile)){
-      throw new Error("Seller account me valid 10 digit mobile number nahi hai.");
-    }
-
-    if(!loginRecaptcha){
-      loginRecaptcha=new firebase.auth.RecaptchaVerifier(
-        "loginRecaptcha",
-        {
-          size:"normal"
-        }
-      );
-    }
-
-    loginConfirmationResult =
-      await currentUser.reauthenticateWithPhoneNumber(
-        "+91"+mobile,
-        loginRecaptcha
-      );
-
-    if(msg){
-      msg.className="success";
-      msg.textContent="🔄 Naya OTP mobile par bhej diya gaya hai.";
-    }
-
-  }catch(e){
-
-    if(msg){
-      msg.className="error";
-      msg.textContent="Resend OTP failed: "+e.message;
-    }
-
-  }
-
-}
-async function verifyLoginOtp(){
-
-  const code=document.getElementById("loginOtp").value.trim();
-  const msg=document.getElementById("loginMsg");
-
-  if(!/^[0-9]{6}$/.test(code)){
-    msg.className="error";
-    msg.textContent="6 digit OTP bhariye.";
-    return;
-  }
-
-  if(!loginConfirmationResult){
-    msg.className="error";
-    msg.textContent="Pehle OTP send karein.";
-    return;
-  }
-if(!auth.currentUser || auth.currentUser.uid !== loginOtpUid){
-  msg.className="error";
-  msg.textContent=
-    "Login session change ho gaya. Dobara Login karke OTP bhejein.";
-  return;
-}
-  try{
-
-    await loginConfirmationResult.confirm(code);
-
-    await db.collection("sellers")
-      .doc(currentUser.uid)
-      .set({
-
-        sellerOtpVerifiedAt:
-          firebase.firestore.FieldValue.serverTimestamp(),
-
-        updatedAt:
-          firebase.firestore.FieldValue.serverTimestamp()
-
-      },{
-        merge:true
-      });
-
-    sellerOtpGateOpen=true;
-
-    const loginBox=document.getElementById("loginOtpBox");
-
-    if(loginBox){
-      loginBox.style.display="none";
-    }
-
-    msg.className="success";
-    msg.textContent="✅ OTP verified. Seller Panel khul raha hai...";
-
-    showApp(true);
-    startRealtime();
-
-  }catch(e){
-
-    msg.className="error";
-    msg.textContent="OTP verification failed: "+e.message;
-
-  }
-}
-
-
 async function logoutSeller(){
   await auth.signOut();
 }  
@@ -777,10 +668,9 @@ auth.onAuthStateChanged(async user=>{
 
   clearListeners();
   currentUser=user;
-loginOtpUid = user ? user.uid : null;
+
   if(!user){
     showApp(false);
-    sellerOtpGateOpen=false;
     return;
   }
 
@@ -793,36 +683,22 @@ loginOtpUid = user ? user.uid : null;
       return;
     }
 
-    let lastOtp=0;
+    if(!sellerData || sellerData.role!=="seller"){
+      await auth.signOut();
+      showApp(false);
 
-    if(sellerData && sellerData.sellerOtpVerifiedAt){
+      const msg=document.getElementById("loginMsg");
 
-      if(typeof sellerData.sellerOtpVerifiedAt.toMillis==="function"){
-        lastOtp=sellerData.sellerOtpVerifiedAt.toMillis();
-      }else{
-        lastOtp=new Date(sellerData.sellerOtpVerifiedAt).getTime();
+      if(msg){
+        msg.className="error";
+        msg.textContent="Seller account nahi mila.";
       }
 
-    }
-
-    const twentyFourHours=24*60*60*1000;
-
-    const otpStillValid=
-      lastOtp>0 &&
-      (Date.now()-lastOtp)<twentyFourHours;
-
-    if(otpStillValid){
-
-      sellerOtpGateOpen=true;
-      showApp(true);
-      startRealtime();
       return;
-
     }
 
-    showApp(false);
-
-    const loginBox=document.getElementById("loginOtpBox");
+    showApp(true);
+    startRealtime();
 
   }catch(e){
 
@@ -836,7 +712,6 @@ loginOtpUid = user ? user.uid : null;
   }
 
 });
-
 async function loadSeller(){
   const snap=await db.collection("sellers").doc(currentUser.uid).get();
   sellerData=snap.exists?snap.data():{uid:currentUser.uid,email:currentUser.email,shopName:"Seller Shop",ownerName:"Seller",name:"Seller",kycStatus:"pending",accountStatus:"pending"};
