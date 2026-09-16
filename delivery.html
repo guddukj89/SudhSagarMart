@@ -5,30 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sudhsagar Mart - Delivery Dashboard</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
     body { background-color: #f4f6f9; padding: 15px; color: #333; }
     
-    /* Header */
+    /* Header Section */
     .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .brand { font-size: 16px; font-weight: bold; color: #2c3e50; }
     .user-email { font-size: 12px; color: #7f8c8d; display: block; margin-top: 2px; }
     
-    .status-toggle { padding: 6px 14px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; }
+    .status-toggle { padding: 8px 16px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; }
     .status-online { background-color: #2ecc71; color: white; }
     .status-offline { background-color: #e74c3c; color: white; }
 
-    /* Stats Overview */
+    /* Dashboard Quick Stats */
     .stats-container { display: flex; gap: 10px; margin: 15px 0; }
     .stat-card { flex: 1; background: #fff; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
     .stat-card small { font-size: 11px; color: #95a5a6; font-weight: 600; text-transform: uppercase; }
     .stat-card h3 { margin-top: 5px; color: #2c3e50; font-size: 18px; }
 
-    /* Tabs */
+    /* Filter Tabs */
     .tab-container { display: flex; gap: 10px; margin-bottom: 15px; }
     .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; background: #e0e6ed; color: #555; }
     .tab-btn.active { background: #3498db; color: white; }
 
-    /* Order Cards */
+    /* Order Item Cards */
     .order-card { background: #fff; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #3498db; }
     .order-card.delivered { border-left-color: #2ecc71; }
     .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; }
@@ -38,32 +38,31 @@
     .info-row { font-size: 13px; margin-bottom: 6px; color: #555; }
     .info-row strong { color: #333; }
 
-    /* Quick Action Buttons */
+    /* Action Links & Buttons */
     .action-links { display: flex; gap: 8px; margin: 12px 0 8px 0; }
     .btn-link { flex: 1; text-align: center; padding: 8px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold; color: white; }
     .btn-call { background-color: #17a2b8; }
     .btn-map { background-color: #27ae60; }
 
-    /* Main Status Update Button */
     .btn-update { width: 100%; padding: 10px; border: none; border-radius: 6px; background-color: #3498db; color: white; font-weight: bold; cursor: pointer; font-size: 13px; margin-top: 5px; }
     .btn-update:disabled { background-color: #bdc3c7; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
-  <!-- Header Section -->
+  <!-- Top Navigation / Header -->
   <div class="header">
     <div>
-      <div class="brand">Sudhsagar Mart Partner</div>
-      <span id="user-email" class="user-email">Loading email...</span>
+      <div class="brand">Sudhsagar Mart Delivery</div>
+      <span id="partner-email" class="user-email">Loading email...</span>
     </div>
     <button id="duty-btn" class="status-toggle status-online" onclick="toggleDuty()">ONLINE</button>
   </div>
 
-  <!-- Dashboard Quick Stats -->
+  <!-- Realtime Stats Bar -->
   <div class="stats-container">
     <div class="stat-card">
-      <small>Today's Orders</small>
+      <small>Completed Orders</small>
       <h3 id="stat-count">0</h3>
     </div>
     <div class="stat-card">
@@ -72,23 +71,23 @@
     </div>
   </div>
 
-  <!-- Navigation Tabs -->
+  <!-- Tab Options -->
   <div class="tab-container">
     <button id="tab-active" class="tab-btn active" onclick="switchTab('active')">Active Orders</button>
-    <button id="tab-history" class="tab-btn" onclick="switchTab('history')">Completed</button>
+    <button id="tab-history" class="tab-btn" onclick="switchTab('history')">Completed History</button>
   </div>
 
-  <!-- Orders Container -->
+  <!-- Dynamic Orders List -->
   <div id="orders-container">
-    <p style="text-align: center; color: #777; margin-top: 20px;">Orders load ho rahe hain...</p>
+    <p style="text-align: center; color: #777; margin-top: 20px;">Orders loading...</p>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // Firebase Configuration
+    // Firebase Configurations
     const firebaseConfig = {
       apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE", // 👈 Apni Real Firebase API Key dalein
       authDomain: "sudhsagarmart.firebaseapp.com",
@@ -106,11 +105,11 @@
     let activeTab = 'active';
     let isOnline = true;
 
-    // Authentication Check
+    // Verify Authentication State
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserId = user.uid;
-        document.getElementById('user-email').innerText = user.email;
+        document.getElementById('partner-email').innerText = user.email;
         loadOrders();
       } else {
         alert("Kripya login karein.");
@@ -131,7 +130,7 @@
       }
     };
 
-    // Tab Switcher
+    // Tab Switching Functionality
     window.switchTab = (tab) => {
       activeTab = tab;
       document.getElementById('tab-active').classList.toggle('active', tab === 'active');
@@ -139,7 +138,7 @@
       loadOrders();
     };
 
-    // Realtime Orders Listener
+    // Load and Render Realtime Orders from Firestore
     function loadOrders() {
       if (!currentUserId) return;
 
@@ -167,14 +166,13 @@
             totalEarnings += (order.deliveryFee || 40); // Standard fee default 40
           }
 
-          // Filter on UI level by tab
           if ((activeTab === 'active' && !isDelivered) || (activeTab === 'history' && isDelivered)) {
             hasOrders = true;
             container.appendChild(createOrderCard(orderId, order));
           }
         });
 
-        // Update Stats Dashboard
+        // Update Stats Summary
         document.getElementById('stat-count').innerText = completedCount;
         document.getElementById('stat-earnings').innerText = `₹${totalEarnings}`;
 
@@ -187,7 +185,7 @@
       });
     }
 
-    // Generate Order Item Card HTML
+    // Dynamic Card Creation HTML
     function createOrderCard(id, data) {
       const card = document.createElement('div');
       card.className = `order-card ${data.orderStatus === 'Delivered' ? 'delivered' : ''}`;
@@ -202,14 +200,14 @@
         <div class="info-row"><strong>Customer:</strong> ${data.customerName || 'N/A'}</div>
         <div class="info-row"><strong>Phone:</strong> ${data.customerPhone || 'N/A'}</div>
         <div class="info-row"><strong>Address:</strong> ${data.address || 'N/A'}</div>
-        <div class="info-row"><strong>Amount:</strong> ₹${data.totalAmount || 0} (${data.paymentMethod || 'COD'})</div>
+        <div class="info-row"><strong>Payment:</strong> ₹${data.totalAmount || 0} (${data.paymentMethod || 'COD'})</div>
         
         <div class="action-links">
           <a href="tel:${data.customerPhone}" class="btn-link btn-call">📞 Call Customer</a>
           <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.address || '')}" target="_blank" class="btn-link btn-map">📍 Route Map</a>
         </div>
 
-        ${nextStatus ? `<button class="btn-update" onclick="advanceOrderStatus('${id}', '${nextStatus}')">Mark as ${nextStatus}</button>` : '<button class="btn-update" disabled>Completed</button>'}
+        ${nextStatus ? `<button class="btn-update" onclick="advanceOrderStatus('${id}', '${nextStatus}')">Mark as ${nextStatus}</button>` : '<button class="btn-update" disabled>Order Completed</button>'}
       `;
 
       return card;
@@ -222,14 +220,14 @@
       return null;
     }
 
-    // Action to update status in Firebase
+    // Order Status Handler
     window.advanceOrderStatus = async (orderId, nextStatus) => {
       try {
         await updateDoc(doc(db, "orders", orderId), {
           orderStatus: nextStatus,
           updatedAt: new Date()
         });
-        alert(`Order Status Successfully Changed to: ${nextStatus}`);
+        alert(`Order status changed to: ${nextStatus}`);
       } catch (err) {
         alert("Status update failed: " + err.message);
       }
