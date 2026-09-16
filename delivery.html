@@ -300,36 +300,202 @@
     }
 
     // Dynamic Card Creators
-    function createRunsheetCard(order, index) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      const upiId = "sudhsagarmart@upi";
+function createRunsheetCard(order, index) {
+  const card = document.createElement('div');
+  card.className = 'card';
 
-      card.innerHTML = `
-        <div class="seq-badge">#${index}</div>
-        <div class="info"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
-        <div class="info"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
-        <div class="info"><strong>Address:</strong> ${order.address || 'N/A'}</div>
-        <div class="info"><strong>Amount Due:</strong> ₹${order.totalAmount || 0} (${order.paymentMethod || 'COD'})</div>
-        
-        <div class="box-container">
-          <small><strong>1. Collect Payment</strong></small>
-          <button class="btn btn-info" onclick="generateQR('${order.id}', ${order.totalAmount || 0}, '${upiId}')">📲 Show Dynamic UPI QR Code</button>
-          <div id="qr-box-${order.id}" class="qr-box">
-            <img id="qr-img-${order.id}" src="" alt="QR">
-            <p style="font-size:10px;">Scan using GPay, PhonePe or Paytm</p>
-          </div>
-        </div>
+  const upiId = "sudhsagarmart@upi";
+  const status = order.orderStatus || "Assigned";
 
-        <div class="box-container">
-          <small><strong>2. OTP Verification</strong></small>
-          <input type="text" id="otp-${order.id}" class="input-box" placeholder="Enter Customer OTP" maxlength="4">
-          <button class="btn btn-success" onclick="verifyDelivery('${order.id}')">✅ Verify OTP & Deliver</button>
-        </div>
-      `;
-      return card;
-    }
+  const isPickedUp = status === "Picked Up";
+  const isOutForDelivery = status === "Out for Delivery";
+  const isDelivered = status === "Delivered";
 
+  card.innerHTML = `
+    <div class="seq-badge">#${index}</div>
+
+    <div class="info">
+      <strong>Order ID:</strong> #${order.id.substr(0, 8)}
+    </div>
+
+    <div class="info">
+      <strong>Customer:</strong> ${order.customerName || 'N/A'}
+    </div>
+
+    <div class="info">
+      <strong>Address:</strong> ${order.address || 'N/A'}
+    </div>
+
+    <div class="info">
+      <strong>Amount Due:</strong>
+      ₹${order.totalAmount || 0}
+      (${order.paymentMethod || 'COD'})
+    </div>
+
+    <div class="info">
+      <strong>Status:</strong>
+      <span id="status-${order.id}"
+            style="font-weight:bold;">
+        ${status}
+      </span>
+    </div>
+
+    <div class="box-container">
+      <small><strong>1. Collect Payment</strong></small>
+
+      <button
+        class="btn btn-info"
+        onclick="generateQR('${order.id}', ${order.totalAmount || 0}, '${upiId}')">
+        📲 Show Dynamic UPI QR Code
+      </button>
+
+      <div id="qr-box-${order.id}" class="qr-box">
+        <img id="qr-img-${order.id}" src="" alt="QR">
+        <p style="font-size:10px;">
+          Scan using GPay, PhonePe or Paytm
+        </p>
+      </div>
+    </div>
+
+    <div class="box-container">
+      <small><strong>2. Pickup & Delivery Flow</strong></small>
+
+      <button
+        class="btn btn-warning"
+        onclick="markPickedUp('${order.id}')"
+        ${status !== "Assigned" ? "disabled" : ""}>
+        📦 Mark Picked Up
+      </button>
+
+      <button
+        class="btn btn-main"
+        onclick="markOutForDelivery('${order.id}')"
+        ${!isPickedUp ? "disabled" : ""}>
+        🚚 Start Delivery
+      </button>
+    </div>
+
+    <div class="box-container">
+      <small><strong>3. OTP Verification</strong></small>
+
+      <input
+        type="text"
+        id="otp-${order.id}"
+        class="input-box"
+        placeholder="Enter Customer OTP"
+        maxlength="6"
+        ${!isOutForDelivery ? "disabled" : ""}
+      >
+
+      <button
+        class="btn btn-success"
+        onclick="verifyDelivery('${order.id}')"
+        ${!isOutForDelivery || isDelivered ? "disabled" : ""}>
+        ✅ Verify OTP & Deliver
+      </button>
+    </div>
+  `;
+
+  return card;
+}
+    // MARK ORDER AS PICKED UP
+window.markPickedUp = async (id) => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Login session expire ho gaya. Dobara login karein.");
+    window.location.href = "/login.html";
+    return;
+  }
+
+  try {
+    const orderRef = doc(db, "orders", id);
+
+    const unsubscribe = onSnapshot(orderRef, async (snap) => {
+      unsubscribe();
+
+      if (!snap.exists()) {
+        alert("Order nahi mila.");
+        return;
+      }
+
+      const order = snap.data();
+
+      if (order.deliveryBoyId !== user.uid) {
+        alert("Ye order aapko assigned nahi hai.");
+        return;
+      }
+
+      if (order.orderStatus !== "Assigned") {
+        alert("Order abhi Assigned stage mein nahi hai.");
+        return;
+      }
+
+      await updateDoc(orderRef, {
+        orderStatus: "Picked Up",
+        status: "Picked Up",
+        pickedUpAt: new Date(),
+        pickedUpBy: user.uid
+      });
+
+      alert("Order Picked Up successfully!");
+    });
+
+  } catch (error) {
+    console.error("Pickup error:", error);
+    alert("Pickup update nahi ho paya: " + error.message);
+  }
+};
+
+
+// MARK ORDER AS OUT FOR DELIVERY
+window.markOutForDelivery = async (id) => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Login session expire ho gaya. Dobara login karein.");
+    window.location.href = "/login.html";
+    return;
+  }
+
+  try {
+    const orderRef = doc(db, "orders", id);
+
+    const unsubscribe = onSnapshot(orderRef, async (snap) => {
+      unsubscribe();
+
+      if (!snap.exists()) {
+        alert("Order nahi mila.");
+        return;
+      }
+
+      const order = snap.data();
+
+      if (order.deliveryBoyId !== user.uid) {
+        alert("Ye order aapko assigned nahi hai.");
+        return;
+      }
+
+      if (order.orderStatus !== "Picked Up") {
+        alert("Pehle order ko Picked Up karein.");
+        return;
+      }
+
+      await updateDoc(orderRef, {
+        orderStatus: "Out for Delivery",
+        status: "Out for Delivery",
+        outForDeliveryAt: new Date(),
+        outForDeliveryBy: user.uid
+      });
+
+      alert("Order Out for Delivery ho gaya!");
+    });
+
+  } catch (error) {
+    console.error("Out for Delivery error:", error);
+    alert("Delivery status update nahi ho paya: " + error.message);
+  }
+};
     function createQcCard(order) {
       const card = document.createElement('div');
       card.className = 'card';
