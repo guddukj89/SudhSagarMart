@@ -3,409 +3,237 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sudhsagar Mart Delivery Partner</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <title>Sudhsagar Mart - Delivery Dashboard</title>
   <style>
-    *{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-    body{background:#eef2f5;margin:0;padding:15px}
-    .header{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;padding:15px;border-radius:10px;margin-bottom:20px;box-shadow:0 2px 4px rgba(0,0,0,.05)}
-    .header h2{margin:0;font-size:18px;color:#333}
-    .login-box{background:#fff;padding:25px;border-radius:10px;max-width:400px;margin:50px auto;box-shadow:0 4px 10px rgba(0,0,0,.1)}
-    .login-box input{width:100%;padding:12px;margin:8px 0 15px;border:1px solid #ccc;border-radius:6px}
-    .card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-left:5px solid #2196f3}
-    .card.completed{border-left-color:#4caf50}
-    .btn{padding:12px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;width:100%;margin-top:10px;font-size:15px}
-    .btn-primary{background:#2196f3;color:white}.btn-start{background:#ff9800;color:white}
-    .btn-complete{background:#4caf50;color:white}.btn-scan{background:#673ab7;color:white}
-    .btn-secondary{background:#607d8b;color:white}
-    .btn-logout{background:#f44336;color:white;padding:6px 12px;border-radius:5px;border:none;font-size:12px;cursor:pointer}
-    .maps-link{display:inline-block;margin:10px 0;color:#2196f3;text-decoration:none;font-weight:bold}
-    .tabs{display:flex;gap:10px;margin-bottom:15px}
-    .tab-btn{flex:1;padding:10px;border:none;background:#ddd;border-radius:6px;font-weight:bold;cursor:pointer}
-    .tab-btn.active{background:#2196f3;color:white}
-    .scanner-box{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-    #qr-reader{width:100%;max-width:520px;margin:auto}
-    .scanner-result{padding:10px;margin-top:10px;border-radius:6px;background:#f1f3f5;font-size:13px}
-    .otp-box{margin-top:12px;padding:12px;background:#f7f9fb;border-radius:8px;border:1px solid #e0e5ea}
-    .otp-box input{width:100%;padding:12px;border:1px solid #bbb;border-radius:6px;text-align:center;font-size:22px;letter-spacing:5px}
-    .step{padding:8px 10px;border-radius:6px;background:#f2f4f6;margin-top:8px;font-size:13px}
-    .step.ok{background:#e8f7ed;color:#168646}
-    .toggle-link{text-align:center;margin-top:15px;font-size:14px;color:#2196f3;cursor:pointer;text-decoration:underline;}
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f9; padding: 15px; color: #333; }
+    
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .brand { font-size: 16px; font-weight: bold; color: #2c3e50; }
+    .user-email { font-size: 12px; color: #7f8c8d; display: block; margin-top: 2px; }
+    
+    .status-toggle { padding: 6px 14px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; }
+    .status-online { background-color: #2ecc71; color: white; }
+    .status-offline { background-color: #e74c3c; color: white; }
+
+    /* Stats Overview */
+    .stats-container { display: flex; gap: 10px; margin: 15px 0; }
+    .stat-card { flex: 1; background: #fff; padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .stat-card small { font-size: 11px; color: #95a5a6; font-weight: 600; text-transform: uppercase; }
+    .stat-card h3 { margin-top: 5px; color: #2c3e50; font-size: 18px; }
+
+    /* Tabs */
+    .tab-container { display: flex; gap: 10px; margin-bottom: 15px; }
+    .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; background: #e0e6ed; color: #555; }
+    .tab-btn.active { background: #3498db; color: white; }
+
+    /* Order Cards */
+    .order-card { background: #fff; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #3498db; }
+    .order-card.delivered { border-left-color: #2ecc71; }
+    .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; }
+    .order-id { font-weight: bold; color: #34495e; }
+    .order-status-badge { font-size: 11px; background: #ebf5fb; color: #2980b9; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
+    
+    .info-row { font-size: 13px; margin-bottom: 6px; color: #555; }
+    .info-row strong { color: #333; }
+
+    /* Quick Action Buttons */
+    .action-links { display: flex; gap: 8px; margin: 12px 0 8px 0; }
+    .btn-link { flex: 1; text-align: center; padding: 8px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold; color: white; }
+    .btn-call { background-color: #17a2b8; }
+    .btn-map { background-color: #27ae60; }
+
+    /* Main Status Update Button */
+    .btn-update { width: 100%; padding: 10px; border: none; border-radius: 6px; background-color: #3498db; color: white; font-weight: bold; cursor: pointer; font-size: 13px; margin-top: 5px; }
+    .btn-update:disabled { background-color: #bdc3c7; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
-<div id="authSection" class="login-box" style="display:none;">
-  <h3 id="authTitle" style="margin-top:0;text-align:center;color:#2196f3;">🛍️ Sudhsagar Mart Delivery Partner</h3>
-  
-  <div id="registerFields" style="display:none;">
-    <label>Full Name</label>
-    <input type="text" id="regName" placeholder="Enter full name">
-    <label>Phone Number</label>
-    <input type="tel" id="regPhone" placeholder="Enter 10-digit mobile number">
-  </div>
-
-  <label>Email</label>
-  <input type="email" id="authEmail" placeholder="Enter email address">
-  
-  <label>Password</label>
-  <input type="password" id="authPassword" placeholder="Enter password (min 6 characters)">
-
-  <button id="authBtn" class="btn btn-primary" onclick="handleAuth()">Login</button>
-  
-  <div class="toggle-link" id="toggleAuthMode" onclick="toggleMode()">Naya Account Banayein (Register)</div>
-</div>
-
-<div id="dashboardSection" style="display:none;">
+  <!-- Header Section -->
   <div class="header">
-    <h2>🛍️ Sudhsagar Mart Delivery Partner</h2>
-    <span id="userEmailDisplay" style="font-size:13px;color:#666;"></span>
-    <button class="btn-logout" onclick="logout()">Logout</button>
+    <div>
+      <div class="brand">Sudhsagar Mart Partner</div>
+      <span id="user-email" class="user-email">Loading email...</span>
+    </div>
+    <button id="duty-btn" class="status-toggle status-online" onclick="toggleDuty()">ONLINE</button>
   </div>
 
-  <div class="scanner-box">
-    <h3 style="margin:0 0 8px;">📷 Parcel Scanner</h3>
-    <p style="margin:0 0 10px;color:#666;font-size:13px;">Parcel ka QR/Barcode scan karke hi pickup ya delivery process aage badhega.</p>
-    <button class="btn btn-scan" onclick="openScanner()">📷 Scan Parcel</button>
-    <div id="scannerArea" style="display:none;margin-top:12px;">
-      <div id="qr-reader"></div>
-      <button class="btn btn-secondary" onclick="closeScanner()">Close Scanner</button>
-      <div id="scannerResult" class="scanner-result">Waiting for scan...</div>
+  <!-- Dashboard Quick Stats -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <small>Today's Orders</small>
+      <h3 id="stat-count">0</h3>
+    </div>
+    <div class="stat-card">
+      <small>Total Earnings</small>
+      <h3 id="stat-earnings">₹0</h3>
     </div>
   </div>
 
-  <div class="tabs">
-    <button id="tabActive" class="tab-btn active" onclick="switchTab('active')">Active Orders</button>
-    <button id="tabCompleted" class="tab-btn" onclick="switchTab('completed')">Completed History</button>
+  <!-- Navigation Tabs -->
+  <div class="tab-container">
+    <button id="tab-active" class="tab-btn active" onclick="switchTab('active')">Active Orders</button>
+    <button id="tab-history" class="tab-btn" onclick="switchTab('history')">Completed</button>
   </div>
 
-  <div id="assignedOrdersList">Loading orders...</div>
-</div>
+  <!-- Orders Container -->
+  <div id="orders-container">
+    <p style="text-align: center; color: #777; margin-top: 20px;">Orders load ho rahe hain...</p>
+  </div>
 
-<script>
-// ⚠️ APNI ASLI FIREBASE API KEY YAHAN PASTE KAREIN
-const firebaseConfig = {
-  apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
-  authDomain: "sudhsagarmart.firebaseapp.com",
-  projectId: "sudhsagarmart",
-  storageBucket: "sudhsagarmart.firebasestorage.app",
-  messagingSenderId: "682379938859",
-  appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e",
-  measurementId: "G-VZY41YWFXP"
-};
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-const auth=firebase.auth();
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE", // 👈 Apni Real Firebase API Key dalein
+      authDomain: "sudhsagarmart.firebaseapp.com",
+      projectId: "sudhsagarmart",
+      storageBucket: "sudhsagarmart.firebasestorage.app",
+      messagingSenderId: "682379938859",
+      appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e"
+    };
 
-let currentUserId=null;
-let activeTab='active';
-let unsubscribeOrders=null;
-let qrScanner=null;
-let scannedOrderId=null;
-let scannerCallback=null;
-let lastOrderCount = 0;
-let isRegisterMode = false;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-function playNotificationSound() {
-  const audio = new Audio("https://actions.google.com/sounds/v1/notifications/beep_short.ogg");
-  audio.play().catch(e => console.log("Audio play blocked by browser."));
-}
+    let currentUserId = null;
+    let activeTab = 'active';
+    let isOnline = true;
 
-auth.onAuthStateChanged(user=>{
-  if(user){
-    currentUserId=user.uid;
-    document.getElementById("userEmailDisplay").innerText=user.email||"";
-    document.getElementById("authSection").style.display="none";
-    document.getElementById("dashboardSection").style.display="block";
-    loadOrders();
-  }else{
-    currentUserId=null;
-    if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
-    document.getElementById("authSection").style.display="block";
-    document.getElementById("dashboardSection").style.display="none";
-  }
-});
+    // Authentication Check
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        document.getElementById('user-email').innerText = user.email;
+        loadOrders();
+      } else {
+        alert("Kripya login karein.");
+        window.location.href = "/login.html";
+      }
+    });
 
-function toggleMode(){
-  isRegisterMode = !isRegisterMode;
-  document.getElementById("registerFields").style.display = isRegisterMode ? "block" : "none";
-  document.getElementById("authTitle").innerText = isRegisterMode ? "📝 Delivery Partner Registration" : "🛍️ Sudhsagar Mart Delivery Partner";
-  document.getElementById("authBtn").innerText = isRegisterMode ? "Create Account" : "Login";
-  document.getElementById("toggleAuthMode").innerText = isRegisterMode ? "Pehle se account hai? Login karein" : "Naya Account Banayein (Register)";
-}
+    // Toggle Online/Offline Duty Status
+    window.toggleDuty = () => {
+      const btn = document.getElementById('duty-btn');
+      isOnline = !isOnline;
+      if (isOnline) {
+        btn.innerText = "ONLINE";
+        btn.className = "status-toggle status-online";
+      } else {
+        btn.innerText = "OFFLINE";
+        btn.className = "status-toggle status-offline";
+      }
+    };
 
-async function handleAuth(){
-  const email = document.getElementById("authEmail").value.trim();
-  const pass = document.getElementById("authPassword").value;
+    // Tab Switcher
+    window.switchTab = (tab) => {
+      activeTab = tab;
+      document.getElementById('tab-active').classList.toggle('active', tab === 'active');
+      document.getElementById('tab-history').classList.toggle('active', tab === 'history');
+      loadOrders();
+    };
 
-  if(!email || !pass){ alert("Email aur Password dono bharo."); return; }
+    // Realtime Orders Listener
+    function loadOrders() {
+      if (!currentUserId) return;
 
-  if(isRegisterMode){
-    const name = document.getElementById("regName").value.trim();
-    const phone = document.getElementById("regPhone").value.trim();
-    if(!name || !phone){ alert("Name aur Phone number bhi bharo."); return; }
+      const q = query(
+        collection(db, "orders"),
+        where("deliveryBoyId", "==", currentUserId)
+      );
 
-    try {
-      const res = await auth.createUserWithEmailAndPassword(email, pass);
-      await db.collection("deliveryPartners").doc(res.user.uid).set({
-        name: name,
-        phone: phone,
-        email: email,
-        role: "deliveryPartner",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      onSnapshot(q, (snapshot) => {
+        const container = document.getElementById('orders-container');
+        container.innerHTML = "";
+
+        let completedCount = 0;
+        let totalEarnings = 0;
+        let hasOrders = false;
+
+        snapshot.forEach((docSnap) => {
+          const order = docSnap.data();
+          const orderId = docSnap.id;
+
+          const isDelivered = order.orderStatus === "Delivered";
+
+          if (isDelivered) {
+            completedCount++;
+            totalEarnings += (order.deliveryFee || 40); // Standard fee default 40
+          }
+
+          // Filter on UI level by tab
+          if ((activeTab === 'active' && !isDelivered) || (activeTab === 'history' && isDelivered)) {
+            hasOrders = true;
+            container.appendChild(createOrderCard(orderId, order));
+          }
+        });
+
+        // Update Stats Dashboard
+        document.getElementById('stat-count').innerText = completedCount;
+        document.getElementById('stat-earnings').innerText = `₹${totalEarnings}`;
+
+        if (!hasOrders) {
+          container.innerHTML = `<p style="text-align: center; color: #888; margin-top: 30px;">Koi ${activeTab} orders nahi hain.</p>`;
+        }
+      }, (error) => {
+        console.error("Error loading orders:", error);
+        document.getElementById('orders-container').innerHTML = `<p style="color:red; text-align:center;">Error: ${error.message}</p>`;
       });
-      alert("✅ Account ban gaya hai! Aap ab login hain.");
-    } catch(err) {
-      alert("Registration Failed: " + err.message);
     }
-  } else {
-    auth.signInWithEmailAndPassword(email, pass).catch(err=>alert("Login Failed: "+err.message));
-  }
-}
 
-function logout(){closeScanner();auth.signOut()}
+    // Generate Order Item Card HTML
+    function createOrderCard(id, data) {
+      const card = document.createElement('div');
+      card.className = `order-card ${data.orderStatus === 'Delivered' ? 'delivered' : ''}`;
 
-function switchTab(tab){
-  activeTab=tab;
-  document.getElementById("tabActive").classList.toggle("active",tab==="active");
-  document.getElementById("tabCompleted").classList.toggle("active",tab==="completed");
-  loadOrders();
-}
+      const nextStatus = getNextStatus(data.orderStatus);
 
-function loadOrders(){
-  if(!currentUserId)return;
-  const container=document.getElementById("assignedOrdersList");
-  container.innerHTML="<p style='text-align:center;'>Loading...</p>";
-  if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
+      card.innerHTML = `
+        <div class="order-header">
+          <span class="order-id">ID: #${id.substr(0, 8)}</span>
+          <span class="order-status-badge">${data.orderStatus || 'Assigned'}</span>
+        </div>
+        <div class="info-row"><strong>Customer:</strong> ${data.customerName || 'N/A'}</div>
+        <div class="info-row"><strong>Phone:</strong> ${data.customerPhone || 'N/A'}</div>
+        <div class="info-row"><strong>Address:</strong> ${data.address || 'N/A'}</div>
+        <div class="info-row"><strong>Amount:</strong> ₹${data.totalAmount || 0} (${data.paymentMethod || 'COD'})</div>
+        
+        <div class="action-links">
+          <a href="tel:${data.customerPhone}" class="btn-link btn-call">📞 Call Customer</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.address || '')}" target="_blank" class="btn-link btn-map">📍 Route Map</a>
+        </div>
 
-  let query=db.collection("orders").where("deliveryBoyId","==",currentUserId);
-  if(activeTab==="active"){
-    query=query.where("status","in",["Ready for Pickup","Picked Up","Out for Delivery"]);
-  }else{
-    query=query.where("status","==","Delivered");
-  }
+        ${nextStatus ? `<button class="btn-update" onclick="advanceOrderStatus('${id}', '${nextStatus}')">Mark as ${nextStatus}</button>` : '<button class="btn-update" disabled>Completed</button>'}
+      `;
 
-  unsubscribeOrders=query.onSnapshot(snapshot=>{
-    if(!snapshot.empty && snapshot.docs.length > lastOrderCount && activeTab === 'active'){
-      playNotificationSound();
-      alert("🔔 Naya Order Pickup ke liye Ready hai!");
+      return card;
     }
-    lastOrderCount = snapshot.docs.length;
 
-    if(snapshot.empty){
-      container.innerHTML=`<p style="text-align:center;margin-top:30px;color:#666;">No ${activeTab} orders found.</p>`;
-      return;
+    function getNextStatus(current) {
+      if (current === "Assigned" || !current) return "Picked Up";
+      if (current === "Picked Up") return "Out for Delivery";
+      if (current === "Out for Delivery") return "Delivered";
+      return null;
     }
-    let htmlBuffer = "";
-    snapshot.forEach(doc=>{
-      htmlBuffer += renderOrderCard(doc.data(),doc.id);
-    });
-    container.innerHTML = htmlBuffer;
-  },err=>{
-    container.innerHTML=`<p style="color:#c00;text-align:center;">Orders load failed: ${escapeHtml(err.message)}</p>`;
-  });
-}
 
-function renderOrderCard(order,orderId){
-  const status=order.status||order.orderStatus||"Processing";
-  
-  const address=order.customerAddress||order.address||"N/A";
-  const phone=order.customerMobile||order.mobile||order.phone||"";
-  const name=order.customerName||order.customer||"N/A";
-
-  const shopName = order.shopName || order.sellerName || "Sudhsagar Main Store";
-  const shopAddress = order.shopAddress || order.pickupAddress || "Main Market, Store Location";
-  const shopPhone = order.shopPhone || order.sellerPhone || "";
-
-  const amount=order.total??order.amount??0;
-  const payment=order.payment||order.paymentMethod||"COD";
-  let action="";
-
-  if(status==="Ready for Pickup"){
-    action=`<button class="btn btn-scan" onclick="scanForPickup('${escapeAttr(orderId)}')">📷 Scan Parcel to Confirm Pickup</button>`;
-  }else if(status==="Picked Up"){
-    action=`<button class="btn btn-start" onclick="startDelivery('${escapeAttr(orderId)}')">🚚 Start Delivery</button>`;
-  }else if(status==="Out for Delivery"){
-    action=`<button class="btn btn-complete" onclick="scanForDelivery('${escapeAttr(orderId)}')">📷 Scan Parcel & Verify Customer OTP</button>`;
-  }
-
-  return `<div class="card ${status==="Delivered"?"completed":""}">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-      <h4 style="margin:0;">Order #${escapeHtml(orderId.substring(0,8))}</h4>
-      <span style="background:#eee;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:bold;">${escapeHtml(status)}</span>
-    </div>
-    <hr style="border:0;border-top:1px solid #eee;margin:10px 0;">
-    
-    <div style="background:#fff8e1;padding:10px;border-radius:6px;margin-bottom:10px;border:1px solid #ffe082;">
-      <h5 style="margin:0 0 5px;color:#b78103;">🏬 Pickup From (Shop):</h5>
-      <p style="margin:3px 0;"><b>Shop Name:</b> ${escapeHtml(shopName)}</p>
-      <p style="margin:3px 0;"><b>Address:</b> ${escapeHtml(shopAddress)}</p>
-      ${shopPhone ? `<p style="margin:3px 0;"><b>Phone:</b> <a href="tel:${escapeAttr(shopPhone)}">${escapeHtml(shopPhone)}</a></p>` : ''}
-      <a class="maps-link" style="color:#d97706;font-size:13px;" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(shopAddress)}" target="_blank">📍 Navigate to Shop</a>
-    </div>
-
-    <div style="background:#f1f8e9;padding:10px;border-radius:6px;margin-bottom:10px;border:1px solid #c5e1a5;">
-      <h5 style="margin:0 0 5px;color:#33691e;">🏠 Deliver To (Customer):</h5>
-      <p style="margin:3px 0;"><b>Customer:</b> ${escapeHtml(name)}</p>
-      <p style="margin:3px 0;"><b>Phone:</b> <a href="tel:${escapeAttr(phone)}">${escapeHtml(phone)}</a></p>
-      <p style="margin:3px 0;"><b>Address:</b> ${escapeHtml(address)}</p>
-      <p style="margin:3px 0;"><b>Amount:</b> ₹${escapeHtml(String(amount))} (${escapeHtml(payment)})</p>
-      ${status!=="Delivered"?`<a class="maps-link" style="font-size:13px;" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}" target="_blank">📍 Navigate to Customer Location</a>`:""}
-    </div>
-
-    <div class="step ok">Current step: ${escapeHtml(status)}</div>
-    ${action}
-    <div id="deliveryAction-${escapeAttr(orderId)}"></div>
-  </div>`;
-}
-
-function scanForPickup(orderId){
-  scannedOrderId=orderId;
-  openScanner(scannedId=>confirmPickup(orderId,scannedId));
-}
-function scanForDelivery(orderId){
-  scannedOrderId=orderId;
-  openScanner(scannedId=>prepareDeliveryOtp(orderId,scannedId));
-}
-
-function openScanner(callback){
-  scannerCallback=callback||null;
-  document.getElementById("scannerArea").style.display="block";
-  document.getElementById("scannerResult").innerText="Camera start ho raha hai...";
-  if(qrScanner){try{qrScanner.clear()}catch(e){}qrScanner=null}
-
-  qrScanner=new Html5Qrcode("qr-reader");
-  qrScanner.start(
-    {facingMode:"environment"},
-    {fps:10,qrbox:{width:250,height:250}},
-    async decodedText=>{
-      const scannedId=normalizeScan(decodedText);
-      document.getElementById("scannerResult").innerText="Scanned: "+scannedId;
-      const cb=scannerCallback;
-      scannerCallback=null;
-      try{await qrScanner.stop()}catch(e){}
-      try{await qrScanner.clear()}catch(e){}
-      qrScanner=null;
-      closeScanner();
-      if(cb)await cb(scannedId);
-    },
-    ()=>{}
-  ).catch(err=>{
-    document.getElementById("scannerResult").innerText="Camera error: "+err;
-  });
-}
-
-function closeScanner(){
-  if(qrScanner){
-    const s=qrScanner;
-    qrScanner=null;
-    s.stop().catch(()=>{}).finally(()=>{try{s.clear()}catch(e){}});
-  }
-  const area=document.getElementById("scannerArea");
-  if(area)area.style.display="none";
-}
-
-function normalizeScan(value){
-  const s=String(value||"").trim();
-  if(s.indexOf("SSM|")===0)return s.substring(4).trim();
-  if(s.indexOf("SSM-P-")===0)return s.substring(6).trim();
-  return s;
-}
-
-async function getAssignedOrder(orderId){
-  if(!currentUserId)throw new Error("Login required.");
-  const snap=await db.collection("orders").doc(orderId).get();
-  if(!snap.exists)throw new Error("Parcel/order nahi mila.");
-  const order=snap.data();
-  if(order.deliveryBoyId!==currentUserId)throw new Error("Ye parcel aapko assign nahi hai.");
-  return {ref:snap.ref,order};
-}
-
-async function confirmPickup(orderId,scannedId){
-  if(normalizeScan(scannedId)!==normalizeScan(orderId)){
-    alert("Galat parcel scan hua hai. Is order ka parcel scan karo.");
-    return;
-  }
-  try{
-    const {ref,order}=await getAssignedOrder(orderId);
-    if((order.status||order.orderStatus)!=="Ready for Pickup")throw new Error("Order Ready for Pickup status me nahi hai.");
-    if(!confirm("Parcel scan ho gaya. Kya aapne parcel pickup kar liya hai?"))return;
-    await ref.update({
-      status:"Picked Up",
-      orderStatus:"Picked Up",
-      pickupConfirmedAt:firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    alert("✅ Pickup confirmed. Ab Start Delivery dabayein.");
-  }catch(err){alert("Pickup failed: "+err.message)}
-}
-
-async function startDelivery(orderId){
-  try{
-    const {ref,order}=await getAssignedOrder(orderId);
-    if((order.status||order.orderStatus)!=="Picked Up")throw new Error("Pehle parcel pickup confirm karo.");
-    if(!confirm("Parcel lekar delivery ke liye nikalna hai?"))return;
-    await ref.update({
-      status:"Out for Delivery",
-      orderStatus:"Out for Delivery",
-      deliveryStartedAt:firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }catch(err){alert("Start delivery failed: "+err.message)}
-}
-
-async function prepareDeliveryOtp(orderId,scannedId){
-  if(normalizeScan(scannedId)!==normalizeScan(orderId)){
-    alert("Galat parcel scan hua hai. Is order ka parcel scan karo.");
-    return;
-  }
-  try{
-    const {order}=await getAssignedOrder(orderId);
-    if((order.status||order.orderStatus)!=="Out for Delivery")throw new Error("Order Out for Delivery status me nahi hai.");
-    const box=document.getElementById("deliveryAction-"+orderId);
-    if(!box)return;
-    box.innerHTML=`<div class="otp-box">
-      <b>Customer Verification</b>
-      <p style="font-size:13px;color:#666;">Customer ke registered mobile par OTP bhejna hoga.</p>
-      <button class="btn btn-primary" onclick="sendDeliveryOtp('${escapeAttr(orderId)}')">📱 Send Customer OTP</button>
-      <div id="otpEntry-${escapeAttr(orderId)}"></div>
-    </div>`;
-  }catch(err){alert("Delivery scan failed: "+err.message)}
-}
-
-async function sendDeliveryOtp(orderId){
-  try{
-    const {order}=await getAssignedOrder(orderId);
-    if((order.status||order.orderStatus)!=="Out for Delivery")throw new Error("Order Out for Delivery status me nahi hai.");
-
-    alert("Customer OTP SMS backend abhi connect nahi hai.");
-
-    const box=document.getElementById("otpEntry-"+orderId);
-    if(box){
-      box.innerHTML=`<input id="otp-${escapeAttr(orderId)}" inputmode="numeric" maxlength="6" placeholder="Customer OTP">
-        <button class="btn btn-complete" onclick="verifyDeliveryOtp('${escapeAttr(orderId)}')">✅ Verify OTP & Deliver</button>`;
-      const input = document.getElementById("otp-" + orderId);
-      if(input) input.focus();
-    }
-  }catch(err){alert("OTP request failed: "+err.message)}
-}
-
-async function verifyDeliveryOtp(orderId){
-  const otpInput=document.getElementById("otp-"+orderId);
-  const otp=(otpInput?.value||"").trim();
-  if(!/^\d{4,6}$/.test(otp)){alert("Valid OTP enter karo.");return}
-
-  alert("OTP backend verification abhi connect karna baki hai.");
-}
-
-function escapeHtml(value){
-  return String(value??"").replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
-}
-function escapeAttr(value){return escapeHtml(value)}
-</script>
+    // Action to update status in Firebase
+    window.advanceOrderStatus = async (orderId, nextStatus) => {
+      try {
+        await updateDoc(doc(db, "orders", orderId), {
+          orderStatus: nextStatus,
+          updatedAt: new Date()
+        });
+        alert(`Order Status Successfully Changed to: ${nextStatus}`);
+      } catch (err) {
+        alert("Status update failed: " + err.message);
+      }
+    };
+  </script>
 </body>
 </html>
