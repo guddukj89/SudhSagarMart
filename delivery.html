@@ -38,7 +38,6 @@
 </head>
 <body>
 
-<!-- LOGIN / REGISTER SECTION -->
 <div id="authSection" class="login-box" style="display:none;">
   <h3 id="authTitle" style="margin-top:0;text-align:center;color:#2196f3;">🛍️ Sudhsagar Mart Delivery Partner</h3>
   
@@ -60,7 +59,6 @@
   <div class="toggle-link" id="toggleAuthMode" onclick="toggleMode()">Naya Account Banayein (Register)</div>
 </div>
 
-<!-- DASHBOARD SECTION -->
 <div id="dashboardSection" style="display:none;">
   <div class="header">
     <h2>🛍️ Sudhsagar Mart Delivery Partner</h2>
@@ -88,8 +86,9 @@
 </div>
 
 <script>
+// ⚠️ APNI ASLI FIREBASE API KEY YAHAN PASTE KAREIN
 const firebaseConfig = {
-  apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SJuGU",
+  apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE",
   authDomain: "sudhsagarmart.firebaseapp.com",
   projectId: "sudhsagarmart",
   storageBucket: "sudhsagarmart.firebasestorage.app",
@@ -214,12 +213,10 @@ function loadOrders(){
 function renderOrderCard(order,orderId){
   const status=order.status||order.orderStatus||"Processing";
   
-  // Customer Details
   const address=order.customerAddress||order.address||"N/A";
   const phone=order.customerMobile||order.mobile||order.phone||"";
   const name=order.customerName||order.customer||"N/A";
 
-  // Shop Details
   const shopName = order.shopName || order.sellerName || "Sudhsagar Main Store";
   const shopAddress = order.shopAddress || order.pickupAddress || "Main Market, Store Location";
   const shopPhone = order.shopPhone || order.sellerPhone || "";
@@ -243,7 +240,6 @@ function renderOrderCard(order,orderId){
     </div>
     <hr style="border:0;border-top:1px solid #eee;margin:10px 0;">
     
-    <!-- 🏬 PICKUP SHOP DETAILS -->
     <div style="background:#fff8e1;padding:10px;border-radius:6px;margin-bottom:10px;border:1px solid #ffe082;">
       <h5 style="margin:0 0 5px;color:#b78103;">🏬 Pickup From (Shop):</h5>
       <p style="margin:3px 0;"><b>Shop Name:</b> ${escapeHtml(shopName)}</p>
@@ -252,7 +248,6 @@ function renderOrderCard(order,orderId){
       <a class="maps-link" style="color:#d97706;font-size:13px;" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(shopAddress)}" target="_blank">📍 Navigate to Shop</a>
     </div>
 
-    <!-- 👤 CUSTOMER DETAILS -->
     <div style="background:#f1f8e9;padding:10px;border-radius:6px;margin-bottom:10px;border:1px solid #c5e1a5;">
       <h5 style="margin:0 0 5px;color:#33691e;">🏠 Deliver To (Customer):</h5>
       <p style="margin:3px 0;"><b>Customer:</b> ${escapeHtml(name)}</p>
@@ -387,7 +382,7 @@ async function sendDeliveryOtp(orderId){
     const {order}=await getAssignedOrder(orderId);
     if((order.status||order.orderStatus)!=="Out for Delivery")throw new Error("Order Out for Delivery status me nahi hai.");
 
-    alert("Customer OTP SMS backend abhi connect nahi hai. SMS provider + Cloud Function connect hone ke baad yahin se OTP jayega.");
+    alert("Customer OTP SMS backend abhi connect nahi hai.");
 
     const box=document.getElementById("otpEntry-"+orderId);
     if(box){
@@ -404,7 +399,7 @@ async function verifyDeliveryOtp(orderId){
   const otp=(otpInput?.value||"").trim();
   if(!/^\d{4,6}$/.test(otp)){alert("Valid OTP enter karo.");return}
 
-  alert("OTP backend verification abhi connect karna baki hai. SMS provider + Cloud Function connect hone ke baad Verify OTP se Delivered hoga.");
+  alert("OTP backend verification abhi connect karna baki hai.");
 }
 
 function escapeHtml(value){
