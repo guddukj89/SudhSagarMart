@@ -655,7 +655,187 @@ async function sendSellerLoginOtp(){
 
   }
 }
+let mobileLoginConfirmationResult = null;
+let mobileLoginRecaptcha = null;
 
+async function sendMobileLoginOtp(){
+
+  const mobileInput = document.getElementById("loginMobile");
+  const msg = document.getElementById("loginMsg");
+
+  const mobile = mobileInput
+    ? mobileInput.value.trim().replace(/\D/g,"")
+    : "";
+
+  if(!/^[0-9]{10}$/.test(mobile)){
+    msg.className = "error";
+    msg.textContent = "10 digit mobile number bhariye.";
+    return;
+  }
+
+  try{
+
+    if(!mobileLoginRecaptcha){
+      mobileLoginRecaptcha =
+        new firebase.auth.RecaptchaVerifier(
+          "loginRecaptcha",
+          {
+            size:"normal"
+          }
+        );
+    }
+
+    mobileLoginConfirmationResult =
+      await auth.signInWithPhoneNumber(
+        "+91" + mobile,
+        mobileLoginRecaptcha
+      );
+
+    const box =
+      document.getElementById("loginOtpBox");
+
+    if(box){
+      box.style.display = "block";
+    }
+
+    msg.className = "success";
+    msg.textContent =
+      "📱 OTP aapke mobile par bhej diya gaya hai.";
+
+  }catch(e){
+
+    console.error("Mobile OTP Error:", e);
+
+    msg.className = "error";
+    msg.textContent =
+      "OTP send failed: " + e.message;
+
+  }
+}
+
+
+async function verifyMobileLoginOtp(){
+
+  const otpInput =
+    document.getElementById("loginOtp");
+
+  const msg =
+    document.getElementById("loginMsg");
+
+  const code =
+    otpInput ? otpInput.value.trim() : "";
+
+  if(!/^[0-9]{6}$/.test(code)){
+    msg.className = "error";
+    msg.textContent = "6 digit OTP bhariye.";
+    return;
+  }
+
+  if(!mobileLoginConfirmationResult){
+    msg.className = "error";
+    msg.textContent = "Pehle OTP send karein.";
+    return;
+  }
+
+  try{
+
+    const result =
+      await mobileLoginConfirmationResult.confirm(code);
+
+    currentUser = result.user;
+
+    await loadSeller();
+
+    if(
+      !sellerData ||
+      sellerData.role !== "seller"
+    ){
+
+      await auth.signOut();
+
+      msg.className = "error";
+      msg.textContent =
+        "Ye mobile number kisi Seller account se linked nahi hai.";
+
+      return;
+    }
+
+    const box =
+      document.getElementById("loginOtpBox");
+
+    if(box){
+      box.style.display = "none";
+    }
+
+    msg.className = "success";
+    msg.textContent =
+      "✅ OTP verified. Seller Panel khul raha hai...";
+
+    showApp(true);
+    startRealtime();
+
+  }catch(e){
+
+    console.error("Mobile OTP Verify Error:", e);
+
+    msg.className = "error";
+    msg.textContent =
+      "OTP verification failed: " + e.message;
+
+  }
+}
+
+
+async function resendMobileLoginOtp(){
+
+  const mobileInput =
+    document.getElementById("loginMobile");
+
+  const msg =
+    document.getElementById("loginMsg");
+
+  const mobile =
+    mobileInput
+      ? mobileInput.value.trim().replace(/\D/g,"")
+      : "";
+
+  if(!/^[0-9]{10}$/.test(mobile)){
+    msg.className = "error";
+    msg.textContent =
+      "10 digit mobile number bhariye.";
+    return;
+  }
+
+  try{
+
+    if(!mobileLoginRecaptcha){
+      mobileLoginRecaptcha =
+        new firebase.auth.RecaptchaVerifier(
+          "loginRecaptcha",
+          {
+            size:"normal"
+          }
+        );
+    }
+
+    mobileLoginConfirmationResult =
+      await auth.signInWithPhoneNumber(
+        "+91" + mobile,
+        mobileLoginRecaptcha
+      );
+
+    msg.className = "success";
+    msg.textContent =
+      "🔄 Naya OTP mobile par bhej diya gaya hai.";
+
+  }catch(e){
+
+    msg.className = "error";
+    msg.textContent =
+      "Resend OTP failed: " + e.message;
+
+  }
+}
 async function logoutSeller(){
   await auth.signOut();
 }  
