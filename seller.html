@@ -824,20 +824,6 @@ loginOtpUid = user ? user.uid : null;
 
     const loginBox=document.getElementById("loginOtpBox");
 
-    if(loginBox){
-      loginBox.style.display="block";
-    }
-
-    const loginMsg=document.getElementById("loginMsg");
-
-    if(loginMsg){
-      loginMsg.className="success";
-      loginMsg.textContent=
-        "🔐 Security OTP required. Mobile par OTP verify karein.";
-    }
-
-    await sendSellerLoginOtp();
-
   }catch(e){
 
     console.error(
