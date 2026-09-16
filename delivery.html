@@ -33,19 +33,34 @@
     .otp-box input{width:100%;padding:12px;border:1px solid #bbb;border-radius:6px;text-align:center;font-size:22px;letter-spacing:5px}
     .step{padding:8px 10px;border-radius:6px;background:#f2f4f6;margin-top:8px;font-size:13px}
     .step.ok{background:#e8f7ed;color:#168646}
+    .toggle-link{text-align:center;margin-top:15px;font-size:14px;color:#2196f3;cursor:pointer;text-decoration:underline;}
   </style>
 </head>
 <body>
 
-<div id="loginSection" class="login-box" style="display:none;">
-  <h3 style="margin-top:0;text-align:center;color:#2196f3;">🛍️ Sudhsagar Mart Delivery Partner</h3>
+<!-- LOGIN / REGISTER SECTION -->
+<div id="authSection" class="login-box" style="display:none;">
+  <h3 id="authTitle" style="margin-top:0;text-align:center;color:#2196f3;">🛍️ Sudhsagar Mart Delivery Partner</h3>
+  
+  <div id="registerFields" style="display:none;">
+    <label>Full Name</label>
+    <input type="text" id="regName" placeholder="Enter full name">
+    <label>Phone Number</label>
+    <input type="tel" id="regPhone" placeholder="Enter 10-digit mobile number">
+  </div>
+
   <label>Email</label>
-  <input type="email" id="loginEmail" placeholder="Enter delivery email">
+  <input type="email" id="authEmail" placeholder="Enter email address">
+  
   <label>Password</label>
-  <input type="password" id="loginPassword" placeholder="Enter password">
-  <button class="btn btn-primary" onclick="loginDeliveryBoy()">Login</button>
+  <input type="password" id="authPassword" placeholder="Enter password (min 6 characters)">
+
+  <button id="authBtn" class="btn btn-primary" onclick="handleAuth()">Login</button>
+  
+  <div class="toggle-link" id="toggleAuthMode" onclick="toggleMode()">Naya Account Banayein (Register)</div>
 </div>
 
+<!-- DASHBOARD SECTION -->
 <div id="dashboardSection" style="display:none;">
   <div class="header">
     <h2>🛍️ Sudhsagar Mart Delivery Partner</h2>
@@ -94,6 +109,7 @@ let qrScanner=null;
 let scannedOrderId=null;
 let scannerCallback=null;
 let lastOrderCount = 0;
+let isRegisterMode = false;
 
 function playNotificationSound() {
   const audio = new Audio("https://actions.google.com/sounds/v1/notifications/beep_short.ogg");
@@ -104,23 +120,54 @@ auth.onAuthStateChanged(user=>{
   if(user){
     currentUserId=user.uid;
     document.getElementById("userEmailDisplay").innerText=user.email||"";
-    document.getElementById("loginSection").style.display="none";
+    document.getElementById("authSection").style.display="none";
     document.getElementById("dashboardSection").style.display="block";
     loadOrders();
   }else{
     currentUserId=null;
     if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
-    document.getElementById("loginSection").style.display="block";
+    document.getElementById("authSection").style.display="block";
     document.getElementById("dashboardSection").style.display="none";
   }
 });
 
-function loginDeliveryBoy(){
-  const email=document.getElementById("loginEmail").value.trim();
-  const pass=document.getElementById("loginPassword").value;
-  if(!email || !pass){alert("Email aur Password dono bharo.");return;}
-  auth.signInWithEmailAndPassword(email,pass).catch(err=>alert("Login Failed: "+err.message));
+function toggleMode(){
+  isRegisterMode = !isRegisterMode;
+  document.getElementById("registerFields").style.display = isRegisterMode ? "block" : "none";
+  document.getElementById("authTitle").innerText = isRegisterMode ? "📝 Delivery Partner Registration" : "🛍️ Sudhsagar Mart Delivery Partner";
+  document.getElementById("authBtn").innerText = isRegisterMode ? "Create Account" : "Login";
+  document.getElementById("toggleAuthMode").innerText = isRegisterMode ? "Pehle se account hai? Login karein" : "Naya Account Banayein (Register)";
 }
+
+async function handleAuth(){
+  const email = document.getElementById("authEmail").value.trim();
+  const pass = document.getElementById("authPassword").value;
+
+  if(!email || !pass){ alert("Email aur Password dono bharo."); return; }
+
+  if(isRegisterMode){
+    const name = document.getElementById("regName").value.trim();
+    const phone = document.getElementById("regPhone").value.trim();
+    if(!name || !phone){ alert("Name aur Phone number bhi bharo."); return; }
+
+    try {
+      const res = await auth.createUserWithEmailAndPassword(email, pass);
+      await db.collection("deliveryPartners").doc(res.user.uid).set({
+        name: name,
+        phone: phone,
+        email: email,
+        role: "deliveryPartner",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert("✅ Account ban gaya hai! Aap ab login hain.");
+    } catch(err) {
+      alert("Registration Failed: " + err.message);
+    }
+  } else {
+    auth.signInWithEmailAndPassword(email, pass).catch(err=>alert("Login Failed: "+err.message));
+  }
+}
+
 function logout(){closeScanner();auth.signOut()}
 
 function switchTab(tab){
