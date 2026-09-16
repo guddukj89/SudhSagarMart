@@ -3,57 +3,153 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sudhsagar Mart - Runsheet & Route Optimization</title>
+  <title>Sudhsagar Mart - Delivery Master Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { background-color: #f4f6f9; padding: 15px; color: #333; }
+    body { background-color: #f4f6f9; padding: 12px; color: #333; }
     
-    .header { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 15px; }
-    .brand { font-size: 16px; font-weight: bold; color: #2c3e50; }
-    
-    .runsheet-card { background: #007bff; color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
-    .runsheet-card h3 { font-size: 16px; margin-bottom: 5px; }
-    .runsheet-card p { font-size: 13px; opacity: 0.9; }
+    /* Top Bar */
+    .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 12px; }
+    .brand { font-size: 15px; font-weight: bold; color: #2c3e50; }
+    .status-btn { padding: 6px 12px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 11px; }
+    .online { background: #28a745; color: white; }
+    .offline { background: #dc3545; color: white; }
 
-    .route-btn { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    
-    .order-card { background: #fff; border-radius: 10px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 5px solid #007bff; position: relative; }
-    .seq-number { position: absolute; right: 15px; top: 15px; background: #e3f2fd; color: #0d47a1; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; }
-    
-    .info-row { font-size: 13px; margin-bottom: 6px; color: #555; }
-    .btn-action { width: 100%; padding: 10px; border: none; border-radius: 6px; background-color: #007bff; color: white; font-weight: bold; cursor: pointer; font-size: 13px; margin-top: 8px; }
+    /* Stats Grid */
+    .stats-card { display: flex; gap: 8px; margin-bottom: 12px; }
+    .stat-box { flex: 1; background: #fff; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .stat-box small { font-size: 10px; color: #777; text-transform: uppercase; font-weight: bold; }
+    .stat-box h3 { margin-top: 4px; color: #007bff; font-size: 16px; }
+
+    /* Global Navigation Tabs */
+    .tab-bar { display: flex; overflow-x: auto; gap: 6px; margin-bottom: 12px; padding-bottom: 4px; }
+    .tab-btn { padding: 8px 12px; border: none; border-radius: 6px; background: #e9ecef; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap; color: #495057; }
+    .tab-btn.active { background: #007bff; color: white; }
+
+    /* Tab Content Panels */
+    .panel { display: none; }
+    .panel.active-panel { display: block; }
+
+    /* Cards Styling */
+    .card { background: #fff; border-radius: 8px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-left: 4px solid #007bff; position: relative; }
+    .seq-badge { position: absolute; right: 12px; top: 12px; background: #e3f2fd; color: #0d47a1; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
+    .info { font-size: 12px; margin-bottom: 5px; color: #444; }
+
+    /* Action Elements */
+    .btn { width: 100%; padding: 8px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; margin-top: 6px; }
+    .btn-main { background: #007bff; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-warning { background: #ffc107; color: #212529; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-info { background: #17a2b8; color: white; }
+
+    .input-box, .select-box { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; margin-top: 5px; font-size: 12px; }
+    .box-container { background: #f8f9fa; border: 1px dashed #ced4da; padding: 10px; border-radius: 6px; margin-top: 8px; }
+    .qr-box { text-align: center; display: none; margin-top: 8px; }
+    .qr-box img { width: 150px; height: 150px; }
   </style>
 </head>
 <body>
 
+  <!-- Top Bar Header -->
   <div class="header">
-    <div class="brand">Sudhsagar Mart Delivery Partner</div>
-    <small id="partner-email">Loading...</small>
+    <div>
+      <div class="brand">Sudhsagar Mart Delivery</div>
+      <small id="partner-email" style="font-size: 10px; color: #6c757d;">Loading...</small>
+    </div>
+    <button id="duty-btn" class="status-btn online" onclick="toggleDuty()">ONLINE</button>
   </div>
 
-  <!-- Active Runsheet Banner -->
-  <div class="runsheet-card">
-    <h3 id="runsheet-id">Runsheet: Loading...</h3>
-    <p id="total-assigned">Total Assigned Orders: 0</p>
+  <!-- Realtime Stats Tracker -->
+  <div class="stats-card">
+    <div class="stat-box">
+      <small>Orders Today</small>
+      <h3 id="stat-orders">0</h3>
+    </div>
+    <div class="stat-box">
+      <small>Earnings Today</small>
+      <h3 id="stat-earnings">₹0</h3>
+    </div>
+    <div class="stat-box">
+      <small>COD Cash</small>
+      <h3 id="stat-cod">₹0</h3>
+    </div>
   </div>
 
-  <!-- Route Optimization Trigger Button -->
-  <button class="route-btn" onclick="openOptimizedRoute()">
-    📍 Start Optimized Route Navigation
-  </button>
-
-  <h4 style="margin-bottom: 10px; color: #555;">Optimized Sequence List</h4>
-  <div id="orders-container">
-    <p style="text-align: center; color: #777;">Runsheet check ho rahi hai...</p>
+  <!-- Scrollable Module Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('runsheet-panel', this)">Runsheet & Route</button>
+    <button class="tab-btn" onclick="switchTab('qc-panel', this)">Open Box & QC</button>
+    <button class="tab-btn" onclick="switchTab('undelivered-panel', this)">Failed Attempts</button>
+    <button class="tab-btn" onclick="switchTab('attendance-panel', this)">Attendance & Bonus</button>
+    <button class="tab-btn" onclick="switchTab('support-panel', this)">Helpdesk & Settings</button>
   </div>
 
+  <!-- MODULE 1: RUNSHEET & ROUTE OPTIMIZATION + PAYMENTS & OTP -->
+  <div id="runsheet-panel" class="panel active-panel">
+    <button class="btn btn-success" style="margin-bottom: 12px;" onclick="openOptimizedRoute()">
+      📍 Launch Multi-Stop Optimized Navigation
+    </button>
+    <div id="runsheet-list"><p style="text-align:center; color:#777; font-size:12px;">Runsheet loading...</p></div>
+  </div>
+
+  <!-- MODULE 2: REVERSE LOGISTICS & OPEN BOX QC -->
+  <div id="qc-panel" class="panel">
+    <h5 style="margin-bottom: 10px; font-size: 13px;">Open Box Delivery & Pickup Quality Checks</h5>
+    <div id="qc-list"><p style="text-align:center; color:#777; font-size:12px;">Checking tasks...</p></div>
+  </div>
+
+  <!-- MODULE 3: UNDELIVERED & RE-ATTEMPT REASON HANDLING -->
+  <div id="undelivered-panel" class="panel">
+    <h5 style="margin-bottom: 10px; font-size: 13px;">Failed Delivery Reporting</h5>
+    <div id="failed-list"><p style="text-align:center; color:#777; font-size:12px;">No orders for failure reporting.</p></div>
+  </div>
+
+  <!-- MODULE 4: ATTENDANCE, PUNCH-IN & DAILY INCENTIVE -->
+  <div id="attendance-panel" class="panel">
+    <div class="card" style="border-left-color: #28a745;">
+      <h5 style="margin-bottom: 8px;">Daily Attendance Check-In</h5>
+      <p id="punch-status" class="info">Status: Not Checked-In Today</p>
+      <button class="btn btn-main" onclick="punchIn()">📍 Punch-In Current Location</button>
+    </div>
+
+    <div class="card" style="border-left-color: #17a2b8;">
+      <h5 style="margin-bottom: 8px;">Daily Incentive Progress</h5>
+      <p class="info">Target: Complete 15 Orders to Get ₹100 Bonus</p>
+      <div style="background: #e9ecef; height: 12px; border-radius: 6px; overflow: hidden; margin: 8px 0;">
+        <div id="incentive-bar" style="background: #17a2b8; width: 0%; height: 100%;"></div>
+      </div>
+      <p id="incentive-text" class="info" style="text-align: right;">0 / 15 Completed</p>
+    </div>
+  </div>
+
+  <!-- MODULE 5: HELPDESK, PRIVACY & CHANGE PASSWORD -->
+  <div id="support-panel" class="panel">
+    <div class="card" style="border-left-color: #dc3545;">
+      <h5 style="margin-bottom: 8px;">Emergency Delivery Support</h5>
+      <button class="btn btn-info" onclick="window.location.href='tel:+919800000000'">📞 Call Admin Hotline</button>
+    </div>
+
+    <div class="card" style="border-left-color: #ffc107;">
+      <h5 style="margin-bottom: 8px;">Account Security</h5>
+      <input type="password" id="new-password" class="input-box" placeholder="Enter New Password">
+      <button class="btn btn-warning" onclick="changePassword()">🔒 Change Password</button>
+    </div>
+
+    <div class="card" style="border-left-color: #6c757d;">
+      <h5 style="margin-bottom: 8px;">Policies & Agreements</h5>
+      <p class="info"><a href="#" style="color:#007bff;">Privacy Policy</a> | <a href="#" style="color:#007bff;">Terms of Service</a></p>
+    </div>
+  </div>
+
+  <!-- Firebase Integration Block -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE",
+      apiKey: "YOUR_REAL_FIREBASE_API_KEY_HERE", // 👈 Apni Firebase API Key yahan replace karein
       authDomain: "sudhsagarmart.firebaseapp.com",
       projectId: "sudhsagarmart",
       storageBucket: "sudhsagarmart.firebasestorage.app",
@@ -65,107 +161,263 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let activeOrders = [];
+    let currentUserId = null;
+    let activeOrdersList = [];
+    let isOnline = true;
 
+    // Authentication Guard
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        currentUserId = user.uid;
         document.getElementById('partner-email').innerText = user.email;
-        loadRunsheetData(user.uid);
+        loadMasterData(user.uid);
       } else {
         window.location.href = "/login.html";
       }
     });
 
-    // Fetch Active Runsheet & Sequence
-    function loadRunsheetData(partnerId) {
+    // Global Duty Toggle
+    window.toggleDuty = () => {
+      const btn = document.getElementById('duty-btn');
+      isOnline = !isOnline;
+      btn.innerText = isOnline ? "ONLINE" : "OFFLINE";
+      btn.className = `status-btn ${isOnline ? 'online' : 'offline'}`;
+    };
+
+    // Tab Navigation Switcher
+    window.switchTab = (panelId, element) => {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active-panel'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active-panel');
+      element.classList.add('active');
+    };
+
+    // Load Master Data Stream
+    function loadMasterData(partnerId) {
       const q = query(
         collection(db, "orders"),
-        where("deliveryBoyId", "==", partnerId),
-        where("orderStatus", "in", ["Assigned", "Picked Up", "Out for Delivery"])
+        where("deliveryBoyId", "==", partnerId)
       );
 
       onSnapshot(q, (snapshot) => {
-        const container = document.getElementById('orders-container');
-        container.innerHTML = "";
-        activeOrders = [];
+        const runsheetList = document.getElementById('runsheet-list');
+        const qcList = document.getElementById('qc-list');
+        const failedList = document.getElementById('failed-list');
 
-        if (snapshot.empty) {
-          container.innerHTML = "<p style='text-align:center; color:#777;'>Koi active runsheet order nahi hai.</p>";
-          document.getElementById('runsheet-id').innerText = "Runsheet: Not Assigned";
-          document.getElementById('total-assigned').innerText = "Total Assigned Orders: 0";
+        runsheetList.innerHTML = "";
+        qcList.innerHTML = "";
+        failedList.innerHTML = "";
+
+        activeOrdersList = [];
+        let completedToday = 0;
+        let totalEarningsToday = 0;
+        let totalCodCollected = 0;
+
+        let seq = 1;
+
+        snapshot.forEach((docSnap) => {
+          const order = docSnap.data();
+          order.id = docSnap.id;
+
+          if (order.orderStatus === "Delivered") {
+            completedToday++;
+            totalEarningsToday += (order.deliveryFee || 40);
+            if (order.paymentMethod === "COD") {
+              totalCodCollected += (order.totalAmount || 0);
+            }
+          } else {
+            order.sequence = order.routeSequence || seq;
+            activeOrdersList.push(order);
+            seq++;
+          }
+        });
+
+        // Sort sequence
+        activeOrdersList.sort((a,b) => a.sequence - b.sequence);
+
+        // Update Stats Bar
+        document.getElementById('stat-orders').innerText = completedToday;
+        document.getElementById('stat-earnings').innerText = `₹${totalEarningsToday}`;
+        document.getElementById('stat-cod').innerText = `₹${totalCodCollected}`;
+
+        // Incentive Progress Bar Update
+        const progress = Math.min((completedToday / 15) * 100, 100);
+        document.getElementById('incentive-bar').style.width = `${progress}%`;
+        document.getElementById('incentive-text').innerText = `${completedToday} / 15 Completed`;
+
+        if (activeOrdersList.length === 0) {
+          runsheetList.innerHTML = "<p style='text-align:center; color:#777; font-size:12px;'>Koi pending active orders nahi hain.</p>";
+          qcList.innerHTML = "<p style='text-align:center; color:#777; font-size:12px;'>No active open-box delivery pending.</p>";
+          failedList.innerHTML = "<p style='text-align:center; color:#777; font-size:12px;'>No pending orders for attempt report.</p>";
           return;
         }
 
-        let seq = 1;
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          data.id = docSnap.id;
-          data.sequence = data.routeSequence || seq;
-          activeOrders.push(data);
-          seq++;
-        });
+        activeOrdersList.forEach((order, index) => {
+          // Render Runsheet Card
+          runsheetList.appendChild(createRunsheetCard(order, index + 1));
+          
+          // Render Open-box & QC Card
+          qcList.appendChild(createQcCard(order));
 
-        // Sequence ke hisab se sort karna
-        activeOrders.sort((a, b) => a.sequence - b.sequence);
-
-        document.getElementById('runsheet-id').innerText = `Runsheet: RS-${new Date().toISOString().slice(0,10).replace(/-/g,"")}`;
-        document.getElementById('total-assigned').innerText = `Total Assigned Orders: ${activeOrders.length}`;
-
-        activeOrders.forEach((order, index) => {
-          const card = document.createElement('div');
-          card.className = 'order-card';
-          card.innerHTML = `
-            <div class="seq-number">#${index + 1}</div>
-            <div class="info-row"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
-            <div class="info-row"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
-            <div class="info-row"><strong>Address:</strong> ${order.address || 'N/A'}</div>
-            <div class="info-row"><strong>Status:</strong> ${order.orderStatus}</div>
-            <button class="btn-action" onclick="updateOrderStatus('${order.id}', '${order.orderStatus}')">
-              ${getNextStatusText(order.orderStatus)}
-            </button>
-          `;
-          container.appendChild(card);
+          // Render Failed Attempt Card
+          failedList.appendChild(createFailedCard(order));
         });
       });
     }
 
-    // Google Maps Optimized Route Generation
-    window.openOptimizedRoute = () => {
-      if (activeOrders.length === 0) {
-        alert("Route banane ke liye koi active order nahi hai!");
-        return;
-      }
+    // Dynamic Card Creators
+    function createRunsheetCard(order, index) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const upiId = "sudhsagarmart@upi";
 
-      const addresses = activeOrders.map(o => encodeURIComponent(o.address));
-      const destination = addresses.pop(); // Aakhri stop
-      const waypoints = addresses.join('|'); // Beech ke stops
+      card.innerHTML = `
+        <div class="seq-badge">#${index}</div>
+        <div class="info"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
+        <div class="info"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
+        <div class="info"><strong>Address:</strong> ${order.address || 'N/A'}</div>
+        <div class="info"><strong>Amount Due:</strong> ₹${order.totalAmount || 0} (${order.paymentMethod || 'COD'})</div>
+        
+        <!-- Payment Module -->
+        <div class="box-container">
+          <small><strong>1. Collect Payment</strong></small>
+          <button class="btn btn-info" onclick="generateQR('${order.id}', ${order.totalAmount || 0}, '${upiId}')">📲 Show Dynamic UPI QR Code</button>
+          <div id="qr-box-${order.id}" class="qr-box">
+            <img id="qr-img-${order.id}" src="" alt="QR">
+            <p style="font-size:10px;">Scan using GPay, PhonePe or Paytm</p>
+          </div>
+        </div>
 
-      let mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
-      if (waypoints) {
-        mapsUrl += `&waypoints=${waypoints}&dir_action=navigate`;
-      }
-
-      window.open(mapsUrl, '_blank');
-    };
-
-    function getNextStatusText(current) {
-      if (current === "Assigned") return "Mark Picked Up";
-      if (current === "Picked Up") return "Mark Out for Delivery";
-      if (current === "Out for Delivery") return "Mark Delivered";
-      return "Completed";
+        <!-- Verification Module -->
+        <div class="box-container">
+          <small><strong>2. OTP Verification</strong></small>
+          <input type="text" id="otp-${order.id}" class="input-box" placeholder="Enter Customer OTP" maxlength="4">
+          <button class="btn btn-success" onclick="verifyDelivery('${order.id}', '${order.deliveryOtp || '1234'}')">✅ Verify OTP & Deliver</button>
+        </div>
+      `;
+      return card;
     }
 
-    window.updateOrderStatus = async (id, current) => {
-      let nextStatus = "Delivered";
-      if (current === "Assigned") nextStatus = "Picked Up";
-      else if (current === "Picked Up") nextStatus = "Out for Delivery";
+    function createQcCard(order) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.borderLeftColor = "#17a2b8";
+      card.innerHTML = `
+        <div class="info"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
+        <div class="info"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
+        <div class="box-container">
+          <small><strong>Open Box Inspection Status</strong></small>
+          <select id="qc-status-${order.id}" class="select-box">
+            <option value="Intact">Item Intact & Verified OK</option>
+            <option value="Damaged">Item Found Damaged in Box</option>
+            <option value="Missing">Item Missing / Wrong Product</option>
+          </select>
+          <button class="btn btn-main" onclick="saveQcStatus('${order.id}')">Submit Inspection Report</button>
+        </div>
+      `;
+      return card;
+    }
 
-      try {
-        await updateDoc(doc(db, "orders", id), { orderStatus: nextStatus });
-        alert("Status Update: " + nextStatus);
-      } catch (e) {
-        alert("Error: " + e.message);
+    function createFailedCard(order) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.borderLeftColor = "#dc3545";
+      card.innerHTML = `
+        <div class="info"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
+        <div class="info"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
+        <div class="box-container">
+          <small><strong>Mark Delivery Failure Reason</strong></small>
+          <select id="reason-${order.id}" class="select-box">
+            <option value="Customer Unavailable">Customer Unavailable / Door Closed</option>
+            <option value="Customer Refused">Customer Refused Parcel</option>
+            <option value="Wrong Address">Wrong Address / Moved</option>
+            <option value="Phone Unreachable">Phone Switched Off / Unreachable</option>
+          </select>
+          <button class="btn btn-danger" onclick="markUndelivered('${order.id}')">Submit Attempt Failure</button>
+        </div>
+      `;
+      return card;
+    }
+
+    // Global Interactive Functions
+    window.openOptimizedRoute = () => {
+      if (activeOrdersList.length === 0) {
+        alert("Naviagte karne ke liye koi active order nahi hai.");
+        return;
       }
+      const stops = activeOrdersList.map(o => encodeURIComponent(o.address));
+      const dest = stops.pop();
+      const waypoints = stops.join('|');
+      let mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+      if (waypoints) mapUrl += `&waypoints=${waypoints}&dir_action=navigate`;
+      window.open(mapUrl, '_blank');
+    };
+
+    window.generateQR = (id, amount, upiId) => {
+      const box = document.getElementById(`qr-box-${id}`);
+      const img = document.getElementById(`qr-img-${id}`);
+      const upiUrl = `upi://pay?pa=${upiId}&pn=SudhsagarMart&am=${amount}&cu=INR`;
+      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
+      box.style.display = "block";
+    };
+
+    window.verifyDelivery = async (id, correctOtp) => {
+      const val = document.getElementById(`otp-${id}`).value;
+      if (val !== correctOtp) {
+        alert("Galat OTP! Kripya customer se sahi OTP lein.");
+        return;
+      }
+      try {
+        await updateDoc(doc(db, "orders", id), {
+          orderStatus: "Delivered",
+          paymentStatus: "Paid",
+          deliveredAt: new Date()
+        });
+        alert("Order successfully delivered!");
+      } catch (e) { alert(e.message); }
+    };
+
+    window.saveQcStatus = async (id) => {
+      const status = document.getElementById(`qc-status-${id}`).value;
+      try {
+        await updateDoc(doc(db, "orders", id), { openBoxQcStatus: status });
+        alert("Inspection Status Saved: " + status);
+      } catch (e) { alert(e.message); }
+    };
+
+    window.markUndelivered = async (id) => {
+      const reason = document.getElementById(`reason-${id}`).value;
+      try {
+        await updateDoc(doc(db, "orders", id), {
+          orderStatus: "Undelivered Attempt",
+          failedReason: reason,
+          attemptedAt: new Date()
+        });
+        alert("Attempt failure reported: " + reason);
+      } catch (e) { alert(e.message); }
+    };
+
+    window.punchIn = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          document.getElementById('punch-status').innerText = `Status: Checked-In (${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)})`;
+          alert("Daily Attendance Punch-In Successful!");
+        });
+      } else {
+        alert("Geolocation Support is disabled!");
+      }
+    };
+
+    window.changePassword = async () => {
+      const pwd = document.getElementById('new-password').value;
+      if (!pwd || pwd.length < 6) {
+        alert("Password kam se kam 6 characters ka hona chahiye!");
+        return;
+      }
+      try {
+        await updatePassword(auth.currentUser, pwd);
+        alert("Password Updated Successfully!");
+      } catch (e) { alert("Error: " + e.message); }
     };
   </script>
 </body>
