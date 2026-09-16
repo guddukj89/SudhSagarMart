@@ -73,38 +73,62 @@
     </div>
 
     <div id="loginForm" class="auth-form active">
-      <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="seller@example.com"></div>
-      <div class="field"><label>Password</label><input id="loginPassword" type="password" placeholder="Password"></div>
-      <button class="btn" style="width:100%;margin-top:8px" onclick="loginSeller()">Login</button>
-      <div id="loginMsg"></div>
-      <div id="loginOtpBox" style="display:none;margin-top:12px">
 
   <div class="field">
-    <label>Mobile OTP</label>
-    <input id="loginOtp"
-           inputmode="numeric"
-           maxlength="6"
-           placeholder="6 digit OTP">
+    <label>Mobile Number</label>
+    <input
+      id="loginMobile"
+      type="tel"
+      inputmode="numeric"
+      maxlength="10"
+      placeholder="10 digit mobile number"
+    >
   </div>
 
-  <div id="loginRecaptcha"></div>
-
-  <button class="btn"
-          style="width:100%;margin-top:8px"
-          onclick="verifyLoginOtp()">
-    Verify OTP & Open Seller Panel
+  <button
+    class="btn"
+    style="width:100%;margin-top:8px"
+    onclick="sendMobileLoginOtp()"
+  >
+    Send OTP
   </button>
-        
-        <button
-  id="resendLoginOtpBtn"
-  class="btn secondary"
-  style="width:100%;margin-top:8px"
-  onclick="resendSellerLoginOtp()">
-  🔄 Resend OTP
-</button>
+
+  <div id="loginMsg"></div>
+
+  <div id="loginOtpBox" style="display:none;margin-top:12px">
+
+    <div class="field">
+      <label>Mobile OTP</label>
+      <input
+        id="loginOtp"
+        inputmode="numeric"
+        maxlength="6"
+        placeholder="6 digit OTP"
+      >
+    </div>
+
+    <div id="loginRecaptcha"></div>
+
+    <button
+      class="btn"
+      style="width:100%;margin-top:8px"
+      onclick="verifyMobileLoginOtp()"
+    >
+      Verify OTP & Open Seller Panel
+    </button>
+
+    <button
+      id="resendLoginOtpBtn"
+      class="btn secondary"
+      style="width:100%;margin-top:8px"
+      onclick="resendMobileLoginOtp()"
+    >
+      🔄 Resend OTP
+    </button>
+
+  </div>
 
 </div>
-    </div>
 
     <div id="registerForm" class="auth-form">
       <div class="field"><label>Owner name</label><input id="regOwner" placeholder="Your name"></div>
