@@ -1227,55 +1227,98 @@ let data = {
 
 async function superAdminLogin(){
 
- const email =
- document.getElementById("loginEmail").value.trim();
+  const email =
+    document.getElementById("loginEmail").value.trim();
 
- const password =
- document.getElementById("loginPassword").value;
+  const password =
+    document.getElementById("loginPassword").value;
 
- const msg =
- document.getElementById("loginMsg");
+  const msg =
+    document.getElementById("loginMsg");
 
- if(!email || !password){
+  if(!email || !password){
 
-   msg.innerText =
-   "Email और password डालें";
+    msg.innerText =
+      "Email और password डालें";
 
-   return;
+    return;
+  }
 
- }
+  try{
 
- try{
+    msg.innerText =
+      "Super Admin verify हो रहा है...";
 
-   msg.innerText =
-   "Super Admin login हो रहा है...";
+    const credential =
+      await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
 
-   await auth.signInWithEmailAndPassword(
-     email,
-     password
-   );
+    const user = credential.user;
 
-   document.getElementById(
-     "loginPage"
-   ).style.display="none";
+    /*
+     * FIRESTORE SUPER ADMIN CHECK
+     * Document ID = Firebase Auth UID
+     */
 
-   document.getElementById(
-     "app"
-   ).style.display="block";
+    const adminDoc =
+      await db
+        .collection("superadmin")
+        .doc(user.uid)
+        .get();
 
-   startSuperAdmin();
+    if(!adminDoc.exists){
 
- }catch(error){
+      await auth.signOut();
 
-   console.error(error);
+      msg.innerText =
+        "Access denied: Super Admin account नहीं मिला।";
 
-   msg.innerText =
-   "Login failed: " + error.message;
+      return;
+    }
 
- }
+    const adminData =
+      adminDoc.data();
 
+    if(
+      adminData.role !== "superadmin" ||
+      adminData.active !== true
+    ){
+
+      await auth.signOut();
+
+      msg.innerText =
+        "Access denied: Super Admin permission नहीं है।";
+
+      return;
+    }
+
+    /*
+     * VERIFIED SUPER ADMIN
+     */
+
+    msg.innerText =
+      "Super Admin verified successfully.";
+
+    document.getElementById(
+      "loginPage"
+    ).style.display = "none";
+
+    document.getElementById(
+      "app"
+    ).style.display = "block";
+
+    startSuperAdmin();
+
+  }catch(error){
+
+    console.error(error);
+
+    msg.innerText =
+      "Login failed: " + error.message;
+  }
 }
-
 
 /* AUTH CHECK */
 
