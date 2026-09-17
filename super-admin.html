@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sudh Sagar Mart - Super Admin</title>
+
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f4f6f9;
+  color:#222;
+}
+
+button,input,select,textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+  border:0;
+}
+
+.topbar{
+  height:62px;
+  background:#111827;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+
+.brand{
+  font-size:19px;
+  font-weight:700;
+}
+
+.logout{
+  background:#fff;
+  color:#111827;
+  padding:9px 15px;
+  border-radius:6px;
+  font-weight:700;
+}
+
+.layout{
+  display:flex;
+  min-height:calc(100vh - 62px);
+}
+
+.sidebar{
+  width:235px;
+  background:#17202b;
+  color:#fff;
+  padding:15px 9px;
+  flex-shrink:0;
+}
+
+.navbtn{
+  width:100%;
+  text-align:left;
+  background:transparent;
+  color:#fff;
+  padding:12px;
+  border-radius:7px;
+  margin:2px 0;
+}
+
+.navbtn:hover,
+.navbtn.active{
+  background:#0878e8;
+}
+
+.main{
+  flex:1;
+  padding:20px;
+  min-width:0;
+}
+
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
+
+h1{
+  font-size:25px;
+  margin:0 0 18px;
+}
+
+h2{
+  font-size:18px;
+  margin:0 0 14px;
+}
+
+.card,
+.stat{
+  background:#fff;
+  border-radius:10px;
+  padding:16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
+  margin-bottom:18px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.stat small{
+  display:block;
+  color:#666;
+  margin-bottom:8px;
+}
+
+.stat strong{
+  font-size:22px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:10px;
+  border:1px solid #d8dde3;
+  border-radius:6px;
+  background:#fff;
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.primary{
+  background:#0878e8;
+  color:#fff;
+  padding:10px 15px;
+  border-radius:6px;
+}
+
+.secondary{
+  background:#eef2f6;
+  color:#222;
+  padding:10px 15px;
+  border-radius:6px;
+}
+
+.danger{
+  background:#dc3545;
+  color:#fff;
+  padding:8px 11px;
+  border-radius:5px;
+}
+
+.success{
+  background:#18a957;
+  color:#fff;
+  padding:8px 11px;
+  border-radius:5px;
+}
+
+.warn{
+  background:#f0ad00;
+  color:#fff;
+  padding:8px 11px;
+  border-radius:5px;
+}
+
+.actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.tablewrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:850px;
+}
+
+th,
+td{
+  padding:10px;
+  border-bottom:1px solid #e7e9ec;
+  text-align:left;
+  font-size:14px;
+  vertical-align:top;
+}
+
+th{
+  background:#f7f8fa;
+}
+
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:20px;
+  font-size:12px;
+  background:#e8f7ed;
+  color:#168646;
+}
+
+.badge.off{
+  background:#fde9e9;
+  color:#b42318;
+}
+
+.badge.wait{
+  background:#fff3cd;
+  color:#856404;
+}
+
+.notice{
+  padding:12px;
+  border-radius:7px;
+  background:#fff3cd;
+  color:#664d03;
+  margin-bottom:15px;
+}
+
+.login{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#111827;
+}
+
+.loginbox{
+  width:min(420px,92%);
+  background:#fff;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 10px 35px rgba(0,0,0,.25);
+}
+
+.loginbox h1{
+  text-align:center;
+  color:#111827;
+}
+
+.loginbox input{
+  margin:7px 0;
+}
+
+.loginbox button{
+  width:100%;
+  margin-top:8px;
+}
+
+.rolebox{
+  background:#e8f1ff;
+  color:#0754a6;
+  padding:10px;
+  border-radius:7px;
+  margin:12px 0;
+  text-align:center;
+  font-weight:700;
+}
+
+@media(max-width:850px){
+
+  .sidebar{
+    width:180px;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:600px){
+
+  .layout{
+    display:block;
+  }
+
+  .sidebar{
+    width:100%;
+    display:flex;
+    overflow:auto;
+    gap:4px;
+  }
+
+  .navbtn{
+    min-width:max-content;
+    width:auto;
+  }
+
+  .main{
+    padding:12px;
+  }
+
+  .stats,
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="loginPage" class="login">
+
+  <div class="loginbox">
+
+    <h1>👑 Sudh Sagar Mart</h1>
+
+    <p style="text-align:center">
+      Super Admin Control Panel
+    </p>
+
+    <div class="rolebox">
+      🔐 SUPER ADMIN / OWNER
+    </div>
+
+    <input
+      id="loginEmail"
+      type="email"
+      placeholder="Super Admin Email"
+    >
+
+    <input
+      id="loginPassword"
+      type="password"
+      placeholder="Password"
+    >
+
+    <button
+      class="primary"
+      onclick="superAdminLogin()"
+    >
+      Login
+    </button>
+
+    <p
+      id="loginMsg"
+      style="text-align:center;color:#c00"
+    ></p>
+
+  </div>
+
+</div>
+
+
+<!-- APP -->
+
+<div id="app" style="display:none">
+
+<div class="topbar">
+
+  <div class="brand">
+    👑 <span id="storeTitle">
+      Sudh Sagar Mart
+    </span>
+    - Super Admin
+  </div>
+
+  <button
+    class="logout"
+    onclick="logout()"
+  >
+    Logout
+  </button>
+
+</div>
+
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+<button
+  class="navbtn active"
+  onclick="showSection('dashboard',this)"
+>
+📊 Dashboard
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('staff',this)"
+>
+👨‍💼 Staff / Admin
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('sellers',this)"
+>
+🏪 Sellers
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('products',this)"
+>
+📦 Products
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('orders',this)"
+>
+🛒 Orders
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('customers',this)"
+>
+👥 Customers
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('payments',this)"
+>
+💰 Payments
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('refunds',this)"
+>
+💸 Refund Control
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('complaints',this)"
+>
+📩 Complaints
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('delivery',this)"
+>
+🚚 Delivery
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('activity',this)"
+>
+📝 Activity Log
+</button>
+
+<button
+  class="navbtn"
+  onclick="showSection('settings',this)"
+>
+⚙️ Settings
+</button>
+
+</aside>
+
+
+<!-- MAIN -->
+
+<main class="main">
+
+
+<!-- DASHBOARD -->
+
+<section
+  id="dashboard"
+  class="section active"
+>
+
+<h1>Super Admin Dashboard</h1>
+
+<div class="stats">
+
+<div class="stat">
+<small>Total Orders</small>
+<strong id="totalOrders">0</strong>
+</div>
+
+<div class="stat">
+<small>Total Sellers</small>
+<strong id="totalSellers">0</strong>
+</div>
+
+<div class="stat">
+<small>Total Customers</small>
+<strong id="totalCustomers">0</strong>
+</div>
+
+<div class="stat">
+<small>Total Products</small>
+<strong id="totalProducts">0</strong>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>👑 Owner Control</h2>
+
+<p>
+Super Admin के पास पूरे Sudh Sagar Mart का
+final control रहेगा।
+</p>
+
+<div class="notice">
+
+⚠️ Refund, payment, seller suspension,
+staff permissions और sensitive actions को
+बाद में secure Cloud Functions के माध्यम से
+server-side protect किया जाएगा।
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- STAFF -->
+
+<section
+  id="staff"
+  class="section"
+>
+
+<h1>👨‍💼 Staff / Admin Management</h1>
+
+<div class="card">
+
+<h2>Create Staff Role</h2>
+
+<div class="grid">
+
+<input
+  id="staffName"
+  placeholder="Staff Name"
+>
+
+<input
+  id="staffEmail"
+  placeholder="Staff Email"
+>
+
+<select id="staffRole">
+
+<option value="customer_support">
+Customer Support
+</option>
+
+<option value="seller_support">
+Seller Support
+</option>
+
+<option value="order_manager">
+Order Manager
+</option>
+
+<option value="delivery_manager">
+Delivery Manager
+</option>
+
+<option value="complaint_manager">
+Complaint Manager
+</option>
+
+</select>
+
+<select id="staffStatus">
+
+<option value="active">
+Active
+</option>
+
+<option value="disabled">
+Disabled
+</option>
+
+</select>
+
+</div>
+
+<br>
+
+<button
+  class="primary"
+  onclick="saveStaff()"
+>
+Create Staff
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>Staff List</h2>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="staffTable">
+
+<tr>
+<td colspan="5">
+No staff records
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- SELLERS -->
+
+<section
+  id="sellers"
+  class="section"
+>
+
+<h1>🏪 Seller Control</h1>
+
+<div class="card">
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Seller</th>
+<th>Shop</th>
+<th>Phone</th>
+<th>KYC</th>
+<th>Account</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="sellerTable">
+
+<tr>
+<td colspan="6">
+Loading...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PRODUCTS -->
+
+<section
+  id="products"
+  class="section"
+>
+
+<h1>📦 Product Control</h1>
+
+<div class="card">
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Product</th>
+<th>Seller</th>
+<th>Price</th>
+<th>Stock</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="productTable">
+
+<tr>
+<td colspan="6">
+Loading...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ORDERS -->
+
+<section
+  id="orders"
+  class="section"
+>
+
+<h1>🛒 Order Control</h1>
+
+<div class="card">
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Order</th>
+<th>Customer</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Payment</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="orderTable">
+
+<tr>
+<td colspan="6">
+Loading...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- CUSTOMERS -->
+
+<section
+  id="customers"
+  class="section"
+>
+
+<h1>👥 Customer Control</h1>
+
+<div class="card">
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Phone</th>
+<th>Email</th>
+<th>Orders</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="customerTable">
+
+<tr>
+<td colspan="5">
+Loading...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PAYMENTS -->
+
+<section
+  id="payments"
+  class="section"
+>
+
+<h1>💰 Payment Control</h1>
+
+<div class="card">
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Order</th>
+<th>Customer</th>
+<th>Amount</th>
+<th>Method</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="paymentTable">
+
+<tr>
+<td colspan="6">
+Loading...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- REFUNDS -->
+
+<section
+  id="refunds"
+  class="section"
+>
+
+<h1>💸 Refund Control</h1>
+
+<div class="card">
+
+<div class="notice">
+
+🔐 केवल Super Admin final refund approval करेगा।
+
+Staff केवल refund request देख/handle कर सकेगा।
+
+</div>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Order</th>
+<th>Customer</th>
+<th>Amount</th>
+<th>Reason</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="refundTable">
+
+<tr>
+<td colspan="6">
+No refund requests
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- COMPLAINTS -->
+
+<section
+  id="complaints"
+  class="section"
+>
+
+<h1>📩 Complaint & Helpdesk Control</h1>
+
+<div class="card">
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Ticket</th>
+<th>Customer/Seller</th>
+<th>Reason</th>
+<th>Order</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="complaintTable">
+
+<tr>
+<td colspan="6">
+Loading...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- DELIVERY -->
+
+<section
+  id="delivery"
+  class="section"
+>
+
+<h1>🚚 Delivery Control</h1>
+
+<div class="card">
+
+<div class="notice">
+Delivery partners और delivery status का
+central control यहाँ रहेगा।
+</div>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Order</th>
+<th>Customer</th>
+<th>Delivery Partner</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="deliveryTable">
+
+<tr>
+<td colspan="5">
+No delivery records
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ACTIVITY -->
+
+<section
+  id="activity"
+  class="section"
+>
+
+<h1>📝 Activity Log</h1>
+
+<div class="card">
+
+<div class="notice">
+
+हर important admin/staff action का
+record यहाँ रखा जाएगा।
+
+</div>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Time</th>
+<th>User</th>
+<th>Role</th>
+<th>Action</th>
+<th>Target</th>
+</tr>
+
+</thead>
+
+<tbody id="activityTable">
+
+<tr>
+<td colspan="5">
+No activity
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- SETTINGS -->
+
+<section
+  id="settings"
+  class="section"
+>
+
+<h1>⚙️ Super Admin Settings</h1>
+
+<div class="card">
+
+<h2>Store Settings</h2>
+
+<div class="grid">
+
+<input
+  id="storeName"
+  placeholder="Store Name"
+>
+
+<input
+  id="storePhone"
+  placeholder="Store Phone"
+>
+
+<input
+  id="storeEmail"
+  placeholder="Store Email"
+>
+
+<input
+  id="commission"
+  type="number"
+  placeholder="Commission %"
+>
+
+<textarea
+  id="storeAddress"
+  class="full"
+  placeholder="Store Address"
+></textarea>
+
+</div>
+
+<br>
+
+<button
+  class="primary"
+  onclick="saveSettings()"
+>
+Save Settings
+</button>
+
+</div>
+
+</section>
+
+
+</main>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* FIREBASE */
+
+const firebaseConfig = {
+
+ apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+
+ authDomain:"sudhsagarmart.firebaseapp.com",
+
+ projectId:"sudhsagarmart",
+
+ storageBucket:"sudhsagarmart.firebasestorage.app",
+
+ messagingSenderId:"682379938859",
+
+ appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e",
+
+ measurementId:"G-VZY41YWFXP"
+
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+
+const auth = firebase.auth();
+
+
+/* DATA */
+
+let data = {
+
+ staff:[],
+ sellers:[],
+ products:[],
+ orders:[],
+ customers:[],
+ payments:[],
+ refunds:[],
+ complaints:[],
+ delivery:[],
+ activity:[]
+
+};
+
+
+/* LOGIN */
+
+async function superAdminLogin(){
+
+ const email =
+ document.getElementById("loginEmail").value.trim();
+
+ const password =
+ document.getElementById("loginPassword").value;
+
+ const msg =
+ document.getElementById("loginMsg");
+
+ if(!email || !password){
+
+   msg.innerText =
+   "Email और password डालें";
+
+   return;
+
+ }
+
+ try{
+
+   msg.innerText =
+   "Super Admin login हो रहा है...";
+
+   await auth.signInWithEmailAndPassword(
+     email,
+     password
+   );
+
+   document.getElementById(
+     "loginPage"
+   ).style.display="none";
+
+   document.getElementById(
+     "app"
+   ).style.display="block";
+
+   startSuperAdmin();
+
+ }catch(error){
+
+   console.error(error);
+
+   msg.innerText =
+   "Login failed: " + error.message;
+
+ }
+
+}
+
+
+/* AUTH CHECK */
+
+auth.onAuthStateChanged(async user=>{
+
+ if(!user){
+
+   document.getElementById(
+     "loginPage"
+   ).style.display="flex";
+
+   document.getElementById(
+     "app"
+   ).style.display="none";
+
+   return;
+
+ }
+
+});
+
+
+/* START */
+
+function startSuperAdmin(){
+
+ loadCollection("staff");
+ loadCollection("sellers");
+ loadCollection("products");
+ loadCollection("orders");
+ loadCollection("customers");
+ loadCollection("payments");
+ loadCollection("refunds");
+ loadCollection("complaints");
+ loadCollection("delivery");
+ loadCollection("activity");
+
+ loadSettings();
+
+}
+
+
+/* FIRESTORE LOAD */
+
+function loadCollection(name){
+
+ db.collection(name).onSnapshot(
+
+   snap=>{
+
+     data[name] =
+     snap.docs.map(
+       d=>({
+         id:d.id,
+         ...d.data()
+       })
+     );
+
+     renderAll();
+
+   },
+
+   error=>{
+
+     console.error(
+       name,
+       error
+     );
+
+   }
+
+ );
+
+}
+
+
+/* RENDER ALL */
+
+function renderAll(){
+
+ renderDashboard();
+ renderStaff();
+ renderSellers();
+ renderProducts();
+ renderOrders();
+ renderCustomers();
+ renderPayments();
+ renderRefunds();
+ renderComplaints();
+ renderDelivery();
+ renderActivity();
+
+}
+
+
+/* DASHBOARD */
+
+function renderDashboard(){
+
+ document.getElementById(
+   "totalOrders"
+ ).textContent =
+ data.orders.length;
+
+ document.getElementById(
+   "totalSellers"
+ ).textContent =
+ data.sellers.length;
+
+ document.getElementById(
+   "totalCustomers"
+ ).textContent =
+ data.customers.length;
+
+ document.getElementById(
+   "totalProducts"
+ ).textContent =
+ data.products.length;
+
+}
+
+
+/* STAFF */
+
+function renderStaff(){
+
+ const box =
+ document.getElementById(
+   "staffTable"
+ );
+
+ if(!data.staff.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="5">
+        No staff records
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.staff.map(s=>`
+
+ <tr>
+
+ <td>${esc(s.name)}</td>
+
+ <td>${esc(s.email)}</td>
+
+ <td>${esc(s.role)}</td>
+
+ <td>
+ <span class="badge">
+ ${esc(s.status||"active")}
+ </span>
+ </td>
+
+ <td class="actions">
+
+ <button
+ class="danger"
+ onclick="disableStaff('${s.id}')"
+ >
+ Disable
+ </button>
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* SELLERS */
+
+function renderSellers(){
+
+ const box =
+ document.getElementById(
+   "sellerTable"
+ );
+
+ if(!data.sellers.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="6">
+        No sellers
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.sellers.map(s=>`
+
+ <tr>
+
+ <td>${esc(s.name||"")}</td>
+
+ <td>${esc(s.shopName||"")}</td>
+
+ <td>${esc(s.mobile||"")}</td>
+
+ <td>${esc(s.kycStatus||"pending")}</td>
+
+ <td>${esc(s.accountStatus||"active")}</td>
+
+ <td class="actions">
+
+ <button
+ class="success"
+ onclick="sellerAction('${s.id}','approved')"
+ >
+ Approve
+ </button>
+
+ <button
+ class="danger"
+ onclick="sellerAction('${s.id}','suspended')"
+ >
+ Suspend
+ </button>
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* PRODUCTS */
+
+function renderProducts(){
+
+ const box =
+ document.getElementById(
+   "productTable"
+ );
+
+ if(!data.products.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="6">
+        No products
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.products.map(p=>`
+
+ <tr>
+
+ <td>
+ ${esc(p.productName||p.name||"")}
+ </td>
+
+ <td>
+ ${esc(p.sellerName||p.seller||"")}
+ </td>
+
+ <td>
+ ₹${Number(p.price||0)}
+ </td>
+
+ <td>
+ ${esc(p.stock||0)}
+ </td>
+
+ <td>
+ ${esc(p.status||"pending")}
+ </td>
+
+ <td class="actions">
+
+ <button
+ class="success"
+ onclick="productAction('${p.id}','approved')"
+ >
+ Approve
+ </button>
+
+ <button
+ class="danger"
+ onclick="productAction('${p.id}','rejected')"
+ >
+ Reject
+ </button>
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* ORDERS */
+
+function renderOrders(){
+
+ const box =
+ document.getElementById(
+   "orderTable"
+ );
+
+ if(!data.orders.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="6">
+        No orders
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.orders.map(o=>`
+
+ <tr>
+
+ <td>
+ #${esc(o.orderId||o.id||"")}
+ </td>
+
+ <td>
+ ${esc(o.customerName||o.customer||"")}
+ </td>
+
+ <td>
+ ₹${Number(o.total||o.amount||0)}
+ </td>
+
+ <td>
+ ${esc(o.orderStatus||o.status||"")}
+ </td>
+
+ <td>
+ ${esc(o.payment||o.paymentMethod||"")}
+ </td>
+
+ <td>
+
+ <select
+ onchange="updateOrderStatus('${o.id}',this.value)"
+ >
+
+ <option>Order Placed</option>
+ <option>Order Confirmed</option>
+ <option>Shipped</option>
+ <option>Out for Delivery</option>
+ <option>Delivered</option>
+ <option>Cancelled</option>
+
+ </select>
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* CUSTOMERS */
+
+function renderCustomers(){
+
+ const box =
+ document.getElementById(
+   "customerTable"
+ );
+
+ if(!data.customers.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="5">
+        No customers
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.customers.map(c=>`
+
+ <tr>
+
+ <td>${esc(c.name||c.customerName||"")}</td>
+
+ <td>${esc(c.phone||c.customerMobile||"")}</td>
+
+ <td>${esc(c.email||c.customerEmail||"")}</td>
+
+ <td>—</td>
+
+ <td>
+
+ <button
+ class="secondary"
+ >
+ View
+ </button>
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* PAYMENTS */
+
+function renderPayments(){
+
+ const box =
+ document.getElementById(
+   "paymentTable"
+ );
+
+ if(!data.payments.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="6">
+        No payments
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.payments.map(p=>`
+
+ <tr>
+
+ <td>${esc(p.order||p.orderId||"")}</td>
+
+ <td>${esc(p.customer||p.customerName||"")}</td>
+
+ <td>₹${Number(p.amount||0)}</td>
+
+ <td>${esc(p.method||p.paymentMethod||"")}</td>
+
+ <td>${esc(p.status||p.paymentStatus||"")}</td>
+
+ <td>—</td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* REFUNDS */
+
+function renderRefunds(){
+
+ const box =
+ document.getElementById(
+   "refundTable"
+ );
+
+ if(!data.refunds.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="6">
+        No refund requests
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.refunds.map(r=>`
+
+ <tr>
+
+ <td>${esc(r.orderId||r.order||"")}</td>
+
+ <td>${esc(r.customerName||"")}</td>
+
+ <td>₹${Number(r.amount||0)}</td>
+
+ <td>${esc(r.reason||"")}</td>
+
+ <td>${esc(r.status||"pending")}</td>
+
+ <td class="actions">
+
+ <button
+ class="success"
+ onclick="refundAction('${r.id}','approved')"
+ >
+ Approve
+ </button>
+
+ <button
+ class="danger"
+ onclick="refundAction('${r.id}','rejected')"
+ >
+ Reject
+ </button>
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* COMPLAINTS */
+
+function renderComplaints(){
+
+ const box =
+ document.getElementById(
+   "complaintTable"
+ );
+
+ if(!data.complaints.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="6">
+        No complaints
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.complaints.map(c=>`
+
+ <tr>
+
+ <td>${esc(c.ticketId||c.id||"")}</td>
+
+ <td>${esc(c.customerName||c.sellerName||"")}</td>
+
+ <td>${esc(c.reason||c.subject||"")}</td>
+
+ <td>${esc(c.orderId||"")}</td>
+
+ <td>${esc(c.status||"open")}</td>
+
+ <td>
+
+ <button
+ class="success"
+ onclick="resolveComplaint('${c.id}')"
+ >
+ Resolve
+ </button>
+
+ </td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* DELIVERY */
+
+function renderDelivery(){
+
+ const box =
+ document.getElementById(
+   "deliveryTable"
+ );
+
+ if(!data.delivery.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="5">
+        No delivery records
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.delivery.map(d=>`
+
+ <tr>
+
+ <td>${esc(d.orderId||"")}</td>
+
+ <td>${esc(d.customerName||"")}</td>
+
+ <td>${esc(d.deliveryPartner||"")}</td>
+
+ <td>${esc(d.status||"")}</td>
+
+ <td>—</td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* ACTIVITY */
+
+function renderActivity(){
+
+ const box =
+ document.getElementById(
+   "activityTable"
+ );
+
+ if(!data.activity.length){
+
+   box.innerHTML =
+   `<tr>
+      <td colspan="5">
+        No activity
+      </td>
+    </tr>`;
+
+   return;
+
+ }
+
+ box.innerHTML =
+ data.activity.map(a=>`
+
+ <tr>
+
+ <td>${esc(a.time||"")}</td>
+
+ <td>${esc(a.user||"")}</td>
+
+ <td>${esc(a.role||"")}</td>
+
+ <td>${esc(a.action||"")}</td>
+
+ <td>${esc(a.target||"")}</td>
+
+ </tr>
+
+ `).join("");
+
+}
+
+
+/* SAVE STAFF */
+
+async function saveStaff(){
+
+ const name =
+ document.getElementById(
+   "staffName"
+ ).value.trim();
+
+ const email =
+ document.getElementById(
+   "staffEmail"
+ ).value.trim();
+
+ const role =
+ document.getElementById(
+   "staffRole"
+ ).value;
+
+ const status =
+ document.getElementById(
+   "staffStatus"
+ ).value;
+
+ if(!name || !email){
+
+   alert("Name और email डालें");
+
+   return;
+
+ }
+
+ await db.collection("staff").add({
+
+   name,
+   email,
+   role,
+   status,
+
+   createdAt:
+   firebase.firestore.FieldValue.serverTimestamp()
+
+ });
+
+ alert("Staff record created");
+
+}
+
+
+/* STAFF DISABLE */
+
+async function disableStaff(id){
+
+ if(!confirm(
+   "इस staff को disable करना है?"
+ )) return;
+
+ await db.collection("staff")
+ .doc(id)
+ .update({
+   status:"disabled"
+ });
+
+}
+
+
+/* SELLER ACTION */
+
+async function sellerAction(id,status){
+
+ if(!confirm(
+   "Seller status बदलना है?"
+ )) return;
+
+ await db.collection("sellers")
+ .doc(id)
+ .update({
+
+   accountStatus:status,
+
+   updatedAt:
+   firebase.firestore.FieldValue.serverTimestamp()
+
+ });
+
+}
+
+
+/* PRODUCT ACTION */
+
+async function productAction(id,status){
+
+ await db.collection("products")
+ .doc(id)
+ .update({
+
+   status,
+
+   approved:
+   status==="approved"
+
+ });
+
+}
+
+
+/* ORDER STATUS */
+
+async function updateOrderStatus(id,status){
+
+ await db.collection("orders")
+ .doc(id)
+ .update({
+
+   orderStatus:status,
+
+   updatedAt:
+   firebase.firestore.FieldValue.serverTimestamp()
+
+ });
+
+}
+
+
+/* REFUND ACTION */
+
+async function refundAction(id,status){
+
+ if(!confirm(
+   "Refund request को "+status+" करना है?"
+ )) return;
+
+ await db.collection("refunds")
+ .doc(id)
+ .update({
+
+   status,
+
+   approvedBy:
+   auth.currentUser?.email || "",
+
+   updatedAt:
+   firebase.firestore.FieldValue.serverTimestamp()
+
+ });
+
+}
+
+
+/* COMPLAINT */
+
+async function resolveComplaint(id){
+
+ await db.collection("complaints")
+ .doc(id)
+ .update({
+
+   status:"resolved",
+
+   resolvedBy:
+   auth.currentUser?.email || "",
+
+   resolvedAt:
+   firebase.firestore.FieldValue.serverTimestamp()
+
+ });
+
+}
+
+
+/* SETTINGS */
+
+async function saveSettings(){
+
+ await db.collection("settings")
+ .doc("store")
+ .set({
+
+   storeName:
+   document.getElementById(
+     "storeName"
+   ).value.trim(),
+
+   phone:
+   document.getElementById(
+     "storePhone"
+   ).value.trim(),
+
+   email:
+   document.getElementById(
+     "storeEmail"
+   ).value.trim(),
+
+   commission:
+   Number(
+     document.getElementById(
+       "commission"
+     ).value || 0
+   ),
+
+   address:
+   document.getElementById(
+     "storeAddress"
+   ).value.trim()
+
+ },{merge:true});
+
+ alert("Settings saved");
+
+}
+
+
+/* LOAD SETTINGS */
+
+function loadSettings(){
+
+ db.collection("settings")
+ .doc("store")
+ .get()
+ .then(s=>{
+
+   if(!s.exists) return;
+
+   const x=s.data();
+
+   document.getElementById(
+     "storeName"
+   ).value=x.storeName||"";
+
+   document.getElementById(
+     "storePhone"
+   ).value=x.phone||"";
+
+   document.getElementById(
+     "storeEmail"
+   ).value=x.email||"";
+
+   document.getElementById(
+     "commission"
+   ).value=x.commission||0;
+
+   document.getElementById(
+     "storeAddress"
+   ).value=x.address||"";
+
+ });
+
+}
+
+
+/* NAVIGATION */
+
+function showSection(id,btn){
+
+ document.querySelectorAll(
+   ".section"
+ ).forEach(x=>
+   x.classList.remove("active")
+ );
+
+ document.getElementById(
+   id
+ ).classList.add("active");
+
+ document.querySelectorAll(
+   ".navbtn"
+ ).forEach(x=>
+   x.classList.remove("active")
+ );
+
+ if(btn){
+   btn.classList.add("active");
+ }
+
+}
+
+
+/* LOGOUT */
+
+function logout(){
+
+ auth.signOut();
+
+}
+
+
+/* ESCAPE */
+
+function esc(v){
+
+ return String(v??"")
+ .replace(/[&<>"']/g,m=>({
+
+   "&":"&amp;",
+   "<":"&lt;",
+   ">":"&gt;",
+   '"':"&quot;",
+   "'":"&#39;"
+
+ }[m]));
+
+}
+
+</script>
+
+</body>
+</html>
