@@ -1547,14 +1547,19 @@ if(!q.empty){
         snap = uidSnap;
       }
 
-    }catch(e){
+   }catch(e){
 
-      console.warn(
-        "Seller UID lookup failed:",
-        e
-      );
+    console.error(
+      "Seller UID lookup failed:",
+      e
+    );
 
-    }
+    alert(
+      "Seller Firebase lookup error:\n\n" +
+      (e.message || e)
+    );
+
+}
 
   }
 
