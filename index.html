@@ -2190,10 +2190,12 @@ order.customerUid !== firebase.auth().currentUser.uid
     refundRequestedAt:
         firebase.firestore.FieldValue.serverTimestamp(),
 
-    refundStatus: "pending"
-
+    refundStatus: "pending"       
 });
-
+await requestAutomaticRefund({
+  ...order,
+  orderId: order.orderId || orderId
+});
     alert("Order successfully cancelled.");
 
     showOrders();
