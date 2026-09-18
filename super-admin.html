@@ -1426,7 +1426,7 @@ function renderDashboard(){
  document.getElementById(
    "totalSellers"
  ).textContent =
- data.sellers.length;
+ data.Sellers.length;
 
  document.getElementById(
    "totalCustomers"
@@ -1507,7 +1507,7 @@ function renderSellers(){
    "sellerTable"
  );
 
- if(!data.sellers.length){
+ if(!data.Sellers.length){
 
    box.innerHTML =
    `<tr>
@@ -1521,7 +1521,7 @@ function renderSellers(){
  }
 
  box.innerHTML =
- data.sellers.map(s=>`
+ data.Sellers.map(s=>`
 
  <tr>
 
