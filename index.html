@@ -1379,6 +1379,116 @@ createdAt: firebase.firestore.FieldValue.serverTimestamp(),
 ...paymentData
     });
  }
+    // ======================================================
+// AUTOMATIC ONLINE PAYMENT REFUND
+// ======================================================
+
+async function requestAutomaticRefund(order){
+
+  try{
+
+    const currentUser =
+      firebase.auth().currentUser;
+
+    if(!currentUser){
+      console.error("User not logged in");
+      return;
+    }
+
+    // COD में Razorpay refund नहीं चलेगा
+    const paymentMethod =
+      String(
+        order.paymentMethod ||
+        order.payment ||
+        ""
+      ).toLowerCase();
+
+    if(
+      paymentMethod.includes("cash") ||
+      paymentMethod.includes("cod")
+    ){
+
+      console.log(
+        "COD order: separate customer payout required."
+      );
+
+      return;
+    }
+
+    // Online payment का Razorpay Payment ID
+    const paymentId =
+      order.razorpayPaymentId ||
+      order.razorpay_payment_id ||
+      order.paymentId ||
+      "";
+
+    if(!paymentId){
+
+      console.error(
+        "Razorpay Payment ID not found."
+      );
+
+      return;
+    }
+
+    const token =
+      await currentUser.getIdToken();
+
+    const response =
+      await fetch(
+        "https://asia-south1-sudhsagarmart.cloudfunctions.net/processRazorpayRefund",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+              "Bearer " + token
+          },
+
+          body: JSON.stringify({
+            orderId:
+              order.orderId || order.id,
+
+            paymentId:
+              paymentId
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    console.log(
+      "Automatic refund result:",
+      result
+    );
+
+    if(!response.ok){
+
+      console.error(
+        "Automatic refund failed:",
+        result
+      );
+
+      return;
+    }
+
+    console.log(
+      "Refund initiated successfully:",
+      result.refundId
+    );
+
+  }catch(error){
+
+    console.error(
+      "Automatic refund error:",
+      error
+    );
+
+  }
+
+}
 async function placeOrder(){
   if(!coName.value || !coMobile.value || !coAddress.value){
     return alert("Please fill all delivery details");
