@@ -416,65 +416,122 @@ let loginResendTimer = null;
 let loginResendSeconds = 0;
 async function sendRegisterOtp(){
 
-  const owner=document.getElementById("regOwner").value.trim();
-  const shop=document.getElementById("regShop").value.trim();
-  const mobile=document.getElementById("regMobile").value.trim();
-  const email=document.getElementById("regEmail").value.trim();
-  const password=document.getElementById("regPassword").value;
-  const msg=document.getElementById("regMsg");
+  const owner =
+    document.getElementById("regOwner").value.trim();
 
-  msg.className="error";
-  msg.textContent="";
+  const shop =
+    document.getElementById("regShop").value.trim();
 
-  if(!owner || !shop || !/^[0-9]{10}$/.test(mobile) || !email || password.length<6){
-    msg.textContent="Owner, shop, 10 digit mobile, email aur 6+ character password bhariye.";
+  const mobile =
+    document.getElementById("regMobile").value.trim();
+
+  const email =
+    document.getElementById("regEmail").value.trim();
+
+  const password =
+    document.getElementById("regPassword").value;
+
+  const msg =
+    document.getElementById("regMsg");
+
+  msg.className = "error";
+  msg.textContent = "";
+
+  if(
+    !owner ||
+    !shop ||
+    !/^[0-9]{10}$/.test(mobile) ||
+    !email ||
+    password.length < 6
+  ){
+
+    msg.textContent =
+      "Owner, shop, 10 digit mobile, email aur 6+ character password bhariye.";
+
     return;
   }
 
   try{
 
-    pendingSellerRegistration={
-      owner:owner,
-      shop:shop,
-      mobile:mobile,
-      email:email
+    /*
+     * Registration data temporary save
+     */
+    pendingSellerRegistration = {
+      owner: owner,
+      shop: shop,
+      mobile: mobile,
+      email: email,
+      password: password
     };
 
-    sessionStorage.setItem("sellerRegistrationOtp","1");
-
-    const cred=await auth.createUserWithEmailAndPassword(
-      email,
-      password
+    sessionStorage.setItem(
+      "sellerRegistrationOtp",
+      "1"
     );
 
-    if(!registerRecaptcha){
-      registerRecaptcha=new firebase.auth.RecaptchaVerifier(
-        "registerRecaptcha",
-        {
-          size:"normal"
-        }
-      );
+    /*
+     * Fresh reCAPTCHA
+     */
+    if(registerRecaptcha){
+
+      try{
+        registerRecaptcha.clear();
+      }catch(e){}
+
+      registerRecaptcha = null;
     }
 
-    registerConfirmationResult=
-      await cred.user.linkWithPhoneNumber(
-        "+91"+mobile,
+    const recaptchaBox =
+      document.getElementById("registerRecaptcha");
+
+    if(recaptchaBox){
+      recaptchaBox.innerHTML = "";
+    }
+
+    registerRecaptcha =
+      new firebase.auth.RecaptchaVerifier(
+        "registerRecaptcha",
+        {
+          size: "normal"
+        }
+      );
+
+    /*
+     * MOBILE OTP FIRST
+     *
+     * Email se Firebase account
+     * abhi create nahi hoga.
+     */
+    registerConfirmationResult =
+      await auth.signInWithPhoneNumber(
+        "+91" + mobile,
         registerRecaptcha
       );
 
-    const box=document.getElementById("registerOtpBox");
+    const box =
+      document.getElementById("registerOtpBox");
 
     if(box){
-      box.style.display="block";
+      box.style.display = "block";
     }
 
-    msg.className="success";
-    msg.textContent="📱 OTP aapke mobile par bhej diya gaya hai.";
+    msg.className = "success";
+
+    msg.textContent =
+      "📱 OTP aapke mobile par bhej diya gaya hai. Latest OTP enter karein.";
 
   }catch(e){
 
-    msg.className="error";
-    msg.textContent="OTP send failed: "+e.message;
+    console.error(
+      "Seller Registration OTP Error:",
+      e
+    );
+
+    msg.className = "error";
+
+    msg.textContent =
+      "OTP send failed: " +
+      (e.message || e);
 
   }
 }
@@ -482,80 +539,208 @@ async function sendRegisterOtp(){
 
 async function verifyRegisterOtp(){
 
-  const code=document.getElementById("regOtp").value.trim();
-  const msg=document.getElementById("regMsg");
+  const code =
+    document.getElementById("regOtp").value.trim();
+
+  const msg =
+    document.getElementById("regMsg");
 
   if(!/^[0-9]{6}$/.test(code)){
-    msg.className="error";
-    msg.textContent="6 digit OTP bhariye.";
+
+    msg.className = "error";
+
+    msg.textContent =
+      "6 digit OTP bhariye.";
+
     return;
   }
 
   if(!registerConfirmationResult){
-    msg.className="error";
-    msg.textContent="Pehle OTP send karein.";
+
+    msg.className = "error";
+
+    msg.textContent =
+      "Pehle OTP send karein.";
+
     return;
   }
 
   try{
 
-    await registerConfirmationResult.confirm(code);
+    msg.className = "success";
 
-    const uid=auth.currentUser.uid;
-    const data=pendingSellerRegistration;
+    msg.textContent =
+      "OTP verify ho raha hai...";
 
-    await db.collection("sellers").doc(uid).set({
+    /*
+     * OTP verify
+     */
+    const result =
+      await registerConfirmationResult.confirm(code);
 
-      uid:uid,
-      name:data.owner,
-      ownerName:data.owner,
-      shopName:data.shop,
-      mobile:data.mobile,
-mobileE164:"+91" + String(data.mobile).replace(/\D/g,"").slice(-10),
-      email:data.email,
-      role:"seller",
+    currentUser = result.user;
 
-      kycStatus:"pending",
-      accountStatus:"pending",
+    const data =
+      pendingSellerRegistration;
 
-      sellerOtpVerifiedAt:
-        firebase.firestore.FieldValue.serverTimestamp(),
+    if(!data){
 
-      createdAt:
-        firebase.firestore.FieldValue.serverTimestamp(),
+      throw new Error(
+        "Registration data nahi mila. Dobara registration karein."
+      );
+    }
 
-      updatedAt:
-        firebase.firestore.FieldValue.serverTimestamp()
+    /*
+     * Current UID
+     */
+    const uid =
+      currentUser.uid;
 
-    });
+    /*
+     * Check existing seller
+     */
+    const existingSeller =
+      await db
+        .collection("sellers")
+        .doc(uid)
+        .get();
 
-    sessionStorage.removeItem("sellerRegistrationOtp");
+    if(existingSeller.exists){
 
-    sellerOtpGateOpen=true;
+      const oldData =
+        existingSeller.data() || {};
 
-    msg.className="success";
-    msg.textContent="✅ OTP verified. Seller account create ho gaya.";
+      if(oldData.role === "seller"){
 
-    const box=document.getElementById("registerOtpBox");
+        msg.className = "error";
+
+        msg.textContent =
+          "Ye mobile number already Seller account se registered hai.";
+
+        return;
+      }
+    }
+
+    /*
+     * Seller account create
+     */
+    await db
+      .collection("sellers")
+      .doc(uid)
+      .set({
+
+        uid: uid,
+
+        name: data.owner,
+
+        ownerName: data.owner,
+
+        shopName: data.shop,
+
+        mobile: data.mobile,
+
+        mobileE164:
+          "+91" +
+          String(data.mobile)
+            .replace(/\D/g,"")
+            .slice(-10),
+
+        email: data.email,
+
+        role: "seller",
+
+        kycStatus: "pending",
+
+        accountStatus: "pending",
+
+        sellerOtpVerifiedAt:
+          firebase.firestore.FieldValue.serverTimestamp(),
+
+        createdAt:
+          firebase.firestore.FieldValue.serverTimestamp(),
+
+        updatedAt:
+          firebase.firestore.FieldValue.serverTimestamp()
+
+      });
+
+    /*
+     * Seller profile ke liye
+     * email/password ko Auth me link karne ki koshish.
+     *
+     * Agar email pehle kisi Auth account me hai,
+     * registration fir bhi successful rahega.
+     */
+    try{
+
+      const emailCredential =
+        firebase.auth.EmailAuthProvider.credential(
+          data.email,
+          data.password
+        );
+
+      await currentUser.linkWithCredential(
+        emailCredential
+      );
+
+    }catch(emailError){
+
+      console.log(
+        "Email Auth link skipped:",
+        emailError.message
+      );
+
+    }
+
+    sessionStorage.removeItem(
+      "sellerRegistrationOtp"
+    );
+
+    sellerOtpGateOpen = true;
+
+    msg.className = "success";
+
+    msg.textContent =
+      "✅ OTP verified. Seller account create ho gaya.";
+
+    const box =
+      document.getElementById("registerOtpBox");
 
     if(box){
-      box.style.display="none";
+      box.style.display = "none";
     }
 
     await loadSeller();
-console.log("AUTH UID:", currentUser?.uid);
-console.log("AUTH PHONE:", currentUser?.phoneNumber);
+
+    console.log(
+      "SELLER AUTH UID:",
+      currentUser?.uid
+    );
+
+    console.log(
+      "SELLER PHONE:",
+      currentUser?.phoneNumber
+    );
+
     showApp(true);
+
     startRealtime();
 
   }catch(e){
 
-    msg.className="error";
-    msg.textContent="OTP verification failed: "+e.message;
+    console.error(
+      "Seller Registration Verify Error:",
+      e
+    );
+
+    msg.className = "error";
+
+    msg.textContent =
+      "OTP verification failed: " +
+      (e.message || e);
 
   }
 }
-
 
 async function loginSeller(){
 
