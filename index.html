@@ -1732,33 +1732,61 @@ let currentIndex = steps.indexOf(normalizedStatus);
     </div>
   `;
 }
-function canCustomerCancelOrder(order){
+
+    function canCustomerCancelOrder(order){
+
   const status = String(
-    order.status || order.orderStatus || ""
+    order.status ||
+    order.orderStatus ||
+    ""
   ).toLowerCase();
 
-  // Cancelled / Delivered order cancel nahi ho sakta
-  if(status === "cancelled" || status === "delivered"){
+  // Cancel sirf delivery process start hone se pehle
+  const allowedStatuses = [
+    "order placed",
+    "pending",
+    "order confirmed",
+    "confirmed"
+  ];
+
+  // Already cancelled / delivered / shipped / pickup etc.
+  if(!allowedStatuses.includes(status)){
     return false;
   }
 
+  // 7 days ke andar cancellation allowed
   let createdTime = null;
 
-  if(order.createdAt && typeof order.createdAt.toDate === "function"){
+  if(
+    order.createdAt &&
+    typeof order.createdAt.toDate === "function"
+  ){
     createdTime = order.createdAt.toDate();
-  }else if(order.createdAt && order.createdAt.seconds){
-    createdTime = new Date(order.createdAt.seconds * 1000);
+
+  }else if(
+    order.createdAt &&
+    order.createdAt.seconds
+  ){
+    createdTime =
+      new Date(order.createdAt.seconds * 1000);
+
   }else if(order.createdAt){
-    createdTime = new Date(order.createdAt);
+
+    createdTime =
+      new Date(order.createdAt);
   }
 
   if(!createdTime || isNaN(createdTime.getTime())){
     return false;
   }
 
-  const sevenDays = 7 * 24 * 60 * 60 * 1000;
+  const sevenDays =
+    7 * 24 * 60 * 60 * 1000;
 
-  return (Date.now() - createdTime.getTime()) <= sevenDays;
+  return (
+    Date.now() - createdTime.getTime()
+    <= sevenDays
+  );
 }
 function loadSellerProducts() {
   firebase.firestore().collection("products").onSnapshot((snapshot) => {
