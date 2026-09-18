@@ -511,6 +511,7 @@ async function verifyRegisterOtp(){
       ownerName:data.owner,
       shopName:data.shop,
       mobile:data.mobile,
+mobileE164:"+91" + String(data.mobile).replace(/\D/g,"").slice(-10),
       email:data.email,
       role:"seller",
 
