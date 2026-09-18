@@ -1293,19 +1293,48 @@ async function loadSeller(){
 
     try{
 console.log("SELLER LOOKUP PHONE:", phone);
-      const q = await db
-        .collection("sellers")
-        .where(
-          "mobileE164",
-          "==",
-          phone
-        )
-        .limit(1)
-        .get();
+      const normalizedPhone =
+  phone.replace(/\D/g, "").slice(-10);
 
-      if(!q.empty){
-        snap = q.docs[0];
-      }
+console.log(
+  "SELLER LOOKUP PHONE:",
+  phone,
+  normalizedPhone
+);
+
+// Pehle mobileE164 se search
+const q = await db
+  .collection("sellers")
+  .where(
+    "mobileE164",
+    "==",
+    "+91" + normalizedPhone
+  )
+  .limit(1)
+  .get();
+
+if(!q.empty){
+
+  snap = q.docs[0];
+
+}else{
+
+  // Purane seller accounts ke liye mobile field se search
+  const qOld = await db
+    .collection("sellers")
+    .where(
+      "mobile",
+      "==",
+      normalizedPhone
+    )
+    .limit(1)
+    .get();
+
+  if(!qOld.empty){
+    snap = qOld.docs[0];
+  }
+
+}
 
     }catch(e){
 
