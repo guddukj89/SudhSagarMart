@@ -1346,7 +1346,7 @@ auth.onAuthStateChanged(async user=>{
 function startSuperAdmin(){
 
  loadCollection("staff");
- loadCollection("sellers");
+ loadCollection("Sellers");
  loadCollection("products");
  loadCollection("orders");
  loadCollection("customers");
@@ -2080,7 +2080,7 @@ async function sellerAction(id,status){
    "Seller status बदलना है?"
  )) return;
 
- await db.collection("sellers")
+ await db.collection("Sellers")
  .doc(id)
  .update({
 
