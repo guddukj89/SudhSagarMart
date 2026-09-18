@@ -2034,6 +2034,39 @@ orderItems.forEach(function(item){
             ">
               Total: ₹${total.toLocaleString("en-IN")}
             </div>
+            ${
+  String(payment).toLowerCase().includes("razorpay") &&
+  order.refundRequested === true
+  ?
+  `
+  <div style="
+    margin-top:10px;
+    padding:10px;
+    border-radius:8px;
+    background:#fff8e1;
+    border:1px solid #ffe082;
+    font-size:14px;
+  ">
+    <b>Refund Status:</b>
+    ${
+      String(order.refundStatus || "pending").toLowerCase() === "pending"
+      ? "⏳ Refund Pending"
+      : String(order.refundStatus || "").toLowerCase() === "processing"
+      ? "🔄 Refund Processing"
+      : (
+          String(order.refundStatus || "").toLowerCase() === "processed" ||
+          String(order.refundStatus || "").toLowerCase() === "refunded"
+        )
+      ? "✅ Refund Successful"
+      : String(order.refundStatus || "").toLowerCase() === "failed"
+      ? "❌ Refund Failed"
+      : String(order.refundStatus || "Pending")
+    }
+  </div>
+  `
+  :
+  ""
+}
 <div style="
   margin-top:12px;
   display:flex;
