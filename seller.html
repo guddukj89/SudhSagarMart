@@ -2674,10 +2674,154 @@ function enableSellerNotifications(){
 
 }  
 function renderNotifications(){
-  const box=document.getElementById("notificationsTable");
-  if(box) box.innerHTML=notificationsCache.length?`<table><tr><th>Notification</th><th>Status</th><th>Date</th><th>Action</th></tr>${notificationsCache.map(n=>`<tr><td><b>${esc(n.title||"Notification")}</b><br><span class="muted">${esc(n.message||"")}</span></td><td>${statusHtml(n.status||"unread")}</td><td>${dateText(n.createdAt)}</td><td>${String(n.status||"unread").toLowerCase()!=="read"?`<button class="btn secondary" onclick="markRead('${esc(n.id)}')">Mark read</button>`:"✓ Read"}</td></tr>`).join("")}</table>`:'<div class="empty">No notifications.</div>';
-  const recent=document.getElementById("recentNotifications");
-  if(recent) recent.innerHTML=notificationsCache.slice(0,5).map(n=>`<div style="padding:8px 0;border-bottom:1px solid #eee"><b>${esc(n.title||"Notification")}</b><br><small class="muted">${esc(n.message||"")}</small></div>`).join("")||'<div class="empty">No notifications.</div>';
+
+  const box =
+    document.getElementById("notificationsTable");
+
+  if(box){
+
+    box.innerHTML =
+      notificationsCache.length
+
+      ? `
+        <table>
+
+          <tr>
+            <th>Notification</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+
+          ${
+            notificationsCache.map(n => {
+
+              const isNewOrder =
+                String(n.type || "").toLowerCase()
+                === "new_order";
+
+              const isConfirmed =
+                String(n.action || "").toLowerCase()
+                === "confirmed";
+
+              let actionHtml = "";
+
+              if(isNewOrder && !isConfirmed){
+
+                actionHtml = `
+                  <button
+                    class="btn"
+                    onclick="confirmSellerOrder(
+                      '${esc(n.id)}',
+                      '${esc(n.orderId || "")}'
+                    )">
+                    ✅ Confirm Order
+                  </button>
+                `;
+
+              }else if(isConfirmed){
+
+                actionHtml =
+                  `<span class="success">✓ Order Confirmed</span>`;
+
+              }else if(
+                String(n.status || "unread").toLowerCase()
+                !== "read"
+              ){
+
+                actionHtml = `
+                  <button
+                    class="btn secondary"
+                    onclick="markRead('${esc(n.id)}')">
+                    Mark read
+                  </button>
+                `;
+
+              }else{
+
+                actionHtml = "✓ Read";
+
+              }
+
+              return `
+
+                <tr>
+
+                  <td>
+                    <b>${esc(n.title || "Notification")}</b>
+                    <br>
+                    <span class="muted">
+                      ${esc(n.message || "")}
+                    </span>
+                  </td>
+
+                  <td>
+                    ${statusHtml(n.status || "unread")}
+                  </td>
+
+                  <td>
+                    ${dateText(n.createdAt)}
+                  </td>
+
+                  <td>
+                    ${actionHtml}
+                  </td>
+
+                </tr>
+
+              `;
+
+            }).join("")
+
+          }
+
+        </table>
+      `
+
+      : '<div class="empty">No notifications.</div>';
+
+  }
+
+
+  const recent =
+    document.getElementById("recentNotifications");
+
+  if(recent){
+
+    recent.innerHTML =
+
+      notificationsCache
+        .slice(0,5)
+        .map(n => `
+
+          <div
+            style="
+              padding:8px 0;
+              border-bottom:1px solid #eee
+            "
+          >
+
+            <b>
+              ${esc(n.title || "Notification")}
+            </b>
+
+            <br>
+
+            <small class="muted">
+              ${esc(n.message || "")}
+            </small>
+
+          </div>
+
+        `)
+        .join("")
+
+      ||
+
+      '<div class="empty">No notifications.</div>';
+
+  }
+
 }
 
 async function markRead(id){try{await db.collection("notifications").doc(id).update({status:"read",readAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Notification update failed: "+e.message);}}
