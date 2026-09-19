@@ -2598,8 +2598,100 @@ ${productsText}`;
 
   win.document.close();
 }
-async function updateOrderStatus(id,status){try{await db.collection("orders").doc(id).update({status,orderStatus:status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){alert("Order status update failed: "+e.message);}}
+async function updateOrderStatus(id,status){
 
+  try{
+
+    const ref =
+      db.collection("orders").doc(id);
+
+    const snap =
+      await ref.get();
+
+    if(!snap.exists){
+      return alert("Order nahi mila.");
+    }
+
+    const order = snap.data();
+
+    const currentStatus = String(
+      order.status ||
+      order.orderStatus ||
+      "Pending"
+    ).toLowerCase();
+
+    const requestedStatus =
+      String(status || "").toLowerCase();
+
+    let allowed = false;
+
+    // Confirmed → Packed
+    if(
+      currentStatus === "confirmed" &&
+      requestedStatus === "packed"
+    ){
+      allowed = true;
+    }
+
+    // Packed → Ready for Pickup
+    else if(
+      currentStatus === "packed" &&
+      requestedStatus === "ready for pickup"
+    ){
+      allowed = true;
+    }
+
+    if(!allowed){
+
+      return alert(
+        "❌ Ye status abhi allowed nahi hai.\n\n" +
+        "Current Status: " +
+        (order.status || order.orderStatus) +
+        "\n\nNext step: " +
+        (
+          currentStatus === "confirmed"
+            ? "Ready for Pack"
+            : currentStatus === "packed"
+              ? "Ready for Pickup"
+              : "Order confirmation required"
+        )
+      );
+
+    }
+
+    await ref.update({
+
+      status: status,
+
+      orderStatus: status,
+
+      updatedAt:
+        firebase.firestore.FieldValue
+          .serverTimestamp()
+
+    });
+
+    alert(
+      "✅ Order status updated:\n\n" +
+      status
+    );
+
+  }catch(error){
+
+    console.error(
+      "Order Status Update Error:",
+      error
+    );
+
+    alert(
+      "Order status update nahi ho paya.\n\n" +
+      error.message
+    );
+
+  }
+
+}
+  
 function getCommissionRate(){const n=Number(sellerData?.commission??sellerData?.commissionRate??10);return Math.max(0,Math.min(100,n))/100;}
 function calcFinance(){let gross=0,commission=0,deliveredGross=0;ordersCache.forEach(o=>{const amount=Number(o.amount??o.total??0);gross+=amount;const st=String(o.status||o.orderStatus||"").toLowerCase();if(st==="delivered"){deliveredGross+=amount;commission+=Number(o.commission??amount*getCommissionRate());}});let paid=0;paymentsCache.forEach(p=>{if(String(p.status||"").toLowerCase()==="paid")paid+=Number(p.amount||0);});const net=Math.max(0,deliveredGross-commission),pending=Math.max(0,net-paid);return {gross,commission,deliveredGross,paid,net,pending};}
 function renderPayments(){
