@@ -1502,63 +1502,77 @@ function renderStaff(){
 
 function renderSellers(){
 
- const box =
- document.getElementById(
-   "sellerTable"
- );
+  const box =
+    document.getElementById("sellerTable");
 
- if(!data.Sellers.length){
+  if(!data.Sellers.length){
 
-   box.innerHTML =
-   `<tr>
-      <td colspan="6">
-        No sellers
-      </td>
-    </tr>`;
+    box.innerHTML = `
+      <tr>
+        <td colspan="7">
+          No sellers
+        </td>
+      </tr>
+    `;
 
-   return;
+    return;
+  }
 
- }
+  box.innerHTML =
+    data.Sellers.map(s => `
 
- box.innerHTML =
- data.Sellers.map(s=>`
+      <tr>
 
- <tr>
+        <td>
+          ${esc(s.name || s.ownerName || "")}
+        </td>
 
- <td>${esc(s.name||"")}</td>
+        <td>
+          ${esc(s.shopName || "")}
+        </td>
 
- <td>${esc(s.shopName||"")}</td>
+        <td>
+          ${esc(s.mobile || s.mobileE164 || "")}
+        </td>
 
- <td>${esc(s.mobile||"")}</td>
+        <td>
+          ${esc(s.kycStatus || "pending")}
+        </td>
 
- <td>${esc(s.kycStatus||"pending")}</td>
+        <td>
+          ${esc(s.accountStatus || "pending")}
+        </td>
 
- <td>${esc(s.accountStatus||"active")}</td>
+        <td class="actions">
 
- <td class="actions">
+          <button
+            class="secondary"
+            onclick="viewSellerDetails('${s.id}')"
+          >
+            View Details
+          </button>
 
- <button
- class="success"
- onclick="sellerAction('${s.id}','approved')"
- >
- Approve
- </button>
+          <button
+            class="success"
+            onclick="sellerAction('${s.id}','approved')"
+          >
+            Approve
+          </button>
 
- <button
- class="danger"
- onclick="sellerAction('${s.id}','suspended')"
- >
- Suspend
- </button>
+          <button
+            class="danger"
+            onclick="sellerAction('${s.id}','suspended')"
+          >
+            Suspend
+          </button>
 
- </td>
+        </td>
 
- </tr>
+      </tr>
 
- `).join("");
+    `).join("");
 
 }
-
 
 /* PRODUCTS */
 
