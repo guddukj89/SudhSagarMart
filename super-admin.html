@@ -2202,23 +2202,64 @@ async function disableStaff(id){
 
 async function sellerAction(id,status){
 
- if(!confirm(
-   "Seller status बदलना है?"
- )) return;
+  if(!confirm(
+    "Seller status बदलना है?"
+  )) return;
 
- await db.collection("Sellers")
- .doc(id)
- .update({
+  try{
 
-   accountStatus:status,
+    const updateData = {
 
-   updatedAt:
-   firebase.firestore.FieldValue.serverTimestamp()
+      accountStatus: status,
 
- });
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    };
+
+    if(status === "approved"){
+
+      updateData.kycStatus = "approved";
+
+      updateData.kycApprovedAt =
+        firebase.firestore.FieldValue.serverTimestamp();
+
+      updateData.kycApprovedBy =
+        firebase.auth().currentUser.uid;
+
+    }
+
+    if(status === "suspended"){
+
+      updateData.accountStatus = "suspended";
+
+    }
+
+    await db.collection("Sellers")
+      .doc(id)
+      .update(updateData);
+
+    alert(
+      status === "approved"
+        ? "Seller aur KYC successfully approved."
+        : "Seller suspended successfully."
+    );
+
+  }catch(error){
+
+    console.error(
+      "Seller Action Error:",
+      error
+    );
+
+    alert(
+      "Status update nahi hua.\n\n" +
+      error.message
+    );
+
+  }
 
 }
-
 
 /* PRODUCT ACTION */
 
