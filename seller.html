@@ -836,10 +836,32 @@ async function sendSellerLoginOtp(){
 
   }catch(e){
 
-    msg.className="error";
-    msg.textContent="OTP send failed: "+e.message;
+  console.error("Seller Login OTP Error:", e);
 
+  // Failed OTP ke baad purana reCAPTCHA hata do
+  if(loginRecaptcha){
+
+    try{
+      loginRecaptcha.clear();
+    }catch(err){
+      console.warn(
+        "Login reCAPTCHA clear failed:",
+        err
+      );
+    }
+
+    loginRecaptcha = null;
   }
+
+  loginConfirmationResult = null;
+
+  msg.className = "error";
+
+  msg.textContent =
+    "OTP send failed: " +
+    (e.message || "Unknown error");
+
+}
 }
 /* ================================
    SELLER MOBILE OTP LOGIN
