@@ -2171,18 +2171,77 @@ async function addProduct(){
 async function deleteProduct(id){if(!confirm("Product delete karna hai?"))return;try{await db.collection("products").doc(id).delete();}catch(e){alert("Delete failed: "+e.message);}}
 
 function orderStatusOptions(current){
-  return [
-    "Pending",
-    "Confirmed",
-    "Packed",
-    "Ready for Pickup",
-    "Picked Up",
-    "Delivered",
-    "Completed",
-    "Cancelled"
-  ].map(s =>
-    `<option ${String(current||"").toLowerCase()===s.toLowerCase()?"selected":""}>${s}</option>`
-  ).join("");
+
+  const status = String(
+    current || "Pending"
+  ).toLowerCase();
+
+  let nextAction = "";
+
+  if(
+    status === "confirmed"
+  ){
+
+    nextAction = "Ready for Pack";
+
+  }else if(
+    status === "packed"
+  ){
+
+    nextAction = "Ready for Pickup";
+
+  }
+
+  // Confirmed order ke baad seller sirf
+  // Ready for Pack kar sakta hai
+  if(status === "confirmed"){
+
+    return `
+      <option selected disabled>
+        Confirmed
+      </option>
+
+      <option value="Packed">
+        Ready for Pack
+      </option>
+    `;
+
+  }
+
+  // Packed ke baad seller sirf
+  // Ready for Pickup kar sakta hai
+  if(status === "packed"){
+
+    return `
+      <option selected disabled>
+        Packed
+      </option>
+
+      <option value="Ready for Pickup">
+        Ready for Pickup
+      </option>
+    `;
+
+  }
+
+  // Ready for Pickup ke baad seller ka kaam khatam
+  if(status === "ready for pickup"){
+
+    return `
+      <option selected disabled>
+        Ready for Pickup
+      </option>
+    `;
+
+  }
+
+  // New/Pending order
+  return `
+    <option selected disabled>
+      ${current || "Pending"}
+    </option>
+  `;
+
 }
 function renderOrders(){
   const box=document.getElementById("ordersTable");
