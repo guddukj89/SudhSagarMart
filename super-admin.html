@@ -1573,6 +1573,118 @@ function renderSellers(){
     `).join("");
 
 }
+  /* SELLER FULL DETAILS */
+
+function viewSellerDetails(id){
+
+  const seller =
+    data.Sellers.find(
+      s => s.id === id
+    );
+
+  if(!seller){
+
+    alert("Seller details nahi mile.");
+
+    return;
+  }
+
+  const created =
+    seller.createdAt &&
+    typeof seller.createdAt.toDate === "function"
+      ? seller.createdAt.toDate().toLocaleString("en-IN")
+      : seller.createdAt || "-";
+
+  const updated =
+    seller.updatedAt &&
+    typeof seller.updatedAt.toDate === "function"
+      ? seller.updatedAt.toDate().toLocaleString("en-IN")
+      : seller.updatedAt || "-";
+
+  const kycSubmitted =
+    seller.kycSubmittedAt &&
+    typeof seller.kycSubmittedAt.toDate === "function"
+      ? seller.kycSubmittedAt.toDate().toLocaleString("en-IN")
+      : seller.kycSubmittedAt || "-";
+
+  alert(
+
+    "SELLER FULL DETAILS\n" +
+    "==============================\n\n" +
+
+    "Owner Name: " +
+    (seller.ownerName || seller.name || "-") +
+    "\n\n" +
+
+    "Shop Name: " +
+    (seller.shopName || "-") +
+    "\n\n" +
+
+    "Mobile: " +
+    (seller.mobile || "-") +
+    "\n\n" +
+
+    "Mobile E164: " +
+    (seller.mobileE164 || "-") +
+    "\n\n" +
+
+    "Email: " +
+    (seller.email || "-") +
+    "\n\n" +
+
+    "Seller UID: " +
+    (seller.uid || seller.id || "-") +
+    "\n\n" +
+
+    "Role: " +
+    (seller.role || "-") +
+    "\n\n" +
+
+    "KYC Status: " +
+    (seller.kycStatus || "pending") +
+    "\n\n" +
+
+    "Account Status: " +
+    (seller.accountStatus || "pending") +
+    "\n\n" +
+
+    "Aadhaar Number: " +
+    (seller.aadhaarNumber || seller.aadhaar || "-") +
+    "\n\n" +
+
+    "PAN Number: " +
+    (seller.panNumber || seller.pan || "-") +
+    "\n\n" +
+
+    "GST Number: " +
+    (seller.gstNumber || seller.gstin || "-") +
+    "\n\n" +
+
+    "Business Address: " +
+    (seller.businessAddress ||
+     seller.shopAddress ||
+     seller.address ||
+     "-") +
+    "\n\n" +
+
+    "KYC Submitted: " +
+    kycSubmitted +
+    "\n\n" +
+
+    "Seller OTP Verified: " +
+    (seller.sellerOtpVerifiedAt ? "Yes" : "No") +
+    "\n\n" +
+
+    "Created At: " +
+    created +
+    "\n\n" +
+
+    "Updated At: " +
+    updated
+
+  );
+
+}
 
 /* PRODUCTS */
 
