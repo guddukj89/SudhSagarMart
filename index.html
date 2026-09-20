@@ -4377,7 +4377,7 @@ function loginUser(){
    auth.signInWithEmailAndPassword(email, password)
 .then(function(result) {
     alert("Login successful! ✅");
-    showAccount();
+    closeModal("accountModal");
 })
 .catch(function(error) {
     console.error(error);
