@@ -782,7 +782,7 @@ function renderProducts(list=products){
         </div>
         
         <div style="display:flex;gap:8px;margin-top:7px">
-          <button class="add" onclick="${isOut ? '' : `addToCart(${i})`}" ${isOut ? 'disabled style="background:#ccc;cursor:not-allowed;"' : ''}>
+          <button class="add" onclick="${isOut ? '' : `addCart(${i})`}" ${isOut ? 'disabled style="background:#ccc;cursor:not-allowed;"' : ''}>
             🛒 ${isOut ? 'Unavailable' : 'Add to Cart'}
           </button>
           
@@ -1233,7 +1233,7 @@ function addCart(i){
  function buyNow(i){
 
     cart = [{
-        p: products[i] || liveProducts[i],
+        p: products[i],
         qty: 1
     }];
 
@@ -5535,7 +5535,7 @@ let galleryProduct = null;
 let galleryProductIndex = 0;
 function openProductGallery(index) {
 galleryProductIndex = index;
-    const product = products[index] || liveProducts[index];
+    const product = products[index];
 
     if (!product) {
         console.error("Product not found:", index);
