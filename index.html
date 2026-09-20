@@ -2736,28 +2736,6 @@ renderProducts(products);
 // ALL PRODUCTS
 // ===============================
 
-function allProducts(){
-
-    closeMenu();
-
-    activeCategory = "All";
-
-    document.querySelectorAll(".chip")
-        .forEach(x =>
-            x.classList.toggle(
-                "active",
-                x.innerText === "All"
-            )
-        );
-
-    renderProducts(products);
-
-    window.scrollTo({
-        top:document.querySelector(".products").offsetTop - 100,
-        behavior:"smooth"
-    });
-}
-
 
 // ===============================
 // WISHLIST
