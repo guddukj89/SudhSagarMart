@@ -2,189 +2,274 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sudhsagar Mart - Delivery Master Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sudhsagar Mart - Delivery Partner</title>
+
+  <!-- Google Fonts & Lucide Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { background-color: #f4f6f9; padding: 12px; color: #333; }
-    
-    /* Top Bar */
-    .header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 12px; }
-    .brand { font-size: 15px; font-weight: bold; color: #2c3e50; }
-    .status-btn { padding: 6px 12px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 11px; }
-    .online { background: #28a745; color: white; }
-    .offline { background: #dc3545; color: white; }
+    :root {
+      --primary: #0c831f;       /* Blinkit Green */
+      --primary-dark: #085f16;
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-dark: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+    }
 
-    /* Stats Grid */
-    .stats-card { display: flex; gap: 8px; margin-bottom: 12px; }
-    .stat-box { flex: 1; background: #fff; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .stat-box small { font-size: 10px; color: #777; text-transform: uppercase; font-weight: bold; }
-    .stat-box h3 { margin-top: 4px; color: #007bff; font-size: 16px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-color); color: var(--text-dark); padding-bottom: 80px; }
 
-    /* Global Navigation Tabs */
-    .tab-bar { display: flex; overflow-x: auto; gap: 6px; margin-bottom: 12px; padding-bottom: 4px; }
-    .tab-btn { padding: 8px 12px; border: none; border-radius: 6px; background: #e9ecef; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap; color: #495057; }
-    .tab-btn.active { background: #007bff; color: white; }
+    /* Top App Bar */
+    .top-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--card-bg); padding: 12px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-bottom: 1px solid var(--border-color);
+    }
+    .brand-title { font-size: 16px; font-weight: 800; color: var(--primary); letter-spacing: -0.3px; }
+    .partner-email { font-size: 11px; color: var(--text-muted); font-weight: 600; }
 
-    /* Tab Content Panels */
-    .panel { display: none; }
-    .panel.active-panel { display: block; }
+    /* Duty Switch Toggle */
+    .duty-toggle {
+      display: flex; align-items: center; gap: 6px; background: #f3f4f6;
+      padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color);
+    }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; }
+    .duty-toggle.online .status-dot { background: var(--primary); }
+    .duty-toggle.online { background: #e8f5e9; color: var(--primary-dark); border-color: #a5d6a7; }
 
-    /* Cards Styling */
-    .card { background: #fff; border-radius: 8px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-left: 4px solid #007bff; position: relative; }
-    .seq-badge { position: absolute; right: 12px; top: 12px; background: #e3f2fd; color: #0d47a1; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
-    .info { font-size: 12px; margin-bottom: 5px; color: #444; }
+    /* Earnings & Stats Bar */
+    .metrics-bar {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      padding: 12px 16px; background: var(--card-bg); margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .metric-box { text-align: center; background: #f9fafb; padding: 8px; border-radius: 8px; border: 1px solid #f3f4f6; }
+    .metric-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+    .metric-value { font-size: 16px; font-weight: 800; color: var(--text-dark); margin-top: 2px; }
 
-    /* Action Elements */
-    .btn { width: 100%; padding: 8px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; margin-top: 6px; }
-    .btn-main { background: #007bff; color: white; }
-    .btn-success { background: #28a745; color: white; }
-    .btn-warning { background: #ffc107; color: #212529; }
-    .btn-danger { background: #dc3545; color: white; }
-    .btn-info { background: #17a2b8; color: white; }
+    /* Navigation Action Bar */
+    .action-banner { padding: 0 16px 12px 16px; }
+    .btn-nav-all {
+      width: 100%; padding: 12px; background: var(--primary); color: white; border: none;
+      border-radius: 10px; font-weight: 700; font-size: 13px; display: flex; align-items: center;
+      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(12, 131, 31, 0.25);
+    }
 
-    .input-box, .select-box { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; margin-top: 5px; font-size: 12px; }
-    .box-container { background: #f8f9fa; border: 1px dashed #ced4da; padding: 10px; border-radius: 6px; margin-top: 8px; }
-    .qr-box { text-align: center; display: none; margin-top: 8px; }
-    .qr-box img { width: 150px; height: 150px; }
+    /* Tab Panels */
+    .tab-panel { display: none; padding: 0 16px; }
+    .tab-panel.active { display: block; }
 
-    /* Modal Styling */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: #fff; padding: 20px; border-radius: 8px; width: 90%; max-width: 380px; }
-    .btn-confirm { background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-    .btn-close { background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 4px; margin-left: 5px; cursor: pointer; }
+    /* Blinkit Style Order Cards */
+    .order-card {
+      background: var(--card-bg); border-radius: 12px; padding: 16px;
+      margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color); position: relative;
+    }
+    .card-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px dashed var(--border-color); margin-bottom: 10px; }
+    .order-id { font-size: 13px; font-weight: 800; color: var(--text-dark); }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .badge-assigned { background: #fef3c7; color: #92400e; }
+    .badge-picked { background: #dbeafe; color: #1e40af; }
+    .badge-out { background: #e0e7ff; color: #3730a3; }
+    .badge-delivered { background: #dcfce7; color: #166534; }
+
+    .cust-info { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .cust-name { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .cust-address { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+
+    /* Quick Call & Map Buttons */
+    .quick-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn-icon { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: #f9fafb; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; color: var(--text-dark); }
+
+    /* Workflow Modules */
+    .step-box { background: #f9fafb; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-top: 8px; }
+    .step-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; }
+
+    .btn-flow { width: 100%; padding: 11px; border: none; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-pickup { background: var(--warning); color: white; }
+    .btn-out { background: var(--info); color: white; }
+    .btn-deliver { background: var(--primary); color: white; }
+    .btn-disabled { background: #e5e7eb !important; color: #9ca3af !important; cursor: not-allowed; }
+
+    .input-otp { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 16px; font-weight: 800; letter-spacing: 4px; margin-bottom: 6px; background: white; }
+
+    /* Dynamic QR Box */
+    .qr-container { text-align: center; display: none; padding: 10px; background: white; border-radius: 8px; margin-top: 8px; border: 1px dashed var(--primary); }
+    .qr-container img { width: 140px; height: 140px; margin-bottom: 4px; }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+      background: var(--card-bg); border-top: 1px solid var(--border-color);
+      display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; border: none; background: transparent; color: var(--text-muted); font-size: 10px; font-weight: 700; cursor: pointer; flex: 1; }
+    .nav-item.active { color: var(--primary); }
+
+    /* Modals */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: flex-end; z-index: 2000; }
+    .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; animation: slideUp 0.2s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .form-select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; font-weight: 600; margin: 10px 0; }
   </style>
 </head>
 <body>
 
-  <!-- Top Bar Header -->
-  <div class="header">
+  <!-- Top App Bar Header -->
+  <div class="top-header">
     <div>
-      <div class="brand">Sudhsagar Mart Delivery</div>
-      <small id="partner-email" style="font-size: 10px; color: #6c757d;">Loading...</small>
+      <div class="brand-title">Sudhsagar Mart</div>
+      <div id="partner-email" class="partner-email">Authenticating...</div>
     </div>
-    <button id="duty-btn" class="status-btn online" onclick="toggleDuty()">ONLINE</button>
-  </div>
-
-  <!-- Realtime Stats Tracker -->
-  <div class="stats-card">
-    <div class="stat-box">
-      <small>Orders Today</small>
-      <h3 id="stat-orders">0</h3>
-    </div>
-    <div class="stat-box">
-      <small>Earnings Today</small>
-      <h3 id="stat-earnings">₹0</h3>
-    </div>
-    <div class="stat-box">
-      <small>COD Cash</small>
-      <h3 id="stat-cod">₹0</h3>
+    <div id="duty-btn" class="duty-toggle online" onclick="toggleDuty()">
+      <span class="status-dot"></span>
+      <span id="duty-text">ONLINE</span>
     </div>
   </div>
 
-  <!-- Scrollable Module Tabs -->
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('runsheet-panel', this)">Runsheet & Route</button>
-    <button class="tab-btn" onclick="switchTab('qc-panel', this)">Open Box & QC</button>
-    <button class="tab-btn" onclick="switchTab('undelivered-panel', this)">Failed Attempts</button>
-    <button class="tab-btn" onclick="switchTab('attendance-panel', this)">Attendance & Bonus</button>
-    <button class="tab-btn" onclick="switchTab('support-panel', this)">Helpdesk & Settings</button>
+  <!-- Realtime Earnings & Stats Bar -->
+  <div class="metrics-bar">
+    <div class="metric-box">
+      <div class="metric-label">Orders</div>
+      <div class="metric-value" id="stat-orders">0</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">Earnings</div>
+      <div class="metric-value" id="stat-earnings">₹0</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-label">COD Cash</div>
+      <div class="metric-value" id="stat-cod">₹0</div>
+    </div>
   </div>
 
-  <!-- MODULE 1: RUNSHEET & ROUTE OPTIMIZATION + PAYMENTS & OTP -->
-  <div id="runsheet-panel" class="panel active-panel">
-    <button class="btn btn-success" style="margin-bottom: 12px;" onclick="openOptimizedRoute()">
-      📍 Launch Multi-Stop Optimized Navigation
-    </button>
-    <div id="runsheet-list"><p style="text-align:center; color:#777; font-size:12px;">Runsheet loading...</p></div>
+  <!-- Module 1: Runsheet & Orders List -->
+  <div id="panel-runsheet" class="tab-panel active">
+    <div class="action-banner">
+      <button class="btn-nav-all" onclick="openOptimizedRoute()">
+        <i data-lucide="map-pin"></i> Start Optimized Route Navigation
+      </button>
+    </div>
+    <div id="runsheet-list"><p style="text-align:center; padding:20px; color:#6b7280; font-size:12px;">Loading assigned orders...</p></div>
   </div>
 
-  <!-- MODULE 2: REVERSE LOGISTICS & OPEN BOX QC -->
-  <div id="qc-panel" class="panel">
-    <h5 style="margin-bottom: 10px; font-size: 13px;">Open Box Delivery & Pickup Quality Checks</h5>
-    <div id="qc-list"><p style="text-align:center; color:#777; font-size:12px;">Checking tasks...</p></div>
+  <!-- Module 2: Open Box & Quality Checks -->
+  <div id="panel-qc" class="tab-panel">
+    <h4 style="margin-bottom: 12px; font-size: 14px;">Open Box & Return QC</h4>
+    <div id="qc-list"><p style="text-align:center; padding:20px; color:#6b7280; font-size:12px;">No active orders for QC.</p></div>
   </div>
 
-  <!-- MODULE 3: UNDELIVERED & RE-ATTEMPT REASON HANDLING -->
-  <div id="undelivered-panel" class="panel">
-    <h5 style="margin-bottom: 10px; font-size: 13px;">Failed Delivery Reporting</h5>
-    <div id="failed-list"><p style="text-align:center; color:#777; font-size:12px;">No orders for failure reporting.</p></div>
+  <!-- Module 3: Failed Deliveries -->
+  <div id="panel-undelivered" class="tab-panel">
+    <h4 style="margin-bottom: 12px; font-size: 14px;">Failed Attempt Reporting</h4>
+    <div id="failed-list"><p style="text-align:center; padding:20px; color:#6b7280; font-size:12px;">No pending orders for reporting.</p></div>
   </div>
 
-  <!-- MODULE 4: ATTENDANCE, PUNCH-IN & DAILY INCENTIVE -->
-  <div id="attendance-panel" class="panel">
-    <div class="card" style="border-left-color: #28a745;">
-      <h5 style="margin-bottom: 8px;">Daily Attendance Check-In</h5>
-      <p id="punch-status" class="info">Status: Not Checked-In Today</p>
-      <button class="btn btn-main" onclick="punchIn()">📍 Punch-In Current Location</button>
+  <!-- Module 4: Attendance & Earnings Target -->
+  <div id="panel-attendance" class="tab-panel">
+    <div class="order-card">
+      <h4 style="font-size: 14px; margin-bottom: 6px;">Daily Attendance Check-In</h4>
+      <p id="punch-status" style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Status: Not Checked-In Today</p>
+      <button class="btn-flow btn-deliver" onclick="punchIn()">
+        <i data-lucide="map-pin"></i> Punch-In Current Location
+      </button>
     </div>
 
-    <div class="card" style="border-left-color: #17a2b8;">
-      <h5 style="margin-bottom: 8px;">Daily Incentive Progress</h5>
-      <p class="info">Target: Complete 15 Orders to Get ₹100 Bonus</p>
-      <div style="background: #e9ecef; height: 12px; border-radius: 6px; overflow: hidden; margin: 8px 0;">
-        <div id="incentive-bar" style="background: #17a2b8; width: 0%; height: 100%;"></div>
+    <div class="order-card">
+      <h4 style="font-size: 14px; margin-bottom: 6px;">Daily Incentive Progress</h4>
+      <p style="font-size: 12px; color: var(--text-muted);">Target: Complete 15 Orders to earn ₹100 Bonus</p>
+      <div style="background: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden; margin: 10px 0;">
+        <div id="incentive-bar" style="background: var(--primary); width: 0%; height: 100%; transition: width 0.3s;"></div>
       </div>
-      <p id="incentive-text" class="info" style="text-align: right;">0 / 15 Completed</p>
+      <p id="incentive-text" style="font-size: 12px; font-weight: 700; text-align: right;">0 / 15 Completed</p>
     </div>
   </div>
 
-  <!-- MODULE 5: HELPDESK, PRIVACY & CHANGE PASSWORD -->
-  <div id="support-panel" class="panel">
-    <div class="card" style="border-left-color: #dc3545;">
-      <h5 style="margin-bottom: 8px;">Emergency Delivery Support</h5>
-      <button class="btn btn-info" onclick="window.location.href='tel:+919876543210'">📞 Call Admin Hotline</button>
+  <!-- Module 5: Profile & Support -->
+  <div id="panel-support" class="tab-panel">
+    <div class="order-card">
+      <h4 style="font-size: 14px; margin-bottom: 8px;">Emergency Delivery Helpline</h4>
+      <a href="tel:+919876543210" class="btn-flow btn-out" style="text-decoration: none;">
+        <i data-lucide="phone-call"></i> Call Fleet Manager
+      </a>
     </div>
 
-    <div class="card" style="border-left-color: #ffc107;">
-      <h5 style="margin-bottom: 8px;">Account Security</h5>
-      <input type="password" id="new-password" class="input-box" placeholder="Enter New Password">
-      <button class="btn btn-warning" onclick="changePassword()">🔒 Change Password</button>
-    </div>
-
-    <div class="card" style="border-left-color: #6c757d;">
-      <h5 style="margin-bottom: 8px;">Policies & Agreements</h5>
-      <p class="info"><a href="#" style="color:#007bff;">Privacy Policy</a> | <a href="#" style="color:#007bff;">Terms of Service</a></p>
+    <div class="order-card">
+      <h4 style="font-size: 14px; margin-bottom: 8px;">Update Security Password</h4>
+      <input type="password" id="new-password" class="input-otp" style="text-align: left; letter-spacing: normal; font-size: 13px;" placeholder="New Password">
+      <button class="btn-flow btn-pickup" onclick="changePassword()">Update Password</button>
     </div>
   </div>
 
-  <!-- Open Box & Return QC Modal -->
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('panel-runsheet', this)">
+      <i data-lucide="truck"></i> Orders
+    </button>
+    <button class="nav-item" onclick="switchTab('panel-qc', this)">
+      <i data-lucide="package-check"></i> QC
+    </button>
+    <button class="nav-item" onclick="switchTab('panel-undelivered', this)">
+      <i data-lucide="alert-triangle"></i> Failed
+    </button>
+    <button class="nav-item" onclick="switchTab('panel-attendance', this)">
+      <i data-lucide="calendar"></i> Duty
+    </button>
+    <button class="nav-item" onclick="switchTab('panel-support', this)">
+      <i data-lucide="user"></i> Profile
+    </button>
+  </div>
+
+  <!-- Open Box QC Modal -->
   <div id="qc-modal" class="modal">
     <div class="modal-content">
-      <h3>Open Box / Return QC Check</h3>
-      <div style="text-align: left; margin: 15px 0;">
-        <label><input type="checkbox" id="qc-tag"> Product Tag Intact</label><br><br>
-        <label><input type="checkbox" id="qc-box"> Original Packaging Available</label><br><br>
-        <label><input type="checkbox" id="qc-damage"> No Physical Damage</label>
+      <h3 style="font-size: 16px; margin-bottom: 12px;">Open Box Quality Check</h3>
+      <div style="font-size: 13px; line-height: 2;">
+        <label><input type="checkbox" id="qc-tag"> Product Tag intact</label><br>
+        <label><input type="checkbox" id="qc-box"> Original packaging available</label><br>
+        <label><input type="checkbox" id="qc-damage"> Physical damage inspect done</label>
       </div>
-      <select id="qc-status" class="select-box" style="margin-bottom:12px;">
-        <option value="Passed">QC Passed - Accept Item</option>
-        <option value="Failed">QC Failed - Reject Item</option>
+      <select id="qc-status" class="form-select">
+        <option value="Passed">Passed - Accept Item</option>
+        <option value="Failed">Failed - Reject Item</option>
       </select>
-      <button class="btn-confirm" onclick="submitQC()">Submit QC Status</button>
-      <button class="btn-close" onclick="closeModal('qc-modal')">Cancel</button>
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button class="btn-flow btn-deliver" style="flex:1;" onclick="submitQC()">Submit QC</button>
+        <button class="btn-flow" style="flex:1; background:#e5e7eb; color:#374151;" onclick="closeModal('qc-modal')">Cancel</button>
+      </div>
     </div>
   </div>
 
-  <!-- Undelivered / Re-attempt Reason Modal -->
+  <!-- Undelivered Modal -->
   <div id="failed-modal" class="modal">
     <div class="modal-content">
-      <h3>Mark Undelivered</h3>
-      <select id="fail-reason" class="select-box" style="margin: 15px 0;">
+      <h3 style="font-size: 16px; margin-bottom: 12px;">Mark Undelivered</h3>
+      <select id="fail-reason" class="form-select">
         <option value="Customer Unavailable">Customer Unavailable</option>
-        <option value="Wrong Address">Wrong Address / Shifted</option>
+        <option value="Wrong Address">Wrong Address / Customer Shifted</option>
         <option value="Customer Refused">Customer Refused Order</option>
         <option value="Phone Unreachable">Phone Unreachable / Switched Off</option>
       </select>
-      <button class="btn-confirm" style="background:#dc3545;" onclick="submitFailedAttempt()">Confirm Failed Attempt</button>
-      <button class="btn-close" onclick="closeModal('failed-modal')">Cancel</button>
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button class="btn-flow" style="flex:1; background:var(--danger); color:white;" onclick="submitFailedAttempt()">Confirm Failed</button>
+        <button class="btn-flow" style="flex:1; background:#e5e7eb; color:#374151;" onclick="closeModal('failed-modal')">Cancel</button>
+      </div>
     </div>
   </div>
 
-  <!-- Firebase Integration Block -->
+  <!-- Firebase Scripts Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -200,14 +285,15 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let currentUserId = null;
     let activeOrdersList = [];
     let isOnline = true;
 
-    // Authentication Guard
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Authentication Listener
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        currentUserId = user.uid;
         document.getElementById('partner-email').innerText = user.email;
         loadMasterData(user.uid);
       } else {
@@ -215,23 +301,24 @@
       }
     });
 
-    // Global Duty Toggle
+    // Duty Switch Toggle
     window.toggleDuty = () => {
       const btn = document.getElementById('duty-btn');
+      const text = document.getElementById('duty-text');
       isOnline = !isOnline;
-      btn.innerText = isOnline ? "ONLINE" : "OFFLINE";
-      btn.className = `status-btn ${isOnline ? 'online' : 'offline'}`;
+      text.innerText = isOnline ? "ONLINE" : "OFFLINE";
+      btn.className = `duty-toggle ${isOnline ? 'online' : ''}`;
     };
 
-    // Tab Navigation Switcher
+    // Bottom Navigation Switcher
     window.switchTab = (panelId, element) => {
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active-panel'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(panelId).classList.add('active-panel');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
       element.classList.add('active');
     };
 
-    // Load Master Data Stream
+    // Load Live Master Data Stream
     function loadMasterData(partnerId) {
       const q = query(
         collection(db, "orders"),
@@ -252,8 +339,6 @@
         let totalEarningsToday = 0;
         let totalCodCollected = 0;
 
-        let seq = 1;
-
         snapshot.forEach((docSnap) => {
           const order = docSnap.data();
           order.id = docSnap.id;
@@ -265,29 +350,23 @@
               totalCodCollected += (order.totalAmount || 0);
             }
           } else {
-            order.sequence = order.routeSequence || seq;
             activeOrdersList.push(order);
-            seq++;
           }
         });
 
-        // Sort sequence
-        activeOrdersList.sort((a,b) => a.sequence - b.sequence);
-
-        // Update Stats Bar
+        // Update Dashboard Indicators
         document.getElementById('stat-orders').innerText = completedToday;
         document.getElementById('stat-earnings').innerText = `₹${totalEarningsToday}`;
         document.getElementById('stat-cod').innerText = `₹${totalCodCollected}`;
 
-        // Incentive Progress Bar Update
         const progress = Math.min((completedToday / 15) * 100, 100);
         document.getElementById('incentive-bar').style.width = `${progress}%`;
         document.getElementById('incentive-text').innerText = `${completedToday} / 15 Completed`;
 
         if (activeOrdersList.length === 0) {
-          runsheetList.innerHTML = "<p style='text-align:center; color:#777; font-size:12px;'>Koi pending active orders nahi hain.</p>";
-          qcList.innerHTML = "<p style='text-align:center; color:#777; font-size:12px;'>No active open-box delivery pending.</p>";
-          failedList.innerHTML = "<p style='text-align:center; color:#777; font-size:12px;'>No pending orders for attempt report.</p>";
+          runsheetList.innerHTML = "<p style='text-align:center; padding:30px; color:#6b7280; font-size:12px;'>No active deliveries assigned.</p>";
+          qcList.innerHTML = "<p style='text-align:center; padding:30px; color:#6b7280; font-size:12px;'>No pending open-box deliveries.</p>";
+          failedList.innerHTML = "<p style='text-align:center; padding:30px; color:#6b7280; font-size:12px;'>No orders for reporting.</p>";
           return;
         }
 
@@ -296,236 +375,186 @@
           qcList.appendChild(createQcCard(order));
           failedList.appendChild(createFailedCard(order));
         });
+
+        lucide.createIcons();
       });
     }
 
-    // Dynamic Card Creators
-function createRunsheetCard(order, index) {
-  const card = document.createElement('div');
-  card.className = 'card';
+    // Dynamic Card Builder (Blinkit Style Flow)
+    function createRunsheetCard(order, index) {
+      const card = document.createElement('div');
+      card.className = 'order-card';
 
-  const upiId = "sudhsagarmart@upi";
-  const status = order.orderStatus || "Assigned";
+      const upiId = "sudhsagarmart@upi";
+      const status = order.orderStatus || "Assigned";
 
-  const isPickedUp = status === "Picked Up";
-  const isOutForDelivery = status === "Out for Delivery";
-  const isDelivered = status === "Delivered";
+      let badgeClass = "badge-assigned";
+      if (status === "Picked Up") badgeClass = "badge-picked";
+      if (status === "Out for Delivery") badgeClass = "badge-out";
+      if (status === "Delivered") badgeClass = "badge-delivered";
 
-  card.innerHTML = `
-    <div class="seq-badge">#${index}</div>
+      card.innerHTML = `
+        <div class="card-head">
+          <span class="order-id">Order #${order.id.substr(0, 8)}</span>
+          <span class="badge ${badgeClass}">${status}</span>
+        </div>
 
-    <div class="info">
-      <strong>Order ID:</strong> #${order.id.substr(0, 8)}
-    </div>
+        <div class="cust-info">
+          <div class="cust-name">
+            <span>${order.customerName || 'Customer'}</span>
+            <span style="color:var(--primary); font-weight:800;">₹${order.totalAmount || 0} (${order.paymentMethod || 'COD'})</span>
+          </div>
+          <div class="cust-address">${order.address || 'Address not provided'}</div>
+        </div>
 
-    <div class="info">
-      <strong>Customer:</strong> ${order.customerName || 'N/A'}
-    </div>
+        <div class="quick-actions">
+          <a href="tel:${order.customerPhone || ''}" class="btn-icon">
+            <i data-lucide="phone" style="width:14px;"></i> Call
+          </a>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.address || '')}" target="_blank" class="btn-icon">
+            <i data-lucide="navigation" style="width:14px;"></i> Map
+          </a>
+        </div>
 
-    <div class="info">
-      <strong>Address:</strong> ${order.address || 'N/A'}
-    </div>
+        <!-- Flow 1: Pickup -->
+        ${status === "Assigned" ? `
+          <button class="btn-flow btn-pickup" onclick="markPickedUp('${order.id}')">
+            📦 Confirm Order Picked Up
+          </button>
+        ` : ''}
 
-    <div class="info">
-      <strong>Amount Due:</strong>
-      ₹${order.totalAmount || 0}
-      (${order.paymentMethod || 'COD'})
-    </div>
+        <!-- Flow 2: Out For Delivery -->
+        ${status === "Picked Up" ? `
+          <button class="btn-flow btn-out" onclick="markOutForDelivery('${order.id}')">
+            🚚 Start Out for Delivery
+          </button>
+        ` : ''}
 
-    <div class="info">
-      <strong>Status:</strong>
-      <span id="status-${order.id}"
-            style="font-weight:bold;">
-        ${status}
-      </span>
-    </div>
+        <!-- Flow 3: Verify OTP & Collect Payment -->
+        ${status === "Out for Delivery" ? `
+          <div class="step-box">
+            <span class="step-label">1. Payment Collection</span>
+            <button class="btn-flow" style="background:#e0e7ff; color:#3730a3; margin-bottom:6px;" onclick="generateQR('${order.id}', ${order.totalAmount \vert{}\vert{} 0}, '${upiId}')">
+              📲 Show Dynamic UPI QR
+            </button>
+            <div id="qr-box-${order.id}" class="qr-container">
+              <img id="qr-img-${order.id}" src="" alt="UPI QR">
+              <p style="font-size:10px; color:var(--text-muted);">Scan via GPay / PhonePe / Paytm</p>
+            </div>
+          </div>
 
-    <div class="box-container">
-      <small><strong>1. Collect Payment</strong></small>
+          <div class="step-box">
+            <span class="step-label">2. Enter Delivery OTP</span>
+            <input type="text" id="otp-${order.id}" class="input-otp" placeholder="0000" maxlength="6">
+            <button class="btn-flow btn-deliver" onclick="verifyDelivery('${order.id}')">
+              ✅ Verify OTP & Finish Delivery
+            </button>
+          </div>
+        ` : ''}
+      `;
 
-      <button
-        class="btn btn-info"
-        onclick="generateQR('${order.id}', ${order.totalAmount || 0}, '${upiId}')">
-        📲 Show Dynamic UPI QR Code
-      </button>
+      return card;
+    }
 
-      <div id="qr-box-${order.id}" class="qr-box">
-        <img id="qr-img-${order.id}" src="" alt="QR">
-        <p style="font-size:10px;">
-          Scan using GPay, PhonePe or Paytm
-        </p>
-      </div>
-    </div>
-
-    <div class="box-container">
-      <small><strong>2. Pickup & Delivery Flow</strong></small>
-
-      <button
-        class="btn btn-warning"
-        onclick="markPickedUp('${order.id}')"
-        ${status !== "Assigned" ? "disabled" : ""}>
-        📦 Mark Picked Up
-      </button>
-
-      <button
-        class="btn btn-main"
-        onclick="markOutForDelivery('${order.id}')"
-        ${!isPickedUp ? "disabled" : ""}>
-        🚚 Start Delivery
-      </button>
-    </div>
-
-    <div class="box-container">
-      <small><strong>3. OTP Verification</strong></small>
-
-      <input
-        type="text"
-        id="otp-${order.id}"
-        class="input-box"
-        placeholder="Enter Customer OTP"
-        maxlength="6"
-        ${!isOutForDelivery ? "disabled" : ""}
-      >
-
-      <button
-        class="btn btn-success"
-        onclick="verifyDelivery('${order.id}')"
-        ${!isOutForDelivery || isDelivered ? "disabled" : ""}>
-        ✅ Verify OTP & Deliver
-      </button>
-    </div>
-  `;
-
-  return card;
-}
-    // MARK ORDER AS PICKED UP
-window.markPickedUp = async (id) => {
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Login session expire ho gaya. Dobara login karein.");
-    window.location.href = "/login.html";
-    return;
-  }
-
-  try {
-    const orderRef = doc(db, "orders", id);
-
-    const unsubscribe = onSnapshot(orderRef, async (snap) => {
-      unsubscribe();
-
-      if (!snap.exists()) {
-        alert("Order nahi mila.");
-        return;
-      }
-
-      const order = snap.data();
-
-      if (order.deliveryBoyId !== user.uid) {
-        alert("Ye order aapko assigned nahi hai.");
-        return;
-      }
-
-      if (order.orderStatus !== "Assigned") {
-        alert("Order abhi Assigned stage mein nahi hai.");
-        return;
-      }
-
-      await updateDoc(orderRef, {
-        orderStatus: "Picked Up",
-        status: "Picked Up",
-        pickedUpAt: new Date(),
-        pickedUpBy: user.uid
-      });
-
-      alert("Order Picked Up successfully!");
-    });
-
-  } catch (error) {
-    console.error("Pickup error:", error);
-    alert("Pickup update nahi ho paya: " + error.message);
-  }
-};
-
-
-// MARK ORDER AS OUT FOR DELIVERY
-window.markOutForDelivery = async (id) => {
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Login session expire ho gaya. Dobara login karein.");
-    window.location.href = "/login.html";
-    return;
-  }
-
-  try {
-    const orderRef = doc(db, "orders", id);
-
-    const unsubscribe = onSnapshot(orderRef, async (snap) => {
-      unsubscribe();
-
-      if (!snap.exists()) {
-        alert("Order nahi mila.");
-        return;
-      }
-
-      const order = snap.data();
-
-      if (order.deliveryBoyId !== user.uid) {
-        alert("Ye order aapko assigned nahi hai.");
-        return;
-      }
-
-      if (order.orderStatus !== "Picked Up") {
-        alert("Pehle order ko Picked Up karein.");
-        return;
-      }
-
-      await updateDoc(orderRef, {
-        orderStatus: "Out for Delivery",
-        status: "Out for Delivery",
-        outForDeliveryAt: new Date(),
-        outForDeliveryBy: user.uid
-      });
-
-      alert("Order Out for Delivery ho gaya!");
-    });
-
-  } catch (error) {
-    console.error("Out for Delivery error:", error);
-    alert("Delivery status update nahi ho paya: " + error.message);
-  }
-};
     function createQcCard(order) {
       const card = document.createElement('div');
-      card.className = 'card';
-      card.style.borderLeftColor = "#17a2b8";
+      card.className = 'order-card';
       card.innerHTML = `
-        <div class="info"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
-        <div class="info"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
-        <button class="btn btn-main" onclick="openQCModal('${order.id}')">Perform QC Inspection</button>
+        <div class="cust-info">
+          <div class="cust-name">Order #${order.id.substr(0, 8)}</div>
+          <div class="cust-address">${order.customerName || 'N/A'} - ${order.address || ''}</div>
+        </div>
+        <button class="btn-flow btn-out" onclick="openQCModal('${order.id}')">Perform Open-Box QC</button>
       `;
       return card;
     }
 
     function createFailedCard(order) {
       const card = document.createElement('div');
-      card.className = 'card';
-      card.style.borderLeftColor = "#dc3545";
+      card.className = 'order-card';
       card.innerHTML = `
-        <div class="info"><strong>Order ID:</strong> #${order.id.substr(0, 8)}</div>
-        <div class="info"><strong>Customer:</strong> ${order.customerName || 'N/A'}</div>
-        <button class="btn btn-danger" onclick="openFailedModal('${order.id}')">Report Attempt Failure</button>
+        <div class="cust-info">
+          <div class="cust-name">Order #${order.id.substr(0, 8)}</div>
+          <div class="cust-address">${order.customerName || 'N/A'}</div>
+        </div>
+        <button class="btn-flow" style="background:var(--danger); color:white;" onclick="openFailedModal('${order.id}')">Report Delivery Failure</button>
       `;
       return card;
     }
 
-    // Interactive Functions
-    window.openOptimizedRoute = () => {
-      if (activeOrdersList.length === 0) {
-        alert("Naviagte karne ke liye koi active order nahi hai.");
-        return;
+    // Single Shot Optimized Firebase Updates
+    window.markPickedUp = async (id) => {
+      const user = auth.currentUser;
+      if (!user) return alert("Session expired. Please login again.");
+
+      try {
+        const orderRef = doc(db, "orders", id);
+        const snap = await getDoc(orderRef);
+        if (!snap.exists()) return alert("Order not found.");
+
+        await updateDoc(orderRef, {
+          orderStatus: "Picked Up",
+          pickedUpAt: new Date(),
+          pickedUpBy: user.uid
+        });
+        alert("Order Marked Picked Up!");
+      } catch (e) {
+        alert("Error: " + e.message);
       }
+    };
+
+    window.markOutForDelivery = async (id) => {
+      const user = auth.currentUser;
+      if (!user) return alert("Session expired.");
+
+      try {
+        const orderRef = doc(db, "orders", id);
+        await updateDoc(orderRef, {
+          orderStatus: "Out for Delivery",
+          outForDeliveryAt: new Date(),
+          outForDeliveryBy: user.uid
+        });
+        alert("Order is Out for Delivery!");
+      } catch (e) {
+        alert("Error: " + e.message);
+      }
+    };
+
+    window.verifyDelivery = async (id) => {
+      const otpInput = document.getElementById(`otp-${id}`);
+      const enteredOtp = otpInput ? otpInput.value.trim() : '';
+
+      if (!enteredOtp) return alert("Customer se OTP lekar enter karein.");
+
+      const user = auth.currentUser;
+      if (!user) return alert("Session expired.");
+
+      try {
+        const orderRef = doc(db, "orders", id);
+        const snap = await getDoc(orderRef);
+
+        if (!snap.exists()) return alert("Order not found.");
+        const order = snap.data();
+
+        if (String(enteredOtp) !== String(order.deliveryOtp)) {
+          return alert("Invalid OTP! Customer se sahi OTP check karein.");
+        }
+
+        await updateDoc(orderRef, {
+          orderStatus: "Delivered",
+          deliveredAt: new Date(),
+          deliveredBy: user.uid
+        });
+
+        alert("Order Delivered Successfully! 🎉");
+      } catch (e) {
+        alert("Error verifying delivery: " + e.message);
+      }
+    };
+
+    // Helper Actions
+    window.openOptimizedRoute = () => {
+      if (activeOrdersList.length === 0) return alert("No active orders for navigation.");
       const stops = activeOrdersList.map(o => encodeURIComponent(o.address));
       const dest = stops.pop();
       const waypoints = stops.join('|');
@@ -539,120 +568,30 @@ window.markOutForDelivery = async (id) => {
       const img = document.getElementById(`qr-img-${id}`);
       const upiUrl = `upi://pay?pa=${upiId}&pn=SudhsagarMart&am=${amount}&cu=INR`;
       img.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
-      box.style.display = "block";
+      box.style.display = box.style.display === "block" ? "none" : "block";
     };
-
-  window.verifyDelivery = async (id) => {
-  const otpInput = document.getElementById(`otp-${id}`);
-
-  if (!otpInput) {
-    alert("OTP input nahi mila.");
-    return;
-  }
-
-  const enteredOtp = otpInput.value.trim();
-
-  if (!enteredOtp) {
-    alert("Customer se OTP lekar enter karein.");
-    return;
-  }
-
-  if (!/^\d{4,6}$/.test(enteredOtp)) {
-    alert("OTP 4 se 6 digit ka hona chahiye.");
-    return;
-  }
-
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Login session expire ho gaya. Dobara login karein.");
-    window.location.href = "/login.html";
-    return;
-  }
-
-  try {
-    // Order dobara Firebase se verify karna
-    const orderRef = doc(db, "orders", id);
-
-    const unsubscribe = onSnapshot(orderRef, async (snap) => {
-
-      unsubscribe();
-
-      if (!snap.exists()) {
-        alert("Order nahi mila.");
-        return;
-      }
-
-      const order = snap.data();
-
-      // Delivery partner ownership check
-      if (order.deliveryBoyId !== user.uid) {
-        alert("Ye order aapko assigned nahi hai.");
-        return;
-      }
-
-      // Already delivered check
-      if (order.orderStatus === "Delivered") {
-        alert("Ye order already delivered hai.");
-        return;
-      }
-
-      // OTP database me hona compulsory
-      if (!order.deliveryOtp) {
-        alert("Is order ka delivery OTP generate nahi hua hai. Customer/Admin se contact karein.");
-        return;
-      }
-
-      // OTP verify
-      if (String(enteredOtp) !== String(order.deliveryOtp)) {
-        alert("Galat OTP! Customer se sahi OTP lekar dobara enter karein.");
-        return;
-      }
-
-      // Delivery update
-      await updateDoc(orderRef, {
-        orderStatus: "Delivered",
-        status: "Delivered",
-        deliveredAt: new Date(),
-        deliveredBy: user.uid
-      });
-
-      alert("Order successfully delivered!");
-
-      otpInput.value = "";
-
-    });
-
-  } catch (error) {
-    console.error("Delivery verification error:", error);
-    alert("Delivery update nahi ho paya: " + error.message);
-  }
-}; 
 
     window.punchIn = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
-          document.getElementById('punch-status').innerText = `Status: Checked-In (${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)})`;
-          alert("Daily Attendance Punch-In Successful!");
+          document.getElementById('punch-status').innerText = `Checked-In (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`;
+          alert("Attendance Punched In Successfully!");
         });
       } else {
-        alert("Geolocation Support is disabled!");
+        alert("Geolocation not supported on this device.");
       }
     };
 
     window.changePassword = async () => {
       const pwd = document.getElementById('new-password').value;
-      if (!pwd || pwd.length < 6) {
-        alert("Password kam se kam 6 characters ka hona chahiye!");
-        return;
-      }
+      if (!pwd || pwd.length < 6) return alert("Password must be at least 6 characters.");
       try {
         await updatePassword(auth.currentUser, pwd);
-        alert("Password Updated Successfully!");
+        alert("Password updated successfully!");
       } catch (e) { alert("Error: " + e.message); }
     };
 
-    // Modal Handlers
+    // Modal Control
     window.openQCModal = (orderId) => {
       window.currentQCOrderId = orderId;
       document.getElementById('qc-modal').style.display = 'flex';
@@ -664,7 +603,7 @@ window.markOutForDelivery = async (id) => {
         await updateDoc(doc(db, "orders", window.currentQCOrderId), {
           qcStatus: isPassed ? "Passed" : "Failed"
         });
-        alert("QC Result Saved!");
+        alert("QC Saved!");
         closeModal('qc-modal');
       } catch (e) { alert(e.message); }
     };
@@ -681,7 +620,7 @@ window.markOutForDelivery = async (id) => {
           orderStatus: "Undelivered Attempt",
           failedReason: reason
         });
-        alert("Failed Attempt Saved!");
+        alert("Report Saved!");
         closeModal('failed-modal');
       } catch (e) { alert(e.message); }
     };
