@@ -3206,14 +3206,33 @@ function openSellerPrivacyPolicy(){
   modal.id = "sellerInfoModal";
   modal.className = "modal show";
 
-  modal.innerHTML = `
-    <div class="box"
-         style="
-           max-width:700px;
-           max-height:85vh;
-           overflow-y:auto;
-           position:relative;
-         ">
+modal.style.cssText = `
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.65);
+  box-sizing:border-box;
+`;
+
+  <div class="box"
+     style="
+       width:92%;
+       max-width:750px;
+       max-height:82vh;
+       overflow-y:auto;
+       overflow-x:hidden;
+       position:relative;
+       background:#fff;
+       color:#222;
+       border-radius:14px;
+       padding:24px;
+       box-sizing:border-box;
+       box-shadow:0 10px 40px rgba(0,0,0,.35);
+     ">
 
       <span class="close"
             onclick="document.getElementById('sellerInfoModal').remove()">
