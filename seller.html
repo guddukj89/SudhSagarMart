@@ -3192,6 +3192,238 @@ function renderComplaints(){const box=document.getElementById("complaintsTable")
 async function submitComplaint(){const subject=document.getElementById("complaintSubject").value.trim(),orderId=document.getElementById("complaintOrderId").value.trim(),message=document.getElementById("complaintMessage").value.trim(),msg=document.getElementById("complaintMsg");msg.className="error";msg.textContent="";if(!subject||!message){msg.textContent="Subject aur complaint details bhariye.";return;}try{await db.collection("complaints").add({sellerId:currentUser.uid,sellerEmail:currentUser.email||sellerData?.email||"",subject,orderId,message,status:"open",createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});document.getElementById("complaintSubject").value="";document.getElementById("complaintOrderId").value="";document.getElementById("complaintMessage").value="";msg.className="success";msg.textContent="Complaint Firebase me submit ho gayi.";}catch(e){msg.textContent="Complaint submit failed: "+e.message;}}
 
 async function saveAccount(){const data={name:document.getElementById("accOwner").value.trim(),ownerName:document.getElementById("accOwner").value.trim(),shopName:document.getElementById("accShop").value.trim(),mobile:document.getElementById("accMobile").value.trim(),shopAddress:document.getElementById("accAddress").value.trim(),bankAccount:document.getElementById("accBank").value.trim(),ifsc:document.getElementById("accIfsc").value.trim(),upi:document.getElementById("accUpi").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection("Sellers").doc(currentUser.uid).set(data,{merge:true});sellerData={...sellerData,...data};await loadSeller();document.getElementById("accMsg").className="success";document.getElementById("accMsg").textContent="Account details Firebase me save ho gaye.";}catch(e){document.getElementById("accMsg").className="error";document.getElementById("accMsg").textContent=e.message;}}
+// ======================================
+// SELLER PRIVACY POLICY
+// ======================================
+
+function openSellerPrivacyPolicy(){
+
+  const old = document.getElementById("sellerInfoModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+
+  modal.id = "sellerInfoModal";
+  modal.className = "modal show";
+
+  modal.innerHTML = `
+    <div class="box"
+         style="
+           max-width:700px;
+           max-height:85vh;
+           overflow-y:auto;
+           position:relative;
+         ">
+
+      <span class="close"
+            onclick="document.getElementById('sellerInfoModal').remove()">
+        ×
+      </span>
+
+      <h2>🔒 Privacy Policy</h2>
+
+      <p>
+        SudhSagarMart पर Seller की privacy और information security
+        का ध्यान रखा जाता है।
+      </p>
+
+      <h3>1. Seller Information</h3>
+      <p>
+        Seller registration के दौरान नाम, mobile number, email,
+        business और account से संबंधित information ली जा सकती है।
+      </p>
+
+      <h3>2. Mobile OTP</h3>
+      <p>
+        Seller account की पहचान और login verification के लिए
+        mobile OTP का उपयोग किया जा सकता है।
+      </p>
+
+      <h3>3. KYC Information</h3>
+      <p>
+        Seller verification के लिए आवश्यक KYC information और
+        documents लिए जा सकते हैं। KYC information का उपयोग
+        verification, security और fraud prevention के लिए किया जाता है।
+      </p>
+
+      <h3>4. Product Information</h3>
+      <p>
+        Seller द्वारा जोड़े गए product name, images, description,
+        price और stock जैसी information platform पर दिखाई जा सकती है।
+      </p>
+
+      <h3>5. Order Information</h3>
+      <p>
+        Orders, delivery, returns, complaints और payments से संबंधित
+        information को order processing और seller services के लिए
+        इस्तेमाल किया जा सकता है।
+      </p>
+
+      <h3>6. Payment Information</h3>
+      <p>
+        Payment और seller settlement से संबंधित information को
+        authorized payment और settlement services के माध्यम से
+        process किया जा सकता है।
+      </p>
+
+      <h3>7. Data Security</h3>
+      <p>
+        Seller information को unauthorized access, misuse और fraud
+        से बचाने के लिए reasonable security measures अपनाए जाते हैं।
+      </p>
+
+      <h3>8. Third-Party Services</h3>
+      <p>
+        Payment, identity verification, hosting और अन्य आवश्यक
+        services के लिए authorized third-party service providers
+        का उपयोग किया जा सकता है।
+      </p>
+
+      <h3>9. Information Sharing</h3>
+      <p>
+        Information को केवल आवश्यक business operations, legal
+        requirements, security और authorized service processing
+        के लिए share किया जा सकता है।
+      </p>
+
+      <h3>10. Policy Updates</h3>
+      <p>
+        आवश्यकता के अनुसार इस Privacy Policy को समय-समय पर update
+        किया जा सकता है।
+      </p>
+
+      <button class="primary"
+              style="width:100%;margin-top:15px"
+              onclick="document.getElementById('sellerInfoModal').remove()">
+        Close
+      </button>
+
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+
+// ======================================
+// SELLER TERMS & CONDITIONS
+// ======================================
+
+function openSellerTerms(){
+
+  const old = document.getElementById("sellerInfoModal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+
+  modal.id = "sellerInfoModal";
+  modal.className = "modal show";
+
+  modal.innerHTML = `
+    <div class="box"
+         style="
+           max-width:700px;
+           max-height:85vh;
+           overflow-y:auto;
+           position:relative;
+         ">
+
+      <span class="close"
+            onclick="document.getElementById('sellerInfoModal').remove()">
+        ×
+      </span>
+
+      <h2>📄 Seller Terms & Conditions</h2>
+
+      <h3>1. Seller Account</h3>
+      <p>
+        Seller को registration के समय सही और valid information
+        प्रदान करनी होगी।
+      </p>
+
+      <h3>2. KYC Verification</h3>
+      <p>
+        Seller को platform की KYC और verification requirements
+        पूरी करनी होंगी। Final approval authorized administration
+        process के अनुसार होगा।
+      </p>
+
+      <h3>3. Product Listing</h3>
+      <p>
+        Seller केवल genuine और legally permitted products ही list करेगा।
+        Product का नाम, price, image, description और stock सही रखना
+        seller की जिम्मेदारी है।
+      </p>
+
+      <h3>4. Product Quality</h3>
+      <p>
+        Seller द्वारा भेजे गए products की quality, authenticity,
+        quantity और packaging की जिम्मेदारी seller की होगी।
+      </p>
+
+      <h3>5. Order Confirmation</h3>
+      <p>
+        नया order मिलने के बाद seller को निर्धारित process के अनुसार
+        order confirm करना होगा।
+      </p>
+
+      <h3>6. Packing & Pickup</h3>
+      <p>
+        Seller को order को सुरक्षित तरीके से pack करके pickup के लिए
+        तैयार करना होगा।
+      </p>
+
+      <h3>7. Cancellation & Returns</h3>
+      <p>
+        Cancellation और return platform की applicable policies के
+        अनुसार process होंगे। Seller अपने स्तर पर customer को
+        unauthorized refund जारी नहीं करेगा।
+      </p>
+
+      <h3>8. Payments & Settlement</h3>
+      <p>
+        Seller payment और settlement platform के applicable
+        settlement process के अनुसार प्राप्त करेगा।
+      </p>
+
+      <h3>9. Fraud & Misuse</h3>
+      <p>
+        Fake products, fraudulent orders, गलत information, payment
+        misuse या platform abuse पाए जाने पर seller account पर
+        appropriate action लिया जा सकता है।
+      </p>
+
+      <h3>10. Account Suspension</h3>
+      <p>
+        Terms, verification requirements या applicable rules का
+        उल्लंघन होने पर seller account suspend या terminate किया
+        जा सकता है।
+      </p>
+
+      <h3>11. Complaints & Disputes</h3>
+      <p>
+        Customer complaints और seller disputes platform की
+        complaint और dispute resolution process के अनुसार
+        handle किए जाएंगे।
+      </p>
+
+      <h3>12. Terms Updates</h3>
+      <p>
+        Platform आवश्यकता के अनुसार इन Terms & Conditions को
+        समय-समय पर update कर सकता है।
+      </p>
+
+      <button class="primary"
+              style="width:100%;margin-top:15px"
+              onclick="document.getElementById('sellerInfoModal').remove()">
+        Close
+      </button>
+
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}  
 </script>
 </body>
 </html>
