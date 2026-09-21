@@ -4617,21 +4617,10 @@ function removeWishlist(i){
     renderProducts(activeCategory === "All" ? products : products.filter(p => p[0] === activeCategory));
 }
 
-function help(){
-    closeMenu();
-    alert("Support & Help:\nEmail: support@sudhsagarmart.com\nHours: 9:00 AM - 9:00 PM");
-}
-
 function openLegalPolicies(){
     closeMenu();
     openTerms();
 }
-
-function openSeller(){
-    closeMenu();
-    openModal("sellerModal");
-}
-
 function submitSeller(){
     const name = document.getElementById("sellerName").value.trim();
     const shop = document.getElementById("shopName").value.trim();
