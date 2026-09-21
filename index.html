@@ -1330,7 +1330,15 @@ orderStatus: status,
 
 payment: paymentMethod,
 paymentMethod: paymentMethod,
+sellerPayout: {
+  status: "pending",
+  eligible: false,
+  paid: false
+},
 
+payoutStatus: "pending",
+payoutEligible: false,
+payoutPaid: false,
 paymentStatus:
   paymentMethod === "Razorpay"
     ? "Paid"
