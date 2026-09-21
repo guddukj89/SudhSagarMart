@@ -3832,7 +3832,17 @@ function sellerProfile(){
 // ===============================
 // DELETE ACCOUNT
 // ===============================
+function deleteAccount(){
 
+    closeMenu();
+
+    if(
+        !confirm(
+            "Kya aap account delete karna chahte hain?"
+        )
+    ){
+        return;
+    }
     localStorage.removeItem("ssm_cart");
     localStorage.removeItem("ssm_orders");
     localStorage.removeItem("ssm_wishlist");
