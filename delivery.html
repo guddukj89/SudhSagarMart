@@ -195,20 +195,177 @@
   </div>
 
   <!-- Module 5: Profile & Support -->
-  <div id="panel-support" class="tab-panel">
-    <div class="order-card">
-      <h4 style="font-size: 14px; margin-bottom: 8px;">Emergency Delivery Helpline</h4>
-      <a href="tel:+919876543210" class="btn-flow btn-out" style="text-decoration: none;">
-        <i data-lucide="phone-call"></i> Call Fleet Manager
-      </a>
+<div id="panel-support" class="tab-panel">
+
+  <!-- Rider Profile -->
+  <div class="order-card">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div>
+        <h4 style="font-size:14px;">👤 Delivery Partner Profile</h4>
+        <p style="font-size:10px;color:var(--text-muted);margin-top:3px;">
+          Your partner details
+        </p>
+      </div>
+
+      <span id="kyc-badge"
+        style="background:#fef3c7;color:#92400e;padding:5px 8px;
+        border-radius:20px;font-size:9px;font-weight:800;">
+        KYC PENDING
+      </span>
     </div>
 
-    <div class="order-card">
-      <h4 style="font-size: 14px; margin-bottom: 8px;">Update Security Password</h4>
-      <input type="password" id="new-password" class="input-otp" style="text-align: left; letter-spacing: normal; font-size: 13px;" placeholder="New Password">
-      <button class="btn-flow btn-pickup" onclick="changePassword()">Update Password</button>
-    </div>
+    <label style="font-size:10px;font-weight:700;">FULL NAME</label>
+    <input
+      id="profile-name"
+      class="input-otp"
+      style="text-align:left;letter-spacing:normal;font-size:13px;"
+      placeholder="Enter full name">
+
+    <label style="font-size:10px;font-weight:700;">MOBILE NUMBER</label>
+    <input
+      id="profile-phone"
+      class="input-otp"
+      style="text-align:left;letter-spacing:normal;font-size:13px;"
+      type="tel"
+      placeholder="Enter mobile number">
+
+    <label style="font-size:10px;font-weight:700;">VEHICLE TYPE</label>
+    <select
+      id="profile-vehicle"
+      class="form-select">
+      <option value="Bike">🏍️ Bike</option>
+      <option value="Scooter">🛵 Scooter</option>
+      <option value="EV">⚡ EV</option>
+      <option value="Cycle">🚲 Cycle</option>
+    </select>
+
+    <label style="font-size:10px;font-weight:700;">VEHICLE NUMBER</label>
+    <input
+      id="profile-vehicle-number"
+      class="input-otp"
+      style="text-align:left;letter-spacing:normal;font-size:13px;"
+      placeholder="Example: BR01AB1234">
+
+    <label style="font-size:10px;font-weight:700;">DELIVERY AREA</label>
+    <input
+      id="profile-area"
+      class="input-otp"
+      style="text-align:left;letter-spacing:normal;font-size:13px;"
+      placeholder="Maner / Danapur / Bihta">
+
+    <button
+      class="btn-flow btn-deliver"
+      onclick="savePartnerProfile()">
+      💾 Save Partner Profile
+    </button>
+
   </div>
+
+
+  <!-- KYC -->
+  <div class="order-card">
+
+    <h4 style="font-size:14px;margin-bottom:10px;">
+      🪪 KYC & Verification
+    </h4>
+
+    <label style="font-size:10px;font-weight:700;">AADHAAR LAST 4 DIGITS</label>
+    <input
+      id="profile-aadhaar"
+      class="input-otp"
+      style="text-align:left;letter-spacing:2px;font-size:13px;"
+      type="text"
+      maxlength="4"
+      inputmode="numeric"
+      placeholder="XXXX">
+
+    <label style="font-size:10px;font-weight:700;">PAN NUMBER</label>
+    <input
+      id="profile-pan"
+      class="input-otp"
+      style="text-align:left;letter-spacing:normal;font-size:13px;text-transform:uppercase;"
+      placeholder="ABCDE1234F">
+
+    <label style="font-size:10px;font-weight:700;">DRIVING LICENCE</label>
+    <input
+      id="profile-dl"
+      class="input-otp"
+      style="text-align:left;letter-spacing:normal;font-size:13px;"
+      placeholder="Driving Licence Number">
+
+    <button
+      class="btn-flow btn-out"
+      onclick="saveKycInfo()">
+      🪪 Save KYC Details
+    </button>
+
+    <p style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.4;">
+      Full Aadhaar number/document photo ko plain text me store nahi karna hai.
+      Secure KYC verification baad me Admin Panel se hoga.
+    </p>
+
+  </div>
+
+
+  <!-- Emergency Support -->
+  <div class="order-card">
+
+    <h4 style="font-size:14px;margin-bottom:8px;">
+      🆘 Emergency Delivery Support
+    </h4>
+
+    <a
+      href="tel:+919876543210"
+      class="btn-flow btn-out"
+      style="text-decoration:none;">
+
+      <i data-lucide="phone-call"></i>
+      Call Fleet Manager
+
+    </a>
+
+  </div>
+
+
+  <!-- Password -->
+  <div class="order-card">
+
+    <h4 style="font-size:14px;margin-bottom:8px;">
+      🔐 Update Security Password
+    </h4>
+
+    <input
+      type="password"
+      id="new-password"
+      class="input-otp"
+      style="text-align:left;letter-spacing:normal;font-size:13px;"
+      placeholder="New Password">
+
+    <button
+      class="btn-flow btn-pickup"
+      onclick="changePassword()">
+      Update Password
+    </button>
+
+  </div>
+
+
+  <!-- Logout -->
+  <div class="order-card">
+
+    <button
+      class="btn-flow"
+      style="background:#fee2e2;color:#991b1b;"
+      onclick="logoutPartner()">
+
+      🚪 Logout
+
+    </button>
+
+  </div>
+
+</div>
 
   <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
