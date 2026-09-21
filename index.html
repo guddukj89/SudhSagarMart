@@ -3356,7 +3356,7 @@ async function saveSellerProduct(){
 
     const sellerSnap =
       await firebase.firestore()
-        .collection("sellers")
+        .collection("Sellers")
         .doc(user.uid)
         .get();
 
