@@ -2634,16 +2634,6 @@ function showMap(){
     }
 }
 
-function logoutUser() {
-  firebase.auth().signOut().then(() => {
-    let modal = document.getElementById("accountModal");
-    if (modal) modal.remove();
-    location.reload();
-  }).catch((error) => {
-    alert("Logout Error: " + error.message);
-  });
-}
-
 // ===============================
 // SETTINGS
 // ===============================
