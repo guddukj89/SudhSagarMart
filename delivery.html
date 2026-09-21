@@ -434,8 +434,11 @@
         ${status === "Out for Delivery" ? `
           <div class="step-box">
             <span class="step-label">1. Payment Collection</span>
-            <button class="btn-flow" style="background:#e0e7ff; color:#3730a3; margin-bottom:6px;" onclick="generateQR('${order.id}', ${order.totalAmount || 0}, '${upiId}')"
-            </button>
+            <button class="btn-flow"
+  style="background:#e0e7ff; color:#3730a3; margin-bottom:6px;"
+  onclick="generateQR('${order.id}', ${order.totalAmount || 0}, '${upiId}')">
+  💳 Generate UPI QR
+</button>
             <div id="qr-box-${order.id}" class="qr-container">
               <img id="qr-img-${order.id}" src="" alt="UPI QR">
               <p style="font-size:10px; color:var(--text-muted);">Scan via GPay / PhonePe / Paytm</p>
