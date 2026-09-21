@@ -426,9 +426,8 @@
   <!-- Firebase Scripts Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
+    import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+   import { getAuth, onAuthStateChanged, updatePassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     const firebaseConfig = {
       apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
       authDomain: "sudhsagarmart.firebaseapp.com",
@@ -451,10 +450,13 @@
     // Authentication Listener
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        document.getElementById('partner-email').innerText = user.email;
-        loadMasterData(user.uid);
+        document.getElementById('partner-email').innerText =
+  user.email || user.phoneNumber || "Delivery Partner";
+
+loadPartnerProfile(user.uid);
+loadMasterData(user.uid);
       } else {
-        window.location.href = "/login.html";
+        window.location.href = "login.html";
       }
     });
 
@@ -740,7 +742,182 @@
         alert("Geolocation not supported on this device.");
       }
     };
+async function loadPartnerProfile(partnerId) {
+  try {
+    const snap = await getDoc(doc(db, "deliveryPartners", partnerId));
 
+    if (!snap.exists()) return;
+
+    const p = snap.data();
+
+    document.getElementById("profile-name").value = p.name || "";
+    document.getElementById("profile-phone").value =
+      p.phone || auth.currentUser?.phoneNumber || "";
+
+    document.getElementById("profile-vehicle").value =
+      p.vehicleType || "Bike";
+
+    document.getElementById("profile-vehicle-number").value =
+      p.vehicleNumber || "";
+
+    document.getElementById("profile-area").value =
+      p.area || "";
+
+    document.getElementById("profile-aadhaar").value =
+      p.aadhaarLast4 || "";
+
+    document.getElementById("profile-pan").value =
+      p.pan || "";
+
+    document.getElementById("profile-dl").value =
+      p.drivingLicence || "";
+
+    const status = p.kycStatus || "Pending";
+    const badge = document.getElementById("kyc-badge");
+
+    badge.innerText = "KYC " + status.toUpperCase();
+
+    if (status === "Verified") {
+      badge.style.background = "#dcfce7";
+      badge.style.color = "#166534";
+    }
+
+    if (status === "Rejected") {
+      badge.style.background = "#fee2e2";
+      badge.style.color = "#991b1b";
+    }
+
+  } catch (e) {
+    console.error("Profile load error:", e);
+  }
+}
+
+
+window.savePartnerProfile = async () => {
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    return alert("Session expired. Please login again.");
+  }
+
+  const name =
+    document.getElementById("profile-name").value.trim();
+
+  const phone =
+    document.getElementById("profile-phone").value.trim();
+
+  const vehicleType =
+    document.getElementById("profile-vehicle").value;
+
+  const vehicleNumber =
+    document.getElementById("profile-vehicle-number").value
+    .trim()
+    .toUpperCase();
+
+  const area =
+    document.getElementById("profile-area").value.trim();
+
+  if (!name) {
+    return alert("Full Name enter karein.");
+  }
+
+  if (!phone) {
+    return alert("Mobile number enter karein.");
+  }
+
+  try {
+
+    await setDoc(
+      doc(db, "deliveryPartners", user.uid),
+      {
+        name: name,
+        phone: phone,
+        email: user.email || "",
+        vehicleType: vehicleType,
+        vehicleNumber: vehicleNumber,
+        area: area,
+        updatedAt: new Date()
+      },
+      { merge: true }
+    );
+
+    alert("Partner Profile Saved Successfully! ✅");
+
+  } catch (e) {
+
+    alert("Profile Save Error: " + e.message);
+
+  }
+};
+
+
+window.saveKycInfo = async () => {
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    return alert("Session expired. Please login again.");
+  }
+
+  const aadhaarLast4 =
+    document.getElementById("profile-aadhaar").value.trim();
+
+  const pan =
+    document.getElementById("profile-pan").value
+    .trim()
+    .toUpperCase();
+
+  const drivingLicence =
+    document.getElementById("profile-dl").value
+    .trim()
+    .toUpperCase();
+
+  if (aadhaarLast4 && !/^\d{4}$/.test(aadhaarLast4)) {
+    return alert("Aadhaar me sirf last 4 digits enter karein.");
+  }
+
+  try {
+
+    await setDoc(
+      doc(db, "deliveryPartners", user.uid),
+      {
+        aadhaarLast4: aadhaarLast4,
+        pan: pan,
+        drivingLicence: drivingLicence,
+        kycStatus: "Pending",
+        kycUpdatedAt: new Date()
+      },
+      { merge: true }
+    );
+
+    document.getElementById("kyc-badge").innerText =
+      "KYC PENDING";
+
+    alert("KYC Details Saved! Admin Verification Pending. 🪪");
+
+  } catch (e) {
+
+    alert("KYC Save Error: " + e.message);
+
+  }
+};
+
+
+window.logoutPartner = async () => {
+
+  try {
+
+    await signOut(auth);
+
+    window.location.href = "login.html";
+
+  } catch (e) {
+
+    alert("Logout Error: " + e.message);
+
+  }
+};
     window.changePassword = async () => {
       const pwd = document.getElementById('new-password').value;
       if (!pwd || pwd.length < 6) return alert("Password must be at least 6 characters.");
