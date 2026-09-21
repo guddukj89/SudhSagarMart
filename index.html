@@ -1783,10 +1783,15 @@ function loadSellerProducts() {
   firebase.firestore().collection("products").onSnapshot((snapshot) => {
     let liveProducts = [];
 
-    snapshot.forEach((doc) => {
-      let p = doc.data();
+   snapshot.forEach((doc) => {
+  let p = doc.data();
 
-      liveProducts.push([
+  // Customer ko sirf approved product dikhana hai
+  if (String(p.status || "").toLowerCase() !== "approved") {
+    return;
+  }
+
+  liveProducts.push([
     p.category || "General",
     p.title || p.name || "Product",
     Number(p.price) || 0,
@@ -1795,7 +1800,9 @@ function loadSellerProducts() {
     // Main image - existing code ke liye
     p.image || (Array.isArray(p.images) ? p.images[0] : "") || "",
 
-    Number(p.stock) || 0,
+   p.stock === undefined || p.stock === null
+    ? 0
+    : Number(p.stock),
     p.productId || doc.id,
     p.sellerId || "",
     p.sellerName || p.shopName || "Seller",
