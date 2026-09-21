@@ -3337,7 +3337,17 @@ function openSellerTerms(){
 
   modal.id = "sellerInfoModal";
   modal.className = "modal show";
-
+ modal.style.cssText = `
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.65);
+  box-sizing:border-box;
+`;
   modal.innerHTML = `
     <div class="box"
          style="
