@@ -435,16 +435,62 @@ function notifyNewOrder(order){
 // ================= END NOTIFICATION =================
 // ================= END LIVE GPS =================
 function loadOrders(uid){
- const q=query(collection(db,"orders"),where("deliveryBoyId","==",uid));
+
+ const q=query(
+   collection(db,"orders"),
+   where("deliveryBoyId","==",uid)
+ );
+
  onSnapshot(q,snap=>{
-  orders=[];
-  snap.forEach(x=>orders.push({id:x.id,...x.data()}));
-  orders.sort((a,b)=>(b.assignedAt?.seconds||0)-(a.assignedAt?.seconds||0));
-  render();
+
+   const previousIds = new Set(
+     orders.map(o=>o.id)
+   );
+
+   orders=[];
+
+   snap.forEach(x=>{
+     orders.push({
+       id:x.id,
+       ...x.data()
+     });
+   });
+
+   orders.sort(
+     (a,b)=>
+       (b.assignedAt?.seconds||0) -
+       (a.assignedAt?.seconds||0)
+   );
+
+   render();
+
+   // पहले snapshot पर notification नहीं
+   if(!firstOrderSnapshot){
+
+     orders.forEach(order=>{
+
+       if(
+         !previousIds.has(order.id) &&
+         status(order)==="Assigned"
+       ){
+         notifyNewOrder(order);
+       }
+
+     });
+
+   }
+
+   firstOrderSnapshot=false;
+
  },err=>{
-  console.error(err);
-  document.getElementById("newOrders").innerHTML='<div class="empty">Orders load नहीं हो सके। Firestore permission/rules check करें.</div>';
+
+   console.error(err);
+
+   document.getElementById("newOrders").innerHTML=
+     '<div class="empty">Orders load नहीं हो सके। Firestore permission/rules check करें.</div>';
+
  });
+
 }
 
 function isToday(o){
