@@ -1,1 +1,550 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Sudh Sagar Mart - Delivery Login</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,sans-serif;
+  background:#f1f5f3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.login-card{
+  width:100%;
+  max-width:420px;
+  background:#fff;
+  border-radius:22px;
+  padding:30px 25px;
+  box-shadow:0 10px 35px rgba(0,0,0,.12);
+}
+
+.logo{
+  width:70px;
+  height:70px;
+  margin:0 auto 15px;
+  border-radius:20px;
+  background:#008a3b;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:34px;
+}
+
+h1{
+  text-align:center;
+  margin:0;
+  font-size:25px;
+  color:#111;
+}
+
+.subtitle{
+  text-align:center;
+  color:#666;
+  margin:8px 0 25px;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin:15px 0 7px;
+  color:#222;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  border:1px solid #d5ddd8;
+  border-radius:12px;
+  font-size:16px;
+  outline:none;
+}
+
+input:focus{
+  border-color:#008a3b;
+}
+
+.login-btn{
+  width:100%;
+  margin-top:22px;
+  padding:15px;
+  border:0;
+  border-radius:12px;
+  background:#008a3b;
+  color:#fff;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.login-btn:disabled{
+  opacity:.6;
+}
+
+.forgot{
+  text-align:center;
+  margin-top:17px;
+  color:#008a3b;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.message{
+  display:none;
+  margin-top:15px;
+  padding:12px;
+  border-radius:10px;
+  font-size:14px;
+  line-height:1.4;
+}
+
+.error{
+  background:#fff0f0;
+  color:#b42318;
+}
+
+.success{
+  background:#ecfdf3;
+  color:#027a48;
+}
+
+.footer{
+  text-align:center;
+  color:#888;
+  font-size:12px;
+  margin-top:22px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-card">
+
+  <div class="logo">🚚</div>
+
+  <h1>Delivery Partner Login</h1>
+
+  <div class="subtitle">
+    Sudh Sagar Mart
+  </div>
+
+  <form id="loginForm">
+
+    <label>Email</label>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="Delivery account email"
+      autocomplete="username"
+      required
+    >
+
+    <label>Password</label>
+
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+      autocomplete="current-password"
+      required
+    >
+
+    <button
+      id="loginBtn"
+      class="login-btn"
+      type="submit"
+    >
+      Login
+    </button>
+
+  </form>
+
+  <div
+    id="forgotBtn"
+    class="forgot"
+  >
+    Forgot Password?
+  </div>
+
+  <div
+    id="message"
+    class="message"
+  ></div>
+
+  <div class="footer">
+    Only registered Delivery Partners can access this panel.
+  </div>
+
+</div>
+
+
+<script type="module">
+
+/* ================= FIREBASE ================= */
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+  apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+
+  authDomain:"sudhsagarmart.firebaseapp.com",
+
+  projectId:"sudhsagarmart",
+
+  storageBucket:"sudhsagarmart.firebasestorage.app",
+
+  messagingSenderId:"682379938859",
+
+  appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+
+/* ================= ELEMENTS ================= */
+
+const loginForm =
+  document.getElementById("loginForm");
+
+const loginBtn =
+  document.getElementById("loginBtn");
+
+const message =
+  document.getElementById("message");
+
+const emailInput =
+  document.getElementById("email");
+
+const passwordInput =
+  document.getElementById("password");
+
+
+/* ================= MESSAGE ================= */
+
+function showMessage(text,type="error"){
+
+  message.textContent = text;
+
+  message.className =
+    "message " + type;
+
+  message.style.display = "block";
+
+}
+
+
+/* ================= ERROR ================= */
+
+function getErrorMessage(error){
+
+  const code = error?.code || "";
+
+  if(
+    code.includes("invalid-credential") ||
+    code.includes("wrong-password") ||
+    code.includes("user-not-found")
+  ){
+    return "Email ya password galat hai.";
+  }
+
+  if(code.includes("too-many-requests")){
+    return "Bahut attempts ho gaye hain. Thodi der baad try karein.";
+  }
+
+  if(code.includes("network-request-failed")){
+    return "Internet connection check karein.";
+  }
+
+  if(code.includes("invalid-email")){
+    return "Email address sahi nahi hai.";
+  }
+
+  return "Login failed. Dobara try karein.";
+
+}
+
+
+/* ================= LOGIN ================= */
+
+loginForm.addEventListener(
+  "submit",
+  async function(e){
+
+    e.preventDefault();
+
+    const email =
+      emailInput.value.trim();
+
+    const password =
+      passwordInput.value;
+
+    if(!email || !password){
+
+      showMessage(
+        "Email aur password bhariye."
+      );
+
+      return;
+    }
+
+
+    loginBtn.disabled = true;
+
+    loginBtn.textContent =
+      "Checking...";
+
+    message.style.display =
+      "none";
+
+
+    try{
+
+      /* Firebase Authentication */
+
+      const result =
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+
+      const uid =
+        result.user.uid;
+
+
+      /*
+        IMPORTANT:
+
+        Delivery Partner document ka ID
+        Firebase Authentication UID ke
+        same hona chahiye.
+      */
+
+      const partnerRef =
+        doc(
+          db,
+          "deliveryPartners",
+          uid
+        );
+
+
+      const partnerSnap =
+        await getDoc(partnerRef);
+
+
+      /* Account registered nahi hai */
+
+      if(!partnerSnap.exists()){
+
+        await signOut(auth);
+
+        showMessage(
+          "यह account Delivery Partner के रूप में registered नहीं है।"
+        );
+
+        return;
+      }
+
+
+      const partner =
+        partnerSnap.data() || {};
+
+
+      /* Account inactive */
+
+      if(partner.active === false){
+
+        await signOut(auth);
+
+        showMessage(
+          "आपका Delivery Partner account अभी inactive है।"
+        );
+
+        return;
+      }
+
+
+      /* SUCCESS */
+
+      showMessage(
+        "Login successful. Delivery Panel खुल रहा है...",
+        "success"
+      );
+
+
+      setTimeout(
+        function(){
+
+          window.location.href =
+            "delivery.html";
+
+        },
+        500
+      );
+
+
+    }catch(error){
+
+      console.error(
+        "LOGIN ERROR:",
+        error
+      );
+
+      showMessage(
+        getErrorMessage(error)
+      );
+
+    }finally{
+
+      loginBtn.disabled = false;
+
+      loginBtn.textContent =
+        "Login";
+
+    }
+
+  }
+);
+
+
+/* ================= FORGOT PASSWORD ================= */
+
+document
+  .getElementById("forgotBtn")
+  .addEventListener(
+    "click",
+    async function(){
+
+      const email =
+        emailInput.value.trim();
+
+
+      if(!email){
+
+        showMessage(
+          "पहले अपना email डालें।"
+        );
+
+        return;
+      }
+
+
+      try{
+
+        await sendPasswordResetEmail(
+          auth,
+          email
+        );
+
+
+        showMessage(
+          "Password reset email भेज दिया गया है। Inbox और Spam folder check करें.",
+          "success"
+        );
+
+
+      }catch(error){
+
+        console.error(error);
+
+        showMessage(
+          getErrorMessage(error)
+        );
+
+      }
+
+    }
+  );
+
+
+/* ================= ALREADY LOGGED IN ================= */
+
+onAuthStateChanged(
+  auth,
+  async function(user){
+
+    if(!user){
+      return;
+    }
+
+
+    try{
+
+      const partnerSnap =
+        await getDoc(
+          doc(
+            db,
+            "deliveryPartners",
+            user.uid
+          )
+        );
+
+
+      if(partnerSnap.exists()){
+
+        window.location.href =
+          "delivery.html";
+
+      }else{
+
+        await signOut(auth);
+
+      }
+
+
+    }catch(error){
+
+      console.error(
+        "AUTH CHECK ERROR:",
+        error
+      );
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
