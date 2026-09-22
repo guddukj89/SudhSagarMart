@@ -182,7 +182,13 @@ const firebaseConfig={
  appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e"
 };
 const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);
-let orders=[],partnerId=null,isOnline=true,currentQC=null,currentFailed=null;
+let orders=[],
+    partnerId=null,
+    isOnline=true,
+    currentQC=null,
+    currentFailed=null,
+    currentRiderLatitude=null,
+    currentRiderLongitude=null;
 
 lucide.createIcons();
 
@@ -324,6 +330,8 @@ function startLiveLocation(){
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
       const accuracy = position.coords.accuracy;
+      currentRiderLatitude = latitude;
+currentRiderLongitude = longitude;
 
       // हर 5 सेकंड में ही Firestore update
       const now = Date.now();
