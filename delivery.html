@@ -1,969 +1,399 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sudhsagar Mart - Delivery Partner</title>
-
-  <!-- Google Fonts & Lucide Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <style>
-    :root {
-      --primary: #0c831f;       /* Blinkit Green */
-      --primary-dark: #085f16;
-      --bg-color: #f4f6f8;
-      --card-bg: #ffffff;
-      --text-dark: #1f2937;
-      --text-muted: #6b7280;
-      --border-color: #e5e7eb;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --info: #3b82f6;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-color); color: var(--text-dark); padding-bottom: 80px; }
-
-    /* Top App Bar */
-    .top-header {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--card-bg); padding: 12px 16px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-bottom: 1px solid var(--border-color);
-    }
-    .brand-title { font-size: 16px; font-weight: 800; color: var(--primary); letter-spacing: -0.3px; }
-    .partner-email { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-
-    /* Duty Switch Toggle */
-    .duty-toggle {
-      display: flex; align-items: center; gap: 6px; background: #f3f4f6;
-      padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color);
-    }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; }
-    .duty-toggle.online .status-dot { background: var(--primary); }
-    .duty-toggle.online { background: #e8f5e9; color: var(--primary-dark); border-color: #a5d6a7; }
-
-    /* Earnings & Stats Bar */
-    .metrics-bar {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-      padding: 12px 16px; background: var(--card-bg); margin-bottom: 12px;
-      border-bottom: 1px solid var(--border-color);
-    }
-    .metric-box { text-align: center; background: #f9fafb; padding: 8px; border-radius: 8px; border: 1px solid #f3f4f6; }
-    .metric-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
-    .metric-value { font-size: 16px; font-weight: 800; color: var(--text-dark); margin-top: 2px; }
-
-    /* Navigation Action Bar */
-    .action-banner { padding: 0 16px 12px 16px; }
-    .btn-nav-all {
-      width: 100%; padding: 12px; background: var(--primary); color: white; border: none;
-      border-radius: 10px; font-weight: 700; font-size: 13px; display: flex; align-items: center;
-      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(12, 131, 31, 0.25);
-    }
-
-    /* Tab Panels */
-    .tab-panel { display: none; padding: 0 16px; }
-    .tab-panel.active { display: block; }
-
-    /* Blinkit Style Order Cards */
-    .order-card {
-      background: var(--card-bg); border-radius: 12px; padding: 16px;
-      margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border: 1px solid var(--border-color); position: relative;
-    }
-    .card-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px dashed var(--border-color); margin-bottom: 10px; }
-    .order-id { font-size: 13px; font-weight: 800; color: var(--text-dark); }
-    .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-    .badge-assigned { background: #fef3c7; color: #92400e; }
-    .badge-picked { background: #dbeafe; color: #1e40af; }
-    .badge-out { background: #e0e7ff; color: #3730a3; }
-    .badge-delivered { background: #dcfce7; color: #166534; }
-
-    .cust-info { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-    .cust-name { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-    .cust-address { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
-
-    /* Quick Call & Map Buttons */
-    .quick-actions { display: flex; gap: 8px; margin-bottom: 12px; }
-    .btn-icon { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: #f9fafb; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; color: var(--text-dark); }
-
-    /* Workflow Modules */
-    .step-box { background: #f9fafb; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-top: 8px; }
-    .step-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; }
-
-    .btn-flow { width: 100%; padding: 11px; border: none; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-pickup { background: var(--warning); color: white; }
-    .btn-out { background: var(--info); color: white; }
-    .btn-deliver { background: var(--primary); color: white; }
-    .btn-disabled { background: #e5e7eb !important; color: #9ca3af !important; cursor: not-allowed; }
-
-    .input-otp { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 16px; font-weight: 800; letter-spacing: 4px; margin-bottom: 6px; background: white; }
-
-    /* Dynamic QR Box */
-    .qr-container { text-align: center; display: none; padding: 10px; background: white; border-radius: 8px; margin-top: 8px; border: 1px dashed var(--primary); }
-    .qr-container img { width: 140px; height: 140px; margin-bottom: 4px; }
-
-    /* Bottom Navigation Bar */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
-      background: var(--card-bg); border-top: 1px solid var(--border-color);
-      display: flex; justify-content: space-around; align-items: center; z-index: 1000;
-    }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; border: none; background: transparent; color: var(--text-muted); font-size: 10px; font-weight: 700; cursor: pointer; flex: 1; }
-    .nav-item.active { color: var(--primary); }
-
-    /* Modals */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: flex-end; z-index: 2000; }
-    .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; animation: slideUp 0.2s ease-out; }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-    .form-select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; font-weight: 600; margin: 10px 0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Sudh Sagar Mart — Delivery Partner</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{
+  --green:#0c831f;--green2:#16a34a;--greenSoft:#e9f8ed;
+  --bg:#f6f7f8;--card:#fff;--text:#172033;--muted:#6b7280;
+  --line:#e5e7eb;--red:#ef4444;--orange:#f59e0b;--blue:#2563eb;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);padding-bottom:78px}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.header{position:sticky;top:0;z-index:50;background:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.menu{width:38px;height:38px;border:0;background:#f4f5f6;border-radius:12px;display:grid;place-items:center}
+.logoBox{width:40px;height:40px;border-radius:12px;background:var(--green);color:#fff;display:grid;place-items:center}
+.brand{flex:1}.brand b{display:block;font-size:15px;color:#075f18}.brand span{font-size:10px;color:var(--green);font-weight:800}
+.online{border:0;border-radius:22px;background:var(--greenSoft);padding:9px 11px;color:#075f18;font-size:11px;font-weight:800;display:flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;background:#16a34a}.online.off{background:#f3f4f6;color:#6b7280}.online.off .dot{background:#9ca3af}
+.iconBtn{width:38px;height:38px;border:0;background:#f4f5f6;border-radius:12px;position:relative}.bellDot{position:absolute;right:3px;top:3px;background:#ef4444;color:#fff;font-size:8px;border-radius:10px;padding:2px 5px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;padding:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px;box-shadow:0 2px 7px #00000008}
+.stat small{color:var(--muted);font-size:9px;font-weight:800;text-transform:uppercase}.stat strong{display:block;font-size:21px;margin-top:4px}.stat span{font-size:10px;color:var(--green);font-weight:700}
+.hero{margin:0 12px 12px;background:linear-gradient(135deg,#07851e,#0cae37);color:#fff;border-radius:18px;padding:17px;display:flex;align-items:center;gap:13px;box-shadow:0 8px 22px #0c831f30}
+.heroIcon{width:46px;height:46px;background:#ffffff22;border-radius:50%;display:grid;place-items:center}.heroText{flex:1}.heroText b{font-size:17px}.heroText p{font-size:10px;margin-top:3px;opacity:.9}
+.switch{width:50px;height:29px;border-radius:20px;background:#ffffff55;padding:3px}.switch i{display:block;width:23px;height:23px;border-radius:50%;background:#fff;transition:.2s}.switch.off i{transform:translateX(0)}.switch.on i{transform:translateX(21px)}
+.tabs{display:flex;gap:8px;overflow:auto;padding:0 12px 12px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{white-space:nowrap;border:0;background:#eceef0;color:#172033;padding:11px 16px;border-radius:22px;font-size:11px;font-weight:800}.tab.active{background:var(--green);color:#fff}
+.page{display:none;padding:0 12px}.page.active{display:block}
+.sectionHead{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 10px}.sectionHead h3{font-size:14px}.sectionHead span{font-size:10px;color:var(--muted)}
+.order{background:#fff;border:1px solid var(--line);border-radius:17px;margin-bottom:12px;padding:14px;box-shadow:0 3px 10px #00000008}
+.orderTop{display:flex;align-items:center;gap:7px;margin-bottom:11px}.tag{font-size:9px;font-weight:800;border-radius:9px;padding:6px 8px}.new{background:#fff1df;color:#ea580c}.timer{background:#fee2e2;color:#dc2626}.distance{background:#f0fdf4;color:#15803d;margin-left:auto}
+.oid{font-size:13px;font-weight:800;margin-bottom:5px}.items{font-size:10px;color:var(--muted);margin-bottom:10px}
+.customer{display:flex;gap:10px;padding:10px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line)}.customer .pin{width:34px;height:34px;border-radius:11px;background:#f1f5f9;display:grid;place-items:center}.customer b{font-size:12px}.customer p{font-size:10px;color:var(--muted);line-height:1.4;margin-top:2px}
+.amountRow{display:flex;align-items:center;justify-content:space-between;padding:10px 0}.amount{font-size:19px;font-weight:800}.pay{font-size:9px;font-weight:800;border-radius:12px;padding:6px 9px}.prepaid{background:#dcfce7;color:#15803d}.cod{background:#fef3c7;color:#92400e}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border:0;border-radius:11px;padding:11px 8px;font-size:11px;font-weight:800;display:flex;justify-content:center;align-items:center;gap:6px}.btn.green{background:var(--green);color:#fff}.btn.red{background:#fee2e2;color:#dc2626}.btn.gray{background:#f3f4f6;color:#374151}.btn.blue{background:#dbeafe;color:#1d4ed8}.btn.orange{background:#f59e0b;color:#fff}
+.workflow{margin-top:10px;background:#f8fafc;border-radius:12px;padding:10px}.step{font-size:9px;color:var(--muted);font-weight:800;margin-bottom:6px}
+.otp{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;text-align:center;letter-spacing:5px;font-weight:800;margin-bottom:7px;background:#fff}
+.qr{display:none;text-align:center;background:#fff;border:1px dashed var(--green);border-radius:12px;padding:10px;margin:8px 0}.qr img{width:150px;height:150px}
+.mapCard{background:#fff;border:1px solid var(--line);border-radius:17px;padding:14px;margin-bottom:12px}.mapFake{height:150px;border-radius:14px;background:linear-gradient(135deg,#eef2f7,#dbe7d9);display:grid;place-items:center;color:#075f18;font-weight:800;margin-bottom:10px}
+.target{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:12px}.targetRow{display:flex;align-items:center;gap:13px}.circle{width:68px;height:68px;border-radius:50%;border:8px solid #dcfce7;border-top-color:var(--green);display:grid;place-items:center;font-size:13px;font-weight:800}.target b{font-size:14px}.target p{font-size:10px;color:var(--muted);margin-top:4px}
+.progress{height:8px;background:#e5e7eb;border-radius:8px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;background:var(--green);width:0}
+.profileCard{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:12px}.profileHead{display:flex;align-items:center;gap:10px;margin-bottom:14px}.avatar{width:48px;height:48px;border-radius:50%;background:var(--greenSoft);display:grid;place-items:center;color:var(--green)}.profileHead b{font-size:14px}.profileHead small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.label{font-size:9px;font-weight:800;display:block;margin:9px 0 5px;color:#4b5563}.input,.select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:12px}.kyc{display:inline-block;background:#fef3c7;color:#92400e;border-radius:15px;padding:5px 8px;font-size:8px;font-weight:800}
+.empty{text-align:center;padding:42px 20px;color:var(--muted);font-size:11px;background:#fff;border:1px dashed var(--line);border-radius:16px}.empty i{display:block;margin:auto auto 9px;color:#9ca3af}
+.bottom{position:fixed;bottom:0;left:0;right:0;height:67px;background:#fff;border-top:1px solid var(--line);z-index:100;display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:3px}.nav{border:0;background:none;color:#6b7280;font-size:9px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.nav.active{color:var(--green)}.nav.active div{background:var(--greenSoft);padding:5px 14px;border-radius:15px}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:200;align-items:flex-end}.modalBox{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow:auto}.modalBox h3{font-size:16px;margin-bottom:12px}
+@media(min-width:700px){body{max-width:720px;margin:auto}.bottom{max-width:720px;left:50%;transform:translateX(-50%)}.stats{grid-template-columns:repeat(4,1fr)}}
+</style>
 </head>
 <body>
 
-  <!-- Top App Bar Header -->
-  <div class="top-header">
-    <div>
-      <div class="brand-title">Sudhsagar Mart</div>
-      <div id="partner-email" class="partner-email">Authenticating...</div>
-    </div>
-    <div id="duty-btn" class="duty-toggle online" onclick="toggleDuty()">
-      <span class="status-dot"></span>
-      <span id="duty-text">ONLINE</span>
-    </div>
-  </div>
+<header class="header">
+  <button class="menu" onclick="showPage('home')"><i data-lucide="menu"></i></button>
+  <div class="logoBox"><i data-lucide="shopping-bag"></i></div>
+  <div class="brand"><b>Sudh Sagar Mart</b><span>30 Minutes Delivery</span></div>
+  <button id="dutyBtn" class="online" onclick="toggleDuty()"><i class="dot"></i><span id="dutyText">Online</span><i data-lucide="chevron-down" style="width:14px"></i></button>
+  <button class="iconBtn"><i data-lucide="bell"></i><span class="bellDot">3</span></button>
+</header>
 
-  <!-- Realtime Earnings & Stats Bar -->
-  <div class="metrics-bar">
-    <div class="metric-box">
-      <div class="metric-label">Orders</div>
-      <div class="metric-value" id="stat-orders">0</div>
-    </div>
-    <div class="metric-box">
-      <div class="metric-label">Earnings</div>
-      <div class="metric-value" id="stat-earnings">₹0</div>
-    </div>
-    <div class="metric-box">
-      <div class="metric-label">COD Cash</div>
-      <div class="metric-value" id="stat-cod">₹0</div>
-    </div>
-  </div>
+<section class="stats">
+  <div class="stat"><small>Today's Orders</small><strong id="stat-orders">0</strong><span id="stat-completed">0 Completed</span></div>
+  <div class="stat"><small>Today's Earnings</small><strong id="stat-earnings">₹0</strong><span id="stat-pending">+ ₹0 Pending</span></div>
+  <div class="stat"><small>Avg Delivery</small><strong id="stat-time">-- min</strong><span>Today</span></div>
+  <div class="stat"><small>Rating</small><strong id="stat-rating">--</strong><span>Delivery Partner</span></div>
+</section>
 
-  <!-- Module 1: Runsheet & Orders List -->
-  <div id="panel-runsheet" class="tab-panel active">
-    <div class="action-banner">
-      <button class="btn-nav-all" onclick="openOptimizedRoute()">
-        <i data-lucide="map-pin"></i> Start Optimized Route Navigation
-      </button>
-    </div>
-    <div id="runsheet-list"><p style="text-align:center; padding:20px; color:#6b7280; font-size:12px;">Loading assigned orders...</p></div>
-  </div>
+<section class="hero">
+  <div class="heroIcon"><i data-lucide="play"></i></div>
+  <div class="heroText"><b id="heroTitle">You are Online</b><p id="heroSub">You will receive new delivery orders</p></div>
+  <button id="switch" class="switch on" onclick="toggleDuty()"><i></i></button>
+</section>
 
-  <!-- Module 2: Open Box & Quality Checks -->
-  <div id="panel-qc" class="tab-panel">
-    <h4 style="margin-bottom: 12px; font-size: 14px;">Open Box & Return QC</h4>
-    <div id="qc-list"><p style="text-align:center; padding:20px; color:#6b7280; font-size:12px;">No active orders for QC.</p></div>
-  </div>
-
-  <!-- Module 3: Failed Deliveries -->
-  <div id="panel-undelivered" class="tab-panel">
-    <h4 style="margin-bottom: 12px; font-size: 14px;">Failed Attempt Reporting</h4>
-    <div id="failed-list"><p style="text-align:center; padding:20px; color:#6b7280; font-size:12px;">No pending orders for reporting.</p></div>
-  </div>
-
-  <!-- Module 4: Attendance & Earnings Target -->
-  <div id="panel-attendance" class="tab-panel">
-    <div class="order-card">
-      <h4 style="font-size: 14px; margin-bottom: 6px;">Daily Attendance Check-In</h4>
-      <p id="punch-status" style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Status: Not Checked-In Today</p>
-      <button class="btn-flow btn-deliver" onclick="punchIn()">
-        <i data-lucide="map-pin"></i> Punch-In Current Location
-      </button>
-    </div>
-
-    <div class="order-card">
-      <h4 style="font-size: 14px; margin-bottom: 6px;">Daily Incentive Progress</h4>
-      <p style="font-size: 12px; color: var(--text-muted);">Target: Complete 15 Orders to earn ₹100 Bonus</p>
-      <div style="background: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden; margin: 10px 0;">
-        <div id="incentive-bar" style="background: var(--primary); width: 0%; height: 100%; transition: width 0.3s;"></div>
-      </div>
-      <p id="incentive-text" style="font-size: 12px; font-weight: 700; text-align: right;">0 / 15 Completed</p>
-    </div>
-  </div>
-
-  <!-- Module 5: Profile & Support -->
-<div id="panel-support" class="tab-panel">
-
-  <!-- Rider Profile -->
-  <div class="order-card">
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div>
-        <h4 style="font-size:14px;">👤 Delivery Partner Profile</h4>
-        <p style="font-size:10px;color:var(--text-muted);margin-top:3px;">
-          Your partner details
-        </p>
-      </div>
-
-      <span id="kyc-badge"
-        style="background:#fef3c7;color:#92400e;padding:5px 8px;
-        border-radius:20px;font-size:9px;font-weight:800;">
-        KYC PENDING
-      </span>
-    </div>
-
-    <label style="font-size:10px;font-weight:700;">FULL NAME</label>
-    <input
-      id="profile-name"
-      class="input-otp"
-      style="text-align:left;letter-spacing:normal;font-size:13px;"
-      placeholder="Enter full name">
-
-    <label style="font-size:10px;font-weight:700;">MOBILE NUMBER</label>
-    <input
-      id="profile-phone"
-      class="input-otp"
-      style="text-align:left;letter-spacing:normal;font-size:13px;"
-      type="tel"
-      placeholder="Enter mobile number">
-
-    <label style="font-size:10px;font-weight:700;">VEHICLE TYPE</label>
-    <select
-      id="profile-vehicle"
-      class="form-select">
-      <option value="Bike">🏍️ Bike</option>
-      <option value="Scooter">🛵 Scooter</option>
-      <option value="EV">⚡ EV</option>
-      <option value="Cycle">🚲 Cycle</option>
-    </select>
-
-    <label style="font-size:10px;font-weight:700;">VEHICLE NUMBER</label>
-    <input
-      id="profile-vehicle-number"
-      class="input-otp"
-      style="text-align:left;letter-spacing:normal;font-size:13px;"
-      placeholder="Example: BR01AB1234">
-
-    <label style="font-size:10px;font-weight:700;">DELIVERY AREA</label>
-    <input
-      id="profile-area"
-      class="input-otp"
-      style="text-align:left;letter-spacing:normal;font-size:13px;"
-      placeholder="Maner / Danapur / Bihta">
-
-    <button
-      class="btn-flow btn-deliver"
-      onclick="savePartnerProfile()">
-      💾 Save Partner Profile
-    </button>
-
-  </div>
-
-
-  <!-- KYC -->
-  <div class="order-card">
-
-    <h4 style="font-size:14px;margin-bottom:10px;">
-      🪪 KYC & Verification
-    </h4>
-
-    <label style="font-size:10px;font-weight:700;">AADHAAR LAST 4 DIGITS</label>
-    <input
-      id="profile-aadhaar"
-      class="input-otp"
-      style="text-align:left;letter-spacing:2px;font-size:13px;"
-      type="text"
-      maxlength="4"
-      inputmode="numeric"
-      placeholder="XXXX">
-
-    <label style="font-size:10px;font-weight:700;">PAN NUMBER</label>
-    <input
-      id="profile-pan"
-      class="input-otp"
-      style="text-align:left;letter-spacing:normal;font-size:13px;text-transform:uppercase;"
-      placeholder="ABCDE1234F">
-
-    <label style="font-size:10px;font-weight:700;">DRIVING LICENCE</label>
-    <input
-      id="profile-dl"
-      class="input-otp"
-      style="text-align:left;letter-spacing:normal;font-size:13px;"
-      placeholder="Driving Licence Number">
-
-    <button
-      class="btn-flow btn-out"
-      onclick="saveKycInfo()">
-      🪪 Save KYC Details
-    </button>
-
-    <p style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.4;">
-      Full Aadhaar number/document photo ko plain text me store nahi karna hai.
-      Secure KYC verification baad me Admin Panel se hoga.
-    </p>
-
-  </div>
-
-
-  <!-- Emergency Support -->
-  <div class="order-card">
-
-    <h4 style="font-size:14px;margin-bottom:8px;">
-      🆘 Emergency Delivery Support
-    </h4>
-
-    <a
-      href="tel:+919876543210"
-      class="btn-flow btn-out"
-      style="text-decoration:none;">
-
-      <i data-lucide="phone-call"></i>
-      Call Fleet Manager
-
-    </a>
-
-  </div>
-
-
-  <!-- Password -->
-  <div class="order-card">
-
-    <h4 style="font-size:14px;margin-bottom:8px;">
-      🔐 Update Security Password
-    </h4>
-
-    <input
-      type="password"
-      id="new-password"
-      class="input-otp"
-      style="text-align:left;letter-spacing:normal;font-size:13px;"
-      placeholder="New Password">
-
-    <button
-      class="btn-flow btn-pickup"
-      onclick="changePassword()">
-      Update Password
-    </button>
-
-  </div>
-
-
-  <!-- Logout -->
-  <div class="order-card">
-
-    <button
-      class="btn-flow"
-      style="background:#fee2e2;color:#991b1b;"
-      onclick="logoutPartner()">
-
-      🚪 Logout
-
-    </button>
-
-  </div>
-
+<div class="tabs">
+  <button class="tab active" onclick="showPage('home',this)">New Orders <span id="newCount">(0)</span></button>
+  <button class="tab" onclick="showPage('ongoing',this)">Ongoing <span id="ongoingCount">(0)</span></button>
+  <button class="tab" onclick="showPage('completed',this)">Completed</button>
+  <button class="tab" onclick="showPage('earnings',this)">Earnings</button>
+  <button class="tab" onclick="showPage('profile',this)">Profile</button>
 </div>
 
-  <!-- Bottom Navigation Bar -->
-  <div class="bottom-nav">
-    <button class="nav-item active" onclick="switchTab('panel-runsheet', this)">
-      <i data-lucide="truck"></i> Orders
-    </button>
-    <button class="nav-item" onclick="switchTab('panel-qc', this)">
-      <i data-lucide="package-check"></i> QC
-    </button>
-    <button class="nav-item" onclick="switchTab('panel-undelivered', this)">
-      <i data-lucide="alert-triangle"></i> Failed
-    </button>
-    <button class="nav-item" onclick="switchTab('panel-attendance', this)">
-      <i data-lucide="calendar"></i> Duty
-    </button>
-    <button class="nav-item" onclick="switchTab('panel-support', this)">
-      <i data-lucide="user"></i> Profile
-    </button>
+<main>
+<section id="home" class="page active">
+  <div class="sectionHead"><h3>New Delivery Orders</h3><span id="refreshText">Live</span></div>
+  <div id="newOrders"></div>
+  <div class="mapCard">
+    <div class="mapFake"><i data-lucide="map" style="width:28px"></i>&nbsp; Nearby Stores & Delivery Area</div>
+    <button class="btn green" style="width:100%" onclick="openOptimizedRoute()"><i data-lucide="navigation"></i> Open Google Maps Route</button>
   </div>
+</section>
 
-  <!-- Open Box QC Modal -->
-  <div id="qc-modal" class="modal">
-    <div class="modal-content">
-      <h3 style="font-size: 16px; margin-bottom: 12px;">Open Box Quality Check</h3>
-      <div style="font-size: 13px; line-height: 2;">
-        <label><input type="checkbox" id="qc-tag"> Product Tag intact</label><br>
-        <label><input type="checkbox" id="qc-box"> Original packaging available</label><br>
-        <label><input type="checkbox" id="qc-damage"> Physical damage inspect done</label>
-      </div>
-      <select id="qc-status" class="form-select">
-        <option value="Passed">Passed - Accept Item</option>
-        <option value="Failed">Failed - Reject Item</option>
-      </select>
-      <div style="display: flex; gap: 8px; margin-top: 12px;">
-        <button class="btn-flow btn-deliver" style="flex:1;" onclick="submitQC()">Submit QC</button>
-        <button class="btn-flow" style="flex:1; background:#e5e7eb; color:#374151;" onclick="closeModal('qc-modal')">Cancel</button>
-      </div>
+<section id="ongoing" class="page">
+  <div class="sectionHead"><h3>Ongoing Deliveries</h3><span>Live status</span></div>
+  <div id="ongoingOrders"></div>
+</section>
+
+<section id="completed" class="page">
+  <div class="sectionHead"><h3>Today's Completed Orders</h3><span id="completedCount">0</span></div>
+  <div id="completedOrders"></div>
+</section>
+
+<section id="earnings" class="page">
+  <div class="target">
+    <div class="targetRow"><div class="circle" id="targetCircle">0/15</div><div><b>Today's Target</b><p>Complete 15 orders to unlock ₹100 incentive</p></div></div>
+    <div class="progress"><i id="targetBar"></i></div>
+  </div>
+  <div class="profileCard">
+    <div class="sectionHead"><h3>Earnings Summary</h3></div>
+    <div class="stats" style="padding:0;margin:0">
+      <div class="stat"><small>Delivery Fees</small><strong id="earnDelivery">₹0</strong></div>
+      <div class="stat"><small>Incentive</small><strong id="earnIncentive">₹0</strong></div>
+      <div class="stat"><small>COD Cash</small><strong id="earnCod">₹0</strong></div>
+      <div class="stat"><small>Total</small><strong id="earnTotal">₹0</strong></div>
     </div>
   </div>
+</section>
 
-  <!-- Undelivered Modal -->
-  <div id="failed-modal" class="modal">
-    <div class="modal-content">
-      <h3 style="font-size: 16px; margin-bottom: 12px;">Mark Undelivered</h3>
-      <select id="fail-reason" class="form-select">
-        <option value="Customer Unavailable">Customer Unavailable</option>
-        <option value="Wrong Address">Wrong Address / Customer Shifted</option>
-        <option value="Customer Refused">Customer Refused Order</option>
-        <option value="Phone Unreachable">Phone Unreachable / Switched Off</option>
-      </select>
-      <div style="display: flex; gap: 8px; margin-top: 12px;">
-        <button class="btn-flow" style="flex:1; background:var(--danger); color:white;" onclick="submitFailedAttempt()">Confirm Failed</button>
-        <button class="btn-flow" style="flex:1; background:#e5e7eb; color:#374151;" onclick="closeModal('failed-modal')">Cancel</button>
-      </div>
-    </div>
+<section id="profile" class="page">
+  <div class="profileCard">
+    <div class="profileHead"><div class="avatar"><i data-lucide="user"></i></div><div><b id="profileTitle">Delivery Partner</b><small id="profileEmail">Authenticating...</small></div><span class="kyc" id="kyc-badge">KYC PENDING</span></div>
+    <label class="label">FULL NAME</label><input id="profile-name" class="input" placeholder="Enter full name">
+    <label class="label">MOBILE NUMBER</label><input id="profile-phone" class="input" type="tel" placeholder="Enter mobile number">
+    <label class="label">VEHICLE TYPE</label><select id="profile-vehicle" class="select"><option>Bike</option><option>Scooter</option><option>EV</option><option>Cycle</option></select>
+    <label class="label">VEHICLE NUMBER</label><input id="profile-vehicle-number" class="input" placeholder="BR01AB1234">
+    <label class="label">DELIVERY AREA</label><input id="profile-area" class="input" placeholder="Maner / Danapur / Bihta">
+    <button class="btn green" style="width:100%;margin-top:12px" onclick="savePartnerProfile()"><i data-lucide="save"></i> Save Profile</button>
   </div>
+  <div class="profileCard">
+    <h3 style="font-size:14px;margin-bottom:10px">KYC & Verification</h3>
+    <label class="label">AADHAAR LAST 4 DIGITS</label><input id="profile-aadhaar" class="input" maxlength="4" inputmode="numeric" placeholder="XXXX">
+    <label class="label">PAN NUMBER</label><input id="profile-pan" class="input" style="text-transform:uppercase" placeholder="ABCDE1234F">
+    <label class="label">DRIVING LICENCE</label><input id="profile-dl" class="input" placeholder="Driving Licence Number">
+    <button class="btn blue" style="width:100%;margin-top:12px" onclick="saveKycInfo()">Save KYC Details</button>
+    <p style="font-size:9px;color:var(--muted);margin-top:8px">Full Aadhaar number/document photo plain text me store na karein.</p>
+  </div>
+  <div class="profileCard">
+    <button class="btn blue" style="width:100%;margin-bottom:8px" onclick="punchIn()"><i data-lucide="map-pin"></i> Attendance Check-In</button>
+    <a href="tel:+919876543210" class="btn blue" style="width:100%;text-decoration:none;margin-bottom:8px"><i data-lucide="phone-call"></i> Fleet Manager Support</a>
+    <input id="new-password" class="input" type="password" placeholder="New password (min 6 characters)" style="margin-bottom:8px">
+    <button class="btn orange" style="width:100%;margin-bottom:8px" onclick="changePassword()">Update Password</button>
+    <button class="btn red" style="width:100%" onclick="logoutPartner()">Logout</button>
+  </div>
+</section>
+</main>
 
-  <!-- Firebase Scripts Logic -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-   import { getAuth, onAuthStateChanged, updatePassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    const firebaseConfig = {
-      apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
-      authDomain: "sudhsagarmart.firebaseapp.com",
-      projectId: "sudhsagarmart",
-      storageBucket: "sudhsagarmart.firebasestorage.app",
-      messagingSenderId: "682379938859",
-      appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e"
-    };
+<nav class="bottom">
+  <button class="nav active" onclick="showPage('home',this)"><div><i data-lucide="home"></i></div>Home</button>
+  <button class="nav" onclick="showPage('ongoing',this)"><div><i data-lucide="package"></i></div>Orders</button>
+  <button class="nav" onclick="showPage('earnings',this)"><div><i data-lucide="wallet"></i></div>Earnings</button>
+  <button class="nav" onclick="showPage('profile',this)"><div><i data-lucide="user"></i></div>Profile</button>
+</nav>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+<div id="qcModal" class="modal"><div class="modalBox">
+<h3>Open Box Quality Check</h3>
+<label><input type="checkbox" id="qc-tag"> Product tag intact</label><br><br>
+<label><input type="checkbox" id="qc-box"> Original packaging available</label><br><br>
+<label><input type="checkbox" id="qc-damage"> Physical damage checked</label>
+<select id="qc-status" class="select" style="margin-top:12px"><option value="Passed">Passed</option><option value="Failed">Failed</option></select>
+<div class="actions" style="margin-top:12px"><button class="btn green" onclick="submitQC()">Submit</button><button class="btn gray" onclick="closeModal('qcModal')">Cancel</button></div>
+</div></div>
 
-    let activeOrdersList = [];
-    let isOnline = true;
+<div id="failedModal" class="modal"><div class="modalBox">
+<h3>Mark Delivery Failed</h3>
+<select id="fail-reason" class="select"><option>Customer Unavailable</option><option>Wrong Address</option><option>Customer Refused</option><option>Phone Unreachable</option></select>
+<div class="actions" style="margin-top:12px"><button class="btn red" onclick="submitFailedAttempt()">Confirm Failed</button><button class="btn gray" onclick="closeModal('failedModal')">Cancel</button></div>
+</div></div>
 
-    // Initialize Lucide Icons
-    lucide.createIcons();
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import {getFirestore,collection,query,where,onSnapshot,doc,getDoc,updateDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {getAuth,onAuthStateChanged,updatePassword,signOut} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // Authentication Listener
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById('partner-email').innerText =
-  user.email || user.phoneNumber || "Delivery Partner";
+const firebaseConfig={
+ apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+ authDomain:"sudhsagarmart.firebaseapp.com",
+ projectId:"sudhsagarmart",
+ storageBucket:"sudhsagarmart.firebasestorage.app",
+ messagingSenderId:"682379938859",
+ appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e"
+};
+const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);
+let orders=[],partnerId=null,isOnline=true,currentQC=null,currentFailed=null;
 
-loadPartnerProfile(user.uid);
-loadMasterData(user.uid);
-      } else {
-        window.location.href = "login.html";
-      }
-    });
+lucide.createIcons();
 
-    // Duty Switch Toggle
-    window.toggleDuty = () => {
-      const btn = document.getElementById('duty-btn');
-      const text = document.getElementById('duty-text');
-      isOnline = !isOnline;
-      text.innerText = isOnline ? "ONLINE" : "OFFLINE";
-      btn.className = `duty-toggle ${isOnline ? 'online' : ''}`;
-    };
+window.showPage=(id,el)=>{
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ const p=document.getElementById(id); if(p)p.classList.add("active");
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+ if(el?.classList.contains("tab"))el.classList.add("active");
+ document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
+ if(el?.classList.contains("nav"))el.classList.add("active");
+ lucide.createIcons();
+};
 
-    // Bottom Navigation Switcher
-    window.switchTab = (panelId, element) => {
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-      document.getElementById(panelId).classList.add('active');
-      element.classList.add('active');
-    };
+onAuthStateChanged(auth,user=>{
+ if(!user){location.href="login.html";return;}
+ partnerId=user.uid;
+ document.getElementById("profileEmail").textContent=user.email||user.phoneNumber||"Delivery Partner";
+ document.getElementById("profileTitle").textContent=user.displayName||"Delivery Partner";
+ loadPartnerProfile(user.uid);
+ loadOrders(user.uid);
+});
 
-    // Load Live Master Data Stream
-    function loadMasterData(partnerId) {
-      const q = query(
-        collection(db, "orders"),
-        where("deliveryBoyId", "==", partnerId)
-      );
-
-      onSnapshot(q, (snapshot) => {
-        const runsheetList = document.getElementById('runsheet-list');
-        const qcList = document.getElementById('qc-list');
-        const failedList = document.getElementById('failed-list');
-
-        runsheetList.innerHTML = "";
-        qcList.innerHTML = "";
-        failedList.innerHTML = "";
-
-        activeOrdersList = [];
-        let completedToday = 0;
-        let totalEarningsToday = 0;
-        let totalCodCollected = 0;
-
-        snapshot.forEach((docSnap) => {
-          const order = docSnap.data();
-          order.id = docSnap.id;
-
-          if (order.orderStatus === "Delivered") {
-            completedToday++;
-            totalEarningsToday += (order.deliveryFee || 40);
-            if (order.paymentMethod === "COD") {
-              totalCodCollected += (order.totalAmount || 0);
-            }
-          } else {
-            activeOrdersList.push(order);
-          }
-        });
-
-        // Update Dashboard Indicators
-        document.getElementById('stat-orders').innerText = completedToday;
-        document.getElementById('stat-earnings').innerText = `₹${totalEarningsToday}`;
-        document.getElementById('stat-cod').innerText = `₹${totalCodCollected}`;
-
-        const progress = Math.min((completedToday / 15) * 100, 100);
-        document.getElementById('incentive-bar').style.width = `${progress}%`;
-        document.getElementById('incentive-text').innerText = `${completedToday} / 15 Completed`;
-
-        if (activeOrdersList.length === 0) {
-          runsheetList.innerHTML = "<p style='text-align:center; padding:30px; color:#6b7280; font-size:12px;'>No active deliveries assigned.</p>";
-          qcList.innerHTML = "<p style='text-align:center; padding:30px; color:#6b7280; font-size:12px;'>No pending open-box deliveries.</p>";
-          failedList.innerHTML = "<p style='text-align:center; padding:30px; color:#6b7280; font-size:12px;'>No orders for reporting.</p>";
-          return;
-        }
-
-        activeOrdersList.forEach((order, index) => {
-          runsheetList.appendChild(createRunsheetCard(order, index + 1));
-          qcList.appendChild(createQcCard(order));
-          failedList.appendChild(createFailedCard(order));
-        });
-
-        lucide.createIcons();
-      });
-    }
-
-    // Dynamic Card Builder (Blinkit Style Flow)
-    function createRunsheetCard(order, index) {
-      const card = document.createElement('div');
-      card.className = 'order-card';
-
-      const upiId = "sudhsagarmart@upi";
-      const status = order.orderStatus || "Assigned";
-
-      let badgeClass = "badge-assigned";
-      if (status === "Picked Up") badgeClass = "badge-picked";
-      if (status === "Out for Delivery") badgeClass = "badge-out";
-      if (status === "Delivered") badgeClass = "badge-delivered";
-
-      card.innerHTML = `
-        <div class="card-head">
-          <span class="order-id">Order #${order.id.substr(0, 8)}</span>
-          <span class="badge ${badgeClass}">${status}</span>
-        </div>
-
-        <div class="cust-info">
-          <div class="cust-name">
-            <span>${order.customerName || 'Customer'}</span>
-            <span style="color:var(--primary); font-weight:800;">₹${order.totalAmount || 0} (${order.paymentMethod || 'COD'})</span>
-          </div>
-          <div class="cust-address">${order.address || 'Address not provided'}</div>
-        </div>
-
-        <div class="quick-actions">
-          <a href="tel:${order.customerPhone || ''}" class="btn-icon">
-            <i data-lucide="phone" style="width:14px;"></i> Call
-          </a>
-          <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.address || '')}" target="_blank" class="btn-icon">
-            <i data-lucide="navigation" style="width:14px;"></i> Map
-          </a>
-        </div>
-
-        <!-- Flow 1: Pickup -->
-        ${status === "Assigned" ? `
-          <button class="btn-flow btn-pickup" onclick="markPickedUp('${order.id}')">
-            📦 Confirm Order Picked Up
-          </button>
-        ` : ''}
-
-        <!-- Flow 2: Out For Delivery -->
-        ${status === "Picked Up" ? `
-          <button class="btn-flow btn-out" onclick="markOutForDelivery('${order.id}')">
-            🚚 Start Out for Delivery
-          </button>
-        ` : ''}
-
-        <!-- Flow 3: Verify OTP & Collect Payment -->
-        ${status === "Out for Delivery" ? `
-          <div class="step-box">
-            <span class="step-label">1. Payment Collection</span>
-            <button class="btn-flow"
-  style="background:#e0e7ff; color:#3730a3; margin-bottom:6px;"
-  onclick="generateQR('${order.id}', ${order.totalAmount || 0}, '${upiId}')">
-  💳 Generate UPI QR
-</button>
-            <div id="qr-box-${order.id}" class="qr-container">
-              <img id="qr-img-${order.id}" src="" alt="UPI QR">
-              <p style="font-size:10px; color:var(--text-muted);">Scan via GPay / PhonePe / Paytm</p>
-            </div>
-          </div>
-
-          <div class="step-box">
-            <span class="step-label">2. Enter Delivery OTP</span>
-            <input type="text" id="otp-${order.id}" class="input-otp" placeholder="0000" maxlength="6">
-            <button class="btn-flow btn-deliver" onclick="verifyDelivery('${order.id}')">
-              ✅ Verify OTP & Finish Delivery
-            </button>
-          </div>
-        ` : ''}
-      `;
-
-      return card;
-    }
-
-    function createQcCard(order) {
-      const card = document.createElement('div');
-      card.className = 'order-card';
-      card.innerHTML = `
-        <div class="cust-info">
-          <div class="cust-name">Order #${order.id.substr(0, 8)}</div>
-          <div class="cust-address">${order.customerName || 'N/A'} - ${order.address || ''}</div>
-        </div>
-        <button class="btn-flow btn-out" onclick="openQCModal('${order.id}')">Perform Open-Box QC</button>
-      `;
-      return card;
-    }
-
-    function createFailedCard(order) {
-      const card = document.createElement('div');
-      card.className = 'order-card';
-      card.innerHTML = `
-        <div class="cust-info">
-          <div class="cust-name">Order #${order.id.substr(0, 8)}</div>
-          <div class="cust-address">${order.customerName || 'N/A'}</div>
-        </div>
-        <button class="btn-flow" style="background:var(--danger); color:white;" onclick="openFailedModal('${order.id}')">Report Delivery Failure</button>
-      `;
-      return card;
-    }
-
-    // Single Shot Optimized Firebase Updates
-    window.markPickedUp = async (id) => {
-      const user = auth.currentUser;
-      if (!user) return alert("Session expired. Please login again.");
-
-      try {
-        const orderRef = doc(db, "orders", id);
-        const snap = await getDoc(orderRef);
-        if (!snap.exists()) return alert("Order not found.");
-
-        await updateDoc(orderRef, {
-          orderStatus: "Picked Up",
-          pickedUpAt: new Date(),
-          pickedUpBy: user.uid
-        });
-        alert("Order Marked Picked Up!");
-      } catch (e) {
-        alert("Error: " + e.message);
-      }
-    };
-
-    window.markOutForDelivery = async (id) => {
-      const user = auth.currentUser;
-      if (!user) return alert("Session expired.");
-
-      try {
-        const orderRef = doc(db, "orders", id);
-        await updateDoc(orderRef, {
-          orderStatus: "Out for Delivery",
-          outForDeliveryAt: new Date(),
-          outForDeliveryBy: user.uid
-        });
-        alert("Order is Out for Delivery!");
-      } catch (e) {
-        alert("Error: " + e.message);
-      }
-    };
-
-    window.verifyDelivery = async (id) => {
-      const otpInput = document.getElementById(`otp-${id}`);
-      const enteredOtp = otpInput ? otpInput.value.trim() : '';
-
-      if (!enteredOtp) return alert("Customer se OTP lekar enter karein.");
-
-      const user = auth.currentUser;
-      if (!user) return alert("Session expired.");
-
-      try {
-        const orderRef = doc(db, "orders", id);
-        const snap = await getDoc(orderRef);
-
-        if (!snap.exists()) return alert("Order not found.");
-        const order = snap.data();
-
-        if (String(enteredOtp) !== String(order.deliveryOtp)) {
-          return alert("Invalid OTP! Customer se sahi OTP check karein.");
-        }
-
-        await updateDoc(orderRef, {
-          orderStatus: "Delivered",
-          deliveredAt: new Date(),
-          deliveredBy: user.uid
-        });
-
-        alert("Order Delivered Successfully! 🎉");
-      } catch (e) {
-        alert("Error verifying delivery: " + e.message);
-      }
-    };
-
-    // Helper Actions
-    window.openOptimizedRoute = () => {
-      if (activeOrdersList.length === 0) return alert("No active orders for navigation.");
-      const stops = activeOrdersList.map(o => encodeURIComponent(o.address));
-      const dest = stops.pop();
-      const waypoints = stops.join('|');
-      let mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-      if (waypoints) mapUrl += `&waypoints=${waypoints}&dir_action=navigate`;
-      window.open(mapUrl, '_blank');
-    };
-
-    window.generateQR = (id, amount, upiId) => {
-      const box = document.getElementById(`qr-box-${id}`);
-      const img = document.getElementById(`qr-img-${id}`);
-      const upiUrl = `upi://pay?pa=${upiId}&pn=SudhsagarMart&am=${amount}&cu=INR`;
-      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
-      box.style.display = box.style.display === "block" ? "none" : "block";
-    };
-
-    window.punchIn = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-          document.getElementById('punch-status').innerText = `Checked-In (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`;
-          alert("Attendance Punched In Successfully!");
-        });
-      } else {
-        alert("Geolocation not supported on this device.");
-      }
-    };
-async function loadPartnerProfile(partnerId) {
-  try {
-    const snap = await getDoc(doc(db, "deliveryPartners", partnerId));
-
-    if (!snap.exists()) return;
-
-    const p = snap.data();
-
-    document.getElementById("profile-name").value = p.name || "";
-    document.getElementById("profile-phone").value =
-      p.phone || auth.currentUser?.phoneNumber || "";
-
-    document.getElementById("profile-vehicle").value =
-      p.vehicleType || "Bike";
-
-    document.getElementById("profile-vehicle-number").value =
-      p.vehicleNumber || "";
-
-    document.getElementById("profile-area").value =
-      p.area || "";
-
-    document.getElementById("profile-aadhaar").value =
-      p.aadhaarLast4 || "";
-
-    document.getElementById("profile-pan").value =
-      p.pan || "";
-
-    document.getElementById("profile-dl").value =
-      p.drivingLicence || "";
-
-    const status = p.kycStatus || "Pending";
-    const badge = document.getElementById("kyc-badge");
-
-    badge.innerText = "KYC " + status.toUpperCase();
-
-    if (status === "Verified") {
-      badge.style.background = "#dcfce7";
-      badge.style.color = "#166534";
-    }
-
-    if (status === "Rejected") {
-      badge.style.background = "#fee2e2";
-      badge.style.color = "#991b1b";
-    }
-
-  } catch (e) {
-    console.error("Profile load error:", e);
-  }
+async function loadPartnerProfile(uid){
+ try{
+  const s=await getDoc(doc(db,"deliveryPartners",uid));
+  if(!s.exists())return;
+  const p=s.data();
+  document.getElementById("profile-name").value=p.name||"";
+  document.getElementById("profile-phone").value=p.phone||auth.currentUser?.phoneNumber||"";
+  document.getElementById("profile-vehicle").value=p.vehicleType||"Bike";
+  document.getElementById("profile-vehicle-number").value=p.vehicleNumber||"";
+  document.getElementById("profile-area").value=p.area||"";
+  document.getElementById("profile-aadhaar").value=p.aadhaarLast4||"";
+  document.getElementById("profile-pan").value=p.pan||"";
+  document.getElementById("profile-dl").value=p.drivingLicence||"";
+  setDuty((p.dutyStatus||"online")==="online",false);
+  const b=document.getElementById("kyc-badge"),s1=p.kycStatus||"Pending";
+  b.textContent="KYC "+s1.toUpperCase();
+  if(s1==="Verified"){b.style.background="#dcfce7";b.style.color="#166534"}
+  if(s1==="Rejected"){b.style.background="#fee2e2";b.style.color="#991b1b"}
+ }catch(e){console.error(e)}
 }
 
+function setDuty(value,save=true){
+ isOnline=value;
+ document.getElementById("dutyText").textContent=value?"Online":"Offline";
+ document.getElementById("dutyBtn").classList.toggle("off",!value);
+ document.getElementById("switch").classList.toggle("on",value);
+ document.getElementById("switch").classList.toggle("off",!value);
+ document.getElementById("heroTitle").textContent=value?"You are Online":"You are Offline";
+ document.getElementById("heroSub").textContent=value?"You will receive new delivery orders":"Go online to receive new delivery orders";
+ if(save&&partnerId){
+  setDoc(doc(db,"deliveryPartners",partnerId),{dutyStatus:value?"online":"offline",dutyUpdatedAt:new Date()},{merge:true}).catch(e=>console.error(e));
+ }
+}
+window.toggleDuty=()=>setDuty(!isOnline,true);
 
-window.savePartnerProfile = async () => {
+function loadOrders(uid){
+ const q=query(collection(db,"orders"),where("deliveryBoyId","==",uid));
+ onSnapshot(q,snap=>{
+  orders=[];
+  snap.forEach(x=>orders.push({id:x.id,...x.data()}));
+  orders.sort((a,b)=>(b.assignedAt?.seconds||0)-(a.assignedAt?.seconds||0));
+  render();
+ },err=>{
+  console.error(err);
+  document.getElementById("newOrders").innerHTML='<div class="empty">Orders load नहीं हो सके। Firestore permission/rules check करें.</div>';
+ });
+}
 
-  const user = auth.currentUser;
+function isToday(o){
+ const d=o.deliveredAt?.toDate?o.deliveredAt.toDate():new Date(o.deliveredAt||0);
+ const n=new Date();return d.toDateString()===n.toDateString();
+}
+function status(o){return o.orderStatus||"Assigned"}
+function active(o){return status(o)!=="Delivered"&&status(o)!=="Undelivered Attempt"&&status(o)!=="Cancelled"}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 
-  if (!user) {
-    return alert("Session expired. Please login again.");
-  }
+function render(){
+ const newO=orders.filter(o=>active(o)&&status(o)==="Assigned");
+ const ongoing=orders.filter(o=>active(o)&&status(o)!=="Assigned");
+ const completed=orders.filter(o=>status(o)==="Delivered"&&isToday(o));
+ document.getElementById("newCount").textContent=`(${newO.length})`;
+ document.getElementById("ongoingCount").textContent=`(${ongoing.length})`;
+ document.getElementById("completedCount").textContent=completed.length;
+ document.getElementById("stat-orders").textContent=completed.length;
+ document.getElementById("stat-completed").textContent=`${completed.length} Completed`;
 
-  const name =
-    document.getElementById("profile-name").value.trim();
+ const delivery=completed.reduce((s,o)=>s+Number(o.deliveryFee??40),0);
+ const cod=completed.filter(o=>o.paymentMethod==="COD").reduce((s,o)=>s+Number(o.totalAmount??0),0);
+ document.getElementById("stat-earnings").textContent=`₹${delivery}`;
+ document.getElementById("earnDelivery").textContent=`₹${delivery}`;
+ document.getElementById("earnCod").textContent=`₹${cod}`;
+ document.getElementById("earnIncentive").textContent=`₹${completed.length>=15?100:0}`;
+ document.getElementById("earnTotal").textContent=`₹${delivery+(completed.length>=15?100:0)}`;
+ document.getElementById("stat-pending").textContent=`+ ₹${ongoing.reduce((s,o)=>s+Number(o.deliveryFee??40),0)} Pending`;
+ document.getElementById("stat-time").textContent=calcAvgTime(completed);
 
-  const phone =
-    document.getElementById("profile-phone").value.trim();
+ const pct=Math.min(completed.length/15*100,100);
+ document.getElementById("targetBar").style.width=pct+"%";
+ document.getElementById("targetCircle").textContent=`${Math.min(completed.length,15)}/15`;
 
-  const vehicleType =
-    document.getElementById("profile-vehicle").value;
+ document.getElementById("newOrders").innerHTML=newO.length?newO.map(o=>card(o,"new")).join(""):empty("package-open","No new orders","Super Admin se order assign hone par yahan dikhega.");
+ document.getElementById("ongoingOrders").innerHTML=ongoing.length?ongoing.map(o=>card(o,"ongoing")).join(""):empty("bike","No ongoing delivery","Accepted/picked orders yahan dikhenge.");
+ document.getElementById("completedOrders").innerHTML=completed.length?completed.map(o=>card(o,"completed")).join(""):empty("circle-check","Aaj koi completed order nahi","Delivery complete karte hi yahan record dikhega.");
+ lucide.createIcons();
+}
+function calcAvgTime(list){
+ const arr=list.map(o=>{
+  const a=o.pickedUpAt?.toDate?o.pickedUpAt.toDate():new Date(o.pickedUpAt||0);
+  const b=o.deliveredAt?.toDate?o.deliveredAt.toDate():new Date(o.deliveredAt||0);
+  return a&&b&&b>a?(b-a)/60000:null;
+ }).filter(x=>x!=null&&x<240);
+ return arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length)+" min":"-- min";
+}
+function empty(icon,title,text){return `<div class="empty"><i data-lucide="${icon}"></i><b>${title}</b><br>${text}</div>`}
 
-  const vehicleNumber =
-    document.getElementById("profile-vehicle-number").value
-    .trim()
-    .toUpperCase();
+function card(o,type){
+ const st=status(o),amount=Number(o.totalAmount??o.total??o.amount??0),pay=o.paymentMethod||"COD";
+ const address=esc(o.address||o.customerAddress||"Address not provided"),name=esc(o.customerName||"Customer");
+ const phone=o.customerPhone||o.mobile||"";
+ const id=esc(o.id);
+ let body="";
+ if(type==="new"){
+  body=`<div class="actions">
+   <button class="btn red" onclick="rejectOrder('${id}')">Reject</button>
+   <button class="btn green" onclick="acceptOrder('${id}')">Accept Order</button>
+  </div>`;
+ }else if(type==="ongoing"){
+  if(st==="Assigned")body=`<button class="btn orange" style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`;
+  if(st==="Picked Up")body=`<button class="btn blue" style="width:100%" onclick="markOutForDelivery('${id}')"><i data-lucide="truck"></i> Start Out for Delivery</button>`;
+  if(st==="Out for Delivery")body=`
+   <div class="workflow"><div class="step">1. PAYMENT COLLECTION</div>
+    <button class="btn blue" style="width:100%" onclick="generateQR('${id}',${amount})">💳 Generate UPI QR</button>
+    <div id="qr-${id}" class="qr"><img id="qrimg-${id}"><small>Scan with GPay / PhonePe / Paytm</small></div>
+   </div>
+   <div class="workflow"><div class="step">2. CUSTOMER DELIVERY OTP</div>
+    <input id="otp-${id}" class="otp" maxlength="6" inputmode="numeric" placeholder="0000">
+    <button class="btn green" style="width:100%" onclick="verifyDelivery('${id}')">✅ Verify OTP & Deliver</button>
+   </div>`;
+ }else body=`<div class="btn green" style="width:100%;pointer-events:none"><i data-lucide="circle-check"></i> Delivered Successfully</div>`;
+ return `<article class="order">
+  <div class="orderTop"><span class="tag new">${type==="new"?"⚡ New Order":st}</span><span class="tag timer">⏱ ${type==="completed"?"Completed":"30 min"}</span><span class="tag distance">📍 ${esc(o.distance||"--")} km</span></div>
+  <div class="oid">#${id.slice(0,10)}</div><div class="items">Items (${o.itemCount||o.items?.length||"—"})</div>
+  <div class="amountRow"><span class="amount">₹${amount}</span><span class="pay ${pay==="COD"?"cod":"prepaid"}">${esc(pay)}</span></div>
+  <div class="customer"><div class="pin"><i data-lucide="map-pin" style="width:17px"></i></div><div style="flex:1"><b>${name}</b><p>${address}</p></div></div>
+  <div class="actions" style="margin-top:10px">
+   <a class="btn gray" href="tel:${esc(phone)}" style="text-decoration:none"><i data-lucide="phone"></i> Call</a>
+   <a class="btn gray" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.address||o.customerAddress||"")}"><i data-lucide="navigation"></i> Maps</a>
+  </div>
+  <div style="margin-top:10px">${body}</div>
+  ${type!=="completed"?`<div class="actions" style="margin-top:8px"><button class="btn gray" onclick="openQCModal('${id}')">📦 QC</button><button class="btn red" onclick="openFailedModal('${id}')">⚠ Failed</button></div>`:""}
+ </article>`;
+}
 
-  const area =
-    document.getElementById("profile-area").value.trim();
-
-  if (!name) {
-    return alert("Full Name enter karein.");
-  }
-
-  if (!phone) {
-    return alert("Mobile number enter karein.");
-  }
-
-  try {
-
-    await setDoc(
-      doc(db, "deliveryPartners", user.uid),
-      {
-        name: name,
-        phone: phone,
-        email: user.email || "",
-        vehicleType: vehicleType,
-        vehicleNumber: vehicleNumber,
-        area: area,
-        updatedAt: new Date()
-      },
-      { merge: true }
-    );
-
-    alert("Partner Profile Saved Successfully! ✅");
-
-  } catch (e) {
-
-    alert("Profile Save Error: " + e.message);
-
-  }
+window.acceptOrder=async id=>{
+ try{
+  const r=doc(db,"orders",id);await updateDoc(r,{riderAccepted:true,riderAcceptedAt:new Date(),deliveryAssignmentStatus:"Accepted"});
+  alert("Order accepted. Ab pickup confirm karein.");
+ }catch(e){alert("Error: "+e.message)}
 };
-
-
-window.saveKycInfo = async () => {
-
-  const user = auth.currentUser;
-
-  if (!user) {
-    return alert("Session expired. Please login again.");
-  }
-
-  const aadhaarLast4 =
-    document.getElementById("profile-aadhaar").value.trim();
-
-  const pan =
-    document.getElementById("profile-pan").value
-    .trim()
-    .toUpperCase();
-
-  const drivingLicence =
-    document.getElementById("profile-dl").value
-    .trim()
-    .toUpperCase();
-
-  if (aadhaarLast4 && !/^\d{4}$/.test(aadhaarLast4)) {
-    return alert("Aadhaar me sirf last 4 digits enter karein.");
-  }
-
-  try {
-
-    await setDoc(
-      doc(db, "deliveryPartners", user.uid),
-      {
-        aadhaarLast4: aadhaarLast4,
-        pan: pan,
-        drivingLicence: drivingLicence,
-        kycStatus: "Pending",
-        kycUpdatedAt: new Date()
-      },
-      { merge: true }
-    );
-
-    document.getElementById("kyc-badge").innerText =
-      "KYC PENDING";
-
-    alert("KYC Details Saved! Admin Verification Pending. 🪪");
-
-  } catch (e) {
-
-    alert("KYC Save Error: " + e.message);
-
-  }
+window.rejectOrder=async id=>{
+ if(!confirm("Is order ko reject karna hai?"))return;
+ try{await updateDoc(doc(db,"orders",id),{deliveryAssignmentStatus:"Rejected",riderRejectedAt:new Date()});alert("Order rejected.");}
+ catch(e){alert("Error: "+e.message)}
 };
-
-
-window.logoutPartner = async () => {
-
-  try {
-
-    await signOut(auth);
-
-    window.location.href = "login.html";
-
-  } catch (e) {
-
-    alert("Logout Error: " + e.message);
-
-  }
+window.markPickedUp=async id=>{
+ try{await updateDoc(doc(db,"orders",id),{orderStatus:"Picked Up",pickedUpAt:new Date(),pickedUpBy:partnerId});alert("Order Picked Up!");}
+ catch(e){alert(e.message)}
 };
-    window.changePassword = async () => {
-      const pwd = document.getElementById('new-password').value;
-      if (!pwd || pwd.length < 6) return alert("Password must be at least 6 characters.");
-      try {
-        await updatePassword(auth.currentUser, pwd);
-        alert("Password updated successfully!");
-      } catch (e) { alert("Error: " + e.message); }
-    };
-
-    // Modal Control
-    window.openQCModal = (orderId) => {
-      window.currentQCOrderId = orderId;
-      document.getElementById('qc-modal').style.display = 'flex';
-    };
-
-    window.submitQC = async () => {
-      const isPassed = document.getElementById('qc-status').value === "Passed";
-      try {
-        await updateDoc(doc(db, "orders", window.currentQCOrderId), {
-          qcStatus: isPassed ? "Passed" : "Failed"
-        });
-        alert("QC Saved!");
-        closeModal('qc-modal');
-      } catch (e) { alert(e.message); }
-    };
-
-    window.openFailedModal = (orderId) => {
-      window.currentFailedOrderId = orderId;
-      document.getElementById('failed-modal').style.display = 'flex';
-    };
-
-    window.submitFailedAttempt = async () => {
-      const reason = document.getElementById('fail-reason').value;
-      try {
-        await updateDoc(doc(db, "orders", window.currentFailedOrderId), {
-          orderStatus: "Undelivered Attempt",
-          failedReason: reason
-        });
-        alert("Report Saved!");
-        closeModal('failed-modal');
-      } catch (e) { alert(e.message); }
-    };
-
-    window.closeModal = (id) => {
-      document.getElementById(id).style.display = 'none';
-    };
-  </script>
+window.markOutForDelivery=async id=>{
+ try{await updateDoc(doc(db,"orders",id),{orderStatus:"Out for Delivery",outForDeliveryAt:new Date(),outForDeliveryBy:partnerId});alert("Out for Delivery started!");}
+ catch(e){alert(e.message)}
+};
+window.verifyDelivery=async id=>{
+ const input=document.getElementById("otp-"+id),otp=input?.value.trim();if(!otp)return alert("Customer se OTP lekar enter karein.");
+ try{
+  const s=await getDoc(doc(db,"orders",id));if(!s.exists())return alert("Order not found.");
+  const o=s.data();if(String(otp)!==String(o.deliveryOtp))return alert("Invalid OTP!");
+  await updateDoc(doc(db,"orders",id),{orderStatus:"Delivered",deliveredAt:new Date(),deliveredBy:partnerId});
+  alert("Order Delivered Successfully! 🎉");
+ }catch(e){alert(e.message)}
+};
+window.generateQR=(id,amount)=>{
+ const box=document.getElementById("qr-"+id),img=document.getElementById("qrimg-"+id);
+ const upi=`upi://pay?pa=sudhsagarmart@upi&pn=SudhSagarMart&am=${amount}&cu=INR`;
+ img.src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="+encodeURIComponent(upi);
+ box.style.display=box.style.display==="block"?"none":"block";
+};
+window.openOptimizedRoute=()=>{
+ const list=orders.filter(active);if(!list.length)return alert("No active orders.");
+ const stops=list.map(o=>encodeURIComponent(o.address||o.customerAddress||"")).filter(Boolean);if(!stops.length)return alert("Order address not available.");
+ const dest=stops.pop();let url=`https://www.google.com/maps/dir/?api=1&destination=${dest}`;if(stops.length)url+=`&waypoints=${stops.join("|")}`;url+="&dir_action=navigate";window.open(url,"_blank");
+};
+window.openQCModal=id=>{currentQC=id;document.getElementById("qcModal").style.display="flex"};
+window.submitQC=async()=>{try{await updateDoc(doc(db,"orders",currentQC),{qcStatus:document.getElementById("qc-status").value,qcUpdatedAt:new Date()});closeModal("qcModal");alert("QC Saved!")}catch(e){alert(e.message)}};
+window.openFailedModal=id=>{currentFailed=id;document.getElementById("failedModal").style.display="flex"};
+window.submitFailedAttempt=async()=>{try{await updateDoc(doc(db,"orders",currentFailed),{orderStatus:"Undelivered Attempt",failedReason:document.getElementById("fail-reason").value,failedAt:new Date(),failedBy:partnerId});closeModal("failedModal");alert("Failed attempt saved.")}catch(e){alert(e.message)}};
+window.closeModal=id=>document.getElementById(id).style.display="none";
+window.punchIn=()=>{if(!navigator.geolocation)return alert("Geolocation supported nahi hai.");navigator.geolocation.getCurrentPosition(async p=>{try{await setDoc(doc(db,"deliveryPartners",partnerId),{lastPunchInAt:new Date(),lastPunchInLocation:{lat:p.coords.latitude,lng:p.coords.longitude}},{merge:true});alert("Attendance check-in saved ✅")}catch(e){alert(e.message)}},()=>alert("Location permission allow karein."))};
+window.savePartnerProfile=async()=>{
+ const name=document.getElementById("profile-name").value.trim(),phone=document.getElementById("profile-phone").value.trim();
+ if(!name||!phone)return alert("Name aur mobile number enter karein.");
+ try{await setDoc(doc(db,"deliveryPartners",partnerId),{name,phone,email:auth.currentUser?.email||"",vehicleType:document.getElementById("profile-vehicle").value,vehicleNumber:document.getElementById("profile-vehicle-number").value.trim().toUpperCase(),area:document.getElementById("profile-area").value.trim(),updatedAt:new Date()},{merge:true});alert("Profile saved ✅")}catch(e){alert(e.message)}
+};
+window.saveKycInfo=async()=>{
+ const aad=document.getElementById("profile-aadhaar").value.trim();if(aad&&!/^\d{4}$/.test(aad))return alert("Aadhaar me last 4 digits hi enter karein.");
+ try{await setDoc(doc(db,"deliveryPartners",partnerId),{aadhaarLast4:aad,pan:document.getElementById("profile-pan").value.trim().toUpperCase(),drivingLicence:document.getElementById("profile-dl").value.trim().toUpperCase(),kycStatus:"Pending",kycUpdatedAt:new Date()},{merge:true});alert("KYC saved. Admin verification pending.")}catch(e){alert(e.message)}
+};
+window.changePassword=async()=>{const p=document.getElementById("new-password").value;if(p.length<6)return alert("Password minimum 6 characters.");try{await updatePassword(auth.currentUser,p);alert("Password updated successfully.")}catch(e){alert("Error: "+e.message)}};
+window.logoutPartner=async()=>{await signOut(auth);location.href="login.html"};
+</script>
 </body>
 </html>
