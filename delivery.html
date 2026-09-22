@@ -238,11 +238,7 @@ function setDuty(value,save=true){
   setDoc(doc(db,"deliveryPartners",partnerId),{dutyStatus:value?"online":"offline",dutyUpdatedAt:new Date()},{merge:true}).catch(e=>console.error(e));
  }
 }
-  if(value){
-  startLiveLocation();
-}else{
-  stopLiveLocation();
-}
+  
 window.toggleDuty=()=>setDuty(!isOnline,true);
 // ================= LIVE GPS LOCATION =================
 let liveLocationWatchId = null;
