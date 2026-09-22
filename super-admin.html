@@ -2285,6 +2285,115 @@ allPartnersHtml
 );
 
 }
+  /* ALL DELIVERY PARTNERS */
+
+const oldPartners =
+  document.getElementById("allDeliveryPartners");
+
+if(oldPartners){
+  oldPartners.remove();
+}
+
+const allPartnersHtml = `
+<div id="allDeliveryPartners"
+style="
+margin:20px 0;
+padding:18px;
+background:#fff;
+border:1px solid #ddd;
+border-radius:14px;
+">
+
+<h3 style="margin:0 0 15px;">
+🚴 All Delivery Partners
+</h3>
+
+<div style="overflow-x:auto;">
+
+<table style="
+width:100%;
+border-collapse:collapse;
+min-width:800px;
+">
+
+<thead>
+<tr style="background:#f5f5f5;">
+<th>Name</th>
+<th>Email</th>
+<th>Mobile</th>
+<th>Vehicle</th>
+<th>Area</th>
+<th>KYC</th>
+<th>Account</th>
+<th>Duty</th>
+</tr>
+</thead>
+
+<tbody>
+
+${
+riders.map(rider => `
+
+<tr style="border-top:1px solid #eee;">
+
+<td style="padding:10px;">
+<b>${esc(rider.name || "Delivery Partner")}</b>
+</td>
+
+<td style="padding:10px;">
+${esc(rider.email || "-")}
+</td>
+
+<td style="padding:10px;">
+${esc(rider.phone || "-")}
+</td>
+
+<td style="padding:10px;">
+${esc(rider.vehicleType || "-")}
+</td>
+
+<td style="padding:10px;">
+${esc(rider.area || "-")}
+</td>
+
+<td style="padding:10px;">
+${esc(rider.kycStatus || "Pending")}
+</td>
+
+<td style="padding:10px;">
+<b>${esc(rider.accountStatus || "pending")}</b>
+</td>
+
+<td style="padding:10px;">
+${
+String(rider.dutyStatus || "offline").toLowerCase() === "online"
+? "🟢 Online"
+: "⚪ Offline"
+}
+</td>
+
+</tr>
+
+`).join("")
+}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+`;
+
+if(deliveryTable){
+
+deliveryTable.insertAdjacentHTML(
+"beforebegin",
+allPartnersHtml
+);
+
+}
   const activeOrders = orders.filter(o => {
 
     const status = String(
