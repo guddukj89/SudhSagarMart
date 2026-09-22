@@ -2053,6 +2053,85 @@ function renderDelivery(){
 
   const riders = data.deliveryPartners || [];
   const orders = data.orders || [];
+  /* DELIVERY PARTNER APPROVAL */
+const approvalPartners = riders.filter(r =>
+  String(r.accountStatus || "pending").toLowerCase() === "pending"
+);
+
+document.getElementById("deliveryApprovalBox")?.remove();
+
+const approvalHtml = `
+<div id="deliveryApprovalBox"
+     style="margin-bottom:20px;padding:18px;background:#fff;border:1px solid #ddd;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+    <h3 style="margin:0;">🚴 Delivery Partner Approval</h3>
+    <span style="background:#fff3cd;color:#856404;padding:6px 12px;border-radius:20px;font-size:13px;">
+      Pending: ${approvalPartners.length}
+    </span>
+  </div>
+
+  ${
+    approvalPartners.length
+    ? approvalPartners.map(partner => `
+      <div style="border:1px solid #eee;border-radius:12px;padding:15px;margin-bottom:12px;">
+
+        <div style="font-size:17px;font-weight:700;">
+          ${partner.name || "Delivery Partner"}
+        </div>
+
+        <div style="color:#666;margin-top:5px;">
+          📧 ${partner.email || "-"}
+        </div>
+
+        <div style="color:#666;margin-top:4px;">
+          📱 ${partner.phone || "-"}
+        </div>
+
+        <div style="color:#666;margin-top:4px;">
+          🚲 Vehicle: ${partner.vehicleType || "-"}
+          ${partner.vehicleNumber ? " | " + partner.vehicleNumber : ""}
+        </div>
+
+        <div style="color:#666;margin-top:4px;">
+          📍 Area: ${partner.area || "-"}
+        </div>
+
+        <div style="margin-top:12px;">
+          <span style="background:#fff3cd;color:#856404;padding:5px 10px;border-radius:15px;font-size:12px;">
+            KYC: ${partner.kycStatus || "Pending"}
+          </span>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:15px;">
+
+          <button
+            onclick="approveDeliveryPartner('${partner.id}')"
+            style="background:#198754;color:white;border:0;padding:9px 16px;border-radius:8px;cursor:pointer;">
+            ✅ Approve
+          </button>
+
+          <button
+            onclick="rejectDeliveryPartner('${partner.id}')"
+            style="background:#dc3545;color:white;border:0;padding:9px 16px;border-radius:8px;cursor:pointer;">
+            ❌ Reject
+          </button>
+
+        </div>
+
+      </div>
+    `).join("")
+    : `
+      <div style="padding:20px;text-align:center;color:#777;">
+        कोई Pending Delivery Partner नहीं है।
+      </div>
+    `
+  }
+
+</div>
+`;
+
+box.insertAdjacentHTML("afterbegin", approvalHtml);
 
   const activeOrders = orders.filter(o => {
 
