@@ -364,6 +364,72 @@ function stopLiveLocation(){
   }
 
 }
+  // ================= NEW ORDER NOTIFICATION =================
+let firstOrderSnapshot = true;
+let knownOrderIds = new Set();
+
+async function enableOrderNotifications(){
+
+  if(!("Notification" in window)){
+    console.log("Browser notification supported nahi hai.");
+    return;
+  }
+
+  if(Notification.permission === "default"){
+    try{
+      await Notification.requestPermission();
+    }catch(e){
+      console.error(e);
+    }
+  }
+}
+
+function notifyNewOrder(order){
+
+  const orderNo =
+    order.orderId ||
+    order.orderNo ||
+    order.id ||
+    "New Order";
+
+  const amount =
+    Number(
+      order.totalAmount ||
+      order.total ||
+      order.amount ||
+      0
+    );
+
+  // Browser notification
+  if(
+    "Notification" in window &&
+    Notification.permission === "granted"
+  ){
+
+    new Notification("🛵 New Delivery Order",{
+      body:
+        "Order: " + orderNo +
+        "\nAmount: ₹" + amount +
+        "\nNew delivery assigned.",
+      icon:"https://sudhsagarmart.online/favicon.ico"
+    });
+
+  }
+
+  // Page open hone par alert
+  if(document.visibilityState === "visible"){
+
+    alert(
+      "🛵 NEW DELIVERY ORDER\n\n" +
+      "Order: " + orderNo +
+      "\nAmount: ₹" + amount +
+      "\n\nOrder Delivery Panel me aa gaya hai."
+    );
+
+  }
+}
+
+// ================= END NOTIFICATION =================
 // ================= END LIVE GPS =================
 function loadOrders(uid){
  const q=query(collection(db,"orders"),where("deliveryBoyId","==",uid));
