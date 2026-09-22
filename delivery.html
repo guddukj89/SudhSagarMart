@@ -218,7 +218,14 @@ async function loadPartnerProfile(uid){
   document.getElementById("profile-aadhaar").value=p.aadhaarLast4||"";
   document.getElementById("profile-pan").value=p.pan||"";
   document.getElementById("profile-dl").value=p.drivingLicence||"";
-  setDuty((p.dutyStatus||"online")==="online",false);
+  const partnerOnline=(p.dutyStatus||"online")==="online";
+
+setDuty(partnerOnline,false);
+
+// Saved Online status ho to GPS automatically resume karo
+if(partnerOnline){
+  setTimeout(()=>startLiveLocation(),300);
+}
   const b=document.getElementById("kyc-badge"),s1=p.kycStatus||"Pending";
   b.textContent="KYC "+s1.toUpperCase();
   if(s1==="Verified"){b.style.background="#dcfce7";b.style.color="#166534"}
