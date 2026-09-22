@@ -244,6 +244,7 @@ window.toggleDuty=()=>{
 
   // पहले Online/Offline status बदलो
   setDuty(nextStatus,true);
+  enableOrderNotifications();
 
   // GPS अलग से शुरू/बंद करो
   if(nextStatus){
