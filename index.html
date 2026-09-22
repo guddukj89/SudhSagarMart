@@ -3393,6 +3393,273 @@ ${`
 
   `;
 }
+    // ==========================================
+// CUSTOMER LIVE DELIVERY BOY TRACKING
+// ==========================================
+
+function startCustomerLiveTracking(order, modal, content){
+
+  const riderId =
+    order.deliveryBoyId ||
+    order.deliveryPartnerId ||
+    order.riderId ||
+    "";
+
+  if(!riderId){
+    console.log("Delivery Boy abhi assign nahi hua.");
+    return;
+  }
+
+  // Map container
+  const mapBox = document.createElement("div");
+
+  mapBox.id = "customerLiveMap";
+
+  mapBox.style.cssText = `
+    width:100%;
+    height:300px;
+    margin-top:18px;
+    border-radius:14px;
+    overflow:hidden;
+    background:#eee;
+  `;
+
+  content.appendChild(mapBox);
+
+  const info = document.createElement("div");
+
+  info.id = "liveRiderInfo";
+
+  info.style.cssText = `
+    margin-top:10px;
+    padding:12px;
+    background:#eef7ff;
+    border-radius:10px;
+    font-size:14px;
+  `;
+
+  info.innerHTML =
+    "🚚 Delivery Boy ki live location load ho rahi hai...";
+
+  content.appendChild(info);
+
+  let map = null;
+  let riderMarker = null;
+
+  // Customer destination
+  const savedLocation =
+    JSON.parse(
+      localStorage.getItem("ssm_current_location") || "null"
+    );
+
+  let customerLat =
+    savedLocation && savedLocation.latitude
+      ? Number(savedLocation.latitude)
+      : null;
+
+  let customerLng =
+    savedLocation && savedLocation.longitude
+      ? Number(savedLocation.longitude)
+      : null;
+
+
+  // Firebase realtime listener
+  const unsubscribe =
+    firebase.firestore()
+      .collection("deliveryPartners")
+      .doc(riderId)
+      .onSnapshot(function(snap){
+
+        if(!snap.exists){
+
+          info.innerHTML =
+            "⚠️ Delivery Boy ki location nahi mili.";
+
+          return;
+        }
+
+        const rider = snap.data();
+
+        const lat = Number(rider.latitude);
+        const lng = Number(rider.longitude);
+
+        if(!lat || !lng){
+
+          info.innerHTML =
+            "📍 Delivery Boy GPS location ka wait ho raha hai...";
+
+          return;
+        }
+
+        // Google Maps available hai?
+        if(
+          typeof google === "undefined" ||
+          !google.maps
+        ){
+
+          info.innerHTML =
+            "⚠️ Map service load nahi hui. Page refresh karke try karein.";
+
+          return;
+        }
+
+        // First time map create
+        if(!map){
+
+          map = new google.maps.Map(
+            mapBox,
+            {
+              center:{
+                lat:lat,
+                lng:lng
+              },
+
+              zoom:15,
+
+              mapTypeControl:false,
+              streetViewControl:false,
+              fullscreenControl:true
+            }
+          );
+
+          riderMarker =
+            new google.maps.Marker({
+
+              position:{
+                lat:lat,
+                lng:lng
+              },
+
+              map:map,
+
+              title:"Delivery Boy 🚚",
+
+              icon:{
+                url:
+                  "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+              }
+
+            });
+
+        }else{
+
+          const newPosition = {
+            lat:lat,
+            lng:lng
+          };
+
+          riderMarker.setPosition(newPosition);
+
+          map.panTo(newPosition);
+        }
+
+
+        // Customer location marker
+        if(
+          customerLat &&
+          customerLng
+        ){
+
+          new google.maps.Marker({
+
+            position:{
+              lat:customerLat,
+              lng:customerLng
+            },
+
+            map:map,
+
+            title:"Your Delivery Location 🏠",
+
+            icon:{
+              url:
+                "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            }
+
+          });
+
+        }
+
+
+        let updatedText = "";
+
+        if(rider.locationUpdatedAt){
+
+          try{
+
+            const d =
+              rider.locationUpdatedAt.toDate
+                ? rider.locationUpdatedAt.toDate()
+                : new Date();
+
+            updatedText =
+              d.toLocaleTimeString(
+                "en-IN",
+                {
+                  hour:"2-digit",
+                  minute:"2-digit",
+                  second:"2-digit"
+                }
+              );
+
+          }catch(e){}
+
+        }
+
+
+        info.innerHTML = `
+          <b>🚚 Delivery Boy Live</b><br>
+
+          📍 Location updating automatically<br>
+
+          ${
+            updatedText
+              ? "🕐 Last update: " + updatedText + "<br>"
+              : ""
+          }
+
+          ${
+            rider.accuracy
+              ? "🎯 GPS Accuracy: " +
+                Math.round(rider.accuracy) +
+                " metres"
+              : ""
+          }
+        `;
+
+      }, function(error){
+
+        console.error(
+          "Live tracking error:",
+          error
+        );
+
+        info.innerHTML =
+          "❌ Live location load nahi ho rahi.";
+
+      });
+
+
+  // Modal close hone par Firebase listener band
+  const closeButton =
+    document.getElementById("closeTracking");
+
+  if(closeButton){
+
+    closeButton.addEventListener(
+      "click",
+      function(){
+
+        if(typeof unsubscribe === "function"){
+          unsubscribe();
+        }
+
+      }
+    );
+
+  }
+
+}
 window.trackCustomerOrder = async function(orderId){
 
     const loggedUser = firebase.auth().currentUser;
@@ -3757,6 +4024,7 @@ const doc = await firebase.firestore()
     `;
 
     modal.appendChild(content);
+    startCustomerLiveTracking(o, modal, content);
     document.body.appendChild(modal);
 
     document.getElementById("closeTracking").onclick = () => {
