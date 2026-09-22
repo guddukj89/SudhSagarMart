@@ -2045,49 +2045,257 @@ function renderComplaints(){
 
 }
 
-
-/* DELIVERY */
+/* DELIVERY CONTROL */
 
 function renderDelivery(){
 
- const box =
- document.getElementById(
-   "deliveryTable"
- );
+  const box = document.getElementById("deliveryTable");
 
- if(!data.delivery.length){
+  const riders = data.deliveryPartners || [];
+  const orders = data.orders || [];
 
-   box.innerHTML =
-   `<tr>
-      <td colspan="5">
-        No delivery records
-      </td>
-    </tr>`;
+  const activeOrders = orders.filter(o => {
 
-   return;
+    const status = String(
+      o.orderStatus || o.status || ""
+    ).toLowerCase();
 
- }
+    return status !== "delivered" &&
+           status !== "cancelled" &&
+           status !== "canceled";
+  });
 
- box.innerHTML =
- data.delivery.map(d=>`
+  if(!activeOrders.length){
 
- <tr>
+    box.innerHTML = `
+      <tr>
+        <td colspan="5">
+          No active orders available
+        </td>
+      </tr>
+    `;
 
- <td>${esc(d.orderId||"")}</td>
+    return;
+  }
 
- <td>${esc(d.customerName||"")}</td>
+  box.innerHTML = activeOrders.map(order => {
 
- <td>${esc(d.deliveryPartner||"")}</td>
+    const currentRider =
+      order.deliveryBoyName ||
+      order.deliveryPartner ||
+      "";
 
- <td>${esc(d.status||"")}</td>
+    const status =
+      order.orderStatus ||
+      order.status ||
+      "Pending";
 
- <td>—</td>
+    const riderOptions = riders.map(rider => {
 
- </tr>
+      const online =
+        rider.dutyStatus === "online";
 
- `).join("");
+      const name =
+        rider.name ||
+        rider.email ||
+        "Delivery Partner";
+
+      const phone =
+        rider.phone ||
+        "";
+
+      const area =
+        rider.area ||
+        "";
+
+      const vehicle =
+        rider.vehicleType ||
+        "Bike";
+
+      return `
+        <option
+          value="${esc(rider.id)}"
+          ${order.deliveryBoyId === rider.id ? "selected" : ""}
+        >
+          ${online ? "🟢" : "⚪"}
+          ${esc(name)}
+          - ${esc(vehicle)}
+          ${area ? " - " + esc(area) : ""}
+        </option>
+      `;
+
+    }).join("");
+
+    return `
+
+      <tr>
+
+        <td>
+          <b>#${esc(String(order.id).substring(0,8))}</b>
+        </td>
+
+        <td>
+          ${esc(order.customerName || "Customer")}
+          <br>
+          <small>
+            ${esc(order.customerPhone || "")}
+          </small>
+        </td>
+
+        <td>
+
+          ${
+            currentRider
+            ? `
+              <b>${esc(currentRider)}</b>
+              <br>
+              <small>
+                ${esc(order.deliveryBoyPhone || "")}
+              </small>
+            `
+            : `
+              <span style="color:#dc2626;">
+                Not Assigned
+              </span>
+            `
+          }
+
+        </td>
+
+        <td>
+
+          <span class="badge">
+            ${esc(status)}
+          </span>
+
+        </td>
+
+        <td>
+
+          <select
+            id="rider-${esc(order.id)}"
+            style="
+              padding:7px;
+              border:1px solid #ddd;
+              border-radius:6px;
+              max-width:220px;
+            "
+          >
+
+            <option value="">
+              Select Rider
+            </option>
+
+            ${riderOptions}
+
+          </select>
+
+          <button
+            class="primary"
+            style="margin-top:6px;"
+            onclick="assignDeliveryRider('${encodeURIComponent(order.id)}')"
+          >
+            🚴 ${currentRider ? "Reassign" : "Assign"}
+          </button>
+
+        </td>
+
+      </tr>
+
+    `;
+
+  }).join("");
 
 }
+
+
+/* ASSIGN / REASSIGN RIDER */
+
+window.assignDeliveryRider = async function(encodedOrderId){
+
+  const orderId =
+    decodeURIComponent(encodedOrderId);
+
+  const select =
+    document.getElementById(
+      "rider-" + orderId
+    );
+
+  if(!select){
+    return alert("Order selector नहीं मिला.");
+  }
+
+  const riderId =
+    select.value;
+
+  if(!riderId){
+    return alert("पहले Delivery Partner select करें.");
+  }
+
+  const rider =
+    (data.deliveryPartners || [])
+      .find(r => r.id === riderId);
+
+  if(!rider){
+    return alert("Delivery Partner नहीं मिला.");
+  }
+
+  if(rider.dutyStatus !== "online"){
+
+    const confirmOffline =
+      confirm(
+        "यह Delivery Partner अभी OFFLINE है।\n\nक्या फिर भी assign करना है?"
+      );
+
+    if(!confirmOffline){
+      return;
+    }
+  }
+
+  try{
+
+    const orderRef =
+      db.collection("orders").doc(orderId);
+
+    await orderRef.update({
+
+      deliveryBoyId: rider.id,
+
+      deliveryBoyName:
+        rider.name ||
+        rider.email ||
+        "Delivery Partner",
+
+      deliveryBoyPhone:
+        rider.phone ||
+        "",
+
+      deliveryAssignedAt:
+        firebase.firestore.FieldValue.serverTimestamp(),
+
+      deliveryAssignmentStatus:
+        "Assigned"
+
+    });
+
+    alert(
+      "Order successfully assigned to " +
+      (rider.name || "Delivery Partner") +
+      " ✅"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Order assignment failed:\n" +
+      error.message
+    );
+
+  }
+
+};
 
 
 /* ACTIVITY */
