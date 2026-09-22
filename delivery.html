@@ -410,35 +410,58 @@ function notifyNewOrder(order){
       0
     );
 
+  const customerName =
+    order.customerName ||
+    order.customer ||
+    order.userName ||
+    "Customer";
+
+  // जिस Delivery Partner account में login है
+  const deliveryAccount =
+    auth.currentUser?.email ||
+    auth.currentUser?.phoneNumber ||
+    "Delivery Partner";
+
+  const message =
+    "🚚 NEW DELIVERY ORDER\n\n" +
+    "Order: " + orderNo +
+    "\nCustomer: " + customerName +
+    "\nAmount: ₹" + amount +
+    "\n\nDelivery Account:\n" +
+    deliveryAccount;
+
   // Browser notification
   if(
     "Notification" in window &&
     Notification.permission === "granted"
   ){
-
-    new Notification("🛵 New Delivery Order",{
-      body:
-        "Order: " + orderNo +
-        "\nAmount: ₹" + amount +
-        "\nNew delivery assigned.",
-      icon:"https://sudhsagarmart.online/favicon.ico"
-    });
-
+    new Notification(
+      "🚚 Sudh Sagar Mart - New Delivery Order",
+      {
+        body:
+          "Order: " + orderNo +
+          "\nCustomer: " + customerName +
+          "\nAmount: ₹" + amount +
+          "\nAccount: " + deliveryAccount,
+        icon: "https://sudhsagarmart.online/favicon.ico"
+      }
+    );
   }
 
-  // Page open hone par alert
+  // Page खुला हो तो बड़ा alert
   if(document.visibilityState === "visible"){
 
     alert(
-      "🛵 NEW DELIVERY ORDER\n\n" +
+      "🚚 NEW DELIVERY ORDER\n\n" +
       "Order: " + orderNo +
+      "\nCustomer: " + customerName +
       "\nAmount: ₹" + amount +
+      "\n\nDelivery Account:\n" +
+      deliveryAccount +
       "\n\nOrder Delivery Panel me aa gaya hai."
     );
-
   }
 }
-
 // ================= END NOTIFICATION =================
 // ================= END LIVE GPS =================
 function loadOrders(uid){
