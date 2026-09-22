@@ -1287,7 +1287,20 @@ if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.addr
       .map(x => x.sellerId)
       .filter(Boolean)
   )];
+// Customer saved location
+const savedLocation = JSON.parse(
+  localStorage.getItem("ssm_location") || "null"
+);
 
+const customerLatitude =
+  savedLocation && savedLocation.latitude != null
+    ? Number(savedLocation.latitude)
+    : null;
+
+const customerLongitude =
+  savedLocation && savedLocation.longitude != null
+    ? Number(savedLocation.longitude)
+    : null;
   await firebase.firestore()
     .collection("orders")
     .doc(orderId)
@@ -1306,6 +1319,8 @@ mobile: coMobile.value.trim(),
 customerAddress: coAddress.value.trim(),
 address: coAddress.value.trim(),
 customerEmail: user.email || "",
+customerLatitude: customerLatitude,
+customerLongitude: customerLongitude,        
 
 items: orderItems,
 products: orderItems,
