@@ -196,13 +196,51 @@ window.showPage=(id,el)=>{
  lucide.createIcons();
 };
 
-onAuthStateChanged(auth,user=>{
- if(!user){location.href="login.html";return;}
- partnerId=user.uid;
- document.getElementById("profileEmail").textContent=user.email||user.phoneNumber||"Delivery Partner";
- document.getElementById("profileTitle").textContent=user.displayName||"Delivery Partner";
- loadPartnerProfile(user.uid);
- loadOrders(user.uid);
+onAuthStateChanged(auth, async user => {
+
+    if(!user){
+        location.href="login.html";
+        return;
+    }
+
+    partnerId = user.uid;
+
+    // Delivery Partner account verification
+    try{
+        const partnerSnap = await getDoc(
+            doc(db,"deliveryPartners",user.uid)
+        );
+
+        if(!partnerSnap.exists()){
+            alert("यह account Delivery Partner के रूप में registered नहीं है।");
+            await signOut(auth);
+            location.href="login.html";
+            return;
+        }
+
+        const partner = partnerSnap.data();
+
+        if(partner.active === false){
+            alert("आपका Delivery Partner account अभी inactive है।");
+            await signOut(auth);
+            location.href="login.html";
+            return;
+        }
+
+        document.getElementById("profileEmail").textContent =
+            user.email || user.phoneNumber || "Delivery Partner";
+
+        document.getElementById("profileTitle").textContent =
+            partner.name || user.displayName || "Delivery Partner";
+
+        loadPartnerProfile(user.uid);
+        loadOrders(user.uid);
+
+    }catch(error){
+        console.error("Delivery partner verification failed:",error);
+        alert("Delivery account verify नहीं हो पाया।");
+    }
+
 });
 
 async function loadPartnerProfile(uid){
