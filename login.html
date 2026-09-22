@@ -1,234 +1,265 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Sudh Sagar Mart - Delivery Login</title>
+<title>SudhSagarMart - Delivery Partner Login</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
-  min-height:100vh;
   font-family:Arial,sans-serif;
-  background:#f1f5f3;
+  background:#f3f6f4;
+  min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
   padding:20px;
 }
 
-.login-card{
+.card{
   width:100%;
-  max-width:420px;
-  background:#fff;
-  border-radius:22px;
-  padding:30px 25px;
-  box-shadow:0 10px 35px rgba(0,0,0,.12);
+  max-width:430px;
+  background:white;
+  border-radius:20px;
+  padding:28px 22px;
+  box-shadow:0 8px 30px rgba(0,0,0,.12);
 }
 
 .logo{
-  width:70px;
-  height:70px;
-  margin:0 auto 15px;
-  border-radius:20px;
-  background:#008a3b;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:34px;
-}
-
-h1{
   text-align:center;
-  margin:0;
-  font-size:25px;
-  color:#111;
+  font-size:28px;
+  font-weight:bold;
+  color:#087f3f;
+  margin-bottom:5px;
 }
 
 .subtitle{
   text-align:center;
   color:#666;
-  margin:8px 0 25px;
+  margin-bottom:25px;
+}
+
+h2{
+  margin:0 0 18px;
+  color:#222;
 }
 
 label{
   display:block;
-  font-weight:bold;
-  margin:15px 0 7px;
-  color:#222;
+  margin:13px 0 6px;
+  font-weight:600;
+  color:#333;
 }
 
-input{
+input,select{
   width:100%;
-  padding:14px;
-  border:1px solid #d5ddd8;
-  border-radius:12px;
-  font-size:16px;
+  padding:13px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:15px;
   outline:none;
 }
 
-input:focus{
-  border-color:#008a3b;
+input:focus,select:focus{
+  border-color:#087f3f;
 }
 
-.login-btn{
+button{
   width:100%;
-  margin-top:22px;
-  padding:15px;
   border:0;
-  border-radius:12px;
-  background:#008a3b;
-  color:#fff;
-  font-size:17px;
+  border-radius:10px;
+  padding:14px;
+  font-size:16px;
   font-weight:bold;
   cursor:pointer;
 }
 
-.login-btn:disabled{
-  opacity:.6;
+.primary{
+  background:#087f3f;
+  color:white;
+  margin-top:20px;
 }
 
-.forgot{
+.secondary{
+  background:#eef7f1;
+  color:#087f3f;
+  margin-top:12px;
+}
+
+.link{
   text-align:center;
-  margin-top:17px;
-  color:#008a3b;
-  font-size:14px;
+  margin-top:18px;
+  color:#087f3f;
   cursor:pointer;
+  font-weight:bold;
+}
+
+.hidden{
+  display:none;
 }
 
 .message{
-  display:none;
   margin-top:15px;
   padding:12px;
   border-radius:10px;
+  display:none;
   font-size:14px;
-  line-height:1.4;
-}
-
-.error{
-  background:#fff0f0;
-  color:#b42318;
 }
 
 .success{
-  background:#ecfdf3;
-  color:#027a48;
+  background:#e7f7ed;
+  color:#087f3f;
 }
 
-.footer{
-  text-align:center;
-  color:#888;
+.error{
+  background:#ffe9e9;
+  color:#b00020;
+}
+
+.small{
   font-size:12px;
-  margin-top:22px;
+  color:#777;
+  margin-top:8px;
+  line-height:1.5;
 }
 </style>
 </head>
 
 <body>
 
-<div class="login-card">
+<div class="card">
 
-  <div class="logo">🚚</div>
+  <div class="logo">SudhSagarMart</div>
+  <div class="subtitle">Delivery Partner</div>
 
-  <h1>Delivery Partner Login</h1>
+  <!-- LOGIN -->
+  <div id="loginBox">
 
-  <div class="subtitle">
-    Sudh Sagar Mart
-  </div>
-
-  <form id="loginForm">
+    <h2>Delivery Partner Login</h2>
 
     <label>Email</label>
-
-    <input
-      id="email"
-      type="email"
-      placeholder="Delivery account email"
-      autocomplete="username"
-      required
-    >
+    <input id="loginEmail" type="email"
+           placeholder="Enter email">
 
     <label>Password</label>
+    <input id="loginPassword" type="password"
+           placeholder="Enter password">
 
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-      autocomplete="current-password"
-      required
-    >
-
-    <button
-      id="loginBtn"
-      class="login-btn"
-      type="submit"
-    >
+    <button class="primary" onclick="loginPartner()">
       Login
     </button>
 
-  </form>
+    <button class="secondary" onclick="showRegister()">
+      Create Delivery Partner Account
+    </button>
 
-  <div
-    id="forgotBtn"
-    class="forgot"
-  >
-    Forgot Password?
+    <div class="link" onclick="forgotPassword()">
+      Forgot Password?
+    </div>
+
   </div>
 
-  <div
-    id="message"
-    class="message"
-  ></div>
 
-  <div class="footer">
-    Only registered Delivery Partners can access this panel.
+  <!-- REGISTER -->
+  <div id="registerBox" class="hidden">
+
+    <h2>Create Account</h2>
+
+    <label>Full Name</label>
+    <input id="regName" type="text"
+           placeholder="Enter full name">
+
+    <label>Email</label>
+    <input id="regEmail" type="email"
+           placeholder="Enter email">
+
+    <label>Mobile Number</label>
+    <input id="regPhone" type="tel"
+           placeholder="Enter mobile number"
+           maxlength="10">
+
+    <label>Password</label>
+    <input id="regPassword" type="password"
+           placeholder="Minimum 6 characters">
+
+    <label>Vehicle Type</label>
+    <select id="regVehicleType">
+      <option value="">Select Vehicle</option>
+      <option value="Cycle">Cycle</option>
+      <option value="Bike">Bike</option>
+      <option value="E-bike">E-bike</option>
+      <option value="Scooter">Scooter</option>
+    </select>
+
+    <label>Vehicle Number</label>
+    <input id="regVehicleNumber" type="text"
+           placeholder="Vehicle number">
+
+    <label>Delivery Area</label>
+    <input id="regArea" type="text"
+           placeholder="Your delivery area">
+
+    <div class="small">
+      Account create hone ke baad KYC status
+      <b>Pending</b> rahega. Super Admin approval ke
+      baad Delivery Partner access milega.
+    </div>
+
+    <button class="primary" onclick="createAccount()">
+      Create Account
+    </button>
+
+    <button class="secondary" onclick="showLogin()">
+      Already have an account? Login
+    </button>
+
   </div>
+
+  <div id="message" class="message"></div>
 
 </div>
 
 
 <script type="module">
 
-/* ================= FIREBASE ================= */
-
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
 import {
   getAuth,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   sendPasswordResetEmail,
-  signOut,
   onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+}
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 import {
   getFirestore,
   doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  setDoc,
+  getDoc,
+  serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 
 const firebaseConfig = {
 
-  apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
+  apiKey: "AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
 
-  authDomain:"sudhsagarmart.firebaseapp.com",
+  authDomain: "sudhsagarmart.firebaseapp.com",
 
-  projectId:"sudhsagarmart",
+  projectId: "sudhsagarmart",
 
-  storageBucket:"sudhsagarmart.firebasestorage.app",
+  storageBucket: "sudhsagarmart.firebasestorage.app",
 
-  messagingSenderId:"682379938859",
+  messagingSenderId: "682379938859",
 
-  appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e"
+  appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e"
 
 };
 
@@ -240,309 +271,369 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-/* ================= ELEMENTS ================= */
+function message(text,type="error"){
 
-const loginForm =
-  document.getElementById("loginForm");
+  const box = document.getElementById("message");
 
-const loginBtn =
-  document.getElementById("loginBtn");
+  box.textContent = text;
 
-const message =
-  document.getElementById("message");
+  box.className = "message " + type;
 
-const emailInput =
-  document.getElementById("email");
-
-const passwordInput =
-  document.getElementById("password");
-
-
-/* ================= MESSAGE ================= */
-
-function showMessage(text,type="error"){
-
-  message.textContent = text;
-
-  message.className =
-    "message " + type;
-
-  message.style.display = "block";
+  box.style.display = "block";
 
 }
 
 
-/* ================= ERROR ================= */
+function hideMessage(){
 
-function getErrorMessage(error){
-
-  const code = error?.code || "";
-
-  if(
-    code.includes("invalid-credential") ||
-    code.includes("wrong-password") ||
-    code.includes("user-not-found")
-  ){
-    return "Email ya password galat hai.";
-  }
-
-  if(code.includes("too-many-requests")){
-    return "Bahut attempts ho gaye hain. Thodi der baad try karein.";
-  }
-
-  if(code.includes("network-request-failed")){
-    return "Internet connection check karein.";
-  }
-
-  if(code.includes("invalid-email")){
-    return "Email address sahi nahi hai.";
-  }
-
-  return "Login failed. Dobara try karein.";
+  document.getElementById("message").style.display="none";
 
 }
 
 
-/* ================= LOGIN ================= */
+window.showRegister = function(){
 
-loginForm.addEventListener(
-  "submit",
-  async function(e){
+  hideMessage();
 
-    e.preventDefault();
+  document.getElementById("loginBox").classList.add("hidden");
 
-    const email =
-      emailInput.value.trim();
+  document.getElementById("registerBox").classList.remove("hidden");
 
-    const password =
-      passwordInput.value;
-
-    if(!email || !password){
-
-      showMessage(
-        "Email aur password bhariye."
-      );
-
-      return;
-    }
+};
 
 
-    loginBtn.disabled = true;
+window.showLogin = function(){
 
-    loginBtn.textContent =
-      "Checking...";
+  hideMessage();
 
-    message.style.display =
-      "none";
+  document.getElementById("registerBox").classList.add("hidden");
 
+  document.getElementById("loginBox").classList.remove("hidden");
 
-    try{
-
-      /* Firebase Authentication */
-
-      const result =
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+};
 
 
-      const uid =
-        result.user.uid;
+window.loginPartner = async function(){
+
+  const email =
+    document.getElementById("loginEmail").value.trim();
+
+  const password =
+    document.getElementById("loginPassword").value;
 
 
-      /*
-        IMPORTANT:
+  if(!email || !password){
 
-        Delivery Partner document ka ID
-        Firebase Authentication UID ke
-        same hona chahiye.
-      */
-
-      const partnerRef =
-        doc(
-          db,
-          "deliveryPartners",
-          uid
-        );
-
-
-      const partnerSnap =
-        await getDoc(partnerRef);
-
-
-      /* Account registered nahi hai */
-
-      if(!partnerSnap.exists()){
-
-        await signOut(auth);
-
-        showMessage(
-          "यह account Delivery Partner के रूप में registered नहीं है।"
-        );
-
-        return;
-      }
-
-
-      const partner =
-        partnerSnap.data() || {};
-
-
-      /* Account inactive */
-
-      if(partner.active === false){
-
-        await signOut(auth);
-
-        showMessage(
-          "आपका Delivery Partner account अभी inactive है।"
-        );
-
-        return;
-      }
-
-
-      /* SUCCESS */
-
-      showMessage(
-        "Login successful. Delivery Panel खुल रहा है...",
-        "success"
-      );
-
-
-      setTimeout(
-        function(){
-
-          window.location.href =
-            "delivery.html";
-
-        },
-        500
-      );
-
-
-    }catch(error){
-
-      console.error(
-        "LOGIN ERROR:",
-        error
-      );
-
-      showMessage(
-        getErrorMessage(error)
-      );
-
-    }finally{
-
-      loginBtn.disabled = false;
-
-      loginBtn.textContent =
-        "Login";
-
-    }
+    return message("Email aur password dono bhariye.");
 
   }
-);
 
 
-/* ================= FORGOT PASSWORD ================= */
+  try{
 
-document
-  .getElementById("forgotBtn")
-  .addEventListener(
-    "click",
-    async function(){
-
-      const email =
-        emailInput.value.trim();
+    const result =
+      await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
 
-      if(!email){
-
-        showMessage(
-          "पहले अपना email डालें।"
-        );
-
-        return;
-      }
+    const uid = result.user.uid;
 
 
-      try{
+    const partnerRef =
+      doc(db,"deliveryPartners",uid);
 
-        await sendPasswordResetEmail(
-          auth,
-          email
-        );
-
-
-        showMessage(
-          "Password reset email भेज दिया गया है। Inbox और Spam folder check करें.",
-          "success"
-        );
+    const partnerSnap =
+      await getDoc(partnerRef);
 
 
-      }catch(error){
+    if(!partnerSnap.exists()){
 
-        console.error(error);
+      await auth.signOut();
 
-        showMessage(
-          getErrorMessage(error)
-        );
-
-      }
-
-    }
-  );
-
-
-/* ================= ALREADY LOGGED IN ================= */
-
-onAuthStateChanged(
-  auth,
-  async function(user){
-
-    if(!user){
-      return;
-    }
-
-
-    try{
-
-      const partnerSnap =
-        await getDoc(
-          doc(
-            db,
-            "deliveryPartners",
-            user.uid
-          )
-        );
-
-
-      if(partnerSnap.exists()){
-
-        window.location.href =
-          "delivery.html";
-
-      }else{
-
-        await signOut(auth);
-
-      }
-
-
-    }catch(error){
-
-      console.error(
-        "AUTH CHECK ERROR:",
-        error
+      return message(
+        "Yeh account Delivery Partner ke roop mein registered nahi hai."
       );
 
     }
 
+
+    const partner = partnerSnap.data();
+
+
+    if(
+      partner.accountStatus &&
+      partner.accountStatus !== "approved"
+    ){
+
+      await auth.signOut();
+
+      return message(
+        "Aapka Delivery Partner account abhi approved nahi hai."
+      );
+
+    }
+
+
+    message(
+      "Login successful. Delivery Panel open ho raha hai...",
+      "success"
+    );
+
+
+    setTimeout(function(){
+
+      location.href = "delivery.html";
+
+    },700);
+
+
+  }catch(error){
+
+    console.error(error);
+
+    let text = "Login failed.";
+
+    if(error.code === "auth/invalid-credential"){
+      text = "Email ya password galat hai.";
+    }
+
+    if(error.code === "auth/user-not-found"){
+      text = "Account nahi mila.";
+    }
+
+    if(error.code === "auth/wrong-password"){
+      text = "Password galat hai.";
+    }
+
+    if(error.code === "auth/too-many-requests"){
+      text = "Bahut baar try kiya gaya. Thodi der baad try karein.";
+    }
+
+    message(text);
+
   }
-);
+
+};
+
+
+window.createAccount = async function(){
+
+  const name =
+    document.getElementById("regName").value.trim();
+
+  const email =
+    document.getElementById("regEmail").value.trim();
+
+  const phone =
+    document.getElementById("regPhone").value.trim();
+
+  const password =
+    document.getElementById("regPassword").value;
+
+  const vehicleType =
+    document.getElementById("regVehicleType").value;
+
+  const vehicleNumber =
+    document.getElementById("regVehicleNumber").value.trim();
+
+  const area =
+    document.getElementById("regArea").value.trim();
+
+
+  if(!name || !email || !phone || !password ||
+     !vehicleType || !area){
+
+    return message(
+      "Name, Email, Mobile, Password, Vehicle aur Area bharna zaroori hai."
+    );
+
+  }
+
+
+  if(phone.length !== 10){
+
+    return message(
+      "10 digit mobile number enter karein."
+    );
+
+  }
+
+
+  if(password.length < 6){
+
+    return message(
+      "Password kam se kam 6 characters ka hona chahiye."
+    );
+
+  }
+
+
+  try{
+
+    message("Account create ho raha hai...","success");
+
+
+    const result =
+      await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+
+    const user = result.user;
+
+
+    await setDoc(
+      doc(db,"deliveryPartners",user.uid),
+      {
+
+        uid: user.uid,
+
+        name: name,
+
+        email: email,
+
+        phone: phone,
+
+        vehicleType: vehicleType,
+
+        vehicleNumber: vehicleNumber,
+
+        area: area,
+
+        accountStatus: "pending",
+
+        kycStatus: "Pending",
+
+        dutyStatus: "offline",
+
+        locationSharing: false,
+
+        createdAt: serverTimestamp(),
+
+        updatedAt: serverTimestamp()
+
+      }
+    );
+
+
+    await auth.signOut();
+
+
+    message(
+      "Account successfully create ho gaya. Super Admin approval ke baad login kar sakte hain.",
+      "success"
+    );
+
+
+    setTimeout(function(){
+
+      showLogin();
+
+    },1800);
+
+
+  }catch(error){
+
+    console.error(error);
+
+    let text = "Account create nahi hua.";
+
+    if(error.code === "auth/email-already-in-use"){
+      text = "Is email se account pehle se bana hua hai.";
+    }
+
+    if(error.code === "auth/weak-password"){
+      text = "Password bahut weak hai.";
+    }
+
+    if(error.code === "auth/invalid-email"){
+      text = "Email address galat hai.";
+    }
+
+
+    message(text);
+
+  }
+
+};
+
+
+window.forgotPassword = async function(){
+
+  const email =
+    document.getElementById("loginEmail").value.trim();
+
+
+  if(!email){
+
+    return message(
+      "Pehle login email enter karein."
+    );
+
+  }
+
+
+  try{
+
+    await sendPasswordResetEmail(
+      auth,
+      email
+    );
+
+    message(
+      "Password reset link aapke email par bhej diya gaya hai.",
+      "success"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    message(
+      "Password reset nahi ho saka. Email check karein."
+    );
+
+  }
+
+};
+
+
+// Agar already logged-in hai
+onAuthStateChanged(auth, async (user)=>{
+
+  if(!user) return;
+
+  try{
+
+    const snap =
+      await getDoc(
+        doc(db,"deliveryPartners",user.uid)
+      );
+
+    if(snap.exists()){
+
+      const data = snap.data();
+
+      if(data.accountStatus === "approved"){
+
+        location.href="delivery.html";
+
+      }
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+});
 
 </script>
 
