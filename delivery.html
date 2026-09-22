@@ -239,7 +239,19 @@ function setDuty(value,save=true){
  }
 }
   
-window.toggleDuty=()=>setDuty(!isOnline,true);
+window.toggleDuty=()=>{
+  const nextStatus = !isOnline;
+
+  // पहले Online/Offline status बदलो
+  setDuty(nextStatus,true);
+
+  // GPS अलग से शुरू/बंद करो
+  if(nextStatus){
+    startLiveLocation();
+  }else{
+    stopLiveLocation();
+  }
+};
 // ================= LIVE GPS LOCATION =================
 let liveLocationWatchId = null;
 let lastLocationWrite = 0;
