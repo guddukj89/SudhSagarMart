@@ -2363,7 +2363,7 @@ allPartnersHtml
       <tr>
 
         <td>
-          <b>#${esc(String(order.id).substring(0,8))}</b>
+          <b>#${esc(order.orderId || order.id || "")}</b>
         </td>
 
         <td>
