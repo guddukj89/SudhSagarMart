@@ -1028,7 +1028,7 @@ const pickingList = orderItems.length
  }else body=`<div class="btn green" style="width:100%;pointer-events:none"><i data-lucide="circle-check"></i> Delivered Successfully</div>`;
  return `<article class="order">
   <div class="orderTop"><span class="tag new">${type==="new"?"⚡ New Order":st}</span><span class="tag timer">⏱ ${type==="completed"?"Completed":"30 min"}</span><span class="tag distance">📍 ${formatDistance(getOrderDistance(o))}</span></div>
-  <div class="oid">#${id.slice(0,10)}</div>
+  <div class="oid">#${id}</div>
 
 ${pickingList}
 
