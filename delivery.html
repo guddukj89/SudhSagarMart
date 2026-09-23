@@ -702,21 +702,56 @@ function loadOrders(uid){
 
    render();
 
-   // पहले snapshot पर notification नहीं
-   if(!firstOrderSnapshot){
+  // ================= NEW ASSIGNED ORDER NOTIFICATION =================
 
-     orders.forEach(order=>{
+if(!firstOrderSnapshot){
 
-       if(
-         !previousIds.has(order.id) &&
-         status(order)==="Assigned"
-       ){
-         notifyNewOrder(order);
-       }
+  snap.docChanges().forEach(change=>{
 
-     });
+    const order = {
+      id: change.doc.id,
+      ...change.doc.data()
+    };
 
-   }
+    // Existing order ko Delivery Partner ko assign/update
+    if(
+      (change.type === "added" || change.type === "modified") &&
+      order.deliveryBoyId === uid &&
+      (
+        order.deliveryAssignmentStatus === "Assigned" ||
+        order.orderStatus === "Assigned"
+      ) &&
+      !order.riderAccepted
+    ){
+
+      const notifyKey =
+        order.id + "_" +
+        (
+          order.deliveryAssignedAt?.seconds ||
+          order.assignedAt?.seconds ||
+          Date.now()
+        );
+
+      const notified =
+        sessionStorage.getItem("ssm_notified_" + order.id);
+
+      if(notified !== String(notifyKey)){
+
+        sessionStorage.setItem(
+          "ssm_notified_" + order.id,
+          String(notifyKey)
+        );
+
+        notifyNewOrder(order);
+      }
+
+    }
+
+  });
+
+}
+
+// ================= END NEW ORDER NOTIFICATION =================
 
    firstOrderSnapshot=false;
 
