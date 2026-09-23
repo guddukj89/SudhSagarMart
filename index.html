@@ -1269,18 +1269,85 @@ if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.addr
     throw new Error("Please login first");
   }
 
-  const orderItems = cart.map(x => ({
+  const orderItems = cart.map(x => {
+
+  const p = x.p[11] || {};
+
+  return {
     productId: x.p[6] || "",
     sellerId: x.p[7] || "",
     sellerName: x.p[8] || "",
+
     category: x.p[0] || "",
-    productName: x.p[1] || "",
+
+    productName:
+      x.p[1] ||
+      p.title ||
+      p.name ||
+      "Product",
+
     price: Number(x.p[2] || 0),
     mrp: Number(x.p[3] || 0),
-    image: x.p[4] || "",
+
+    image:
+      x.p[4] ||
+      p.image ||
+      (Array.isArray(p.images) ? p.images[0] : "") ||
+      "",
+
     quantity: Number(x.qty || 1),
-    itemTotal: Number(x.p[2] || 0) * Number(x.qty || 1)
-  }));
+
+    /* PRODUCT MEASUREMENT */
+    unit:
+      p.unit ||
+      p.measureUnit ||
+      p.quantityUnit ||
+      p.weightUnit ||
+      "",
+
+    weight:
+      p.weight ||
+      p.netWeight ||
+      p.productWeight ||
+      "",
+
+    size:
+      p.size ||
+      p.productSize ||
+      p.clothingSize ||
+      "",
+
+    length:
+      p.length ||
+      "",
+
+    width:
+      p.width ||
+      "",
+
+    height:
+      p.height ||
+      "",
+
+    dimensionUnit:
+      p.dimensionUnit ||
+      p.sizeUnit ||
+      "cm",
+
+    variant:
+      p.variant ||
+      p.variantName ||
+      "",
+
+    color:
+      p.color ||
+      "",
+
+    itemTotal:
+      Number(x.p[2] || 0) *
+      Number(x.qty || 1)
+  };
+});
 
   const sellerIds = [...new Set(
     orderItems
