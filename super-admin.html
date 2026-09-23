@@ -1759,7 +1759,25 @@ function renderProducts(){
 
 }
 
+function timestampMs(value){
+  if(!value) return 0;
 
+  if(typeof value.toMillis === "function"){
+    return value.toMillis();
+  }
+
+  if(typeof value.toDate === "function"){
+    return value.toDate().getTime();
+  }
+
+  if(typeof value.seconds === "number"){
+    return value.seconds * 1000;
+  }
+
+  const parsed = Date.parse(value);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 /* ORDERS */
 
 function renderOrders(){
@@ -1782,8 +1800,14 @@ function renderOrders(){
 
  }
 
- box.innerHTML =
- data.orders.map(o=>`
+const sortedOrders = [...data.orders].sort(
+  (a,b) =>
+    timestampMs(b.createdAt) -
+    timestampMs(a.createdAt)
+);
+
+box.innerHTML =
+sortedOrders.map(o=>
 
  <tr>
 
