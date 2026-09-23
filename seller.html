@@ -2855,42 +2855,6 @@ function renderOrders(){
   win.document.close();
 
 }
-const readyPackBtn =
-  win.document.getElementById("readyPackBtn");
-
-if(readyPackBtn){
-
-  readyPackBtn.addEventListener("click", async function(){
-
-    readyPackBtn.disabled = true;
-    readyPackBtn.innerText = "⏳ Updating...";
-
-    try{
-
-      await sellerReadyForPack(o.id);
-
-      readyPackBtn.innerText =
-        "✅ Ready for Pack Done";
-
-      readyPackBtn.style.background =
-        "#16a34a";
-
-    }catch(error){
-
-      console.error(
-        "Ready for Pack Error:",
-        error
-      );
-
-      readyPackBtn.disabled = false;
-
-      readyPackBtn.innerText =
-        "📦 Ready for Pack";
-    }
-
-  });
-
-}
 
 // ================= SELLER READY FOR PACK =================
 
