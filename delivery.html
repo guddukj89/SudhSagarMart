@@ -527,12 +527,15 @@ function calculateDistanceKm(lat1, lon1, lat2, lon2){
 }
 
 function getOrderDistance(order){
+
   const riderLat = Number(
+    currentRiderLatitude ??
     order.riderLatitude ??
     order.deliveryBoyLatitude
   );
 
   const riderLng = Number(
+    currentRiderLongitude ??
     order.riderLongitude ??
     order.deliveryBoyLongitude
   );
@@ -565,7 +568,6 @@ function getOrderDistance(order){
     customerLng
   );
 }
-
 function formatDistance(km){
   if(km === null) return "-- km";
 
