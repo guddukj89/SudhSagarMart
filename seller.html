@@ -2429,7 +2429,7 @@ function renderOrders(){
     </table>
   ` : '<div class="empty">No orders yet. Customer order aane par yahan live dikhega.</div>';
 }
-  function viewOrderDetails(id){
+ function viewOrderDetails(id){
 
   const o = ordersCache.find(x => x.id === id);
 
@@ -2437,39 +2437,7 @@ function renderOrders(){
     return alert("Order details nahi mile.");
   }
 
-  const items = Array.isArray(o.items)
-    ? o.items
-    : (Array.isArray(o.products) ? o.products : []);
-
-  const productsText = items.length
-    ? items.map(item => {
-
-        const name =
-          item.productName ||
-          item.name ||
-          item.title ||
-          "Product";
-
-        const qty =
-          Number(item.quantity || item.qty || 1);
-
-        const price =
-          Number(
-            item.price ||
-            item.sellingPrice ||
-            item.amount ||
-            0
-          );
-
-        return `• ${name} × ${qty} = ${money(price * qty)}`;
-
-      }).join("\n")
-    : "Product details available nahi hain.";
-
-  const orderId =
-    o.orderId ||
-    o.orderNo ||
-    o.id;
+  // ================= CUSTOMER =================
 
   const customerName =
     o.customerName ||
@@ -2487,12 +2455,24 @@ function renderOrders(){
     "-";
 
   const address =
-  o.customerAddress ||
-  o.address ||
-  o.deliveryAddress ||
-  "-";
+    o.customerAddress ||
+    o.address ||
+    o.deliveryAddress ||
+    "-";
 
-  const paymentMethod =
+  // ================= ORDER =================
+
+  const orderId =
+    o.orderId ||
+    o.orderNo ||
+    o.id;
+
+  const status =
+    o.status ||
+    o.orderStatus ||
+    "Pending";
+
+  const payment =
     o.paymentMethod ||
     o.payment ||
     "Cash on Delivery";
@@ -2501,40 +2481,469 @@ function renderOrders(){
     o.paymentStatus ||
     "Pending";
 
-  const status =
-    o.status ||
-    o.orderStatus ||
-    "Pending";
-
   const total =
-    Number(o.amount ?? o.total ?? 0);
+    Number(o.amount ?? o.total ?? o.totalAmount ?? 0);
+
+  // ================= DELIVERY PARTNER =================
+
+  const deliveryAccepted =
+    o.riderAccepted === true ||
+    String(o.deliveryAssignmentStatus || "").toLowerCase() === "accepted";
+
+  const deliveryName =
+    o.deliveryAcceptedName ||
+    o.deliveryBoyName ||
+    "Delivery Partner";
+
+  const deliveryPhone =
+    o.deliveryBoyPhone ||
+    o.deliveryPartnerPhone ||
+    "-";
+
+  const deliveryEmail =
+    o.deliveryAcceptedEmail ||
+    "";
+
+  const deliveryId =
+    o.deliveryBoyId ||
+    o.deliveryAcceptedBy ||
+    "-";
+
+  // ================= PRODUCTS =================
+
+  const items =
+    Array.isArray(o.items)
+      ? o.items
+      : (
+          Array.isArray(o.products)
+            ? o.products
+            : []
+        );
+
+  let productsHtml = "";
+
+  if(items.length){
+
+    productsHtml = items.map((item,index)=>{
+
+      const name =
+        item.productName ||
+        item.name ||
+        item.title ||
+        "Product";
+
+      const qty =
+        Number(item.quantity || item.qty || 1);
+
+      const price =
+        Number(
+          item.price ||
+          item.sellingPrice ||
+          item.amount ||
+          0
+        );
+
+      const image =
+        item.image ||
+        item.productImage ||
+        item.imageUrl ||
+        "";
+
+      const itemTotal =
+        price * qty;
+
+      return `
+        <div style="
+          display:flex;
+          gap:12px;
+          align-items:center;
+          padding:12px;
+          margin:8px 0;
+          border:1px solid #ddd;
+          border-radius:10px;
+          background:#fff;
+        ">
+
+          <div style="
+            width:70px;
+            height:70px;
+            border-radius:8px;
+            overflow:hidden;
+            background:#f1f1f1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-shrink:0;
+          ">
+            ${
+              image
+              ?
+              `<img
+                src="${esc(image)}"
+                style="width:100%;height:100%;object-fit:contain;"
+                alt="${esc(name)}"
+              >`
+              :
+              `📦`
+            }
+          </div>
+
+          <div style="flex:1">
+
+            <b>${esc(name)}</b>
+
+            <div style="margin-top:5px">
+              Qty: <b>${qty}</b>
+            </div>
+
+            <div>
+              Price: ${money(price)}
+            </div>
+
+            <div style="font-weight:bold;margin-top:3px">
+              Item Total: ${money(itemTotal)}
+            </div>
+
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+
+  }else{
+
+    productsHtml = `
+      <div style="
+        padding:15px;
+        background:#fff3cd;
+        border-radius:8px;
+      ">
+        📦 Product details available nahi hain.
+      </div>
+    `;
+
+  }
+
+  // ================= READY FOR PACK BUTTON =================
+
+  let readyPackButton = "";
+
+  const currentStatus =
+    String(status).toLowerCase();
+
+  if(
+    deliveryAccepted &&
+    (
+      currentStatus === "pending" ||
+      currentStatus === "confirmed"
+    )
+  ){
+
+    readyPackButton = `
+      <button
+        onclick="sellerReadyForPack('${o.id}')"
+        style="
+          width:100%;
+          padding:13px;
+          margin-top:15px;
+          border:0;
+          border-radius:8px;
+          background:#16a34a;
+          color:white;
+          font-size:16px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        📦 Ready for Pack
+      </button>
+    `;
+
+  }
+
+  // ================= DETAILS =================
+
+  const details = `
+
+    <div style="
+      text-align:left;
+      line-height:1.6;
+      max-height:75vh;
+      overflow:auto;
+    ">
+
+      <h2 style="margin-top:0">
+        🛒 Order Details
+      </h2>
+
+      <div style="
+        background:#f5f7fa;
+        padding:12px;
+        border-radius:10px;
+        margin-bottom:12px;
+      ">
+
+        <b>Order ID:</b> #${esc(orderId)}
+        <br>
+
+        <b>Status:</b>
+        ${esc(status)}
+
+        <br>
+
+        <b>Payment:</b>
+        ${esc(payment)}
+
+        <br>
+
+        <b>Payment Status:</b>
+        ${esc(paymentStatus)}
+
+        <br>
+
+        <b>Total:</b>
+        ${money(total)}
+
+      </div>
+
+
+      <!-- DELIVERY PARTNER -->
+
+      <div style="
+        border:2px solid #2563eb;
+        padding:12px;
+        border-radius:10px;
+        margin-bottom:12px;
+        background:#eff6ff;
+      ">
+
+        <h3 style="margin-top:0">
+          🚚 Delivery Partner
+        </h3>
+
+        ${
+          deliveryAccepted
+          ?
+          `
+            <b>Name:</b>
+            ${esc(deliveryName)}
+            <br>
+
+            <b>Mobile:</b>
+            ${esc(deliveryPhone)}
+            <br>
+
+            ${
+              deliveryEmail
+              ?
+              `<b>Email:</b> ${esc(deliveryEmail)}<br>`
+              :
+              ""
+            }
+
+            <b>Partner ID:</b>
+            ${esc(deliveryId)}
+
+            <br>
+
+            <b>Acceptance:</b>
+            <span style="color:green;font-weight:bold">
+              ✅ Order Accepted
+            </span>
+          `
+          :
+          `
+            <span style="color:#d97706;font-weight:bold">
+              ⏳ Delivery Partner ne abhi order accept nahi kiya hai.
+            </span>
+          `
+        }
+
+      </div>
+
+
+      <!-- PRODUCTS -->
+
+      <div>
+
+        <h3>
+          🛍️ Products
+        </h3>
+
+        ${productsHtml}
+
+      </div>
+
+
+      <!-- CUSTOMER -->
+
+      <div style="
+        border:1px solid #ddd;
+        padding:12px;
+        border-radius:10px;
+        margin-top:12px;
+      ">
+
+        <h3 style="margin-top:0">
+          👤 Customer
+        </h3>
+
+        <b>Name:</b>
+        ${esc(customerName)}
+        <br>
+
+        <b>Mobile:</b>
+        ${esc(mobile)}
+        <br>
+
+        <b>Email:</b>
+        ${esc(email)}
+        <br>
+
+        <b>Address:</b>
+        ${esc(address)}
+
+      </div>
+
+
+      ${readyPackButton}
+
+    </div>
+
+  `;
 
   alert(
-`ORDER DETAILS
-
-Order ID: #${orderId}
-
-Customer: ${customerName}
-
-Mobile: ${mobile}
-
-Email: ${email}
-
-Address:
-${address}
-
-Payment: ${paymentMethod}
-
-Payment Status: ${paymentStatus}
-
-Total: ${money(total)}
-
-Status: ${status}
-
-PRODUCTS
-${productsText}`
+    "ORDER DETAILS\n\n" +
+    "Order ID: #" + orderId +
+    "\n\nCustomer: " + customerName +
+    "\nMobile: " + mobile +
+    "\n\nStatus: " + status +
+    "\nPayment: " + payment +
+    "\nTotal: " + money(total) +
+    "\n\nDelivery Partner: " +
+    (deliveryAccepted ? deliveryName : "Not Accepted") +
+    "\n\nProducts: " +
+    items.length
   );
+
+  // Detailed browser popup
+  const win = window.open(
+    "",
+    "_blank",
+    "width=600,height=750"
+  );
+
+  if(!win){
+    return;
+  }
+
+  win.document.write(`
+    <html>
+    <head>
+      <title>Order #${esc(orderId)}</title>
+
+      <style>
+        body{
+          font-family:Arial,sans-serif;
+          background:#f5f7fa;
+          padding:20px;
+        }
+
+        button{
+          cursor:pointer;
+        }
+      </style>
+
+    </head>
+
+    <body>
+
+      ${details}
+
+    </body>
+    </html>
+  `);
+
+  win.document.close();
+
 }
+
+
+// ================= SELLER READY FOR PACK =================
+
+window.sellerReadyForPack = async function(id){
+
+  if(!confirm(
+    "Delivery Partner ne order accept kar liya hai.\n\n" +
+    "Kya seller is order ko Ready for Pack karna chahta hai?"
+  )){
+    return;
+  }
+
+  try{
+
+    const ref =
+      db.collection("orders").doc(id);
+
+    const snap =
+      await ref.get();
+
+    if(!snap.exists){
+      return alert("Order nahi mila.");
+    }
+
+    const order = snap.data();
+
+    const accepted =
+      order.riderAccepted === true ||
+      String(
+        order.deliveryAssignmentStatus || ""
+      ).toLowerCase() === "accepted";
+
+    if(!accepted){
+
+      return alert(
+        "❌ Delivery Partner ne abhi order accept nahi kiya hai."
+      );
+
+    }
+
+    await ref.update({
+
+      status:"Packed",
+
+      orderStatus:"Packed",
+
+      sellerReadyForPack:true,
+
+      sellerReadyForPackAt:
+        firebase.firestore.FieldValue.serverTimestamp(),
+
+      sellerReadyForPackBy:
+        currentUser?.uid || ""
+
+    });
+
+    alert(
+      "✅ Order Ready for Pack kar diya gaya."
+    );
+
+  }catch(error){
+
+    console.error(
+      "Ready for Pack Error:",
+      error
+    );
+
+    alert(
+      "Ready for Pack nahi ho paya.\n\n" +
+      error.message
+    );
+
+  }
+
+};
   function downloadCustomerPDF(id){
 
   const o = ordersCache.find(x => x.id === id);
