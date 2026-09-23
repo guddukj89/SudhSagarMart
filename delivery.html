@@ -439,9 +439,102 @@ async function enableOrderNotifications(){
     }
   }
 }
+  // ================= ORDER RINGTONE =================
+
+let notificationAudioContext = null;
+
+function unlockNotificationSound(){
+
+  try{
+
+    if(!notificationAudioContext){
+      notificationAudioContext =
+        new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if(notificationAudioContext.state === "suspended"){
+      notificationAudioContext.resume();
+    }
+
+  }catch(error){
+    console.error("Audio unlock failed:", error);
+  }
+
+}
+
+document.addEventListener(
+  "click",
+  unlockNotificationSound,
+  {once:false}
+);
+
+function playOrderRingtone(){
+
+  try{
+
+    if(!notificationAudioContext){
+      notificationAudioContext =
+        new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if(notificationAudioContext.state === "suspended"){
+      notificationAudioContext.resume();
+    }
+
+    const ctx = notificationAudioContext;
+
+    const beep = (startTime, frequency) => {
+
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+
+      gain.gain.setValueAtTime(
+        0.0001,
+        startTime
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.35,
+        startTime + 0.03
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        startTime + 0.45
+      );
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+
+      oscillator.start(startTime);
+      oscillator.stop(startTime + 0.5);
+    };
+
+    const now = ctx.currentTime;
+
+    beep(now, 880);
+    beep(now + 0.55, 660);
+    beep(now + 1.10, 880);
+    beep(now + 1.65, 660);
+
+  }catch(error){
+
+    console.error(
+      "Order ringtone failed:",
+      error
+    );
+
+  }
+
+}
+
+// ================= END ORDER RINGTONE =================
 
 function notifyNewOrder(order){
-
+playOrderRingtone();
   const orderNo =
     order.orderId ||
     order.orderNo ||
