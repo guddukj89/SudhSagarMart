@@ -2310,7 +2310,8 @@ allPartnersHtml
 
 }
  
-  const activeOrders = orders.filter(o => {
+ const activeOrders = orders
+  .filter(o => {
 
     const status = String(
       o.orderStatus || o.status || ""
@@ -2319,7 +2320,12 @@ allPartnersHtml
     return status !== "delivered" &&
            status !== "cancelled" &&
            status !== "canceled";
-  });
+  })
+  .sort(
+    (a,b) =>
+      timestampMs(b.createdAt) -
+      timestampMs(a.createdAt)
+  );
 
   if(!activeOrders.length){
 
