@@ -49,6 +49,77 @@ button{cursor:pointer}
 .bottom{position:fixed;bottom:0;left:0;right:0;height:67px;background:#fff;border-top:1px solid var(--line);z-index:100;display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:3px}.nav{border:0;background:none;color:#6b7280;font-size:9px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.nav.active{color:var(--green)}.nav.active div{background:var(--greenSoft);padding:5px 14px;border-radius:15px}
 .modal{display:none;position:fixed;inset:0;background:#0008;z-index:200;align-items:flex-end}.modalBox{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow:auto}.modalBox h3{font-size:16px;margin-bottom:12px}
 @media(min-width:700px){body{max-width:720px;margin:auto}.bottom{max-width:720px;left:50%;transform:translateX(-50%)}.stats{grid-template-columns:repeat(4,1fr)}}
+.pickingBox{
+  margin-top:12px;
+  background:#f8fafc;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:10px;
+}
+
+.pickingTitle{
+  font-weight:700;
+  margin-bottom:8px;
+  font-size:14px;
+}
+
+.pickingItem{
+  display:flex;
+  gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid #e5e7eb;
+}
+
+.pickingItem:last-child{
+  border-bottom:0;
+}
+
+.pickingImage{
+  width:65px;
+  height:65px;
+  min-width:65px;
+  border-radius:9px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  font-size:28px;
+}
+
+.pickingImage img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.pickingInfo{
+  flex:1;
+  min-width:0;
+}
+
+.pickingInfo b{
+  display:block;
+  font-size:14px;
+  margin-bottom:4px;
+}
+
+.pickingMeta{
+  font-size:12px;
+  color:#555;
+  line-height:1.5;
+}
+
+.pickingPrice{
+  font-size:12px;
+  margin-top:4px;
+}
+
+.pickingTotal{
+  font-size:12px;
+  font-weight:600;
+  margin-top:3px;
+}  
 </style>
 </head>
 <body>
@@ -819,6 +890,124 @@ function card(o,type){
  const phone=o.customerPhone||o.mobile||"";
  const id=esc(o.id);
  let body="";
+  // ================= ORDER PICKING ITEMS =================
+
+const orderItems =
+  Array.isArray(o.items)
+    ? o.items
+    : Array.isArray(o.products)
+      ? o.products
+      : [];
+
+function itemUnitText(item){
+
+  const parts = [];
+
+  if(item.quantity != null){
+    parts.push(`Qty: ${esc(item.quantity)}`);
+  }
+
+  if(item.weight){
+    parts.push(`Weight: ${esc(item.weight)} ${esc(item.unit || "")}`);
+  }
+
+  if(item.size){
+    parts.push(`Size: ${esc(item.size)}`);
+  }
+
+  if(item.length){
+    parts.push(`L: ${esc(item.length)} ${esc(item.dimensionUnit || "cm")}`);
+  }
+
+  if(item.width){
+    parts.push(`W: ${esc(item.width)} ${esc(item.dimensionUnit || "cm")}`);
+  }
+
+  if(item.height){
+    parts.push(`H: ${esc(item.height)} ${esc(item.dimensionUnit || "cm")}`);
+  }
+
+  if(item.variant){
+    parts.push(`Variant: ${esc(item.variant)}`);
+  }
+
+  if(item.color){
+    parts.push(`Color: ${esc(item.color)}`);
+  }
+
+  return parts.join(" • ");
+}
+
+const pickingList = orderItems.length
+  ? `
+    <div class="pickingBox">
+
+      <div class="pickingTitle">
+        🛒 Order Picking List
+      </div>
+
+      ${orderItems.map((item,index)=>{
+
+        const image =
+          item.image ||
+          item.productImage ||
+          "";
+
+        const name =
+          item.productName ||
+          item.name ||
+          "Product";
+
+        const qty =
+          Number(item.quantity || 1);
+
+        const price =
+          Number(item.price || 0);
+
+        return `
+          <div class="pickingItem">
+
+            <div class="pickingImage">
+              ${
+                image
+                ? `<img
+                    src="${esc(image)}"
+                    alt="${esc(name)}"
+                  >`
+                : `📦`
+              }
+            </div>
+
+            <div class="pickingInfo">
+
+              <b>${esc(name)}</b>
+
+              <div class="pickingMeta">
+                ${itemUnitText(item)}
+              </div>
+
+              <div class="pickingPrice">
+                ₹${price} × ${qty}
+              </div>
+
+              <div class="pickingTotal">
+                Item Total: ₹${price * qty}
+              </div>
+
+            </div>
+
+          </div>
+        `;
+
+      }).join("")}
+
+    </div>
+  `
+  : `
+    <div class="pickingBox">
+      📦 Product details available नहीं हैं।
+    </div>
+  `;
  if(type==="new"){
   body=`<div class="actions">
    <button class="btn red" onclick="rejectOrder('${id}')">Reject</button>
@@ -839,7 +1028,13 @@ function card(o,type){
  }else body=`<div class="btn green" style="width:100%;pointer-events:none"><i data-lucide="circle-check"></i> Delivered Successfully</div>`;
  return `<article class="order">
   <div class="orderTop"><span class="tag new">${type==="new"?"⚡ New Order":st}</span><span class="tag timer">⏱ ${type==="completed"?"Completed":"30 min"}</span><span class="tag distance">📍 ${formatDistance(getOrderDistance(o))}</span></div>
-  <div class="oid">#${id.slice(0,10)}</div><div class="items">Items (${o.itemCount||o.items?.length||"—"})</div>
+  <div class="oid">#${id.slice(0,10)}</div>
+
+${pickingList}
+
+<div class="items">
+  Items (${o.itemCount||o.items?.length||"—"})
+</div>
   <div class="amountRow"><span class="amount">₹${amount}</span><span class="pay ${pay==="COD"?"cod":"prepaid"}">${esc(pay)}</span></div>
   <div class="customer"><div class="pin"><i data-lucide="map-pin" style="width:17px"></i></div><div style="flex:1"><b>${name}</b><p>${address}</p></div></div>
   <div class="actions" style="margin-top:10px">
