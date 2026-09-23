@@ -510,9 +510,11 @@ async function enableOrderNotifications(){
     }
   }
 }
-  // ================= ORDER RINGTONE =================
+// ================= ORDER RINGTONE =================
 
 let notificationAudioContext = null;
+let orderRingtoneTimer = null;
+let orderRingtonePlaying = false;
 
 function unlockNotificationSound(){
 
@@ -539,7 +541,14 @@ document.addEventListener(
   {once:false}
 );
 
-function playOrderRingtone(){
+
+// ================= START 60 SECOND RINGTONE =================
+
+function startOrderRingtone(){
+
+  stopOrderRingtone();
+
+  orderRingtonePlaying = true;
 
   try{
 
@@ -548,48 +557,70 @@ function playOrderRingtone(){
         new (window.AudioContext || window.webkitAudioContext)();
     }
 
-    if(notificationAudioContext.state === "suspended"){
-      notificationAudioContext.resume();
-    }
-
     const ctx = notificationAudioContext;
 
-    const beep = (startTime, frequency) => {
+    if(ctx.state === "suspended"){
+      ctx.resume();
+    }
 
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
+    function ring(){
 
-      oscillator.type = "sine";
-      oscillator.frequency.value = frequency;
+      if(!orderRingtonePlaying) return;
 
-      gain.gain.setValueAtTime(
-        0.0001,
-        startTime
-      );
+      const now = ctx.currentTime;
 
-      gain.gain.exponentialRampToValueAtTime(
-        0.35,
-        startTime + 0.03
-      );
+      const beep = (time, frequency) => {
 
-      gain.gain.exponentialRampToValueAtTime(
-        0.0001,
-        startTime + 0.45
-      );
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
 
-      oscillator.start(startTime);
-      oscillator.stop(startTime + 0.5);
-    };
+        gain.gain.setValueAtTime(0.0001,time);
 
-    const now = ctx.currentTime;
+        gain.gain.exponentialRampToValueAtTime(
+          0.45,
+          time + 0.04
+        );
 
-    beep(now, 880);
-    beep(now + 0.55, 660);
-    beep(now + 1.10, 880);
-    beep(now + 1.65, 660);
+        gain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          time + 0.45
+        );
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+
+        oscillator.start(time);
+        oscillator.stop(time + 0.5);
+
+      };
+
+      // 🔔 Ring pattern
+      beep(now,880);
+      beep(now + 0.55,660);
+      beep(now + 1.10,880);
+      beep(now + 1.65,660);
+
+    }
+
+    ring();
+
+    // हर 2.5 second में ringtone repeat
+    orderRingtoneTimer = setInterval(
+      ring,
+      2500
+    );
+
+    // Maximum 60 seconds
+    setTimeout(()=>{
+
+      if(orderRingtonePlaying){
+        stopOrderRingtone();
+      }
+
+    },60000);
 
   }catch(error){
 
@@ -602,10 +633,27 @@ function playOrderRingtone(){
 
 }
 
-// ================= END ORDER RINGTONE =================
 
+// ================= STOP RINGTONE =================
+
+function stopOrderRingtone(){
+
+  orderRingtonePlaying = false;
+
+  if(orderRingtoneTimer){
+
+    clearInterval(orderRingtoneTimer);
+
+    orderRingtoneTimer = null;
+
+  }
+
+}
+
+
+// ================= END ORDER RINGTONE =================  
 function notifyNewOrder(order){
-playOrderRingtone();
+startOrderRingtone();
   const orderNo =
     order.orderId ||
     order.orderNo ||
@@ -1047,10 +1095,43 @@ ${pickingList}
 }
 
 window.acceptOrder=async id=>{
- try{
-  const r=doc(db,"orders",id);await updateDoc(r,{riderAccepted:true,riderAcceptedAt:new Date(),deliveryAssignmentStatus:"Accepted"});
-  alert("Order accepted. Ab pickup confirm karein.");
- }catch(e){alert("Error: "+e.message)}
+
+  // 🔕 Order accept hote hi ringtone band
+  stopOrderRingtone();
+
+  try{
+
+    const r = doc(db,"orders",id);
+
+    await updateDoc(r,{
+
+      riderAccepted:true,
+
+      riderAcceptedAt:new Date(),
+
+      deliveryAssignmentStatus:"Accepted",
+
+      deliveryAcceptedBy:partnerId,
+
+      deliveryAcceptedName:
+        auth.currentUser?.displayName || "",
+
+      deliveryAcceptedEmail:
+        auth.currentUser?.email || ""
+
+    });
+
+    alert(
+      "✅ Order accepted.\n\n" +
+      "Ab pickup confirm karein."
+    );
+
+  }catch(e){
+
+    alert("Error: "+e.message);
+
+  }
+
 };
 window.rejectOrder=async id=>{
  if(!confirm("Is order ko reject karna hai?"))return;
