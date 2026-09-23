@@ -2640,26 +2640,25 @@ function renderOrders(){
     )
   ){
 
-    readyPackButton = `
-      <button
-        onclick="sellerReadyForPack('${o.id}')"
-        style="
-          width:100%;
-          padding:13px;
-          margin-top:15px;
-          border:0;
-          border-radius:8px;
-          background:#16a34a;
-          color:white;
-          font-size:16px;
-          font-weight:bold;
-          cursor:pointer;
-        "
-      >
-        📦 Ready for Pack
-      </button>
-    `;
-
+   readyPackButton = `
+  <button
+    id="readyPackBtn"
+    style="
+      width:100%;
+      padding:13px;
+      margin-top:15px;
+      border:0;
+      border-radius:8px;
+      background:#16a34a;
+      color:white;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+    "
+  >
+    📦 Ready for Pack
+  </button>
+`;
   }
 
   // ================= DETAILS =================
@@ -2813,19 +2812,7 @@ function renderOrders(){
 
   `;
 
-  alert(
-    "ORDER DETAILS\n\n" +
-    "Order ID: #" + orderId +
-    "\n\nCustomer: " + customerName +
-    "\nMobile: " + mobile +
-    "\n\nStatus: " + status +
-    "\nPayment: " + payment +
-    "\nTotal: " + money(total) +
-    "\n\nDelivery Partner: " +
-    (deliveryAccepted ? deliveryName : "Not Accepted") +
-    "\n\nProducts: " +
-    items.length
-  );
+
 
   // Detailed browser popup
   const win = window.open(
@@ -2868,18 +2855,46 @@ function renderOrders(){
   win.document.close();
 
 }
+const readyPackBtn =
+  win.document.getElementById("readyPackBtn");
 
+if(readyPackBtn){
+
+  readyPackBtn.addEventListener("click", async function(){
+
+    readyPackBtn.disabled = true;
+    readyPackBtn.innerText = "⏳ Updating...";
+
+    try{
+
+      await sellerReadyForPack(o.id);
+
+      readyPackBtn.innerText =
+        "✅ Ready for Pack Done";
+
+      readyPackBtn.style.background =
+        "#16a34a";
+
+    }catch(error){
+
+      console.error(
+        "Ready for Pack Error:",
+        error
+      );
+
+      readyPackBtn.disabled = false;
+
+      readyPackBtn.innerText =
+        "📦 Ready for Pack";
+    }
+
+  });
+
+}
 
 // ================= SELLER READY FOR PACK =================
 
 window.sellerReadyForPack = async function(id){
-
-  if(!confirm(
-    "Delivery Partner ne order accept kar liya hai.\n\n" +
-    "Kya seller is order ko Ready for Pack karna chahta hai?"
-  )){
-    return;
-  }
 
   try{
 
@@ -2890,44 +2905,48 @@ window.sellerReadyForPack = async function(id){
       await ref.get();
 
     if(!snap.exists){
-      return alert("Order nahi mila.");
+      throw new Error("Order nahi mila.");
     }
 
-    const order = snap.data();
+    const order =
+      snap.data();
 
-    const accepted =
+    const deliveryAccepted =
       order.riderAccepted === true ||
       String(
         order.deliveryAssignmentStatus || ""
       ).toLowerCase() === "accepted";
 
-    if(!accepted){
+    if(!deliveryAccepted){
 
-      return alert(
-        "❌ Delivery Partner ne abhi order accept nahi kiya hai."
+      throw new Error(
+        "Delivery Partner ne abhi order accept nahi kiya hai."
       );
 
     }
 
     await ref.update({
 
-      status:"Packed",
+      status: "Packed",
 
-      orderStatus:"Packed",
+      orderStatus: "Packed",
 
-      sellerReadyForPack:true,
+      sellerReadyForPack: true,
 
       sellerReadyForPackAt:
         firebase.firestore.FieldValue.serverTimestamp(),
 
       sellerReadyForPackBy:
-        currentUser?.uid || ""
+        firebase.auth().currentUser?.uid || "",
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
 
     });
 
-    alert(
-      "✅ Order Ready for Pack kar diya gaya."
-    );
+    renderOrders();
+
+    return true;
 
   }catch(error){
 
@@ -2936,10 +2955,7 @@ window.sellerReadyForPack = async function(id){
       error
     );
 
-    alert(
-      "Ready for Pack nahi ho paya.\n\n" +
-      error.message
-    );
+    throw error;
 
   }
 
