@@ -361,7 +361,7 @@ currentRiderLongitude = longitude;
           "Accuracy:",
           accuracy
         );
-
+       render();
       }catch(error){
 
         console.error(
@@ -710,7 +710,7 @@ function card(o,type){
    </div>`;
  }else body=`<div class="btn green" style="width:100%;pointer-events:none"><i data-lucide="circle-check"></i> Delivered Successfully</div>`;
  return `<article class="order">
-  <div class="orderTop"><span class="tag new">${type==="new"?"⚡ New Order":st}</span><span class="tag timer">⏱ ${type==="completed"?"Completed":"30 min"}</span><span class="tag distance">📍 ${esc(o.distance||"--")} km</span></div>
+  <div class="orderTop"><span class="tag new">${type==="new"?"⚡ New Order":st}</span><span class="tag timer">⏱ ${type==="completed"?"Completed":"30 min"}</span><span class="tag distance">📍 ${formatDistance(getOrderDistance(o))}</span></div>
   <div class="oid">#${id.slice(0,10)}</div><div class="items">Items (${o.itemCount||o.items?.length||"—"})</div>
   <div class="amountRow"><span class="amount">₹${amount}</span><span class="pay ${pay==="COD"?"cod":"prepaid"}">${esc(pay)}</span></div>
   <div class="customer"><div class="pin"><i data-lucide="map-pin" style="width:17px"></i></div><div style="flex:1"><b>${name}</b><p>${address}</p></div></div>
