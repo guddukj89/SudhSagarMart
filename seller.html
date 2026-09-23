@@ -2185,7 +2185,21 @@ async function addProduct(){
       mrp: mrp,
       price: price,
       stock: stock,
+unit: document.getElementById("prodUnit")?.value || "",
+      quantity: Number(document.getElementById("prodQuantity")?.value || 0),
 
+      weight: Number(document.getElementById("prodWeight")?.value || 0),
+
+      length: Number(document.getElementById("prodLength")?.value || 0),
+      width: Number(document.getElementById("prodWidth")?.value || 0),
+      height: Number(document.getElementById("prodHeight")?.value || 0),
+
+      dimensionUnit:
+        document.getElementById("prodDimensionUnit")?.value || "cm",
+
+      size: document.getElementById("prodSize")?.value || "",
+      color: document.getElementById("prodColor")?.value || "",
+      variant: document.getElementById("prodVariant")?.value || "",
       description: description,
 
       status: "pending",
