@@ -205,6 +205,31 @@ async function login(){
     }
   }
 }
+  async function logout(){
+  try{
+    stopLive();
+  }catch(e){
+    console.error("Stop live error:", e);
+  }
+
+  try{
+    await auth.signOut();
+  }catch(e){
+    console.error("Logout error:", e);
+  }
+
+  sessionStorage.removeItem("ssm_admin");
+  sessionStorage.removeItem("ssm_admin_uid");
+
+  document.getElementById("app").style.display = "none";
+  document.getElementById("loginPage").style.display = "flex";
+
+  document.getElementById("loginUser").value = "";
+  document.getElementById("loginPass").value = "";
+
+  document.getElementById("loginMsg").style.color = "#0878e8";
+  document.getElementById("loginMsg").innerText = "Logged out.";
+}
   function stopLive(){
   unsubs.forEach(u=>{
     try{u();}catch(e){}
