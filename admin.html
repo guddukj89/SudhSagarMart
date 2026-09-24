@@ -1979,7 +1979,296 @@ function saveCustomer(){
 function editCustomer(id){const c=data.customers.find(x=>x.id===id);document.getElementById("customerId").value=id;["name","phone","email","city","address"].forEach(k=>document.getElementById("customer"+k[0].toUpperCase()+k.slice(1)).value=c[k]||"");showSection("customers",document.querySelectorAll(".navbtn")[4])}
 function clearCustomer(){["customerId","customerName","customerPhone","customerEmail","customerCity","customerAddress"].forEach(id=>document.getElementById(id).value="")}
 
-function renderPayments(){document.getElementById("paymentTable").innerHTML=data.payments.length?data.payments.map(p=>`<tr><td>${esc(p.order)}</td><td>${esc(p.customer)}</td><td>${money(p.amount)}</td><td>${esc(p.method)}</td><td><span class="badge">${esc(p.status)}</span></td><td>${esc(p.txn)}</td><td class="actions"><button class="secondary" onclick="editPayment('${esc(p.id)}')">Edit</button><button class="danger" onclick="deleteDoc('payments','${esc(p.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="7" class="empty">No payments</td></tr>`}
+function renderPayments(){
+
+  const payments =
+    data.payments.filter(p =>
+      String(p.storeId || "") ===
+      String(currentAdmin.storeId || "")
+    );
+
+
+  // =========================
+  // SUMMARY
+  // =========================
+
+  const totalPayment =
+    payments
+      .filter(p =>
+        String(p.status || "").toLowerCase() === "paid"
+      )
+      .reduce(
+        (sum,p) => sum + Number(p.amount || 0),
+        0
+      );
+
+
+  const onlinePayment =
+    payments
+      .filter(p => {
+
+        const method =
+          String(
+            p.method ||
+            p.paymentMethod ||
+            ""
+          ).toLowerCase();
+
+        return (
+          method.includes("online") ||
+          method.includes("upi") ||
+          method.includes("card") ||
+          method.includes("net banking") ||
+          method.includes("razorpay") ||
+          method.includes("cashfree")
+        );
+
+      })
+      .filter(p =>
+        String(p.status || "").toLowerCase() === "paid"
+      )
+      .reduce(
+        (sum,p) => sum + Number(p.amount || 0),
+        0
+      );
+
+
+  const codPayment =
+    payments
+      .filter(p => {
+
+        const method =
+          String(
+            p.method ||
+            p.paymentMethod ||
+            ""
+          ).toLowerCase();
+
+        return (
+          method.includes("cod") ||
+          method.includes("cash")
+        );
+
+      })
+      .filter(p =>
+        String(p.status || "").toLowerCase() === "paid"
+      )
+      .reduce(
+        (sum,p) => sum + Number(p.amount || 0),
+        0
+      );
+
+
+  const refundDue =
+    payments
+      .filter(p =>
+        String(
+          p.refundStatus || ""
+        ).toLowerCase() === "pending"
+      )
+      .reduce(
+        (sum,p) =>
+          sum + Number(
+            p.refundAmount || 0
+          ),
+        0
+      );
+
+
+  // =========================
+  // SUMMARY DISPLAY
+  // =========================
+
+  const setPaymentStat =
+    (id,value) => {
+
+      const el =
+        document.getElementById(id);
+
+      if(el){
+        el.textContent = value;
+      }
+
+    };
+
+
+  setPaymentStat(
+    "paymentTotal",
+    money(totalPayment)
+  );
+
+  setPaymentStat(
+    "paymentOnline",
+    money(onlinePayment)
+  );
+
+  setPaymentStat(
+    "paymentCOD",
+    money(codPayment)
+  );
+
+  setPaymentStat(
+    "paymentRefund",
+    money(refundDue)
+  );
+
+
+  // =========================
+  // PAYMENT TABLE
+  // =========================
+
+  const table =
+    document.getElementById(
+      "paymentTable"
+    );
+
+
+  if(!table) return;
+
+
+  if(!payments.length){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="9" class="empty">
+          Is Store ke liye koi payment record nahi hai.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  table.innerHTML =
+    payments
+      .sort((a,b) =>
+        String(
+          b.createdAt || ""
+        ).localeCompare(
+          String(
+            a.createdAt || ""
+          )
+        )
+      )
+      .map(p => `
+
+        <tr>
+
+          <td>
+            <b>
+              #${esc(
+                p.orderId ||
+                p.order ||
+                "-"
+              )}
+            </b>
+          </td>
+
+          <td>
+            ${esc(
+              p.customer ||
+              p.customerName ||
+              "-"
+            )}
+          </td>
+
+          <td>
+            ${money(
+              p.amount || 0
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              p.method ||
+              p.paymentMethod ||
+              "-"
+            )}
+          </td>
+
+          <td>
+
+            <span class="badge
+              ${
+                String(
+                  p.status || ""
+                ).toLowerCase() === "paid"
+                  ? ""
+                  : "wait"
+              }
+            ">
+
+              ${esc(
+                p.status ||
+                "Pending"
+              )}
+
+            </span>
+
+          </td>
+
+          <td>
+            ${esc(
+              p.transactionId ||
+              p.txn ||
+              "-"
+            )}
+          </td>
+
+          <td>
+            ${money(
+              p.refundAmount || 0
+            )}
+          </td>
+
+          <td>
+
+            <span class="badge
+              ${
+                String(
+                  p.refundStatus || ""
+                ).toLowerCase() ===
+                "pending"
+                  ? "wait"
+                  : ""
+              }
+            ">
+
+              ${esc(
+                p.refundStatus ||
+                "Not Required"
+              )}
+
+            </span>
+
+          </td>
+
+          <td class="actions">
+
+            <button
+              class="secondary"
+              onclick="editPayment('${esc(p.id)}')"
+            >
+              Edit
+            </button>
+
+            <button
+              class="danger"
+              onclick="deleteDoc('payments','${esc(p.id)}')"
+            >
+              Delete
+            </button>
+
+          </td>
+
+        </tr>
+
+      `)
+      .join("");
+
+}
 async function savePayment(){
 
   // =========================
@@ -2227,8 +2516,134 @@ async function savePayment(){
   }
 
 }
-function editPayment(id){const p=data.payments.find(x=>x.id===id);document.getElementById("paymentId").value=id;document.getElementById("paymentOrder").value=p.order||"";document.getElementById("paymentCustomer").value=p.customer||"";document.getElementById("paymentAmount").value=p.amount||0;document.getElementById("paymentMethod").value=p.method||"UPI";document.getElementById("paymentStatus").value=p.status||"Pending";document.getElementById("paymentTxn").value=p.txn||"";showSection("payments",document.querySelectorAll(".navbtn")[5])}
-function clearPayment(){["paymentId","paymentOrder","paymentCustomer","paymentAmount","paymentTxn"].forEach(id=>document.getElementById(id).value="")}
+function editPayment(id){
+
+  const p =
+    data.payments.find(
+      x => x.id === id
+    );
+
+  if(!p){
+
+    alert(
+      "Payment record nahi mila."
+    );
+
+    return;
+  }
+
+
+  document.getElementById(
+    "paymentId"
+  ).value = id;
+
+
+  document.getElementById(
+    "paymentOrder"
+  ).value =
+    p.orderId ||
+    p.order ||
+    "";
+
+
+  document.getElementById(
+    "paymentCustomer"
+  ).value =
+    p.customer ||
+    p.customerName ||
+    "";
+
+
+  document.getElementById(
+    "paymentAmount"
+  ).value =
+    p.amount || 0;
+
+
+  document.getElementById(
+    "paymentMethod"
+  ).value =
+    p.method ||
+    p.paymentMethod ||
+    "Online";
+
+
+  document.getElementById(
+    "paymentStatus"
+  ).value =
+    p.status ||
+    "Pending";
+
+
+  document.getElementById(
+    "paymentTxn"
+  ).value =
+    p.transactionId ||
+    p.txn ||
+    "";
+
+
+  document.getElementById(
+    "paymentRefundAmount"
+  ).value =
+    p.refundAmount || 0;
+
+
+  document.getElementById(
+    "paymentRefundStatus"
+  ).value =
+    p.refundStatus ||
+    "Not Required";
+
+
+  showSection(
+    "payments",
+    document.querySelectorAll(
+      ".navbtn"
+    )[5]
+  );
+
+}
+function clearPayment(){
+
+  [
+    "paymentId",
+    "paymentOrder",
+    "paymentCustomer",
+    "paymentAmount",
+    "paymentTxn"
+  ].forEach(id => {
+
+    const el =
+      document.getElementById(id);
+
+    if(el){
+      el.value = "";
+    }
+
+  });
+
+
+  document.getElementById(
+    "paymentRefundAmount"
+  ).value = 0;
+
+
+  document.getElementById(
+    "paymentMethod"
+  ).value = "Online";
+
+
+  document.getElementById(
+    "paymentStatus"
+  ).value = "Paid";
+
+
+  document.getElementById(
+    "paymentRefundStatus"
+  ).value = "Not Required";
+
+}
 
 function renderCategories(){document.getElementById("categoryTable").innerHTML=data.categories.length?data.categories.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.icon)}</td><td><span class="badge">${esc(c.status)}</span></td><td class="actions"><button class="secondary" onclick="editCategory('${esc(c.id)}')">Edit</button><button class="danger" onclick="deleteDoc('categories','${esc(c.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="4" class="empty">No categories</td></tr>`}
 function renderComplaints(){
