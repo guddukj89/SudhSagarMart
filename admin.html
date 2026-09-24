@@ -227,6 +227,11 @@ th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14p
 <input id="orderAmount" type="number" placeholder="Amount">
 <select id="orderStatus"><option>Processing</option><option>Confirmed</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select>
 <input id="orderAddress" class="full" placeholder="Delivery Address">
+<select id="orderRider" class="full">
+  <option value="">
+    Select Delivery Partner
+  </option>
+</select>
 </div><br><button class="primary" onclick="saveOrder()">Save Order</button>
 <button class="secondary" onclick="clearOrder()">Clear</button>
 </div>
