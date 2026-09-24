@@ -630,14 +630,27 @@ function renderProducts(){
 }
 async function setProductStatus(id,status){await db.collection("products").doc(id).update({status,approved:status==="approved",approvedAt:status==="approved"?firebase.firestore.FieldValue.serverTimestamp():null})}
 function editProduct(id){const p=data.products.find(x=>x.id===id);if(!p)return;document.getElementById("productId").value=id;document.getElementById("productName").value=p.productName||p.name||"";document.getElementById("productPrice").value=p.price||"";document.getElementById("productMrp").value=p.mrp||p.oldPrice||"";document.getElementById("productStock").value=p.stock||0;document.getElementById("productCategory").value=p.category||"";document.getElementById("productSeller").value=p.sellerName||p.seller||"";document.getElementById("productSellerId").value=p.sellerId||"";document.getElementById("productImage").value=p.imageURL||p.image||"";document.getElementById("productDescription").value=p.description||"";document.getElementById("productStatus").value=p.status||"pending";showSection("products",document.querySelectorAll(".navbtn")[2]);window.scrollTo(0,0)}
-function saveProduct(){
+async function saveProduct(){
+
+  // Admin ka Store check
+  if(!currentAdmin.storeId){
+
+    alert("Admin ke saath Store assign nahi hai.");
+    return;
+
+  }
+
 
   const id =
-    document.getElementById("productId").value;
+    document.getElementById("productId").value.trim();
 
-  const obj = {
 
-    id: id || uid("p"),
+  // Form data
+  const productData = {
+
+    productName:
+      document.getElementById("productName")
+        .value.trim(),
 
     name:
       document.getElementById("productName")
@@ -649,9 +662,17 @@ function saveProduct(){
           .value || 0
       ),
 
+    // IMPORTANT:
+    // Tumhare HTML me productMrp hai
+    mrp:
+      Number(
+        document.getElementById("productMrp")
+          .value || 0
+      ),
+
     oldPrice:
       Number(
-        document.getElementById("productOldPrice")
+        document.getElementById("productMrp")
           .value || 0
       ),
 
@@ -663,11 +684,23 @@ function saveProduct(){
 
     category:
       document.getElementById("productCategory")
-        .value,
+        .value.trim(),
+
+    sellerName:
+      document.getElementById("productSeller")
+        .value.trim(),
 
     seller:
       document.getElementById("productSeller")
-        .value,
+        .value.trim(),
+
+    sellerId:
+      document.getElementById("productSellerId")
+        .value.trim(),
+
+    imageURL:
+      document.getElementById("productImage")
+        .value.trim(),
 
     image:
       document.getElementById("productImage")
@@ -681,8 +714,7 @@ function saveProduct(){
       document.getElementById("productStatus")
         .value,
 
-    // IMPORTANT:
-    // Product automatically current Admin ke Store me save hoga
+    // Store information
     storeId:
       currentAdmin.storeId,
 
@@ -691,85 +723,119 @@ function saveProduct(){
 
     updatedAt:
       firebase.firestore.FieldValue.serverTimestamp()
+
   };
-
-
-  // Store ID check
-  if(!currentAdmin.storeId){
-
-    alert(
-      "Admin ke saath Store assign nahi hai."
-    );
-
-    return;
-  }
 
 
   // Required fields
   if(
-    !obj.name ||
-    !obj.price ||
-    !obj.stock
+    !productData.productName ||
+    !productData.price ||
+    !productData.stock
   ){
 
     alert(
-      "Product Name, Price and Stock required"
+      "Product Name, Selling Price aur Stock required hai."
     );
 
     return;
+
   }
 
 
-  // Edit existing product
-  if(id){
+  try{
 
-    const i =
-      data.products.findIndex(
-        x => x.id === id
+    let productRef;
+
+
+    // EDIT PRODUCT
+    if(id){
+
+      productRef =
+        db.collection("products")
+          .doc(id);
+
+
+      // Existing product ka store change nahi hoga
+      const oldProduct =
+        data.products.find(
+          p => p.id === id
+        );
+
+
+      if(oldProduct){
+
+        productData.storeId =
+          oldProduct.storeId ||
+          currentAdmin.storeId;
+
+        productData.storeName =
+          oldProduct.storeName ||
+          currentAdmin.storeName;
+
+      }
+
+
+      await productRef.set(
+        productData,
+        {
+          merge:true
+        }
       );
 
-    if(i === -1){
-
-      alert(
-        "Product nahi mila."
-      );
-
-      return;
     }
 
-    // Store change nahi hone dena
-    obj.storeId =
-      data.products[i].storeId ||
-      currentAdmin.storeId;
 
-    obj.storeName =
-      data.products[i].storeName ||
-      currentAdmin.storeName;
+    // NEW PRODUCT
+    else{
 
-    data.products[i] = {
-      ...data.products[i],
-      ...obj
-    };
+      productRef =
+        db.collection("products")
+          .doc();
+
+
+      await productRef.set({
+
+        ...productData,
+
+        createdAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
+
+        createdBy:
+          currentAdmin.uid,
+
+        createdByName:
+          currentAdmin.name
+
+      });
+
+    }
+
+
+    alert(
+      "Product successfully Firebase me save ho gaya."
+    );
+
+
+    clearProduct();
+
+
+  }catch(error){
+
+    console.error(
+      "Product save error:",
+      error
+    );
+
+
+    alert(
+      "Product save failed:\n" +
+      error.message
+    );
 
   }
 
-  // New product
-  else{
-
-    data.products.push(obj);
-
-  }
-
-
-  save();
-
-  clearProduct();
-
-  renderAll();
-
-  alert(
-    "Product saved successfully"
-  );
 }
 function clearProduct(){["productId","productName","productPrice","productMrp","productStock","productCategory","productSeller","productSellerId","productImage","productDescription"].forEach(id=>document.getElementById(id).value="");document.getElementById("productStatus").value="pending"}
 
