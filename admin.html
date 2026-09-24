@@ -391,7 +391,229 @@ th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14p
 </div>
 
 </section>
+<!-- DELIVERY PARTNERS -->
+<section id="delivery" class="section">
 
+<h1>🚴 Delivery Partners</h1>
+
+<div class="card">
+
+<input
+class="search"
+id="riderSearch"
+oninput="renderDeliveryPartners()"
+placeholder="Search rider, phone or email..."
+>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Rider</th>
+<th>Contact</th>
+<th>Status</th>
+<th>Live Location</th>
+<th>Orders</th>
+<th>COD</th>
+<th>Payout</th>
+</tr>
+</thead>
+
+<tbody id="deliveryTable">
+
+<tr>
+<td colspan="7" class="empty">
+Loading delivery partners...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+</section>
+
+
+<!-- RETURNS & REFUNDS -->
+<section id="returns" class="section">
+
+<h1>↩️ Returns & Refunds</h1>
+
+<div class="stats">
+
+<div class="stat">
+<small>Total Returns</small>
+<strong id="returnCount">0</strong>
+</div>
+
+<div class="stat">
+<small>Refund Due</small>
+<strong id="returnRefundDue">₹0</strong>
+</div>
+
+<div class="stat">
+<small>Refund Processed</small>
+<strong id="returnRefunded">₹0</strong>
+</div>
+
+<div class="stat">
+<small>Pending Returns</small>
+<strong id="returnPending">0</strong>
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Return ID</th>
+<th>Order</th>
+<th>Customer</th>
+<th>Amount</th>
+<th>Reason</th>
+<th>Status</th>
+<th>Refund</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="returnsTable">
+
+<tr>
+<td colspan="8" class="empty">
+No return records
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- SALES REPORTS -->
+<section id="reports" class="section">
+
+<h1>📈 Sales Reports</h1>
+
+<div class="card">
+
+<div class="formgrid">
+
+<input id="reportFrom" type="date">
+
+<input id="reportTo" type="date">
+
+</div>
+
+<br>
+
+<button
+class="primary"
+onclick="renderSalesReport()"
+>
+Generate Report
+</button>
+
+</div>
+
+
+<div class="stats">
+
+<div class="stat">
+<small>Total Orders</small>
+<strong id="reportOrders">0</strong>
+</div>
+
+<div class="stat">
+<small>Gross Sales</small>
+<strong id="reportGross">₹0</strong>
+</div>
+
+<div class="stat">
+<small>Delivered Sales</small>
+<strong id="reportDelivered">₹0</strong>
+</div>
+
+<div class="stat">
+<small>Return Amount</small>
+<strong id="reportReturns">₹0</strong>
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Sales Summary</h2>
+
+<div id="salesReportBox">
+Report generate karein.
+</div>
+
+</div>
+
+</section>
+
+
+<!-- DELIVERY SETTLEMENT -->
+<section id="settlement" class="section">
+
+<h1>💵 Delivery Settlement</h1>
+
+<div class="notice">
+Settlement sirf isi Store ke riders aur delivered orders ke basis par calculate hoga.
+</div>
+
+<div class="card">
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Rider</th>
+<th>Delivered Orders</th>
+<th>COD Collected</th>
+<th>Delivery Earnings</th>
+<th>Refund Paid</th>
+<th>Cash Submitted</th>
+<th>Net Payable</th>
+</tr>
+</thead>
+
+<tbody id="settlementTable">
+
+<tr>
+<td colspan="7" class="empty">
+No settlement data
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
 <section id="categories" class="section">
 <h1>Category Management</h1>
 <div class="card"><h2>Add / Edit Category</h2><input type="hidden" id="categoryId">
