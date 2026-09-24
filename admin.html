@@ -1986,13 +1986,11 @@ async function savePayment(){
   // STORE CHECK
   // =========================
 
-  if(!currentAdmin.storeId){
+  if(!currentAdmin || !currentAdmin.storeId){
 
-    alert(
-      "Admin ke saath Store assign nahi hai."
-    );
-
+    alert("Admin ke saath Store assign nahi hai.");
     return;
+
   }
 
 
@@ -2007,60 +2005,118 @@ async function savePayment(){
 
 
   // =========================
-  // FORM DATA
+  // FORM VALUES
+  // =========================
+
+  const orderId =
+    document.getElementById("paymentOrder")
+      .value
+      .trim();
+
+  const customer =
+    document.getElementById("paymentCustomer")
+      .value
+      .trim();
+
+  const amount =
+    Number(
+      document.getElementById("paymentAmount")
+        .value || 0
+    );
+
+  const method =
+    document.getElementById("paymentMethod")
+      .value;
+
+  const status =
+    document.getElementById("paymentStatus")
+      .value;
+
+  const transactionId =
+    document.getElementById("paymentTxn")
+      .value
+      .trim();
+
+  const refundAmount =
+    Number(
+      document.getElementById("paymentRefundAmount")
+        .value || 0
+    );
+
+  const refundStatus =
+    document.getElementById("paymentRefundStatus")
+      .value;
+
+
+  // =========================
+  // VALIDATION
+  // =========================
+
+  if(!orderId){
+
+    alert("Order ID required hai.");
+    return;
+
+  }
+
+  if(amount <= 0){
+
+    alert("Payment Amount required hai.");
+    return;
+
+  }
+
+  if(refundAmount < 0){
+
+    alert("Refund Amount galat hai.");
+    return;
+
+  }
+
+  if(refundAmount > amount){
+
+    alert(
+      "Refund Amount payment amount se zyada nahi ho sakta."
+    );
+
+    return;
+
+  }
+
+
+  // =========================
+  // PAYMENT DATA
   // =========================
 
   const paymentData = {
 
-    orderId:
-      document.getElementById("paymentOrder")
-        .value
-        .trim(),
+    orderId: orderId,
 
-    customer:
-      document.getElementById("paymentCustomer")
-        .value
-        .trim(),
+    customer: customer,
 
-    amount:
-      Number(
-        document.getElementById("paymentAmount")
-          .value || 0
-      ),
+    amount: amount,
 
-    method:
-      document.getElementById("paymentMethod")
-        .value,
+    method: method,
 
-    status:
-      document.getElementById("paymentStatus")
-        .value,
+    status: status,
 
-    transactionId:
-      document.getElementById("paymentTxn")
-        .value
-        .trim(),
+    transactionId: transactionId,
 
     // Compatibility fields
-    order:
-      document.getElementById("paymentOrder")
-        .value
-        .trim(),
+    order: orderId,
 
-    txn:
-      document.getElementById("paymentTxn")
-        .value
-        .trim(),
+    txn: transactionId,
 
-    // =========================
-    // STORE INFORMATION
-    // =========================
+    // Refund information
+    refundAmount: refundAmount,
 
-    storeId:
-      currentAdmin.storeId,
+    refundStatus: refundStatus,
+
+    // Store mapping
+    storeId: currentAdmin.storeId,
 
     storeName:
-      currentAdmin.storeName,
+      currentAdmin.storeName || "",
 
     updatedAt:
       firebase.firestore.FieldValue
@@ -2069,64 +2125,29 @@ async function savePayment(){
   };
 
 
-  // =========================
-  // REQUIRED FIELDS
-  // =========================
-
-  if(!paymentData.orderId){
-
-    alert(
-      "Order ID required hai."
-    );
-
-    return;
-  }
-
-
-  if(!paymentData.amount){
-
-    alert(
-      "Payment Amount required hai."
-    );
-
-    return;
-  }
-
-
   try{
 
-    let paymentRef;
-
-
     // =========================
-    // EDIT EXISTING PAYMENT
+    // EDIT PAYMENT
     // =========================
 
     if(id){
-
-      paymentRef =
-        db.collection("payments")
-          .doc(id);
-
 
       const oldPayment =
         data.payments.find(
           p => p.id === id
         );
 
-
       if(!oldPayment){
 
-        alert(
-          "Payment record nahi mila."
-        );
-
+        alert("Payment record nahi mila.");
         return;
+
       }
 
 
-      // Existing payment ka Store
-      // change nahi hoga
+      // Existing payment ka store
+      // Admin change nahi kar sakta
 
       paymentData.storeId =
         oldPayment.storeId ||
@@ -2134,15 +2155,18 @@ async function savePayment(){
 
       paymentData.storeName =
         oldPayment.storeName ||
-        currentAdmin.storeName;
+        currentAdmin.storeName ||
+        "";
 
 
-      await paymentRef.set(
-        paymentData,
-        {
-          merge:true
-        }
-      );
+      await db.collection("payments")
+        .doc(id)
+        .set(
+          paymentData,
+          {
+            merge: true
+          }
+        );
 
     }
 
@@ -2153,26 +2177,25 @@ async function savePayment(){
 
     else{
 
-      paymentRef =
-        db.collection("payments")
-          .doc();
+      await db.collection("payments")
+        .doc()
+        .set({
 
+          ...paymentData,
 
-      await paymentRef.set({
+          createdAt:
+            firebase.firestore.FieldValue
+              .serverTimestamp(),
 
-        ...paymentData,
+          createdBy:
+            currentAdmin.uid,
 
-        createdAt:
-          firebase.firestore.FieldValue
-            .serverTimestamp(),
+          createdByName:
+            currentAdmin.name ||
+            currentAdmin.email ||
+            ""
 
-        createdBy:
-          currentAdmin.uid,
-
-        createdByName:
-          currentAdmin.name
-
-      });
+        });
 
     }
 
@@ -2195,7 +2218,6 @@ async function savePayment(){
       "Payment save error:",
       error
     );
-
 
     alert(
       "Payment save failed:\n" +
