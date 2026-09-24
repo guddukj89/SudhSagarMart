@@ -2975,7 +2975,203 @@ async function saveProduct(){
 }
 function clearProduct(){["productId","productName","productPrice","productMrp","productStock","productCategory","productSeller","productSellerId","productImage","productDescription"].forEach(id=>document.getElementById(id).value="");document.getElementById("productStatus").value="pending"}
 
-function renderOrders(){const q=(document.getElementById("orderSearch")?.value||"").toLowerCase();const rows=data.orders.filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById("orderTable").innerHTML=rows.length?rows.map(o=>`<tr><td><b>#${esc(o.id)}</b></td><td>${esc(o.customer)}<br>${esc(o.phone)}</td><td>${money(o.amount)}</td><td><select onchange="updateField('orders','${esc(o.id)}','status',this.value)">${["Processing","Confirmed","Shipped","Delivered","Cancelled"].map(v=>`<option ${o.status===v?"selected":""}>${v}</option>`).join("")}</select></td><td>${esc(o.address)}</td><td class="actions"><button class="secondary" onclick="editOrder('${esc(o.id)}')">Edit</button><button class="danger" onclick="deleteDoc('orders','${esc(o.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No orders</td></tr>`}
+function renderOrders(){
+
+  const table =
+    document.getElementById("ordersTable");
+
+  if(!table) return;
+
+  const storeId =
+    String(currentAdmin.storeId || "");
+
+  const search =
+    (
+      document.getElementById("orderSearch")?.value || ""
+    ).toLowerCase().trim();
+
+
+  const orders =
+    data.orders.filter(order => {
+
+      if(
+        String(order.storeId || "") !== storeId
+      ){
+        return false;
+      }
+
+
+      if(!search){
+        return true;
+      }
+
+
+      const orderId =
+        String(
+          order.orderId ||
+          order.orderNo ||
+          order.id ||
+          ""
+        ).toLowerCase();
+
+
+      const customer =
+        String(
+          order.customerName ||
+          order.customer ||
+          ""
+        ).toLowerCase();
+
+
+      const mobile =
+        String(
+          order.customerMobile ||
+          order.mobile ||
+          order.phone ||
+          ""
+        ).toLowerCase();
+
+
+      return (
+        orderId.includes(search) ||
+        customer.includes(search) ||
+        mobile.includes(search)
+      );
+
+    });
+
+
+  if(!orders.length){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty">
+          Is Store me koi order nahi mila.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  table.innerHTML =
+    orders.map(order => {
+
+      const id =
+        order.id ||
+        order.orderId ||
+        order.orderNo ||
+        "";
+
+
+      const orderNo =
+        order.orderId ||
+        order.orderNo ||
+        id;
+
+
+      const customerName =
+        order.customerName ||
+        order.customer ||
+        "—";
+
+
+      const mobile =
+        order.customerMobile ||
+        order.mobile ||
+        order.phone ||
+        "—";
+
+
+      const address =
+        order.customerAddress ||
+        order.address ||
+        "—";
+
+
+      const amount =
+        Number(
+          order.total ??
+          order.amount ??
+          0
+        ) || 0;
+
+
+      const status =
+        order.orderStatus ||
+        order.status ||
+        "Pending";
+
+
+      const payment =
+        order.paymentMethod ||
+        order.payment ||
+        "—";
+
+
+      const rider =
+        order.deliveryBoyName ||
+        order.deliveryBoy ||
+        order.deliveryBoyId ||
+        "Not Assigned";
+
+
+      return `
+        <tr>
+
+          <td>
+            <b>
+              ${esc(orderNo)}
+            </b>
+          </td>
+
+          <td>
+            ${esc(customerName)}
+            <br>
+            <small>
+              ${esc(mobile)}
+            </small>
+          </td>
+
+          <td>
+            ${esc(address)}
+          </td>
+
+          <td>
+            ${money(amount)}
+          </td>
+
+          <td>
+            ${esc(payment)}
+          </td>
+
+          <td>
+            ${esc(status)}
+          </td>
+
+          <td>
+            ${esc(rider)}
+          </td>
+
+          <td>
+
+            <button
+              onclick="
+                editOrder('${id}')
+              "
+            >
+              ✏️ Edit
+            </button>
+
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+}
 async function saveOrder(){
 
   // Admin ka Store check
