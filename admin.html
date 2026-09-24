@@ -1361,6 +1361,219 @@ function renderAll(){
   renderCategories();
   renderComplaints();
 }
+  function orderStatus(o){
+  return String(
+    o.orderStatus || o.status || ""
+  ).toLowerCase();
+}
+
+function orderAmount(o){
+  return Number(
+    o.total ?? o.amount ?? 0
+  ) || 0;
+}
+
+function renderDeliveryPartners(){
+
+  const table =
+    document.getElementById("deliveryTable");
+
+  if(!table) return;
+
+  const search =
+    (
+      document.getElementById("riderSearch")?.value || ""
+    ).toLowerCase().trim();
+
+  const storeId =
+    String(currentAdmin.storeId || "");
+
+  const riders =
+    data.deliveryPartners.filter(r => {
+
+      const riderStore =
+        String(
+          r.storeId ||
+          r.assignedStoreId ||
+          ""
+        );
+
+      if(riderStore !== storeId){
+        return false;
+      }
+
+      if(!search){
+        return true;
+      }
+
+      return (
+        String(
+          r.name ||
+          r.fullName ||
+          r.displayName ||
+          ""
+        ).toLowerCase().includes(search)
+        ||
+        String(
+          r.mobile ||
+          r.phone ||
+          ""
+        ).toLowerCase().includes(search)
+        ||
+        String(
+          r.email || ""
+        ).toLowerCase().includes(search)
+      );
+
+    });
+
+  if(!riders.length){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          Is Store me koi Delivery Partner nahi mila.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML =
+    riders.map(r => {
+
+      const riderId =
+        r.id || r.uid || "";
+
+      const riderOrders =
+        data.orders.filter(o =>
+          String(
+            o.deliveryBoyId || ""
+          ) === String(riderId)
+          &&
+          String(
+            o.storeId || ""
+          ) === storeId
+        );
+
+      const deliveredOrders =
+        riderOrders.filter(
+          o => orderStatus(o) === "delivered"
+        );
+
+      const codCollected =
+        deliveredOrders
+        .filter(o =>
+          String(
+            o.paymentMethod ||
+            o.payment ||
+            ""
+          ).toLowerCase() === "cod"
+        )
+        .reduce(
+          (sum,o) =>
+            sum + orderAmount(o),
+          0
+        );
+
+      const payout =
+        deliveredOrders.reduce(
+          (sum,o) =>
+            sum +
+            Number(
+              o.deliveryBoyPayout ??
+              o.deliveryPayout ??
+              o.deliveryEarning ??
+              0
+            ),
+          0
+        );
+
+      const lat =
+        Number(r.latitude);
+
+      const lng =
+        Number(r.longitude);
+
+      const hasLocation =
+        Number.isFinite(lat) &&
+        Number.isFinite(lng);
+
+      const location =
+        hasLocation
+          ? `
+            <a
+              target="_blank"
+              href="https://www.google.com/maps?q=${lat},${lng}"
+            >
+              📍 Open Map
+            </a>
+          `
+          : "Location not sharing";
+
+      const status =
+        r.status ||
+        (
+          r.active === false
+            ? "Inactive"
+            : "Active"
+        );
+
+      return `
+        <tr>
+
+          <td>
+            <b>
+              ${esc(
+                r.name ||
+                r.fullName ||
+                r.displayName ||
+                "Rider"
+              )}
+            </b>
+          </td>
+
+          <td>
+            ${esc(
+              r.mobile ||
+              r.phone ||
+              r.email ||
+              "—"
+            )}
+          </td>
+
+          <td>
+            ${esc(status)}
+          </td>
+
+          <td>
+            ${location}
+          </td>
+
+          <td>
+            ${riderOrders.length}
+            <br>
+            <small>
+              Delivered:
+              ${deliveredOrders.length}
+            </small>
+          </td>
+
+          <td>
+            ${money(codCollected)}
+          </td>
+
+          <td>
+            ${money(payout)}
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+}
 function renderDashboard(){
 
   const now = Date.now();
