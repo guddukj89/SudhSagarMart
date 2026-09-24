@@ -4633,7 +4633,7 @@ async function updateComplaint(
 
 }  
 async function saveCategory(){const id=document.getElementById("categoryId").value||db.collection("categories").doc().id;await db.collection("categories").doc(id).set({name:document.getElementById("categoryName").value.trim(),icon:document.getElementById("categoryIcon").value.trim(),status:document.getElementById("categoryStatus").value},{merge:true});clearCategory()}
-function editCategory(id){const c=data.categories.find(x=>x.id===id);document.getElementById("categoryId").value=id;document.getElementById("categoryName").value=c.name||"";document.getElementById("categoryIcon").value=c.icon||"";document.getElementById("categoryStatus").value=c.status||"Active";showSection("categories",document.querySelectorAll(".navbtn")[6])}
+function editCategory(id){const c=data.categories.find(x=>x.id===id);document.getElementById("categoryId").value=id;document.getElementById("categoryName").value=c.name||"";document.getElementById("categoryIcon").value=c.icon||"";document.getElementById("categoryStatus").value=c.status||"Active";showSection("categories",document.querySelectorAll(".navbtn")[10])}
 function clearCategory(){["categoryId","categoryName","categoryIcon"].forEach(id=>document.getElementById(id).value="");document.getElementById("categoryStatus").value="Active"}
 async function seedCategories(){const x=[["Fashion","👕"],["Electronics","📱"],["Grocery","🛒"],["Beauty","💄"],["Home","🏠"]];for(const [name,icon] of x)await db.collection("categories").doc(name.toLowerCase()).set({name,icon,status:"Active"},{merge:true});alert("Default categories created")}
 
