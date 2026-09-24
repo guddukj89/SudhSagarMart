@@ -3055,7 +3055,56 @@ async function saveProduct(){
 
 }
 function clearProduct(){["productId","productName","productPrice","productMrp","productStock","productCategory","productSeller","productSellerId","productImage","productDescription"].forEach(id=>document.getElementById(id).value="");document.getElementById("productStatus").value="pending"}
+function loadOrderRiders(selectedId = "") {
 
+  const select =
+    document.getElementById("orderRider");
+
+  if (!select) return;
+
+  const storeId =
+    String(currentAdmin.storeId || "");
+
+  const riders = data.deliveryPartners.filter(r => {
+
+    const riderStore =
+      String(r.storeId || r.assignedStoreId || "");
+
+    const status =
+      String(r.status || "").toLowerCase();
+
+    return (
+      riderStore === storeId &&
+      r.active !== false &&
+      !["inactive", "blocked", "suspended"]
+        .includes(status)
+    );
+
+  });
+
+  select.innerHTML =
+    '<option value="">Select Delivery Partner</option>';
+
+  riders.forEach(r => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = r.id || r.uid;
+
+    option.textContent =
+      r.name ||
+      r.fullName ||
+      r.displayName ||
+      r.mobile ||
+      r.id;
+
+    select.appendChild(option);
+
+  });
+
+  select.value = selectedId;
+}
 function renderOrders(){
 
   const table =
