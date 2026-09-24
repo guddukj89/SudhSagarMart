@@ -187,6 +187,118 @@ button{cursor:pointer}
       <div class="stat"><small>Total</small><strong id="earnTotal">₹0</strong></div>
     </div>
   </div>
+  <!-- ================= RIDER WALLET & PAYOUT ================= -->
+
+<div class="profileCard">
+
+  <div class="sectionHead">
+    <h3>💰 Rider Wallet</h3>
+    <span>Settlement</span>
+  </div>
+
+  <div class="stats" style="padding:0;margin:0">
+
+    <div class="stat">
+      <small>Wallet Balance</small>
+      <strong id="walletBalance">₹0</strong>
+    </div>
+
+    <div class="stat">
+      <small>Pending Settlement</small>
+      <strong id="pendingSettlement">₹0</strong>
+    </div>
+
+  </div>
+
+  <button
+    class="btn green"
+    style="width:100%;margin-top:12px"
+    onclick="requestPayout()"
+  >
+    💸 Request Payout
+  </button>
+
+</div>
+
+
+<!-- ================= INCENTIVE ================= -->
+
+<div class="profileCard">
+
+  <div class="sectionHead">
+    <h3>🎯 Incentive</h3>
+    <span id="incentiveStatus">Today</span>
+  </div>
+
+  <div style="
+    background:#f0fdf4;
+    border:1px solid #bbf7d0;
+    border-radius:12px;
+    padding:12px;
+  ">
+
+    <div style="display:flex;justify-content:space-between">
+      <span style="font-size:11px">Completed Orders</span>
+      <b id="incentiveOrders">0</b>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-top:8px">
+      <span style="font-size:11px">Target</span>
+      <b id="incentiveTarget">15</b>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-top:8px">
+      <span style="font-size:11px">Bonus</span>
+      <b id="incentiveBonus">₹0</b>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= WEEKLY EARNINGS ================= -->
+
+<div class="profileCard">
+
+  <div class="sectionHead">
+    <h3>📊 Weekly Earnings</h3>
+    <span>This Week</span>
+  </div>
+
+  <div style="
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    padding:12px;
+  ">
+
+    <div style="display:flex;justify-content:space-between">
+      <span style="font-size:11px">Delivery Fees</span>
+      <b id="weeklyDelivery">₹0</b>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-top:8px">
+      <span style="font-size:11px">Incentive</span>
+      <b id="weeklyIncentive">₹0</b>
+    </div>
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px dashed #ddd;
+    ">
+      <span style="font-size:11px;font-weight:800">
+        Total
+      </span>
+      <b id="weeklyTotal">₹0</b>
+    </div>
+
+  </div>
+
+</div>
 </section>
 
 <section id="profile" class="page">
@@ -1043,7 +1155,9 @@ function render(){
  document.getElementById("newOrders").innerHTML=newO.length?newO.map(o=>card(o,"new")).join(""):empty("package-open","No new orders","Super Admin se order assign hone par yahan dikhega.");
  document.getElementById("ongoingOrders").innerHTML=ongoing.length?ongoing.map(o=>card(o,"ongoing")).join(""):empty("bike","No ongoing delivery","Accepted/picked orders yahan dikhenge.");
  document.getElementById("completedOrders").innerHTML=completed.length?completed.map(o=>card(o,"completed")).join(""):empty("circle-check","Aaj koi completed order nahi","Delivery complete karte hi yahan record dikhega.");
- lucide.createIcons();
+ updatePartnerFinanceUI();
+
+lucide.createIcons();
 }
 function calcAvgTime(list){
  const arr=list.map(o=>{
@@ -1362,6 +1476,239 @@ window.emergencySOS = async ()=>{
   }
 
 };  
+  // ================= RIDER WALLET =================
+
+function updateWalletUI(){
+
+  const wallet =
+    Number(partnerWallet || 0);
+
+  const pending =
+    Number(partnerPendingSettlement || 0);
+
+  const walletEl =
+    document.getElementById("walletBalance");
+
+  const pendingEl =
+    document.getElementById("pendingSettlement");
+
+  if(walletEl){
+    walletEl.textContent =
+      "₹" + wallet.toFixed(0);
+  }
+
+  if(pendingEl){
+    pendingEl.textContent =
+      "₹" + pending.toFixed(0);
+  }
+
+}
+
+
+// ================= PAYOUT REQUEST =================
+
+window.requestPayout = async ()=>{
+
+  if(!partnerId){
+    return alert(
+      "Delivery Partner login required."
+    );
+  }
+
+  const amount =
+    Number(partnerWallet || 0);
+
+  if(amount <= 0){
+
+    return alert(
+      "अभी payout के लिए balance available नहीं है."
+    );
+
+  }
+
+  const ok = confirm(
+    "₹" + amount.toFixed(0) +
+    " का payout request करना है?"
+  );
+
+  if(!ok) return;
+
+  try{
+
+    const payoutId =
+      partnerId + "_" + Date.now();
+
+    await setDoc(
+      doc(db,"deliveryPayouts",payoutId),
+      {
+        partnerId: partnerId,
+
+        storeId:
+          partnerStoreId || "",
+
+        amount: amount,
+
+        status: "pending",
+
+        requestedAt: new Date()
+      }
+    );
+
+    await setDoc(
+      doc(db,"deliveryPartners",partnerId),
+      {
+        lastPayoutRequestId: payoutId,
+
+        lastPayoutRequestAmount: amount,
+
+        lastPayoutRequestAt: new Date(),
+
+        payoutStatus: "pending"
+
+      },
+      {merge:true}
+    );
+
+    partnerPendingSettlement =
+      Number(partnerPendingSettlement || 0) +
+      amount;
+
+    partnerWallet = 0;
+
+    updateWalletUI();
+
+    alert(
+      "✅ Payout request भेज दिया गया.\n\n" +
+      "Amount: ₹" +
+      amount.toFixed(0) +
+      "\nStatus: Pending"
+    );
+
+  }catch(error){
+
+    console.error(
+      "Payout error:",
+      error
+    );
+
+    alert(
+      "Payout request नहीं बन पाया.\n\n" +
+      error.message
+    );
+
+  }
+
+};
+
+
+// ================= INCENTIVE =================
+
+function updateIncentiveUI(){
+
+  const completed =
+    orders.filter(o =>
+      status(o) === "Delivered" &&
+      isToday(o)
+    ).length;
+
+  const target = 15;
+
+  const bonus =
+    completed >= target
+      ? 100
+      : 0;
+
+  const orderEl =
+    document.getElementById("incentiveOrders");
+
+  const targetEl =
+    document.getElementById("incentiveTarget");
+
+  const bonusEl =
+    document.getElementById("incentiveBonus");
+
+  if(orderEl){
+    orderEl.textContent =
+      completed;
+  }
+
+  if(targetEl){
+    targetEl.textContent =
+      target;
+  }
+
+  if(bonusEl){
+    bonusEl.textContent =
+      "₹" + bonus;
+  }
+
+}
+
+
+// ================= WEEKLY EARNINGS =================
+
+function updateWeeklyEarningsUI(){
+
+  const completed =
+    orders.filter(o =>
+      status(o) === "Delivered"
+    );
+
+  let delivery = 0;
+  let incentive = 0;
+
+  completed.forEach(o=>{
+
+    delivery +=
+      Number(o.deliveryFee ?? 40);
+
+  });
+
+  if(completed.length >= 15){
+    incentive = 100;
+  }
+
+  const total =
+    delivery + incentive;
+
+  const d =
+    document.getElementById("weeklyDelivery");
+
+  const i =
+    document.getElementById("weeklyIncentive");
+
+  const t =
+    document.getElementById("weeklyTotal");
+
+  if(d){
+    d.textContent =
+      "₹" + delivery;
+  }
+
+  if(i){
+    i.textContent =
+      "₹" + incentive;
+  }
+
+  if(t){
+    t.textContent =
+      "₹" + total;
+  }
+
+}
+
+
+// ================= UPDATE ALL EARNINGS =================
+
+function updatePartnerFinanceUI(){
+
+  updateWalletUI();
+
+  updateIncentiveUI();
+
+  updateWeeklyEarningsUI();
+
+}
 window.savePartnerProfile=async()=>{
  const name=document.getElementById("profile-name").value.trim(),phone=document.getElementById("profile-phone").value.trim();
  if(!name||!phone)return alert("Name aur mobile number enter karein.");
