@@ -55,7 +55,7 @@ th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14p
   <div class="loginbox">
     <h1>🛒 Sudh Sagar Mart</h1>
     <p style="text-align:center">Admin Panel Login</p>
-    <input id="loginUser" placeholder="Admin Username">
+    <input id="loginUser" placeholder="Admin Email">
     <input id="loginPass" type="password" placeholder="Password">
     <button class="primary" onclick="login()">Login</button>
     <p id="loginMsg" style="text-align:center;color:#c00"></p>
@@ -576,14 +576,351 @@ async function logout(){
 }
 
 function startLive(){
- document.getElementById("storeTitle").textContent=data.settings.storeName;
- const cols=["sellers","products","orders","customers","payments","categories"];
- cols.forEach(c=>{
-   const u=db.collection(c).onSnapshot(s=>{data[c]=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>console.error(c,e));
-   unsubs.push(u);
- });
- db.collection("settings").doc("store").onSnapshot(s=>{if(s.exists)data.settings={...data.settings,...s.data()};loadSettings();renderDashboard()});
- loadSettings();renderAll();
+
+  // =========================
+  // OLD LISTENERS STOP
+  // =========================
+
+  unsubs.forEach(fn=>{
+    try{
+      if(fn) fn();
+    }catch(e){}
+  });
+
+  unsubs=[];
+
+
+  // =========================
+  // STORE CHECK
+  // =========================
+
+  const storeId =
+    String(currentAdmin.storeId || "")
+      .trim();
+
+
+  if(!storeId){
+
+    console.error(
+      "Admin storeId missing."
+    );
+
+    alert(
+      "Admin ke saath Store assign nahi hai."
+    );
+
+    return;
+  }
+
+
+  // =========================
+  // TOPBAR
+  // =========================
+
+  document.getElementById(
+    "storeTitle"
+  ).textContent =
+    currentAdmin.storeName ||
+    storeId;
+
+
+  document.getElementById(
+    "adminStoreInfo"
+  ).textContent =
+    "🏬 Store ID: " +
+    storeId;
+
+
+  // =========================
+  // STORE-WISE COLLECTIONS
+  // =========================
+
+  const storeCollections = [
+
+    "products",
+    "orders",
+    "customers",
+    "payments",
+    "complaints"
+
+  ];
+
+
+  storeCollections.forEach(
+    collectionName => {
+
+      const unsubscribe =
+        db
+          .collection(collectionName)
+          .where(
+            "storeId",
+            "==",
+            storeId
+          )
+          .onSnapshot(
+
+            snapshot => {
+
+              data[collectionName] =
+                snapshot.docs.map(
+                  doc => ({
+
+                    id:doc.id,
+
+                    ...doc.data()
+
+                  })
+                );
+
+
+              renderAll();
+
+            },
+
+            error => {
+
+              console.error(
+                collectionName +
+                " listener error:",
+                error
+              );
+
+            }
+
+          );
+
+
+      unsubs.push(
+        unsubscribe
+      );
+
+    }
+  );
+
+
+  // =========================
+  // SELLERS
+  // =========================
+  //
+  // IMPORTANT:
+  // Pehle check kiya tha ki
+  // Seller collection ka naam
+  // "sellers" ya "Sellers" ho sakta hai.
+  //
+  // Abhi existing Admin code ke
+  // according lowercase use kar rahe hain.
+  //
+  // Baad me Firestore Rules ke saath
+  // collection name final karenge.
+  // =========================
+
+  const sellerUnsubscribe =
+    db
+      .collection("sellers")
+      .where(
+        "storeId",
+        "==",
+        storeId
+      )
+      .onSnapshot(
+
+        snapshot => {
+
+          data.sellers =
+            snapshot.docs.map(
+              doc => ({
+
+                id:doc.id,
+
+                ...doc.data()
+
+              })
+            );
+
+
+          renderAll();
+
+        },
+
+        error => {
+
+          console.error(
+            "sellers listener error:",
+            error
+          );
+
+        }
+
+      );
+
+
+  unsubs.push(
+    sellerUnsubscribe
+  );
+
+
+  // =========================
+  // CATEGORIES
+  // =========================
+  //
+  // Categories abhi platform-wide
+  // rakhe ja rahe hain.
+  // =========================
+
+  const categoryUnsubscribe =
+    db
+      .collection("categories")
+      .onSnapshot(
+
+        snapshot => {
+
+          data.categories =
+            snapshot.docs.map(
+              doc => ({
+
+                id:doc.id,
+
+                ...doc.data()
+
+              })
+            );
+
+
+          renderCategories();
+
+        },
+
+        error => {
+
+          console.error(
+            "categories listener error:",
+            error
+          );
+
+        }
+
+      );
+
+
+  unsubs.push(
+    categoryUnsubscribe
+  );
+
+
+  // =========================
+  // STORE SETTINGS
+  // =========================
+  //
+  // Settings directly stores/{storeId}
+  // se aayengi.
+  // =========================
+
+  const storeUnsubscribe =
+    db
+      .collection("stores")
+      .doc(storeId)
+      .onSnapshot(
+
+        snapshot => {
+
+          if(!snapshot.exists){
+
+            console.error(
+              "Assigned Store not found:",
+              storeId
+            );
+
+            return;
+
+          }
+
+
+          const store =
+            snapshot.data();
+
+
+          data.settings = {
+
+            ...data.settings,
+
+            storeName:
+              store.name ||
+              store.storeName ||
+              currentAdmin.storeName,
+
+            phone:
+              store.phone || "",
+
+            email:
+              store.email || "",
+
+            commission:
+              Number(
+                store.commission || 0
+              ),
+
+            currency:
+              "₹",
+
+            delivery:
+              Number(
+                store.deliveryCharge || 0
+              ),
+
+            address:
+              store.address || ""
+
+          };
+
+
+          currentAdmin.storeName =
+            data.settings.storeName;
+
+
+          document.getElementById(
+            "storeTitle"
+          ).textContent =
+            data.settings.storeName;
+
+
+          document.getElementById(
+            "adminStoreInfo"
+          ).textContent =
+            "🏬 Store ID: " +
+            storeId;
+
+
+          loadSettings();
+
+          renderDashboard();
+
+        },
+
+        error => {
+
+          console.error(
+            "store settings error:",
+            error
+          );
+
+        }
+
+      );
+
+
+  unsubs.push(
+    storeUnsubscribe
+  );
+
+
+  // =========================
+  // INITIAL RENDER
+  // =========================
+
+  loadSettings();
+
+  renderAll();
+
 }
 
 function renderAll(){renderDashboard();renderSellers();renderProducts();renderOrders();renderCustomers();renderPayments();renderCategories();renderComplaints();}
@@ -1612,11 +1949,439 @@ async function updateField(col,id,field,value){await db.collection(col).doc(id).
 async function deleteDoc(col,id){if(confirm("Delete this record?"))await db.collection(col).doc(id).delete()}
 
 function loadSettings(){document.getElementById("setStoreName").value=data.settings.storeName||"Sudh Sagar Mart";document.getElementById("setPhone").value=data.settings.phone||"";document.getElementById("setEmail").value=data.settings.email||"";document.getElementById("setCommission").value=data.settings.commission??10;document.getElementById("setCurrency").value=data.settings.currency||"₹";document.getElementById("setDelivery").value=data.settings.delivery??0;document.getElementById("setAddress").value=data.settings.address||""}
-async function saveSettings(){const x={storeName:document.getElementById("setStoreName").value.trim()||"Sudh Sagar Mart",phone:document.getElementById("setPhone").value.trim(),email:document.getElementById("setEmail").value.trim(),commission:Number(document.getElementById("setCommission").value||0),currency:document.getElementById("setCurrency").value.trim()||"₹",delivery:Number(document.getElementById("setDelivery").value||0),address:document.getElementById("setAddress").value.trim()};await db.collection("settings").doc("store").set(x,{merge:true});alert("Settings saved")}
+async function saveSettings(){
+
+  // =========================
+  // STORE CHECK
+  // =========================
+
+  const storeId =
+    String(currentAdmin.storeId || "")
+      .trim();
+
+  if(!storeId){
+
+    alert(
+      "Admin ke saath Store assign nahi hai."
+    );
+
+    return;
+  }
+
+
+  // =========================
+  // FORM DATA
+  // =========================
+
+  const storeData = {
+
+    name:
+      document.getElementById("setStoreName")
+        .value
+        .trim() ||
+      currentAdmin.storeName,
+
+    storeName:
+      document.getElementById("setStoreName")
+        .value
+        .trim() ||
+      currentAdmin.storeName,
+
+    phone:
+      document.getElementById("setPhone")
+        .value
+        .trim(),
+
+    email:
+      document.getElementById("setEmail")
+        .value
+        .trim(),
+
+    commission:
+      Number(
+        document.getElementById("setCommission")
+          .value || 0
+      ),
+
+    currency:
+      document.getElementById("setCurrency")
+        .value
+        .trim() || "₹",
+
+    deliveryCharge:
+      Number(
+        document.getElementById("setDelivery")
+          .value || 0
+      ),
+
+    address:
+      document.getElementById("setAddress")
+        .value
+        .trim(),
+
+    updatedAt:
+      firebase.firestore.FieldValue
+        .serverTimestamp(),
+
+    updatedBy:
+      currentAdmin.uid,
+
+    updatedByName:
+      currentAdmin.name
+
+  };
+
+
+  try{
+
+    // =========================
+    // SAVE TO STORES/{STORE ID}
+    // =========================
+
+    await db
+      .collection("stores")
+      .doc(storeId)
+      .set(
+        storeData,
+        {
+          merge:true
+        }
+      );
+
+
+    // =========================
+    // UPDATE LOCAL DATA
+    // =========================
+
+    data.settings = {
+
+      ...data.settings,
+
+      storeName:
+        storeData.name,
+
+      phone:
+        storeData.phone,
+
+      email:
+        storeData.email,
+
+      commission:
+        storeData.commission,
+
+      currency:
+        storeData.currency,
+
+      delivery:
+        storeData.deliveryCharge,
+
+      address:
+        storeData.address
+
+    };
+
+
+    currentAdmin.storeName =
+      storeData.name;
+
+
+    document.getElementById(
+      "storeTitle"
+    ).textContent =
+      storeData.name;
+
+
+    document.getElementById(
+      "adminStoreInfo"
+    ).textContent =
+      "🏬 Store ID: " +
+      storeId;
+
+
+    loadSettings();
+
+    renderDashboard();
+
+
+    alert(
+      "Store Settings successfully save ho gayi."
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "Store settings save error:",
+      error
+    );
+
+
+    alert(
+      "Settings save failed:\n" +
+      error.message
+    );
+
+  }
+
+}
 
 function exportData(){const out={exportedAt:new Date().toISOString(),sellers:data.sellers,products:data.products,orders:data.orders,customers:data.customers,payments:data.payments,categories:data.categories,settings:data.settings};const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:"application/json"}));a.download="sudhsagarmart-firebase-backup.json";a.click();URL.revokeObjectURL(a.href)}
 
-if(sessionStorage.getItem("ssm_admin")==="1"){document.getElementById("loginPage").style.display="none";document.getElementById("app").style.display="block";startLive()}
+// ==========================================
+// SECURE ADMIN SESSION RESTORE
+// ==========================================
+
+auth.onAuthStateChanged(async user => {
+
+  // Firebase Auth user nahi hai
+  if(!user){
+
+    document.getElementById(
+      "loginPage"
+    ).style.display="flex";
+
+    document.getElementById(
+      "app"
+    ).style.display="none";
+
+    return;
+  }
+
+
+  try{
+
+    const uid =
+      user.uid;
+
+
+    // =========================
+    // ADMIN RECORD
+    // =========================
+
+    const adminSnap =
+      await db
+        .collection("adminUsers")
+        .doc(uid)
+        .get();
+
+
+    if(!adminSnap.exists){
+
+      await auth.signOut();
+
+      return;
+    }
+
+
+    const admin =
+      adminSnap.data();
+
+
+    // =========================
+    // ROLE CHECK
+    // =========================
+
+    if(
+      admin.role !== "admin" ||
+      admin.active !== true
+    ){
+
+      await auth.signOut();
+
+      return;
+    }
+
+
+    // =========================
+    // STORE CHECK
+    // =========================
+
+    const storeId =
+      String(
+        admin.storeId || ""
+      ).trim();
+
+
+    if(!storeId){
+
+      await auth.signOut();
+
+      return;
+    }
+
+
+    // =========================
+    // STORE LOAD
+    // =========================
+
+    const storeSnap =
+      await db
+        .collection("stores")
+        .doc(storeId)
+        .get();
+
+
+    if(!storeSnap.exists){
+
+      await auth.signOut();
+
+      return;
+    }
+
+
+    const store =
+      storeSnap.data();
+
+
+    // =========================
+    // STORE ACTIVE CHECK
+    // =========================
+
+    if(
+      String(
+        store.status || "active"
+      ).toLowerCase() !== "active"
+    ){
+
+      await auth.signOut();
+
+      return;
+    }
+
+
+    // =========================
+    // RESTORE ADMIN
+    // =========================
+
+    currentAdmin = {
+
+      uid:uid,
+
+      name:
+        admin.name || "",
+
+      email:
+        admin.email ||
+        user.email ||
+        "",
+
+      role:
+        admin.role || "admin",
+
+      storeId:
+        storeId,
+
+      storeName:
+        store.name ||
+        store.storeName ||
+        storeId,
+
+      active:true
+
+    };
+
+
+    // =========================
+    // SESSION
+    // =========================
+
+    sessionStorage.setItem(
+      "ssm_admin",
+      "1"
+    );
+
+    sessionStorage.setItem(
+      "ssm_admin_uid",
+      uid
+    );
+
+    sessionStorage.setItem(
+      "ssm_admin_storeId",
+      storeId
+    );
+
+
+    // =========================
+    // SHOW ADMIN PANEL
+    // =========================
+
+    document.getElementById(
+      "loginPage"
+    ).style.display="none";
+
+
+    document.getElementById(
+      "app"
+    ).style.display="block";
+
+
+    document.getElementById(
+      "adminIdentity"
+    ).textContent =
+      admin.name ||
+      admin.email ||
+      user.email ||
+      uid;
+
+
+    document.getElementById(
+      "storeTitle"
+    ).textContent =
+      currentAdmin.storeName;
+
+
+    document.getElementById(
+      "adminStoreInfo"
+    ).textContent =
+      "🏬 Store ID: " +
+      currentAdmin.storeId;
+
+
+    // =========================
+    // START STORE DATA
+    // =========================
+
+    startLive();
+
+
+  }catch(error){
+
+    console.error(
+      "Admin session restore error:",
+      error
+    );
+
+
+    try{
+      await auth.signOut();
+    }catch(e){}
+
+
+    sessionStorage.removeItem(
+      "ssm_admin"
+    );
+
+    sessionStorage.removeItem(
+      "ssm_admin_uid"
+    );
+
+    sessionStorage.removeItem(
+      "ssm_admin_storeId"
+    );
+
+
+    document.getElementById(
+      "loginPage"
+    ).style.display="flex";
+
+
+    document.getElementById(
+      "app"
+    ).style.display="none";
+
+  }
+
+});
 </script>
 </body>
 </html>
