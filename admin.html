@@ -3166,130 +3166,144 @@ function editOrder(id){const o=data.orders.find(x=>x.id===id);document.getElemen
 function clearOrder(){["orderId","orderCustomer","orderPhone","orderAmount","orderAddress"].forEach(id=>document.getElementById(id).value="");document.getElementById("orderStatus").value="Processing"}
 
 function renderCustomers(){const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();const rows=data.customers.filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById("customerTable").innerHTML=rows.length?rows.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.city)}</td><td>${esc(c.address)}</td><td class="actions"><button class="secondary" onclick="editCustomer('${esc(c.id)}')">Edit</button><button class="danger" onclick="deleteDoc('customers','${esc(c.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No customers</td></tr>`}
-function saveCustomer(){
+async function saveCustomer(){
 
-  // Store check
   if(!currentAdmin.storeId){
 
-    alert(
-      "Admin ke saath Store assign nahi hai."
-    );
+    alert("Admin ke saath Store assign nahi hai.");
+
+    return;
+  }
+
+  const id =
+    document.getElementById("customerId").value.trim();
+
+  const name =
+    document.getElementById("customerName").value.trim();
+
+  const phone =
+    document.getElementById("customerPhone").value.trim();
+
+  const email =
+    document.getElementById("customerEmail").value.trim();
+
+  const city =
+    document.getElementById("customerCity").value.trim();
+
+  const address =
+    document.getElementById("customerAddress").value.trim();
+
+
+  if(!name){
+
+    alert("Customer Name required hai.");
 
     return;
   }
 
 
-  const id =
-    document.getElementById("customerId").value;
+  const customerData = {
 
+    name:name,
 
-  const obj = {
+    customerName:name,
 
-    id:
-      id || uid("c"),
+    phone:phone,
 
-    name:
-      document.getElementById("customerName")
-        .value.trim(),
+    mobile:phone,
 
-    phone:
-      document.getElementById("customerPhone")
-        .value.trim(),
+    email:email,
 
-    email:
-      document.getElementById("customerEmail")
-        .value.trim(),
+    city:city,
 
-    address:
-      document.getElementById("customerAddress")
-        .value.trim(),
+    address:address,
 
-    // IMPORTANT
-    // Customer current Admin ke Store se linked rahega
-    storeId:
-      currentAdmin.storeId,
+    storeId:currentAdmin.storeId,
 
-    storeName:
-      currentAdmin.storeName,
+    storeName:currentAdmin.storeName,
 
     updatedAt:
-      firebase.firestore.FieldValue.serverTimestamp()
+      firebase.firestore.FieldValue.serverTimestamp(),
+
+    updatedBy:currentAdmin.uid
+
   };
 
 
-  // Required field
-  if(!obj.name){
+  try{
 
-    alert(
-      "Customer Name required"
-    );
+    if(id){
 
-    return;
-  }
+      const oldCustomer =
+        data.customers.find(
+          c => c.id === id
+        );
 
 
-  // Existing customer edit
-  if(id){
+      if(
+        oldCustomer &&
+        oldCustomer.storeId &&
+        String(oldCustomer.storeId) !==
+        String(currentAdmin.storeId)
+      ){
 
-    const i =
-      data.customers.findIndex(
-        x => x.id === id
-      );
+        alert(
+          "Dusre Store ke customer ko edit nahi kar sakte."
+        );
 
-    if(i === -1){
+        return;
+      }
 
-      alert(
-        "Customer nahi mila."
-      );
 
-      return;
+      await db
+        .collection("customers")
+        .doc(id)
+        .set(
+          customerData,
+          {merge:true}
+        );
+
+    }else{
+
+      const customerRef =
+        db.collection("customers").doc();
+
+
+      await customerRef.set({
+
+        ...customerData,
+
+        createdAt:
+          firebase.firestore.FieldValue.serverTimestamp(),
+
+        createdBy:
+          currentAdmin.uid
+
+      });
+
     }
 
 
-    // Existing customer ka Store change nahi hoga
-    obj.storeId =
-      data.customers[i].storeId ||
-      currentAdmin.storeId;
+    alert(
+      "Customer successfully save ho gaya."
+    );
 
-    obj.storeName =
-      data.customers[i].storeName ||
-      currentAdmin.storeName;
+    clearCustomer();
 
+  }catch(error){
 
-    data.customers[i] = {
+    console.error(
+      "Customer save error:",
+      error
+    );
 
-      ...data.customers[i],
-
-      ...obj
-
-    };
-
-  }
-
-
-  // New customer
-  else{
-
-    data.customers.push(obj);
+    alert(
+      "Customer save failed:\n" +
+      error.message
+    );
 
   }
 
-
-  // Firebase save
-  save();
-
-
-  // Form clear
-  clearCustomer();
-
-
-  // Screen refresh
-  renderAll();
-
-
-  alert(
-    "Customer saved successfully"
-  );
 }
 function editCustomer(id){const c=data.customers.find(x=>x.id===id);document.getElementById("customerId").value=id;["name","phone","email","city","address"].forEach(k=>document.getElementById("customer"+k[0].toUpperCase()+k.slice(1)).value=c[k]||"");showSection("customers",document.querySelectorAll(".navbtn")[4])}
 function clearCustomer(){["customerId","customerName","customerPhone","customerEmail","customerCity","customerAddress"].forEach(id=>document.getElementById(id).value="")}
