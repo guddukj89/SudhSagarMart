@@ -13,7 +13,28 @@
 </style>
 </head>
 <body>
-<div id="loginPage" class="login"><div class="loginbox"><h1>🛒 Sudh Sagar Mart</h1><p style="text-align:center">Master / Super Admin Login</p><input id="loginUser" placeholder="Admin Email"><input id="loginPass" type="password" placeholder="Password"><button class="primary" onclick="login()">Login</button><p id="loginMsg" style="text-align:center;color:#c00"></p><p class="muted">Super Admin access Firebase Auth + Firestore role se verify hoga.</p></div></div>
+<div id="loginPage" class="login"><div class="loginbox"><h1>🛒 Sudh Sagar Mart</h1><p style="text-align:center">Master / Super Admin Login</p><input id="loginUser" type="email" placeholder="Super Admin Email">
+<input id="loginPass" type="password" placeholder="Password">
+
+<button class="primary" onclick="login()">
+  Login
+</button>
+
+<button
+  class="secondary"
+  onclick="forgotPassword()"
+  style="width:100%;margin-top:8px">
+  Forgot Password / Reset Email
+</button>
+
+<p
+  id="loginMsg"
+  style="text-align:center;color:#c00">
+</p>
+
+<p class="muted" style="text-align:center">
+  Sirf active Super Admin account login kar sakta hai.
+</p>class="muted">Super Admin access Firebase Auth + Firestore role se verify hoga.</p></div></div>
 <div id="app" style="display:none"><div class="topbar"><div class="brand">🛒 <span id="storeTitle">Sudh Sagar Mart</span> - <b>SUPER ADMIN</b></div><div class="actions"><select id="globalStoreFilter" onchange="changeStoreFilter(this.value)" style="width:190px;padding:8px;border-radius:6px;border:0"><option value="__ALL__">🌐 All Stores</option></select><span id="adminIdentity" class="mini"></span><button class="logout" onclick="logout()">Logout</button></div></div>
 <div class="layout"><aside class="sidebar">
 <button class="navbtn active" onclick="showSection('dashboard',this)">📊 Master Dashboard</button><button class="navbtn" onclick="showSection('sellers',this)">🏪 Sellers / KYC</button><button class="navbtn" onclick="showSection('riders',this)">🛵 Delivery Partners</button><button class="navbtn" onclick="showSection('products',this)">📦 Products</button><button class="navbtn" onclick="showSection('orders',this)">🛍️ Orders / Dispatch</button><button class="navbtn" onclick="showSection('customers',this)">👥 Customers</button><button class="navbtn" onclick="showSection('payments',this)">💰 Payments / Payouts</button><button class="navbtn" onclick="showSection('categories',this)">📁 Categories</button><button class="navbtn" onclick="showSection('complaints',this)">📩 Complaints / Helpdesk</button><button class="navbtn" onclick="showSection('notifications',this)">🔔 Notifications</button><button class="navbtn" onclick="showSection('roles',this)">🔐 Admin Roles</button><button class="navbtn" onclick="showSection('settings',this)">⚙️ Master Settings</button><button class="navbtn" onclick="showSection('logs',this)">🧾 Audit / Activity</button><button class="navbtn" onclick="showSection('stores',this)">🏬 Store Management</button>
@@ -39,8 +60,152 @@ firebase.initializeApp(firebaseConfig);const db=firebase.firestore(),auth=fireba
 let data={sellers:[],products:[],orders:[],customers:[],payments:[],categories:[],deliveryPartners:[],complaints:[],notifications:[],adminUsers:[],auditLogs:[],stores:[],settings:{storeName:"Sudh Sagar Mart",commission:10,currency:"₹",delivery:0}};let unsubs=[];let selectedStoreId='__ALL__';
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));const money=v=>(data.settings.currency||"₹")+Number(v||0).toLocaleString("en-IN");
 function showSection(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active")}
-async function login(){const email=document.getElementById("loginUser").value.trim(),password=document.getElementById("loginPass").value,msg=document.getElementById("loginMsg");try{msg.innerText="Login ho raha hai...";const cred=await auth.signInWithEmailAndPassword(email,password);const admin=await db.collection("adminUsers").doc(cred.user.uid).get();if(!admin.exists||admin.data().active!==true||admin.data().role!=='superAdmin'){await auth.signOut();throw new Error("Aapke account ko Super Admin access nahi hai.")}sessionStorage.setItem("ssm_admin","1");document.getElementById("loginPage").style.display="none";document.getElementById("app").style.display="block";document.getElementById("adminIdentity").textContent=cred.user.email||cred.user.uid;startLive()}catch(e){console.error(e);msg.innerText="Login failed: "+e.message}}
-function logout(){sessionStorage.removeItem("ssm_admin");unsubs.forEach(f=>f&&f());auth.signOut().finally(()=>location.reload())}
+async function login(){
+
+  const email =
+    document.getElementById("loginUser")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const password =
+    document.getElementById("loginPass")
+      .value;
+
+  const msg =
+    document.getElementById("loginMsg");
+
+  if(!email){
+    msg.innerText =
+      "Super Admin email enter karein.";
+    return;
+  }
+
+  if(!password){
+    msg.innerText =
+      "Password enter karein.";
+    return;
+  }
+
+  try{
+
+    msg.style.color = "#0878e8";
+    msg.innerText =
+      "Login ho raha hai...";
+
+    const cred =
+      await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+
+    const uid =
+      cred.user.uid;
+
+    const adminSnap =
+      await db
+        .collection("adminUsers")
+        .doc(uid)
+        .get();
+
+    if(!adminSnap.exists){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Is account ka Super Admin record nahi mila."
+      );
+    }
+
+    const admin =
+      adminSnap.data();
+
+    if(admin.active !== true){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Super Admin account disabled hai."
+      );
+    }
+
+    if(admin.role !== "superAdmin"){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Is account ko Super Admin access nahi hai."
+      );
+    }
+
+    sessionStorage.setItem(
+      "ssm_admin",
+      "1"
+    );
+
+    sessionStorage.setItem(
+      "ssm_admin_uid",
+      uid
+    );
+
+    document.getElementById(
+      "loginPage"
+    ).style.display = "none";
+
+    document.getElementById(
+      "app"
+    ).style.display = "block";
+
+    document.getElementById(
+      "adminIdentity"
+    ).textContent =
+      admin.email ||
+      cred.user.email ||
+      uid;
+
+    startLive();
+
+  }catch(e){
+
+    console.error(
+      "Super Admin login error:",
+      e
+    );
+
+    msg.style.color = "#c00";
+
+    if(
+      e.code ===
+      "auth/invalid-credential"
+    ){
+
+      msg.innerText =
+        "Email ya password galat hai.";
+
+    }else if(
+      e.code ===
+      "auth/user-disabled"
+    ){
+
+      msg.innerText =
+        "Firebase Auth account disabled hai.";
+
+    }else if(
+      e.code ===
+      "auth/too-many-requests"
+    ){
+
+      msg.innerText =
+        "Bahut baar login try hua hai. Thodi der baad try karein.";
+
+    }else{
+
+      msg.innerText =
+        e.message ||
+        "Login failed.";
+    }
+  }
+}
 function startLive(){["sellers","products","orders","customers","payments","categories","deliveryPartners","complaints","notifications","adminUsers","auditLogs","stores"].forEach(c=>{const u=db.collection(c).onSnapshot(s=>{data[c]=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>console.error(c,e));unsubs.push(u)});const u=db.collection("settings").doc("store").onSnapshot(s=>{if(s.exists)data.settings={...data.settings,...s.data()};loadSettings();renderDashboard();renderModuleStatus()});unsubs.push(u);loadSettings();renderAll()}
 function renderAll(){renderDashboard();renderStores();renderSellers();renderRiders();renderProducts();renderOrders();renderCustomers();renderPayments();renderCategories();renderComplaints();renderNotifications();renderStaff();renderLogs();populateStoreSelectors();populateStaffStoreSelector()}
 function populateStaffStoreSelector(){const el=document.getElementById('staffStoreId');if(!el)return;const current=el.value;el.innerHTML='<option value="">Global / All Stores</option>'+data.stores.map(s=>`<option value="${esc(s.id)}">${esc(s.name||s.storeName||s.id)}</option>`).join('');if(current && data.stores.some(s=>s.id===current))el.value=current}
