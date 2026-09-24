@@ -239,7 +239,15 @@ async function login(){
 function startLive(){stopLive();["sellers","products","orders","customers","payments","categories","deliveryPartners","complaints","notifications","adminUsers","auditLogs","stores"].forEach(c=>{const u=db.collection(c).onSnapshot(s=>{data[c]=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>console.error(c,e));unsubs.push(u)});const u=db.collection("settings").doc("store").onSnapshot(s=>{if(s.exists)data.settings={...data.settings,...s.data()};loadSettings();renderDashboard();renderModuleStatus()});unsubs.push(u);loadSettings();renderAll()}
 function renderAll(){renderDashboard();renderStores();renderSellers();renderRiders();renderProducts();renderOrders();renderCustomers();renderPayments();renderCategories();renderComplaints();renderNotifications();renderStaff();renderLogs();populateStoreSelectors();populateStaffStoreSelector()}
 function populateStaffStoreSelector(){const el=document.getElementById('staffStoreId');if(!el)return;const current=el.value;el.innerHTML='<option value="">Global / All Stores</option>'+data.stores.map(s=>`<option value="${esc(s.id)}">${esc(s.name||s.storeName||s.id)}</option>`).join('');if(current && data.stores.some(s=>s.id===current))el.value=current}
-function storeMatches(obj){return selectedStoreId==='__ALL__'||String(obj?.storeId||'')===selectedStoreId;}
+function storeMatches(obj){
+  const sid =
+    obj?.storeId ||
+    obj?.assignedStoreId ||
+    '';
+
+  return selectedStoreId === '__ALL__' ||
+    String(sid) === selectedStoreId;
+}
 function changeStoreFilter(id){selectedStoreId=id;renderAll();}
 function storeName(id){if(!id)return 'Global / Unassigned';const s=data.stores.find(x=>x.id===id);return s?(s.name||s.storeName||id):id;}
 function populateStoreSelectors(){const ids=['productStoreId','orderStoreId','customerStoreId','paymentStoreId'];ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;const val=el.value;el.innerHTML='<option value="">Store (Global/Unassigned)</option>'+data.stores.map(s=>`<option value="${esc(s.id)}">${esc(s.name||s.storeName||s.id)} (${esc(s.code||s.storeCode||s.id)})</option>`).join('');if(val)el.value=val;});const filter=document.getElementById('globalStoreFilter');if(filter){const val=selectedStoreId;filter.innerHTML='<option value="__ALL__">🌐 All Stores</option>'+data.stores.map(s=>`<option value="${esc(s.id)}">🏬 ${esc(s.name||s.storeName||s.id)}</option>`).join('');filter.value=data.stores.some(s=>s.id===val)?val:'__ALL__';}}
@@ -1194,8 +1202,91 @@ function renderCustomers(){const q=(document.getElementById('customerSearch')?.v
 async function saveCustomer(){const id=document.getElementById('customerId').value||db.collection('customers').doc().id;const x={name:document.getElementById('customerName').value.trim(),phone:document.getElementById('customerPhone').value.trim(),email:document.getElementById('customerEmail').value.trim(),city:document.getElementById('customerCity').value.trim(),address:document.getElementById('customerAddress').value.trim(),storeId:document.getElementById('customerStoreId').value || (selectedStoreId==='__ALL__'?'':selectedStoreId),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};await db.collection('customers').doc(id).set(x,{merge:true});await audit('Customer saved','customers',id,x.name);clearCustomer()}
 function editCustomer(id){const c=data.customers.find(x=>x.id===id);if(!c)return;document.getElementById('customerId').value=id;document.getElementById('customerName').value=c.name||c.customerName||'';document.getElementById('customerPhone').value=c.phone||c.mobile||'';document.getElementById('customerEmail').value=c.email||'';document.getElementById('customerCity').value=c.city||'';document.getElementById('customerAddress').value=c.address||'';document.getElementById('customerStoreId').value=c.storeId||'';showSection('customers',document.querySelectorAll('.navbtn')[5])}
 function clearCustomer(){['customerId','customerName','customerPhone','customerEmail','customerCity','customerAddress'].forEach(id=>document.getElementById(id).value='');document.getElementById('customerStoreId').value=selectedStoreId==='__ALL__'?'':selectedStoreId}
-function renderPayments(){document.getElementById('paymentTable').innerHTML=data.payments.filter(storeMatches).length
-  ? data.payments.filter(storeMatches).map(...)`<tr><td>${esc(p.order||p.orderId)}</td><td>${esc(p.customer||p.customerName)}</td><td>${money(p.amount)}</td><td>${esc(p.method||p.paymentMethod)}</td><td><span class="badge">${esc(p.status||p.paymentStatus)}</span></td><td>${esc(p.txn||p.transactionId||p.razorpayPaymentId||'')}</td><td class="actions"><button class="secondary" onclick="editPayment('${esc(p.id)}')">Edit</button><button class="danger" onclick="deleteDoc('payments','${esc(p.id)}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No payments</td></tr>';const pending=data.orders.filter(storeMatches).filter(o=>o.payoutStatus!=='Paid'&&Number(o.sellerPayout||0)>0);document.getElementById('payoutBox').innerHTML=pending.length?pending.map(o=>`<div class="pill">#${esc(o.orderId||o.id)} — Seller payout ${money(o.sellerPayout)} — ${esc(o.payoutStatus||'Pending')} <button class="success" onclick="markPayoutPaid('${esc(o.id)}')">Mark Paid</button></div>`).join(''):'No pending seller payouts'}
+function renderPayments(){
+  const payments =
+    data.payments.filter(storeMatches);
+
+  document.getElementById('paymentTable').innerHTML =
+    payments.length
+      ? payments.map(p => `
+          <tr>
+            <td>${esc(p.order || p.orderId || '')}</td>
+
+            <td>
+              ${esc(p.customer || p.customerName || '')}
+            </td>
+
+            <td>
+              ${money(p.amount)}
+            </td>
+
+            <td>
+              ${esc(p.method || p.paymentMethod || '')}
+            </td>
+
+            <td>
+              <span class="badge">
+                ${esc(p.status || p.paymentStatus || '')}
+              </span>
+            </td>
+
+            <td>
+              ${esc(
+                p.txn ||
+                p.transactionId ||
+                p.razorpayPaymentId ||
+                ''
+              )}
+            </td>
+
+            <td class="actions">
+              <button
+                class="secondary"
+                onclick="editPayment('${esc(p.id)}')">
+                Edit
+              </button>
+
+              <button
+                class="danger"
+                onclick="deleteDoc('payments','${esc(p.id)}')">
+                Delete
+              </button>
+            </td>
+          </tr>
+        `).join('')
+      : `
+        <tr>
+          <td colspan="7" class="empty">
+            No payments
+          </td>
+        </tr>
+      `;
+
+  const pending =
+    data.orders
+      .filter(storeMatches)
+      .filter(o =>
+        o.payoutStatus !== 'Paid' &&
+        Number(o.sellerPayout || 0) > 0
+      );
+
+  document.getElementById('payoutBox').innerHTML =
+    pending.length
+      ? pending.map(o => `
+          <div class="pill">
+            #${esc(o.orderId || o.id)}
+            — Seller payout ${money(o.sellerPayout)}
+            — ${esc(o.payoutStatus || 'Pending')}
+
+            <button
+              class="success"
+              onclick="markPayoutPaid('${esc(o.id)}')">
+              Mark Paid
+            </button>
+          </div>
+        `).join('')
+      : 'No pending seller payouts';
+}
 async function markPayoutPaid(id){await db.collection('orders').doc(id).update({payoutStatus:'Paid',payoutPaid:true,payoutPaidAt:firebase.firestore.FieldValue.serverTimestamp(),payoutPaidBy:auth.currentUser?.uid||''});await audit('Seller payout paid','orders',id,'Paid')}
 async function savePayment(){const id=document.getElementById('paymentId').value||db.collection('payments').doc().id;const x={order:document.getElementById('paymentOrder').value.trim(),customer:document.getElementById('paymentCustomer').value.trim(),amount:Number(document.getElementById('paymentAmount').value||0),method:document.getElementById('paymentMethod').value,status:document.getElementById('paymentStatus').value,txn:document.getElementById('paymentTxn').value.trim(),storeId:document.getElementById('paymentStoreId').value || (selectedStoreId==='__ALL__'?'':selectedStoreId),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};await db.collection('payments').doc(id).set(x,{merge:true});await audit('Payment saved','payments',id,x.status);clearPayment()}
 function editPayment(id){const p=data.payments.find(x=>x.id===id);if(!p)return;document.getElementById('paymentId').value=id;document.getElementById('paymentOrder').value=p.order||'';document.getElementById('paymentCustomer').value=p.customer||'';document.getElementById('paymentAmount').value=p.amount||0;document.getElementById('paymentMethod').value=p.method||'UPI';document.getElementById('paymentStatus').value=p.status||'Pending';document.getElementById('paymentTxn').value=p.txn||'';document.getElementById('paymentStoreId').value=p.storeId||'';showSection('payments',document.querySelectorAll('.navbtn')[6])}
