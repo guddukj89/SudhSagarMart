@@ -1950,6 +1950,350 @@ function renderReturns(){
     }).join("");
 
 }
+  function getReportDateRange(){
+
+  const fromInput =
+    document.getElementById("reportFrom");
+
+  const toInput =
+    document.getElementById("reportTo");
+
+  const from =
+    fromInput?.value
+      ? new Date(
+          fromInput.value +
+          "T00:00:00"
+        )
+      : new Date(
+          Date.now() -
+          (30 * 24 * 60 * 60 * 1000)
+        );
+
+  const to =
+    toInput?.value
+      ? new Date(
+          toInput.value +
+          "T23:59:59"
+        )
+      : new Date();
+
+  return {
+    from:from,
+    to:to
+  };
+
+}
+
+
+function getOrderDate(order){
+
+  if(
+    order.createdAt &&
+    typeof order.createdAt.toDate ===
+    "function"
+  ){
+
+    return order.createdAt.toDate();
+
+  }
+
+  if(order.createdAt){
+
+    const d =
+      new Date(order.createdAt);
+
+    if(!isNaN(d.getTime()))
+      return d;
+
+  }
+
+  if(order.updatedAt){
+
+    const d =
+      new Date(order.updatedAt);
+
+    if(!isNaN(d.getTime()))
+      return d;
+
+  }
+
+  return null;
+
+}
+
+
+function renderSalesReport(){
+
+  const reportBox =
+    document.getElementById(
+      "salesReportBox"
+    );
+
+  if(!reportBox) return;
+
+  const storeId =
+    String(
+      currentAdmin.storeId || ""
+    );
+
+  const range =
+    getReportDateRange();
+
+  const orders =
+    data.orders.filter(order => {
+
+      if(
+        String(
+          order.storeId || ""
+        ) !== storeId
+      ){
+
+        return false;
+
+      }
+
+      const date =
+        getOrderDate(order);
+
+      if(!date)
+        return false;
+
+      return (
+        date >= range.from &&
+        date <= range.to
+      );
+
+    });
+
+
+  const amount =
+    order =>
+      Number(
+        order.total ??
+        order.amount ??
+        0
+      ) || 0;
+
+
+  const status =
+    order =>
+      String(
+        order.orderStatus ||
+        order.status ||
+        ""
+      ).toLowerCase();
+
+
+  const validOrders =
+    orders.filter(
+      order =>
+        ![
+          "cancelled",
+          "canceled"
+        ].includes(
+          status(order)
+        )
+    );
+
+
+  const deliveredOrders =
+    orders.filter(
+      order =>
+        status(order) ===
+        "delivered"
+    );
+
+
+  const grossSales =
+    validOrders.reduce(
+      (sum,order) =>
+        sum + amount(order),
+      0
+    );
+
+
+  const deliveredSales =
+    deliveredOrders.reduce(
+      (sum,order) =>
+        sum + amount(order),
+      0
+    );
+
+
+  const onlineSales =
+    validOrders
+    .filter(order =>
+      !String(
+        order.paymentMethod ||
+        order.payment ||
+        ""
+      ).toLowerCase()
+       .includes("cod")
+    )
+    .reduce(
+      (sum,order) =>
+        sum + amount(order),
+      0
+    );
+
+
+  const codSales =
+    validOrders
+    .filter(order =>
+      String(
+        order.paymentMethod ||
+        order.payment ||
+        ""
+      ).toLowerCase()
+      === "cod"
+    )
+    .reduce(
+      (sum,order) =>
+        sum + amount(order),
+      0
+    );
+
+
+  const returns =
+    data.returns.filter(r => {
+
+      if(
+        String(
+          r.storeId || ""
+        ) !== storeId
+      ){
+
+        return false;
+
+      }
+
+      const date =
+        getOrderDate(r);
+
+      if(!date)
+        return false;
+
+      return (
+        date >= range.from &&
+        date <= range.to
+      );
+
+    });
+
+
+  const returnAmount =
+    returns.reduce(
+      (sum,r) =>
+        sum +
+        Number(
+          r.refundAmount ??
+          r.amount ??
+          0
+        ),
+      0
+    );
+
+
+  const netSales =
+    grossSales -
+    returnAmount;
+
+
+  const ordersBox =
+    document.getElementById(
+      "reportOrders"
+    );
+
+  const grossBox =
+    document.getElementById(
+      "reportGross"
+    );
+
+  const deliveredBox =
+    document.getElementById(
+      "reportDelivered"
+    );
+
+  const returnsBox =
+    document.getElementById(
+      "reportReturns"
+    );
+
+
+  if(ordersBox)
+    ordersBox.textContent =
+      orders.length;
+
+
+  if(grossBox)
+    grossBox.textContent =
+      money(grossSales);
+
+
+  if(deliveredBox)
+    deliveredBox.textContent =
+      money(deliveredSales);
+
+
+  if(returnsBox)
+    returnsBox.textContent =
+      money(returnAmount);
+
+
+  reportBox.innerHTML = `
+
+    <div class="stats">
+
+      <div class="stat">
+        <small>Net Sales</small>
+        <strong>
+          ${money(netSales)}
+        </strong>
+      </div>
+
+      <div class="stat">
+        <small>Online Payment</small>
+        <strong>
+          ${money(onlineSales)}
+        </strong>
+      </div>
+
+      <div class="stat">
+        <small>COD Collection</small>
+        <strong>
+          ${money(codSales)}
+        </strong>
+      </div>
+
+      <div class="stat">
+        <small>Return Amount</small>
+        <strong>
+          ${money(returnAmount)}
+        </strong>
+      </div>
+
+    </div>
+
+    <p>
+      <b>Report Period:</b>
+      ${range.from.toLocaleDateString("en-IN")}
+      -
+      ${range.to.toLocaleDateString("en-IN")}
+    </p>
+
+    <p>
+      Total Orders:
+      <b>${orders.length}</b>
+    </p>
+
+    <p>
+      Delivered Orders:
+      <b>${deliveredOrders.length}</b>
+    </p>
+
+  `;
+
+}
 function renderDashboard(){
 
   const now = Date.now();
