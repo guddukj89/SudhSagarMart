@@ -1159,9 +1159,12 @@ function editCustomer(id){const c=data.customers.find(x=>x.id===id);document.get
 function clearCustomer(){["customerId","customerName","customerPhone","customerEmail","customerCity","customerAddress"].forEach(id=>document.getElementById(id).value="")}
 
 function renderPayments(){document.getElementById("paymentTable").innerHTML=data.payments.length?data.payments.map(p=>`<tr><td>${esc(p.order)}</td><td>${esc(p.customer)}</td><td>${money(p.amount)}</td><td>${esc(p.method)}</td><td><span class="badge">${esc(p.status)}</span></td><td>${esc(p.txn)}</td><td class="actions"><button class="secondary" onclick="editPayment('${esc(p.id)}')">Edit</button><button class="danger" onclick="deleteDoc('payments','${esc(p.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="7" class="empty">No payments</td></tr>`}
-function savePayment(){
+async function savePayment(){
 
-  // Store check
+  // =========================
+  // STORE CHECK
+  // =========================
+
   if(!currentAdmin.storeId){
 
     alert(
@@ -1172,22 +1175,31 @@ function savePayment(){
   }
 
 
+  // =========================
+  // PAYMENT ID
+  // =========================
+
   const id =
-    document.getElementById("paymentId").value;
+    document.getElementById("paymentId")
+      .value
+      .trim();
 
 
-  const obj = {
+  // =========================
+  // FORM DATA
+  // =========================
 
-    id:
-      id || uid("pay"),
+  const paymentData = {
 
     orderId:
       document.getElementById("paymentOrder")
-        .value.trim(),
+        .value
+        .trim(),
 
-    seller:
-      document.getElementById("paymentSeller")
-        .value.trim(),
+    customer:
+      document.getElementById("paymentCustomer")
+        .value
+        .trim(),
 
     amount:
       Number(
@@ -1195,16 +1207,34 @@ function savePayment(){
           .value || 0
       ),
 
+    method:
+      document.getElementById("paymentMethod")
+        .value,
+
     status:
       document.getElementById("paymentStatus")
         .value,
 
-    method:
-      document.getElementById("paymentMethod")
-        ?.value || "",
+    transactionId:
+      document.getElementById("paymentTxn")
+        .value
+        .trim(),
 
-    // IMPORTANT
-    // Payment automatically current Admin ke Store ka hoga
+    // Compatibility fields
+    order:
+      document.getElementById("paymentOrder")
+        .value
+        .trim(),
+
+    txn:
+      document.getElementById("paymentTxn")
+        .value
+        .trim(),
+
+    // =========================
+    // STORE INFORMATION
+    // =========================
+
     storeId:
       currentAdmin.storeId,
 
@@ -1212,86 +1242,147 @@ function savePayment(){
       currentAdmin.storeName,
 
     updatedAt:
-      firebase.firestore.FieldValue.serverTimestamp()
+      firebase.firestore.FieldValue
+        .serverTimestamp()
+
   };
 
 
-  // Required fields
-  if(
-    !obj.orderId ||
-    !obj.amount
-  ){
+  // =========================
+  // REQUIRED FIELDS
+  // =========================
+
+  if(!paymentData.orderId){
 
     alert(
-      "Order ID and Amount required"
+      "Order ID required hai."
     );
 
     return;
   }
 
 
-  // Existing payment edit
-  if(id){
+  if(!paymentData.amount){
 
-    const i =
-      data.payments.findIndex(
-        x => x.id === id
+    alert(
+      "Payment Amount required hai."
+    );
+
+    return;
+  }
+
+
+  try{
+
+    let paymentRef;
+
+
+    // =========================
+    // EDIT EXISTING PAYMENT
+    // =========================
+
+    if(id){
+
+      paymentRef =
+        db.collection("payments")
+          .doc(id);
+
+
+      const oldPayment =
+        data.payments.find(
+          p => p.id === id
+        );
+
+
+      if(!oldPayment){
+
+        alert(
+          "Payment record nahi mila."
+        );
+
+        return;
+      }
+
+
+      // Existing payment ka Store
+      // change nahi hoga
+
+      paymentData.storeId =
+        oldPayment.storeId ||
+        currentAdmin.storeId;
+
+      paymentData.storeName =
+        oldPayment.storeName ||
+        currentAdmin.storeName;
+
+
+      await paymentRef.set(
+        paymentData,
+        {
+          merge:true
+        }
       );
 
-    if(i === -1){
-
-      alert(
-        "Payment nahi mila."
-      );
-
-      return;
     }
 
 
-    // Existing payment ka Store change nahi hoga
-    obj.storeId =
-      data.payments[i].storeId ||
-      currentAdmin.storeId;
+    // =========================
+    // NEW PAYMENT
+    // =========================
 
-    obj.storeName =
-      data.payments[i].storeName ||
-      currentAdmin.storeName;
+    else{
+
+      paymentRef =
+        db.collection("payments")
+          .doc();
 
 
-    data.payments[i] = {
+      await paymentRef.set({
 
-      ...data.payments[i],
+        ...paymentData,
 
-      ...obj
+        createdAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
 
-    };
+        createdBy:
+          currentAdmin.uid,
+
+        createdByName:
+          currentAdmin.name
+
+      });
+
+    }
+
+
+    // =========================
+    // SUCCESS
+    // =========================
+
+    alert(
+      "Payment successfully Firebase me save ho gaya."
+    );
+
+
+    clearPayment();
+
+
+  }catch(error){
+
+    console.error(
+      "Payment save error:",
+      error
+    );
+
+
+    alert(
+      "Payment save failed:\n" +
+      error.message
+    );
 
   }
 
-
-  // New payment
-  else{
-
-    data.payments.push(obj);
-
-  }
-
-
-  // Firebase save
-  save();
-
-
-  // Form clear
-  clearPayment();
-
-
-  // Screen refresh
-  renderAll();
-
-
-  alert(
-    "Payment saved successfully"
-  );
 }
 function editPayment(id){const p=data.payments.find(x=>x.id===id);document.getElementById("paymentId").value=id;document.getElementById("paymentOrder").value=p.order||"";document.getElementById("paymentCustomer").value=p.customer||"";document.getElementById("paymentAmount").value=p.amount||0;document.getElementById("paymentMethod").value=p.method||"UPI";document.getElementById("paymentStatus").value=p.status||"Pending";document.getElementById("paymentTxn").value=p.txn||"";showSection("payments",document.querySelectorAll(".navbtn")[5])}
 function clearPayment(){["paymentId","paymentOrder","paymentCustomer","paymentAmount","paymentTxn"].forEach(id=>document.getElementById(id).value="")}
