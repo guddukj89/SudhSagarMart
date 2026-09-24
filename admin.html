@@ -2299,7 +2299,7 @@ function renderSalesReport(){
   `;
 
 }
-function renderSettlement(){
+  function renderSettlement(){
 
   const table =
     document.getElementById(
@@ -2356,6 +2356,7 @@ function renderSettlement(){
         data.orders.filter(order => {
 
           return (
+
             String(
               order.storeId || ""
             ) === storeId
@@ -2374,6 +2375,7 @@ function renderSettlement(){
               ""
             ).toLowerCase()
             === "delivered"
+
           );
 
         });
@@ -2428,6 +2430,70 @@ function renderSettlement(){
         );
 
 
+      const cashSubmitted =
+        deliveredOrders.reduce(
+          (sum,order) =>
+            sum +
+            Number(
+              order.cashSubmitted || 0
+            ),
+          0
+        );
+
+
+      const netPayable =
+        deliveryEarnings +
+        codCollected -
+        cashSubmitted -
+        refundPaid;
+
+
+      return `
+        <tr>
+
+          <td>
+            <b>
+              ${esc(
+                rider.name ||
+                rider.fullName ||
+                rider.displayName ||
+                riderId
+              )}
+            </b>
+          </td>
+
+          <td>
+            ${deliveredOrders.length}
+          </td>
+
+          <td>
+            ${money(codCollected)}
+          </td>
+
+          <td>
+            ${money(deliveryEarnings)}
+          </td>
+
+          <td>
+            ${money(refundPaid)}
+          </td>
+
+          <td>
+            ${money(cashSubmitted)}
+          </td>
+
+          <td>
+            <b>
+              ${money(netPayable)}
+            </b>
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+  }
      
 function renderDashboard(){
 
