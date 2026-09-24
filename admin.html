@@ -630,21 +630,541 @@ function renderProducts(){
 }
 async function setProductStatus(id,status){await db.collection("products").doc(id).update({status,approved:status==="approved",approvedAt:status==="approved"?firebase.firestore.FieldValue.serverTimestamp():null})}
 function editProduct(id){const p=data.products.find(x=>x.id===id);if(!p)return;document.getElementById("productId").value=id;document.getElementById("productName").value=p.productName||p.name||"";document.getElementById("productPrice").value=p.price||"";document.getElementById("productMrp").value=p.mrp||p.oldPrice||"";document.getElementById("productStock").value=p.stock||0;document.getElementById("productCategory").value=p.category||"";document.getElementById("productSeller").value=p.sellerName||p.seller||"";document.getElementById("productSellerId").value=p.sellerId||"";document.getElementById("productImage").value=p.imageURL||p.image||"";document.getElementById("productDescription").value=p.description||"";document.getElementById("productStatus").value=p.status||"pending";showSection("products",document.querySelectorAll(".navbtn")[2]);window.scrollTo(0,0)}
-async function saveProduct(){const id=document.getElementById("productId").value;const x={productName:document.getElementById("productName").value.trim(),price:Number(document.getElementById("productPrice").value||0),mrp:Number(document.getElementById("productMrp").value||0),stock:Number(document.getElementById("productStock").value||0),category:document.getElementById("productCategory").value.trim(),sellerName:document.getElementById("productSeller").value.trim(),sellerId:document.getElementById("productSellerId").value.trim(),imageURL:document.getElementById("productImage").value.trim(),description:document.getElementById("productDescription").value.trim(),status:document.getElementById("productStatus").value,approved:document.getElementById("productStatus").value==="approved"};if(!x.productName){alert("Product name required");return}if(id)await db.collection("products").doc(id).update(x);else await db.collection("products").add({...x,createdAt:firebase.firestore.FieldValue.serverTimestamp()});clearProduct()}
+function saveProduct(){
+
+  const id =
+    document.getElementById("productId").value;
+
+  const obj = {
+
+    id: id || uid("p"),
+
+    name:
+      document.getElementById("productName")
+        .value.trim(),
+
+    price:
+      Number(
+        document.getElementById("productPrice")
+          .value || 0
+      ),
+
+    oldPrice:
+      Number(
+        document.getElementById("productOldPrice")
+          .value || 0
+      ),
+
+    stock:
+      Number(
+        document.getElementById("productStock")
+          .value || 0
+      ),
+
+    category:
+      document.getElementById("productCategory")
+        .value,
+
+    seller:
+      document.getElementById("productSeller")
+        .value,
+
+    image:
+      document.getElementById("productImage")
+        .value.trim(),
+
+    description:
+      document.getElementById("productDescription")
+        .value.trim(),
+
+    status:
+      document.getElementById("productStatus")
+        .value,
+
+    // IMPORTANT:
+    // Product automatically current Admin ke Store me save hoga
+    storeId:
+      currentAdmin.storeId,
+
+    storeName:
+      currentAdmin.storeName,
+
+    updatedAt:
+      firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+
+  // Store ID check
+  if(!currentAdmin.storeId){
+
+    alert(
+      "Admin ke saath Store assign nahi hai."
+    );
+
+    return;
+  }
+
+
+  // Required fields
+  if(
+    !obj.name ||
+    !obj.price ||
+    !obj.stock
+  ){
+
+    alert(
+      "Product Name, Price and Stock required"
+    );
+
+    return;
+  }
+
+
+  // Edit existing product
+  if(id){
+
+    const i =
+      data.products.findIndex(
+        x => x.id === id
+      );
+
+    if(i === -1){
+
+      alert(
+        "Product nahi mila."
+      );
+
+      return;
+    }
+
+    // Store change nahi hone dena
+    obj.storeId =
+      data.products[i].storeId ||
+      currentAdmin.storeId;
+
+    obj.storeName =
+      data.products[i].storeName ||
+      currentAdmin.storeName;
+
+    data.products[i] = {
+      ...data.products[i],
+      ...obj
+    };
+
+  }
+
+  // New product
+  else{
+
+    data.products.push(obj);
+
+  }
+
+
+  save();
+
+  clearProduct();
+
+  renderAll();
+
+  alert(
+    "Product saved successfully"
+  );
+}
 function clearProduct(){["productId","productName","productPrice","productMrp","productStock","productCategory","productSeller","productSellerId","productImage","productDescription"].forEach(id=>document.getElementById(id).value="");document.getElementById("productStatus").value="pending"}
 
 function renderOrders(){const q=(document.getElementById("orderSearch")?.value||"").toLowerCase();const rows=data.orders.filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById("orderTable").innerHTML=rows.length?rows.map(o=>`<tr><td><b>#${esc(o.id)}</b></td><td>${esc(o.customer)}<br>${esc(o.phone)}</td><td>${money(o.amount)}</td><td><select onchange="updateField('orders','${esc(o.id)}','status',this.value)">${["Processing","Confirmed","Shipped","Delivered","Cancelled"].map(v=>`<option ${o.status===v?"selected":""}>${v}</option>`).join("")}</select></td><td>${esc(o.address)}</td><td class="actions"><button class="secondary" onclick="editOrder('${esc(o.id)}')">Edit</button><button class="danger" onclick="deleteDoc('orders','${esc(o.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No orders</td></tr>`}
-async function saveOrder(){const id=document.getElementById("orderId").value||("SSM"+Date.now());const x={id,customer:document.getElementById("orderCustomer").value.trim(),phone:document.getElementById("orderPhone").value.trim(),amount:Number(document.getElementById("orderAmount").value||0),status:document.getElementById("orderStatus").value,address:document.getElementById("orderAddress").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};await db.collection("orders").doc(id).set(x,{merge:true});clearOrder()}
+function saveOrder(){
+
+  const old =
+    document.getElementById("orderId").value;
+
+  // Store check
+  if(!currentAdmin.storeId){
+
+    alert(
+      "Admin ke saath Store assign nahi hai."
+    );
+
+    return;
+  }
+
+  const obj = {
+
+    id:
+      old ||
+      ("SSM" + String(Date.now()).slice(-6)),
+
+    customer:
+      document.getElementById("orderCustomer")
+        .value.trim(),
+
+    phone:
+      document.getElementById("orderPhone")
+        .value.trim(),
+
+    amount:
+      Number(
+        document.getElementById("orderAmount")
+          .value || 0
+      ),
+
+    status:
+      document.getElementById("orderStatus")
+        .value,
+
+    address:
+      document.getElementById("orderAddress")
+        .value.trim(),
+
+    // IMPORTANT
+    // Order automatically current Admin ke Store ka hoga
+    storeId:
+      currentAdmin.storeId,
+
+    storeName:
+      currentAdmin.storeName,
+
+    updatedAt:
+      firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+
+  // Required fields
+  if(
+    !obj.customer ||
+    !obj.amount
+  ){
+
+    alert(
+      "Customer and Amount required"
+    );
+
+    return;
+  }
+
+
+  // Existing order edit
+  if(old){
+
+    const i =
+      data.orders.findIndex(
+        x => x.id === old
+      );
+
+    if(i === -1){
+
+      alert(
+        "Order nahi mila."
+      );
+
+      return;
+    }
+
+    // Existing order ka store change nahi hoga
+    obj.storeId =
+      data.orders[i].storeId ||
+      currentAdmin.storeId;
+
+    obj.storeName =
+      data.orders[i].storeName ||
+      currentAdmin.storeName;
+
+    data.orders[i] = {
+      ...data.orders[i],
+      ...obj
+    };
+
+  }
+
+  // New order
+  else{
+
+    data.orders.push(obj);
+
+  }
+
+
+  // Save to Firebase
+  save();
+
+  // Form clear
+  clearOrder();
+
+  // Refresh screen
+  renderAll();
+
+  alert(
+    "Order saved successfully"
+  );
+}
 function editOrder(id){const o=data.orders.find(x=>x.id===id);document.getElementById("orderId").value=id;document.getElementById("orderCustomer").value=o.customer||"";document.getElementById("orderPhone").value=o.phone||"";document.getElementById("orderAmount").value=o.amount||0;document.getElementById("orderStatus").value=o.status||"Processing";document.getElementById("orderAddress").value=o.address||"";showSection("orders",document.querySelectorAll(".navbtn")[3])}
 function clearOrder(){["orderId","orderCustomer","orderPhone","orderAmount","orderAddress"].forEach(id=>document.getElementById(id).value="");document.getElementById("orderStatus").value="Processing"}
 
 function renderCustomers(){const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();const rows=data.customers.filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById("customerTable").innerHTML=rows.length?rows.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.city)}</td><td>${esc(c.address)}</td><td class="actions"><button class="secondary" onclick="editCustomer('${esc(c.id)}')">Edit</button><button class="danger" onclick="deleteDoc('customers','${esc(c.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No customers</td></tr>`}
-async function saveCustomer(){const id=document.getElementById("customerId").value||db.collection("customers").doc().id;await db.collection("customers").doc(id).set({name:document.getElementById("customerName").value.trim(),phone:document.getElementById("customerPhone").value.trim(),email:document.getElementById("customerEmail").value.trim(),city:document.getElementById("customerCity").value.trim(),address:document.getElementById("customerAddress").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});clearCustomer()}
+function saveCustomer(){
+
+  // Store check
+  if(!currentAdmin.storeId){
+
+    alert(
+      "Admin ke saath Store assign nahi hai."
+    );
+
+    return;
+  }
+
+
+  const id =
+    document.getElementById("customerId").value;
+
+
+  const obj = {
+
+    id:
+      id || uid("c"),
+
+    name:
+      document.getElementById("customerName")
+        .value.trim(),
+
+    phone:
+      document.getElementById("customerPhone")
+        .value.trim(),
+
+    email:
+      document.getElementById("customerEmail")
+        .value.trim(),
+
+    address:
+      document.getElementById("customerAddress")
+        .value.trim(),
+
+    // IMPORTANT
+    // Customer current Admin ke Store se linked rahega
+    storeId:
+      currentAdmin.storeId,
+
+    storeName:
+      currentAdmin.storeName,
+
+    updatedAt:
+      firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+
+  // Required field
+  if(!obj.name){
+
+    alert(
+      "Customer Name required"
+    );
+
+    return;
+  }
+
+
+  // Existing customer edit
+  if(id){
+
+    const i =
+      data.customers.findIndex(
+        x => x.id === id
+      );
+
+    if(i === -1){
+
+      alert(
+        "Customer nahi mila."
+      );
+
+      return;
+    }
+
+
+    // Existing customer ka Store change nahi hoga
+    obj.storeId =
+      data.customers[i].storeId ||
+      currentAdmin.storeId;
+
+    obj.storeName =
+      data.customers[i].storeName ||
+      currentAdmin.storeName;
+
+
+    data.customers[i] = {
+
+      ...data.customers[i],
+
+      ...obj
+
+    };
+
+  }
+
+
+  // New customer
+  else{
+
+    data.customers.push(obj);
+
+  }
+
+
+  // Firebase save
+  save();
+
+
+  // Form clear
+  clearCustomer();
+
+
+  // Screen refresh
+  renderAll();
+
+
+  alert(
+    "Customer saved successfully"
+  );
+}
 function editCustomer(id){const c=data.customers.find(x=>x.id===id);document.getElementById("customerId").value=id;["name","phone","email","city","address"].forEach(k=>document.getElementById("customer"+k[0].toUpperCase()+k.slice(1)).value=c[k]||"");showSection("customers",document.querySelectorAll(".navbtn")[4])}
 function clearCustomer(){["customerId","customerName","customerPhone","customerEmail","customerCity","customerAddress"].forEach(id=>document.getElementById(id).value="")}
 
 function renderPayments(){document.getElementById("paymentTable").innerHTML=data.payments.length?data.payments.map(p=>`<tr><td>${esc(p.order)}</td><td>${esc(p.customer)}</td><td>${money(p.amount)}</td><td>${esc(p.method)}</td><td><span class="badge">${esc(p.status)}</span></td><td>${esc(p.txn)}</td><td class="actions"><button class="secondary" onclick="editPayment('${esc(p.id)}')">Edit</button><button class="danger" onclick="deleteDoc('payments','${esc(p.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="7" class="empty">No payments</td></tr>`}
-async function savePayment(){const id=document.getElementById("paymentId").value||db.collection("payments").doc().id;await db.collection("payments").doc(id).set({order:document.getElementById("paymentOrder").value.trim(),customer:document.getElementById("paymentCustomer").value.trim(),amount:Number(document.getElementById("paymentAmount").value||0),method:document.getElementById("paymentMethod").value,status:document.getElementById("paymentStatus").value,txn:document.getElementById("paymentTxn").value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});clearPayment()}
+function savePayment(){
+
+  // Store check
+  if(!currentAdmin.storeId){
+
+    alert(
+      "Admin ke saath Store assign nahi hai."
+    );
+
+    return;
+  }
+
+
+  const id =
+    document.getElementById("paymentId").value;
+
+
+  const obj = {
+
+    id:
+      id || uid("pay"),
+
+    orderId:
+      document.getElementById("paymentOrder")
+        .value.trim(),
+
+    seller:
+      document.getElementById("paymentSeller")
+        .value.trim(),
+
+    amount:
+      Number(
+        document.getElementById("paymentAmount")
+          .value || 0
+      ),
+
+    status:
+      document.getElementById("paymentStatus")
+        .value,
+
+    method:
+      document.getElementById("paymentMethod")
+        ?.value || "",
+
+    // IMPORTANT
+    // Payment automatically current Admin ke Store ka hoga
+    storeId:
+      currentAdmin.storeId,
+
+    storeName:
+      currentAdmin.storeName,
+
+    updatedAt:
+      firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+
+  // Required fields
+  if(
+    !obj.orderId ||
+    !obj.amount
+  ){
+
+    alert(
+      "Order ID and Amount required"
+    );
+
+    return;
+  }
+
+
+  // Existing payment edit
+  if(id){
+
+    const i =
+      data.payments.findIndex(
+        x => x.id === id
+      );
+
+    if(i === -1){
+
+      alert(
+        "Payment nahi mila."
+      );
+
+      return;
+    }
+
+
+    // Existing payment ka Store change nahi hoga
+    obj.storeId =
+      data.payments[i].storeId ||
+      currentAdmin.storeId;
+
+    obj.storeName =
+      data.payments[i].storeName ||
+      currentAdmin.storeName;
+
+
+    data.payments[i] = {
+
+      ...data.payments[i],
+
+      ...obj
+
+    };
+
+  }
+
+
+  // New payment
+  else{
+
+    data.payments.push(obj);
+
+  }
+
+
+  // Firebase save
+  save();
+
+
+  // Form clear
+  clearPayment();
+
+
+  // Screen refresh
+  renderAll();
+
+
+  alert(
+    "Payment saved successfully"
+  );
+}
 function editPayment(id){const p=data.payments.find(x=>x.id===id);document.getElementById("paymentId").value=id;document.getElementById("paymentOrder").value=p.order||"";document.getElementById("paymentCustomer").value=p.customer||"";document.getElementById("paymentAmount").value=p.amount||0;document.getElementById("paymentMethod").value=p.method||"UPI";document.getElementById("paymentStatus").value=p.status||"Pending";document.getElementById("paymentTxn").value=p.txn||"";showSection("payments",document.querySelectorAll(".navbtn")[5])}
 function clearPayment(){["paymentId","paymentOrder","paymentCustomer","paymentAmount","paymentTxn"].forEach(id=>document.getElementById(id).value="")}
 
