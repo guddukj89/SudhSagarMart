@@ -3358,7 +3358,123 @@ async function saveOrder(){
   }
 
 }
-function editOrder(id){const o=data.orders.find(x=>x.id===id);document.getElementById("orderId").value=id;document.getElementById("orderCustomer").value=o.customer||"";document.getElementById("orderPhone").value=o.phone||"";document.getElementById("orderAmount").value=o.amount||0;document.getElementById("orderStatus").value=o.status||"Processing";document.getElementById("orderAddress").value=o.address||"";showSection("orders",document.querySelectorAll(".navbtn")[3])}
+function editOrder(id){
+
+  const order =
+    data.orders.find(
+      o => String(o.id) === String(id)
+    );
+
+  if(!order){
+
+    alert("Order nahi mila.");
+
+    return;
+  }
+
+
+  const orderId =
+    document.getElementById("orderId");
+
+  const customer =
+    document.getElementById("orderCustomer");
+
+  const phone =
+    document.getElementById("orderPhone");
+
+  const amount =
+    document.getElementById("orderAmount");
+
+  const address =
+    document.getElementById("orderAddress");
+
+
+  if(orderId)
+    orderId.value =
+      order.orderId ||
+      order.orderNo ||
+      order.id ||
+      "";
+
+
+  if(customer)
+    customer.value =
+      order.customerName ||
+      order.customer ||
+      "";
+
+
+  if(phone)
+    phone.value =
+      order.customerMobile ||
+      order.mobile ||
+      order.phone ||
+      "";
+
+
+  if(amount)
+    amount.value =
+      Number(
+        order.total ??
+        order.amount ??
+        0
+      );
+
+
+  if(address)
+    address.value =
+      order.customerAddress ||
+      order.address ||
+      "";
+
+
+  /*
+    Store safety check
+
+    Admin sirf apne Store ka
+    order edit kar sakta hai.
+  */
+
+  if(
+    order.storeId &&
+    String(order.storeId) !==
+    String(currentAdmin.storeId)
+  ){
+
+    alert(
+      "Dusre Store ka order edit nahi kar sakte."
+    );
+
+    return;
+  }
+
+
+  const statusSelect =
+    document.getElementById("orderStatus");
+
+  if(statusSelect){
+
+    statusSelect.value =
+      order.orderStatus ||
+      order.status ||
+      "Pending";
+
+  }
+
+
+  const form =
+    document.getElementById("orderForm");
+
+  if(form){
+
+    form.scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+
+  }
+
+}
 function clearOrder(){["orderId","orderCustomer","orderPhone","orderAmount","orderAddress"].forEach(id=>document.getElementById(id).value="");document.getElementById("orderStatus").value="Processing"}
 
 function renderCustomers(){const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();const rows=data.customers.filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById("customerTable").innerHTML=rows.length?rows.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.city)}</td><td>${esc(c.address)}</td><td class="actions"><button class="secondary" onclick="editCustomer('${esc(c.id)}')">Edit</button><button class="danger" onclick="deleteDoc('customers','${esc(c.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No customers</td></tr>`}
