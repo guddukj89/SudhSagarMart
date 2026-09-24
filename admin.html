@@ -840,26 +840,24 @@ async function saveProduct(){
 function clearProduct(){["productId","productName","productPrice","productMrp","productStock","productCategory","productSeller","productSellerId","productImage","productDescription"].forEach(id=>document.getElementById(id).value="");document.getElementById("productStatus").value="pending"}
 
 function renderOrders(){const q=(document.getElementById("orderSearch")?.value||"").toLowerCase();const rows=data.orders.filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById("orderTable").innerHTML=rows.length?rows.map(o=>`<tr><td><b>#${esc(o.id)}</b></td><td>${esc(o.customer)}<br>${esc(o.phone)}</td><td>${money(o.amount)}</td><td><select onchange="updateField('orders','${esc(o.id)}','status',this.value)">${["Processing","Confirmed","Shipped","Delivered","Cancelled"].map(v=>`<option ${o.status===v?"selected":""}>${v}</option>`).join("")}</select></td><td>${esc(o.address)}</td><td class="actions"><button class="secondary" onclick="editOrder('${esc(o.id)}')">Edit</button><button class="danger" onclick="deleteDoc('orders','${esc(o.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No orders</td></tr>`}
-function saveOrder(){
+async function saveOrder(){
 
-  const old =
-    document.getElementById("orderId").value;
-
-  // Store check
+  // Admin ka Store check
   if(!currentAdmin.storeId){
 
-    alert(
-      "Admin ke saath Store assign nahi hai."
-    );
-
+    alert("Admin ke saath Store assign nahi hai.");
     return;
+
   }
 
-  const obj = {
 
-    id:
-      old ||
-      ("SSM" + String(Date.now()).slice(-6)),
+  const oldId =
+    document.getElementById("orderId")
+      .value.trim();
+
+
+  // Order data
+  const orderData = {
 
     customer:
       document.getElementById("orderCustomer")
@@ -879,12 +877,15 @@ function saveOrder(){
       document.getElementById("orderStatus")
         .value,
 
+    orderStatus:
+      document.getElementById("orderStatus")
+        .value,
+
     address:
       document.getElementById("orderAddress")
         .value.trim(),
 
-    // IMPORTANT
-    // Order automatically current Admin ke Store ka hoga
+    // Store information
     storeId:
       currentAdmin.storeId,
 
@@ -892,77 +893,138 @@ function saveOrder(){
       currentAdmin.storeName,
 
     updatedAt:
-      firebase.firestore.FieldValue.serverTimestamp()
+      firebase.firestore.FieldValue
+        .serverTimestamp()
+
   };
 
 
   // Required fields
   if(
-    !obj.customer ||
-    !obj.amount
+    !orderData.customer ||
+    !orderData.amount
   ){
 
     alert(
-      "Customer and Amount required"
+      "Customer Name aur Amount required hai."
     );
 
     return;
+
   }
 
 
-  // Existing order edit
-  if(old){
+  try{
 
-    const i =
-      data.orders.findIndex(
-        x => x.id === old
+    let orderRef;
+
+
+    // =========================
+    // EDIT EXISTING ORDER
+    // =========================
+
+    if(oldId){
+
+      orderRef =
+        db.collection("orders")
+          .doc(oldId);
+
+
+      // Existing order check
+      const oldOrder =
+        data.orders.find(
+          o => o.id === oldId
+        );
+
+
+      if(oldOrder){
+
+        // Existing order ko doosre Store me
+        // move nahi hone dena
+        orderData.storeId =
+          oldOrder.storeId ||
+          currentAdmin.storeId;
+
+        orderData.storeName =
+          oldOrder.storeName ||
+          currentAdmin.storeName;
+
+      }
+
+
+      await orderRef.set(
+        orderData,
+        {
+          merge:true
+        }
       );
 
-    if(i === -1){
-
-      alert(
-        "Order nahi mila."
-      );
-
-      return;
     }
 
-    // Existing order ka store change nahi hoga
-    obj.storeId =
-      data.orders[i].storeId ||
-      currentAdmin.storeId;
 
-    obj.storeName =
-      data.orders[i].storeName ||
-      currentAdmin.storeName;
+    // =========================
+    // NEW ORDER
+    // =========================
 
-    data.orders[i] = {
-      ...data.orders[i],
-      ...obj
-    };
+    else{
+
+      orderRef =
+        db.collection("orders")
+          .doc();
+
+
+      const orderId =
+        orderRef.id;
+
+
+      await orderRef.set({
+
+        ...orderData,
+
+        orderId:
+          orderId,
+
+        orderNo:
+          orderId,
+
+        createdAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
+
+        createdBy:
+          currentAdmin.uid,
+
+        createdByName:
+          currentAdmin.name
+
+      });
+
+    }
+
+
+    alert(
+      "Order successfully Firebase me save ho gaya."
+    );
+
+
+    clearOrder();
+
+
+  }catch(error){
+
+    console.error(
+      "Order save error:",
+      error
+    );
+
+
+    alert(
+      "Order save failed:\n" +
+      error.message
+    );
 
   }
 
-  // New order
-  else{
-
-    data.orders.push(obj);
-
-  }
-
-
-  // Save to Firebase
-  save();
-
-  // Form clear
-  clearOrder();
-
-  // Refresh screen
-  renderAll();
-
-  alert(
-    "Order saved successfully"
-  );
 }
 function editOrder(id){const o=data.orders.find(x=>x.id===id);document.getElementById("orderId").value=id;document.getElementById("orderCustomer").value=o.customer||"";document.getElementById("orderPhone").value=o.phone||"";document.getElementById("orderAmount").value=o.amount||0;document.getElementById("orderStatus").value=o.status||"Processing";document.getElementById("orderAddress").value=o.address||"";showSection("orders",document.querySelectorAll(".navbtn")[3])}
 function clearOrder(){["orderId","orderCustomer","orderPhone","orderAmount","orderAddress"].forEach(id=>document.getElementById(id).value="");document.getElementById("orderStatus").value="Processing"}
