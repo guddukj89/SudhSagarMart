@@ -1126,7 +1126,46 @@ function startLive(){
     }
   );
 
+// =========================
+// DELIVERY PARTNERS
+// =========================
 
+const deliveryPartners = [];
+
+const riderStoreListener =
+  db
+    .collection("deliveryPartners")
+    .where("storeId", "==", storeId)
+    .onSnapshot(
+
+      snapshot => {
+
+        const riders =
+          snapshot.docs.map(doc => ({
+            id:doc.id,
+            ...doc.data()
+          }));
+
+        data.deliveryPartners = riders;
+
+        renderAll();
+
+      },
+
+      error => {
+
+        console.error(
+          "deliveryPartners storeId listener error:",
+          error
+        );
+
+      }
+
+    );
+
+unsubs.push(
+  riderStoreListener
+);
   // =========================
   // SELLERS
   // =========================
