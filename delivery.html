@@ -200,6 +200,38 @@ button{cursor:pointer}
     <button class="btn green" style="width:100%;margin-top:12px" onclick="savePartnerProfile()"><i data-lucide="save"></i> Save Profile</button>
   </div>
   <div class="profileCard">
+
+  <h3 style="font-size:14px;margin-bottom:10px">
+    🏪 Assigned Store
+  </h3>
+
+  <div style="
+    background:#f0fdf4;
+    border:1px solid #bbf7d0;
+    padding:12px;
+    border-radius:12px;
+    margin-bottom:12px;
+  ">
+    <b id="assignedStoreName">Store not assigned</b>
+
+    <div
+      id="assignedStoreId"
+      style="font-size:10px;color:#6b7280;margin-top:4px"
+    >
+      Store ID not assigned
+    </div>
+  </div>
+
+  <button
+    class="btn red"
+    style="width:100%;"
+    onclick="emergencySOS()"
+  >
+    🚨 Emergency / SOS
+  </button>
+
+</div>
+  <div class="profileCard">
     <h3 style="font-size:14px;margin-bottom:10px">KYC & Verification</h3>
     <label class="label">AADHAAR LAST 4 DIGITS</label><input id="profile-aadhaar" class="input" maxlength="4" inputmode="numeric" placeholder="XXXX">
     <label class="label">PAN NUMBER</label><input id="profile-pan" class="input" style="text-transform:uppercase" placeholder="ABCDE1234F">
@@ -260,7 +292,83 @@ let orders=[],
     currentFailed=null,
     currentRiderLatitude=null,
     currentRiderLongitude=null;
+// ================= DELIVERY PARTNER APP V2 =================
 
+let partnerStoreId = "";
+let partnerStoreName = "";
+let partnerStatus = "active";
+let partnerRating = 0;
+let partnerTotalDeliveries = 0;
+let partnerWeeklyEarnings = 0;
+let partnerWallet = 0;
+let partnerPendingSettlement = 0;
+let partnerDutyStatus = "online";
+let currentOrderForAction = null;
+
+// Store + rider information
+async function loadPartnerExtraData(uid){
+
+  try{
+
+    const partnerSnap = await getDoc(
+      doc(db,"deliveryPartners",uid)
+    );
+
+    if(!partnerSnap.exists()) return;
+
+    const p = partnerSnap.data();
+
+    partnerStoreId =
+      p.storeId ||
+      p.assignedStoreId ||
+      "";
+
+    partnerStoreName =
+      p.storeName ||
+      "";
+
+    partnerStatus =
+      p.accountStatus ||
+      (p.active === false ? "inactive" : "active");
+
+    partnerRating =
+      Number(p.rating || 0);
+
+    partnerTotalDeliveries =
+      Number(p.totalDeliveries || 0);
+
+    partnerWeeklyEarnings =
+      Number(p.weeklyEarnings || 0);
+
+    partnerWallet =
+      Number(p.walletBalance || 0);
+
+    partnerPendingSettlement =
+      Number(p.pendingSettlement || 0);
+
+    partnerDutyStatus =
+      p.dutyStatus || "online";
+
+    document.getElementById("stat-rating").textContent =
+      partnerRating > 0
+        ? partnerRating.toFixed(1)
+        : "--";
+
+    setDuty(
+      partnerDutyStatus === "online",
+      false
+    );
+
+  }catch(error){
+
+    console.error(
+      "Partner extra data error:",
+      error
+    );
+
+  }
+
+}
 lucide.createIcons();
 
 window.showPage=(id,el)=>{
@@ -311,6 +419,7 @@ onAuthStateChanged(auth, async user => {
             partner.name || user.displayName || "Delivery Partner";
 
         loadPartnerProfile(user.uid);
+      await loadPartnerExtraData(user.uid);
         loadOrders(user.uid);
 
     }catch(error){
@@ -806,12 +915,26 @@ function loadOrders(uid){
 
    orders=[];
 
-   snap.forEach(x=>{
-     orders.push({
-       id:x.id,
-       ...x.data()
-     });
-   });
+  snap.forEach(x=>{
+
+  const orderData = x.data();
+
+  // अगर rider का store assigned है,
+  // तो दूसरे store के orders नहीं दिखेंगे।
+  if(
+    partnerStoreId &&
+    orderData.storeId &&
+    String(orderData.storeId) !== String(partnerStoreId)
+  ){
+    return;
+  }
+
+  orders.push({
+    id:x.id,
+    ...orderData
+  });
+
+});
 
    orders.sort(
      (a,b)=>
@@ -1172,6 +1295,73 @@ window.openFailedModal=id=>{currentFailed=id;document.getElementById("failedModa
 window.submitFailedAttempt=async()=>{try{await updateDoc(doc(db,"orders",currentFailed),{orderStatus:"Undelivered Attempt",failedReason:document.getElementById("fail-reason").value,failedAt:new Date(),failedBy:partnerId});closeModal("failedModal");alert("Failed attempt saved.")}catch(e){alert(e.message)}};
 window.closeModal=id=>document.getElementById(id).style.display="none";
 window.punchIn=()=>{if(!navigator.geolocation)return alert("Geolocation supported nahi hai.");navigator.geolocation.getCurrentPosition(async p=>{try{await setDoc(doc(db,"deliveryPartners",partnerId),{lastPunchInAt:new Date(),lastPunchInLocation:{lat:p.coords.latitude,lng:p.coords.longitude}},{merge:true});alert("Attendance check-in saved ✅")}catch(e){alert(e.message)}},()=>alert("Location permission allow karein."))};
+// ================= EMERGENCY SOS =================
+
+window.emergencySOS = async ()=>{
+
+  if(!partnerId){
+    alert("Delivery Partner login required.");
+    return;
+  }
+
+  const ok = confirm(
+    "🚨 Emergency SOS activate करना है?\n\n" +
+    "आपकी current location और Delivery Partner information " +
+    "support team को भेजी जाएगी."
+  );
+
+  if(!ok) return;
+
+  try{
+
+    let latitude = null;
+    let longitude = null;
+
+    if(
+      currentRiderLatitude !== null &&
+      currentRiderLongitude !== null
+    ){
+      latitude = currentRiderLatitude;
+      longitude = currentRiderLongitude;
+    }
+
+    const sosId =
+      partnerId + "_" + Date.now();
+
+    await setDoc(
+      doc(db,"deliveryEmergency",sosId),
+      {
+        partnerId: partnerId,
+        storeId: partnerStoreId || "",
+        storeName: partnerStoreName || "",
+        latitude: latitude,
+        longitude: longitude,
+        status: "open",
+        emergencyType: "SOS",
+        createdAt: new Date()
+      }
+    );
+
+    alert(
+      "🚨 SOS request sent successfully.\n\n" +
+      "Support team को emergency request भेज दी गई है."
+    );
+
+  }catch(error){
+
+    console.error(
+      "SOS Error:",
+      error
+    );
+
+    alert(
+      "SOS request save नहीं हो पाई.\n\n" +
+      error.message
+    );
+
+  }
+
+};  
 window.savePartnerProfile=async()=>{
  const name=document.getElementById("profile-name").value.trim(),phone=document.getElementById("profile-phone").value.trim();
  if(!name||!phone)return alert("Name aur mobile number enter karein.");
