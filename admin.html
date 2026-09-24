@@ -1169,6 +1169,221 @@ function editPayment(id){const p=data.payments.find(x=>x.id===id);document.getEl
 function clearPayment(){["paymentId","paymentOrder","paymentCustomer","paymentAmount","paymentTxn"].forEach(id=>document.getElementById(id).value="")}
 
 function renderCategories(){document.getElementById("categoryTable").innerHTML=data.categories.length?data.categories.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.icon)}</td><td><span class="badge">${esc(c.status)}</span></td><td class="actions"><button class="secondary" onclick="editCategory('${esc(c.id)}')">Edit</button><button class="danger" onclick="deleteDoc('categories','${esc(c.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="4" class="empty">No categories</td></tr>`}
+function renderComplaints(){
+
+  const q =
+    (
+      document.getElementById("complaintSearch")
+        ?.value || ""
+    ).toLowerCase().trim();
+
+
+  const rows =
+    data.complaints
+      .filter(c => {
+
+        // Store-wise complaint
+        return String(
+          c.storeId || ""
+        ) === String(
+          currentAdmin.storeId
+        );
+
+      })
+      .filter(c => {
+
+        if(!q) return true;
+
+        return JSON.stringify(c)
+          .toLowerCase()
+          .includes(q);
+
+      });
+
+
+  const box =
+    document.getElementById(
+      "adminComplaints"
+    );
+
+
+  if(!box) return;
+
+
+  if(!rows.length){
+
+    box.innerHTML =
+      '<div class="empty">No complaints found</div>';
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    rows.map(c => `
+
+      <div class="box">
+
+        <b>
+          #${esc(c.ticketId || c.id)}
+        </b>
+
+        —
+        ${esc(
+          c.subject ||
+          "Complaint"
+        )}
+
+        <br>
+
+        <span class="mini">
+
+          ${esc(
+            c.name ||
+            c.customerName ||
+            c.sellerName ||
+            ""
+          )}
+
+          |
+
+          ${esc(
+            c.phone ||
+            c.mobile ||
+            ""
+          )}
+
+        </span>
+
+
+        <p>
+          ${esc(
+            c.message ||
+            c.description ||
+            ""
+          )}
+        </p>
+
+
+        <span class="badge">
+          ${esc(
+            c.status ||
+            "Open"
+          )}
+        </span>
+
+
+        <select
+          onchange="
+            updateComplaint(
+              '${esc(c.id)}',
+              this.value
+            )
+          "
+        >
+
+          <option
+            ${c.status === "Open" ? "selected" : ""}
+          >
+            Open
+          </option>
+
+          <option
+            ${c.status === "In Progress" ? "selected" : ""}
+          >
+            In Progress
+          </option>
+
+          <option
+            ${c.status === "Resolved" ? "selected" : ""}
+          >
+            Resolved
+          </option>
+
+          <option
+            ${c.status === "Closed" ? "selected" : ""}
+          >
+            Closed
+          </option>
+
+        </select>
+
+
+        <button
+          class="danger"
+          onclick="
+            deleteDoc(
+              'complaints',
+              '${esc(c.id)}'
+            )
+          "
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+function filterAdminComplaints(){
+
+  renderComplaints();
+
+}
+
+
+async function updateComplaint(
+  id,
+  status
+){
+
+  try{
+
+    await db
+      .collection("complaints")
+      .doc(id)
+      .update({
+
+        status:
+          status,
+
+        updatedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
+
+        updatedBy:
+          currentAdmin.uid,
+
+        updatedByName:
+          currentAdmin.name
+
+      });
+
+
+    alert(
+      "Complaint status updated."
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "Complaint update error:",
+      error
+    );
+
+    alert(
+      "Complaint update failed: " +
+      error.message
+    );
+
+  }
+
+}  
 async function saveCategory(){const id=document.getElementById("categoryId").value||db.collection("categories").doc().id;await db.collection("categories").doc(id).set({name:document.getElementById("categoryName").value.trim(),icon:document.getElementById("categoryIcon").value.trim(),status:document.getElementById("categoryStatus").value},{merge:true});clearCategory()}
 function editCategory(id){const c=data.categories.find(x=>x.id===id);document.getElementById("categoryId").value=id;document.getElementById("categoryName").value=c.name||"";document.getElementById("categoryIcon").value=c.icon||"";document.getElementById("categoryStatus").value=c.status||"Active";showSection("categories",document.querySelectorAll(".navbtn")[6])}
 function clearCategory(){["categoryId","categoryName","categoryIcon"].forEach(id=>document.getElementById(id).value="");document.getElementById("categoryStatus").value="Active"}
