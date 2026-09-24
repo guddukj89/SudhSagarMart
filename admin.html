@@ -99,10 +99,67 @@ th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14p
 <section id="dashboard" class="section active">
 <h1>Dashboard</h1>
 <div class="stats">
-<div class="stat"><small>Total Sales</small><strong id="statSales">₹0</strong></div>
-<div class="stat"><small>Total Orders</small><strong id="statOrders">0</strong></div>
-<div class="stat"><small>Total Sellers</small><strong id="statSellers">0</strong></div>
-<div class="stat"><small>Commission</small><strong id="statCommission">₹0</strong></div>
+
+  <div class="stat">
+    <small>पिछले 24 घंटे के Orders</small>
+    <strong id="statOrders">0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Products Sold</small>
+    <strong id="statItems">0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Total Sales</small>
+    <strong id="statSales">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Delivered Sales</small>
+    <strong id="statDeliveredSales">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Return Amount</small>
+    <strong id="statReturned">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Net Sales</small>
+    <strong id="statNetSales">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Online Payment</small>
+    <strong id="statOnline">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>COD Collection</small>
+    <strong id="statCOD">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Delivery Boy Payout</small>
+    <strong id="statDeliveryPayout">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Refund Due</small>
+    <strong id="statRefund">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Pending Orders</small>
+    <strong id="statPending">0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Out for Delivery</small>
+    <strong id="statOutDelivery">0</strong>
+  </div>
+
 </div>
 <div class="card"><h2>Pending Approvals</h2><div id="pendingBox">Loading...</div></div>
 <div class="card"><h2>Quick Actions</h2><div class="actions">
@@ -178,18 +235,146 @@ th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14p
 </section>
 
 <section id="payments" class="section">
+
 <h1>Payment Management</h1>
-<div class="card"><h2>Add / Edit Payment</h2><input type="hidden" id="paymentId">
-<div class="formgrid">
-<input id="paymentOrder" placeholder="Order ID"><input id="paymentCustomer" placeholder="Customer Name">
-<input id="paymentAmount" type="number" placeholder="Amount">
-<select id="paymentMethod"><option>UPI</option><option>Cash on Delivery</option><option>Card</option><option>Net Banking</option></select>
-<select id="paymentStatus"><option>Paid</option><option>Pending</option><option>Refunded</option><option>Failed</option></select>
-<input id="paymentTxn" placeholder="Transaction ID">
-</div><br><button class="primary" onclick="savePayment()">Save Payment</button>
-<button class="secondary" onclick="clearPayment()">Clear</button></div>
-<div class="card"><div class="tablewrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th><th>Txn</th><th>Action</th></tr></thead>
-<tbody id="paymentTable"></tbody></table></div></div>
+
+<!-- PAYMENT SUMMARY -->
+<div class="stats">
+
+  <div class="stat">
+    <small>Total Payment</small>
+    <strong id="paymentTotal">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Online Payment</small>
+    <strong id="paymentOnline">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>COD Collection</small>
+    <strong id="paymentCOD">₹0</strong>
+  </div>
+
+  <div class="stat">
+    <small>Refund Due</small>
+    <strong id="paymentRefund">₹0</strong>
+  </div>
+
+</div>
+
+
+<!-- ADD / EDIT PAYMENT -->
+<div class="card">
+
+  <h2>Add / Edit Payment</h2>
+
+  <input type="hidden" id="paymentId">
+
+  <div class="formgrid">
+
+    <input
+      id="paymentOrder"
+      placeholder="Order ID"
+    >
+
+    <input
+      id="paymentCustomer"
+      placeholder="Customer Name"
+    >
+
+    <input
+      id="paymentAmount"
+      type="number"
+      placeholder="Payment Amount"
+    >
+
+    <select id="paymentMethod">
+      <option value="Online">Online</option>
+      <option value="UPI">UPI</option>
+      <option value="Card">Card</option>
+      <option value="Net Banking">Net Banking</option>
+      <option value="COD">Cash on Delivery</option>
+    </select>
+
+    <select id="paymentStatus">
+      <option value="Paid">Paid</option>
+      <option value="Pending">Pending</option>
+      <option value="Failed">Failed</option>
+      <option value="Refunded">Refunded</option>
+    </select>
+
+    <input
+      id="paymentTxn"
+      placeholder="Transaction ID"
+    >
+
+    <input
+      id="paymentRefundAmount"
+      type="number"
+      placeholder="Refund Amount"
+      value="0"
+    >
+
+    <select id="paymentRefundStatus">
+      <option value="Not Required">No Refund</option>
+      <option value="Pending">Refund Pending</option>
+      <option value="Processed">Refund Processed</option>
+    </select>
+
+  </div>
+
+  <br>
+
+  <button
+    class="primary"
+    onclick="savePayment()"
+  >
+    Save Payment
+  </button>
+
+  <button
+    class="secondary"
+    onclick="clearPayment()"
+  >
+    Clear
+  </button>
+
+</div>
+
+
+<!-- PAYMENT LEDGER -->
+<div class="card">
+
+  <h2>Payment Ledger</h2>
+
+  <div class="tablewrap">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Customer</th>
+          <th>Amount</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Transaction ID</th>
+          <th>Refund</th>
+          <th>Refund Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="paymentTable">
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
 </section>
 
 <section id="categories" class="section">
@@ -925,19 +1110,318 @@ function startLive(){
 
 function renderAll(){renderDashboard();renderSellers();renderProducts();renderOrders();renderCustomers();renderPayments();renderCategories();renderComplaints();}
 function renderDashboard(){
- const sales=data.orders.filter(o=>String(o.status||"").toLowerCase()!=="cancelled").reduce((a,o)=>a+Number(o.amount||0),0);
- const comm=sales*Number(data.settings.commission||0)/100;
- document.getElementById("statSales").textContent=money(sales);
- document.getElementById("statOrders").textContent=data.orders.length;
- document.getElementById("statSellers").textContent=data.sellers.length;
- document.getElementById("statCommission").textContent=money(comm);
- const ps=data.sellers.filter(s=>s.kycStatus==="pending").length;
- const pp=data.products.filter(p=>p.status==="pending").length;
- document.getElementById("pendingBox").innerHTML=`Seller KYC: <b>${ps}</b> &nbsp; | &nbsp; Products awaiting approval: <b>${pp}</b>`;
- const rows=[...data.orders].sort((a,b)=>String(b.id).localeCompare(String(a.id))).slice(0,5);
- document.getElementById("recentOrders").innerHTML=rows.length?`<div class="tablewrap"><table><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th></tr>${rows.map(o=>`<tr><td>#${esc(o.id)}</td><td>${esc(o.customer)}</td><td>${money(o.amount)}</td><td><span class="badge">${esc(o.status)}</span></td></tr>`).join("")}</table></div>`:`<div class="empty">No orders</div>`;
-}
 
+  const now = Date.now();
+  const last24 = now - (24 * 60 * 60 * 1000);
+
+  const recentOrders = data.orders.filter(o => {
+    const t = o.createdAt?.toDate
+      ? o.createdAt.toDate().getTime()
+      : new Date(o.createdAt || o.updatedAt || 0).getTime();
+
+    return t >= last24 && t <= now;
+  });
+
+  const amount = o =>
+    Number(o.amount ?? o.total ?? 0);
+
+  const status = o =>
+    String(o.orderStatus || o.status || "").toLowerCase();
+
+  const isCancelled = o =>
+    ["cancelled", "canceled"].includes(status(o));
+
+  const isDelivered = o =>
+    ["delivered", "completed"].includes(status(o));
+
+  const isReturned = o =>
+    ["returned", "return", "refunded"].includes(status(o));
+
+  /* =========================
+     24 HOURS SALES
+  ========================= */
+
+  const totalOrders = recentOrders.length;
+
+  const grossSales = recentOrders
+    .filter(o => !isCancelled(o))
+    .reduce((sum,o) => sum + amount(o), 0);
+
+  const deliveredSales = recentOrders
+    .filter(isDelivered)
+    .reduce((sum,o) => sum + amount(o), 0);
+
+  const returnedOrders = recentOrders.filter(isReturned);
+
+  const returnedAmount = returnedOrders
+    .reduce((sum,o) => sum + amount(o), 0);
+
+  const netSales = Math.max(0, grossSales - returnedAmount);
+
+  const onlineAmount = recentOrders
+    .filter(o => {
+      const p = String(
+        o.paymentMethod ||
+        o.payment ||
+        ""
+      ).toLowerCase();
+
+      return ["online","upi","razorpay","cashfree",
+              "card","prepaid"].some(x => p.includes(x));
+    })
+    .reduce((sum,o) => sum + amount(o), 0);
+
+  const codAmount = recentOrders
+    .filter(o => {
+      const p = String(
+        o.paymentMethod ||
+        o.payment ||
+        ""
+      ).toLowerCase();
+
+      return p.includes("cod") ||
+             p.includes("cash");
+    })
+    .reduce((sum,o) => sum + amount(o), 0);
+
+  const pendingOrders = recentOrders.filter(o =>
+    ["pending","confirmed","accepted","processing"]
+      .includes(status(o))
+  ).length;
+
+  const outForDelivery = recentOrders.filter(o =>
+    ["out for delivery","out_for_delivery"]
+      .includes(status(o))
+  ).length;
+
+  const cancelledOrders = recentOrders.filter(isCancelled).length;
+
+  /* =========================
+     ITEMS SOLD
+  ========================= */
+
+  let itemsSold = 0;
+
+  recentOrders
+    .filter(o => !isCancelled(o) && !isReturned(o))
+    .forEach(o => {
+
+      const items = Array.isArray(o.items)
+        ? o.items
+        : Array.isArray(o.products)
+          ? o.products
+          : [];
+
+      items.forEach(item => {
+        itemsSold += Number(
+          item.quantity ||
+          item.qty ||
+          1
+        );
+      });
+
+    });
+
+  /* =========================
+     DELIVERY PAYOUT
+  ========================= */
+
+  const deliveryPayout = recentOrders
+    .filter(isDelivered)
+    .reduce((sum,o) => {
+
+      return sum +
+        Number(
+          o.deliveryBoyPayout ??
+          o.deliveryPayout ??
+          o.riderPayout ??
+          0
+        );
+
+    },0);
+
+  /* =========================
+     REFUND
+  ========================= */
+
+  const refundDue = recentOrders
+    .reduce((sum,o) => {
+
+      return sum +
+        Number(
+          o.refundAmount ??
+          o.refund ??
+          0
+        );
+
+    },0);
+
+  /* =========================
+     DASHBOARD CARDS
+  ========================= */
+
+  const stats = {
+
+    totalOrders,
+
+    itemsSold,
+
+    grossSales,
+
+    deliveredSales,
+
+    returnedAmount,
+
+    netSales,
+
+    onlineAmount,
+
+    codAmount,
+
+    deliveryPayout,
+
+    refundDue,
+
+    pendingOrders,
+
+    outForDelivery
+
+  };
+
+  const set = (id,value) => {
+
+    const el = document.getElementById(id);
+
+    if(el) el.textContent = value;
+
+  };
+
+  set("statOrders", stats.totalOrders);
+
+  set("statItems", stats.itemsSold);
+
+  set("statSales", money(stats.grossSales));
+
+  set("statDeliveredSales", money(stats.deliveredSales));
+
+  set("statReturned", money(stats.returnedAmount));
+
+  set("statNetSales", money(stats.netSales));
+
+  set("statOnline", money(stats.onlineAmount));
+
+  set("statCOD", money(stats.codAmount));
+
+  set("statDeliveryPayout", money(stats.deliveryPayout));
+
+  set("statRefund", money(stats.refundDue));
+
+  set("statPending", stats.pendingOrders);
+
+  set("statOutDelivery", stats.outForDelivery);
+
+  /* =========================
+     RECENT ORDERS
+  ========================= */
+
+  const rows = [...recentOrders]
+    .sort((a,b) => {
+
+      const ta = new Date(
+        a.createdAt?.toDate
+          ? a.createdAt.toDate()
+          : a.createdAt || 0
+      ).getTime();
+
+      const tb = new Date(
+        b.createdAt?.toDate
+          ? b.createdAt.toDate()
+          : b.createdAt || 0
+      ).getTime();
+
+      return tb - ta;
+
+    })
+    .slice(0,10);
+
+  const box = document.getElementById("recentOrders");
+
+  if(!box) return;
+
+  if(!rows.length){
+
+    box.innerHTML = `
+      <div class="empty">
+        पिछले 24 घंटे में कोई Order नहीं आया।
+      </div>
+    `;
+
+    return;
+
+  }
+
+  box.innerHTML = `
+    <div class="tablewrap">
+
+      <table>
+
+        <tr>
+          <th>Order</th>
+          <th>Customer</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Status</th>
+        </tr>
+
+        ${rows.map(o => `
+
+          <tr>
+
+            <td>
+              #${esc(o.orderId || o.id || o.orderNo || "")}
+            </td>
+
+            <td>
+              ${esc(
+                o.customerName ||
+                o.customer ||
+                o.customerMobile ||
+                ""
+              )}
+            </td>
+
+            <td>
+              ${money(amount(o))}
+            </td>
+
+            <td>
+              ${esc(
+                o.paymentMethod ||
+                o.payment ||
+                "-"
+              )}
+            </td>
+
+            <td>
+              <span class="badge">
+                ${esc(
+                  o.orderStatus ||
+                  o.status ||
+                  "-"
+                )}
+              </span>
+            </td>
+
+          </tr>
+
+        `).join("")}
+
+      </table>
+
+    </div>
+  `;
+
+}
 function renderSellers(){
  const q=(document.getElementById("sellerSearch")?.value||"").toLowerCase();
  const rows=data.sellers.filter(s=>JSON.stringify(s).toLowerCase().includes(q));
