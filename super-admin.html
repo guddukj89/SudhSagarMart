@@ -665,6 +665,85 @@ function renderModuleStatus(){const m=data.settings.modules||{};document.getElem
 function renderLogs(){const q=(document.getElementById('logSearch')?.value||'').toLowerCase(),rows=data.auditLogs.filter(l=>JSON.stringify(l).toLowerCase().includes(q)).slice(-80).reverse();document.getElementById('logList').innerHTML=rows.length?rows.map(l=>`<div class="box"><b>${esc(l.action)}</b> — ${esc(l.collection)}/${esc(l.recordId)}<br><span class="mini">${esc(l.actorEmail||l.actorUid||'')} | ${esc(l.details||'')}</span></div>`).join(''):'No activity'}
 async function deleteDoc(col,id){if(!confirm('Delete this record?'))return;await db.collection(col).doc(id).delete();await audit('Deleted',col,id,'')}
 function exportData(){const out={exportedAt:new Date().toISOString(),selectedStoreId,stores:data.stores,sellers:data.sellers,products:data.products,orders:data.orders,customers:data.customers,payments:data.payments,categories:data.categories,deliveryPartners:data.deliveryPartners,complaints:data.complaints,notifications:data.notifications,adminUsers:data.adminUsers,settings:data.settings};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));a.download='sudhsagarmart-master-backup.json';a.click();URL.revokeObjectURL(a.href)}
-if(sessionStorage.getItem('ssm_admin')==='1'){auth.onAuthStateChanged(u=>{if(u){document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='block';document.getElementById('adminIdentity').textContent=u.email||u.uid;startLive()}})}
+if(sessionStorage.getItem('ssm_admin')==='1'){
+  auth.onAuthStateChanged(async u=>{
+
+    if(!u){
+      sessionStorage.removeItem('ssm_admin');
+      sessionStorage.removeItem('ssm_admin_uid');
+      return;
+    }
+
+    try{
+
+      const adminSnap =
+        await db.collection('adminUsers')
+          .doc(u.uid)
+          .get();
+
+      if(!adminSnap.exists){
+        await auth.signOut();
+        sessionStorage.removeItem('ssm_admin');
+        sessionStorage.removeItem('ssm_admin_uid');
+        document.getElementById('loginPage').style.display='flex';
+        document.getElementById('app').style.display='none';
+        document.getElementById('loginMsg').innerText =
+          'Super Admin record nahi mila.';
+        return;
+      }
+
+      const admin = adminSnap.data();
+
+      if(admin.active !== true){
+        await auth.signOut();
+        sessionStorage.removeItem('ssm_admin');
+        sessionStorage.removeItem('ssm_admin_uid');
+        document.getElementById('loginPage').style.display='flex';
+        document.getElementById('app').style.display='none';
+        document.getElementById('loginMsg').innerText =
+          'Super Admin account disabled hai.';
+        return;
+      }
+
+      if(admin.role !== 'superAdmin'){
+        await auth.signOut();
+        sessionStorage.removeItem('ssm_admin');
+        sessionStorage.removeItem('ssm_admin_uid');
+        document.getElementById('loginPage').style.display='flex';
+        document.getElementById('app').style.display='none';
+        document.getElementById('loginMsg').innerText =
+          'Is account ko Super Admin access nahi hai.';
+        return;
+      }
+
+      document.getElementById('loginPage').style.display='none';
+      document.getElementById('app').style.display='block';
+
+      document.getElementById('adminIdentity').textContent =
+        admin.email || u.email || u.uid;
+
+      startLive();
+
+    }catch(error){
+
+      console.error(
+        'Super Admin session verification error:',
+        error
+      );
+
+      await auth.signOut();
+
+      sessionStorage.removeItem('ssm_admin');
+      sessionStorage.removeItem('ssm_admin_uid');
+
+      document.getElementById('loginPage').style.display='flex';
+      document.getElementById('app').style.display='none';
+
+      document.getElementById('loginMsg').innerText =
+        'Super Admin verification failed.';
+    }
+
+  });
+}
 </script>
 </body></html>
