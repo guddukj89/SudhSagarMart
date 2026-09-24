@@ -2751,8 +2751,84 @@ function renderSellers(){
 }
 
 async function setSellerKYC(id,status){
- if(!confirm("Seller KYC "+status+" karna hai?"))return;
- await db.collection("Sellers").doc(id).update({kycStatus:status,accountStatus:status,approvedAt:status==="approved"?firebase.firestore.FieldValue.serverTimestamp():null,approvedBy:"admin"});
+
+  if(!id || !status) return;
+
+  const seller =
+    data.sellers.find(
+      s => String(s.id) === String(id)
+    );
+
+  if(!seller){
+
+    alert("Seller nahi mila.");
+
+    return;
+  }
+
+
+  // Store security check
+  if(
+    seller.storeId &&
+    String(seller.storeId) !==
+    String(currentAdmin.storeId)
+  ){
+
+    alert(
+      "Dusre Store ke seller ka KYC update nahi kar sakte."
+    );
+
+    return;
+  }
+
+
+  try{
+
+    await db
+      .collection("Sellers")
+      .doc(id)
+      .update({
+
+        kycStatus:status,
+
+        accountStatus:
+          status === "approved"
+            ? "active"
+            : "pending",
+
+        approvedAt:
+          status === "approved"
+            ? firebase.firestore.FieldValue.serverTimestamp()
+            : null,
+
+        approvedBy:
+          currentAdmin.uid,
+
+        updatedAt:
+          firebase.firestore.FieldValue.serverTimestamp()
+
+      });
+
+
+    alert(
+      "Seller KYC status successfully update ho gaya."
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "Seller KYC update error:",
+      error
+    );
+
+    alert(
+      "KYC update failed:\n" +
+      error.message
+    );
+
+  }
+
 }
 function renderProducts(){
  const q=(document.getElementById("productSearch")?.value||"").toLowerCase();
