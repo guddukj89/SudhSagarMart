@@ -1140,7 +1140,7 @@ function startLive(){
 
   const sellerUnsubscribe =
     db
-      .collection("sellers")
+      .collection("Sellers")
       .where(
         "storeId",
         "==",
@@ -2752,7 +2752,7 @@ function renderSellers(){
 
 async function setSellerKYC(id,status){
  if(!confirm("Seller KYC "+status+" karna hai?"))return;
- await db.collection("sellers").doc(id).update({kycStatus:status,accountStatus:status,approvedAt:status==="approved"?firebase.firestore.FieldValue.serverTimestamp():null,approvedBy:"admin"});
+ await db.collection("Sellers").doc(id).update({kycStatus:status,accountStatus:status,approvedAt:status==="approved"?firebase.firestore.FieldValue.serverTimestamp():null,approvedBy:"admin"});
 }
 function renderProducts(){
  const q=(document.getElementById("productSearch")?.value||"").toLowerCase();
