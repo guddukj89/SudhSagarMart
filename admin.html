@@ -1574,6 +1574,382 @@ function renderDeliveryPartners(){
     }).join("");
 
 }
+  async function updateReturnStatus(returnId, newStatus){
+
+  if(!returnId) return;
+
+  try{
+
+    await db
+      .collection("returns")
+      .doc(returnId)
+      .update({
+        status:newStatus,
+        updatedAt:
+          firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy:currentAdmin.uid
+      });
+
+  }catch(error){
+
+    console.error(
+      "Return status update error:",
+      error
+    );
+
+    alert(
+      "Return status update nahi ho saka."
+    );
+
+  }
+
+}
+
+
+async function processRefund(returnId){
+
+  const returnData =
+    data.returns.find(
+      r => r.id === returnId
+    );
+
+  if(!returnData){
+
+    alert("Return record nahi mila.");
+
+    return;
+  }
+
+  const refundAmount =
+    Number(
+      returnData.refundAmount ??
+      returnData.amount ??
+      0
+    );
+
+  if(refundAmount <= 0){
+
+    alert(
+      "Refund amount available nahi hai."
+    );
+
+    return;
+  }
+
+  const confirmRefund =
+    confirm(
+      "₹" +
+      refundAmount.toLocaleString("en-IN") +
+      " ka refund Processed mark karein?"
+    );
+
+  if(!confirmRefund) return;
+
+  try{
+
+    await db
+      .collection("returns")
+      .doc(returnId)
+      .set({
+
+        refundAmount:refundAmount,
+
+        refundStatus:"Processed",
+
+        status:"Refunded",
+
+        refundProcessedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
+
+        updatedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
+
+        updatedBy:
+          currentAdmin.uid
+
+      },{
+        merge:true
+      });
+
+    alert(
+      "Refund Processed mark ho gaya."
+    );
+
+  }catch(error){
+
+    console.error(
+      "Refund processing error:",
+      error
+    );
+
+    alert(
+      "Refund process nahi ho saka."
+    );
+
+  }
+
+}
+
+
+function renderReturns(){
+
+  const table =
+    document.getElementById(
+      "returnsTable"
+    );
+
+  if(!table) return;
+
+  const storeId =
+    String(
+      currentAdmin.storeId || ""
+    );
+
+  const returns =
+    data.returns.filter(
+      r =>
+        String(
+          r.storeId || ""
+        ) === storeId
+    );
+
+  const pending =
+    returns.filter(r =>
+      String(
+        r.status || "Pending"
+      ).toLowerCase()
+      !== "refunded"
+    );
+
+  const refundDue =
+    returns
+    .filter(r =>
+      String(
+        r.refundStatus || "Pending"
+      ).toLowerCase()
+      !== "processed"
+    )
+    .reduce(
+      (sum,r) =>
+        sum +
+        Number(
+          r.refundAmount ??
+          r.amount ??
+          0
+        ),
+      0
+    );
+
+  const refundProcessed =
+    returns
+    .filter(r =>
+      String(
+        r.refundStatus || ""
+      ).toLowerCase()
+      === "processed"
+    )
+    .reduce(
+      (sum,r) =>
+        sum +
+        Number(
+          r.refundAmount ??
+          r.amount ??
+          0
+        ),
+      0
+    );
+
+
+  const count =
+    document.getElementById(
+      "returnCount"
+    );
+
+  const due =
+    document.getElementById(
+      "returnRefundDue"
+    );
+
+  const processed =
+    document.getElementById(
+      "returnRefunded"
+    );
+
+  const pendingBox =
+    document.getElementById(
+      "returnPending"
+    );
+
+
+  if(count)
+    count.textContent =
+      returns.length;
+
+  if(due)
+    due.textContent =
+      money(refundDue);
+
+  if(processed)
+    processed.textContent =
+      money(refundProcessed);
+
+  if(pendingBox)
+    pendingBox.textContent =
+      pending.length;
+
+
+  if(!returns.length){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty">
+          Is Store me koi return record nahi hai.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  table.innerHTML =
+    returns.map(r => {
+
+      const id =
+        r.id || "";
+
+      const status =
+        r.status || "Pending";
+
+      const refundStatus =
+        r.refundStatus || "Pending";
+
+      const amount =
+        Number(
+          r.refundAmount ??
+          r.amount ??
+          0
+        );
+
+
+      return `
+        <tr>
+
+          <td>
+            ${esc(
+              r.returnId ||
+              id
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              r.orderId ||
+              r.order ||
+              "—"
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              r.customerName ||
+              r.customer ||
+              "—"
+            )}
+          </td>
+
+          <td>
+            ${money(amount)}
+          </td>
+
+          <td>
+            ${esc(
+              r.reason ||
+              r.description ||
+              "—"
+            )}
+          </td>
+
+          <td>
+
+            <select
+              onchange="
+                updateReturnStatus(
+                  '${id}',
+                  this.value
+                )
+              "
+            >
+
+              <option
+                value="Pending"
+                ${status === "Pending"
+                  ? "selected"
+                  : ""}
+              >
+                Pending
+              </option>
+
+              <option
+                value="Approved"
+                ${status === "Approved"
+                  ? "selected"
+                  : ""}
+              >
+                Approved
+              </option>
+
+              <option
+                value="Rejected"
+                ${status === "Rejected"
+                  ? "selected"
+                  : ""}
+              >
+                Rejected
+              </option>
+
+              <option
+                value="Refunded"
+                ${status === "Refunded"
+                  ? "selected"
+                  : ""}
+              >
+                Refunded
+              </option>
+
+            </select>
+
+          </td>
+
+          <td>
+            ${esc(
+              refundStatus
+            )}
+          </td>
+
+          <td>
+
+            <button
+              class="success"
+              onclick="
+                processRefund(
+                  '${id}'
+                )
+              "
+            >
+              Process Refund
+            </button>
+
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+}
 function renderDashboard(){
 
   const now = Date.now();
