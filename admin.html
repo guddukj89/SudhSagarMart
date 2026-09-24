@@ -1347,7 +1347,20 @@ function startLive(){
 
 }
 
-function renderAll(){renderDashboard();renderSellers();renderProducts();renderOrders();renderCustomers();renderPayments();renderCategories();renderComplaints();}
+function renderAll(){
+  renderDashboard();
+  renderSellers();
+  renderProducts();
+  renderOrders();
+  renderCustomers();
+  renderPayments();
+  renderDeliveryPartners();
+  renderReturns();
+  renderSalesReport();
+  renderSettlement();
+  renderCategories();
+  renderComplaints();
+}
 function renderDashboard(){
 
   const now = Date.now();
