@@ -57,7 +57,410 @@ function renderDashboard(){const orders=data.orders.filter(storeMatches),sellers
 async function audit(action,collection,id,details){try{await db.collection('auditLogs').add({action,collection:collection||'',recordId:id||'',details:details||'',actorUid:auth.currentUser?.uid||'',actorEmail:auth.currentUser?.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){console.warn(e)}}
 function renderSellers(){const q=(document.getElementById('sellerSearch')?.value||'').toLowerCase(),rows=data.sellers.filter(storeMatches).filter(s=>JSON.stringify(s).toLowerCase().includes(q));document.getElementById('sellerTable').innerHTML=rows.length?rows.map(s=>`<tr><td><b>${esc(s.name||'')}</b><br>${esc(s.shopName||'')}</td><td>${esc(s.mobile||s.phone||'')}<br>${esc(s.email||'')}</td><td>${esc(s.city||'')}<br>${esc(s.shopAddress||s.address||'')}</td><td><span class="badge ${s.kycStatus==='approved'?'':'wait'}">${esc(s.kycStatus||'pending')}</span></td><td>${s.panDocument?`<a class="link" href="${esc(s.panDocument)}" target="_blank">PAN</a> `:''}${s.aadhaarDocument?`<a class="link" href="${esc(s.aadhaarDocument)}" target="_blank">Aadhaar</a>`:''}</td><td class="actions">${s.kycStatus!=='approved'?`<button class="success" onclick="setSellerKYC('${esc(s.id)}','approved')">Approve</button>`:''}${s.kycStatus!=='rejected'?`<button class="danger" onclick="setSellerKYC('${esc(s.id)}','rejected')">Reject</button>`:''}<button class="danger" onclick="deleteDoc('sellers','${esc(s.id)}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">No sellers</td></tr>'}
 async function setSellerKYC(id,status){if(!confirm('Seller KYC '+status+' karna hai?'))return;await db.collection('sellers').doc(id).set({kycStatus:status,accountStatus:status,approvedAt:status==='approved'?firebase.firestore.FieldValue.serverTimestamp():null,approvedBy:auth.currentUser?.uid||'superAdmin'},{merge:true});await audit('Seller KYC '+status,'sellers',id,status)}
-function renderRiders(){const q=(document.getElementById('riderSearch')?.value||'').toLowerCase(),rows=data.deliveryPartners.filter(storeMatches).filter(r=>JSON.stringify(r).toLowerCase().includes(q));document.getElementById('riderTable').innerHTML=rows.length?rows.map(r=>`<tr><td><b>${esc(r.name||r.displayName||'')}</b><br>${esc(r.id)}</td><td>${esc(r.phone||r.mobile||'')}<br>${esc(r.email||'')}</td><td><span class="badge ${r.accountStatus==='approved'?'':'wait'}">${esc(r.accountStatus||'pending')}</span><br><span class="mini">${r.locationSharing?'🟢 Live sharing':'⚪ Not sharing'}</span></td><td>${r.latitude!=null?`${esc(r.latitude)}, ${esc(r.longitude)}<br><button class="secondary" onclick="openMap('${esc(r.latitude)}','${esc(r.longitude)}')">Open Map</button>`:'Not available'}</td><td class="actions">${r.accountStatus!=='approved'?`<button class="success" onclick="approveRider('${esc(r.id)}')">Approve</button>`:`<button class="warn" onclick="setRiderStatus('${esc(r.id)}','suspended')">Suspend</button>`}<button class="danger" onclick="deleteDoc('deliveryPartners','${esc(r.id)}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="5" class="empty">No riders</td></tr>'}
+function renderRiders(){
+
+  const q =
+    (document.getElementById('riderSearch')?.value || '')
+      .toLowerCase();
+
+  const rows =
+    data.deliveryPartners
+      .filter(storeMatches)
+      .filter(r =>
+        JSON.stringify(r)
+          .toLowerCase()
+          .includes(q)
+      );
+
+  document.getElementById('riderTable').innerHTML =
+    rows.length
+      ? rows.map(r => {
+
+          const riderStoreId =
+            r.storeId ||
+            r.assignedStoreId ||
+            "";
+
+          const riderStoreName =
+            r.storeName ||
+            storeName(riderStoreId);
+
+          return `
+          <tr>
+
+            <td>
+              <b>${esc(r.name || r.displayName || 'Delivery Partner')}</b>
+              <br>
+              <span class="mini">
+                ${esc(r.id)}
+              </span>
+            </td>
+
+            <td>
+              ${esc(r.phone || r.mobile || '')}
+              <br>
+              ${esc(r.email || '')}
+            </td>
+
+            <td>
+              <span class="badge ${
+                r.accountStatus === 'approved'
+                  ? ''
+                  : 'wait'
+              }">
+                ${esc(r.accountStatus || 'pending')}
+              </span>
+
+              <br>
+
+              <span class="mini">
+                ${
+                  r.locationSharing
+                    ? '🟢 Live sharing'
+                    : '⚪ Not sharing'
+                }
+              </span>
+            </td>
+
+            <td>
+              ${
+                riderStoreId
+                  ? `
+                    <b>🏬 ${esc(riderStoreName)}</b>
+                    <br>
+                    <span class="mini">
+                      ${esc(riderStoreId)}
+                    </span>
+                  `
+                  : `
+                    <span class="badge wait">
+                      Not Assigned
+                    </span>
+                  `
+              }
+            </td>
+
+            <td>
+              ${
+                r.latitude != null
+                  ? `
+                    ${esc(r.latitude)},
+                    ${esc(r.longitude)}
+                    <br>
+                    <button
+                      class="secondary"
+                      onclick="openMap(
+                        '${esc(r.latitude)}',
+                        '${esc(r.longitude)}'
+                      )">
+                      Open Map
+                    </button>
+                  `
+                  : 'Not available'
+              }
+            </td>
+
+            <td class="actions">
+
+              ${
+                r.accountStatus !== 'approved'
+                  ? `
+                    <button
+                      class="success"
+                      onclick="approveRider('${esc(r.id)}')">
+                      Approve
+                    </button>
+                  `
+                  : `
+                    <button
+                      class="warn"
+                      onclick="setRiderStatus(
+                        '${esc(r.id)}',
+                        'suspended'
+                      )">
+                      Suspend
+                    </button>
+                  `
+              }
+
+              <button
+                class="primary"
+                onclick="assignRiderStore('${esc(r.id)}')">
+                ${
+                  riderStoreId
+                    ? 'Change Store'
+                    : 'Assign Store'
+                }
+              </button>
+
+              ${
+                riderStoreId
+                  ? `
+                    <button
+                      class="secondary"
+                      onclick="removeRiderStore('${esc(r.id)}')">
+                      Unassign
+                    </button>
+                  `
+                  : ''
+              }
+
+              <button
+                class="danger"
+                onclick="deleteDoc(
+                  'deliveryPartners',
+                  '${esc(r.id)}'
+                )">
+                Delete
+              </button>
+
+            </td>
+
+          </tr>
+          `;
+
+        }).join('')
+
+      : `
+        <tr>
+          <td colspan="6" class="empty">
+            No riders
+          </td>
+        </tr>
+      `;
+}
+
+
+// ================= RIDER STORE ASSIGNMENT =================
+
+async function assignRiderStore(riderId){
+
+  const rider =
+    data.deliveryPartners.find(
+      r => r.id === riderId
+    );
+
+  if(!rider){
+    return alert("Rider nahi mila.");
+  }
+
+  if(!data.stores.length){
+    return alert(
+      "Pehle Store Management me store create karein."
+    );
+  }
+
+  const stores =
+    data.stores
+      .filter(s =>
+        String(s.status || 'active')
+          .toLowerCase() === 'active'
+      );
+
+  if(!stores.length){
+    return alert(
+      "Koi active store available nahi hai."
+    );
+  }
+
+  const list =
+    stores.map((s,i) => {
+
+      const name =
+        s.name ||
+        s.storeName ||
+        s.id;
+
+      const code =
+        s.code ||
+        s.storeCode ||
+        s.id;
+
+      return (
+        (i + 1) +
+        ". " +
+        name +
+        " (" +
+        code +
+        ")"
+      );
+
+    }).join("\n");
+
+  const answer =
+    prompt(
+      "Rider ko kaunsa Store assign karna hai?\n\n" +
+      list +
+      "\n\nStore number enter karein:"
+    );
+
+  if(answer === null) return;
+
+  const n =
+    Number(answer);
+
+  if(
+    !Number.isInteger(n) ||
+    !stores[n - 1]
+  ){
+    return alert(
+      "Invalid Store number."
+    );
+  }
+
+  const store =
+    stores[n - 1];
+
+  const storeId =
+    store.id;
+
+  const storeNameValue =
+    store.name ||
+    store.storeName ||
+    storeId;
+
+  const ok =
+    confirm(
+      "Rider ko ye Store assign karein?\n\n" +
+      "Rider: " +
+      (rider.name || rider.email || riderId) +
+      "\n\nStore: " +
+      storeNameValue +
+      "\nStore ID: " +
+      storeId
+    );
+
+  if(!ok) return;
+
+  try{
+
+    await db
+      .collection("deliveryPartners")
+      .doc(riderId)
+      .set({
+
+        storeId: storeId,
+
+        storeName: storeNameValue,
+
+        assignedStoreId: storeId,
+
+        assignedStoreName: storeNameValue,
+
+        storeAssignedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
+
+        storeAssignedBy:
+          auth.currentUser?.uid || "superAdmin",
+
+        updatedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp()
+
+      }, {
+        merge: true
+      });
+
+    await audit(
+      "Rider store assigned",
+      "deliveryPartners",
+      riderId,
+      storeId + " / " + storeNameValue
+    );
+
+    alert(
+      "✅ Store successfully assigned.\n\n" +
+      "Rider: " +
+      (rider.name || rider.email || riderId) +
+      "\nStore: " +
+      storeNameValue
+    );
+
+  }catch(error){
+
+    console.error(
+      "Rider store assignment error:",
+      error
+    );
+
+    alert(
+      "Store assign nahi ho paya.\n\n" +
+      error.message
+    );
+  }
+}
+
+
+// ================= REMOVE RIDER STORE =================
+
+async function removeRiderStore(riderId){
+
+  const rider =
+    data.deliveryPartners.find(
+      r => r.id === riderId
+    );
+
+  if(!rider) return;
+
+  const ok =
+    confirm(
+      "Is Rider ka Store assignment remove karna hai?"
+    );
+
+  if(!ok) return;
+
+  try{
+
+    await db
+      .collection("deliveryPartners")
+      .doc(riderId)
+      .set({
+
+        storeId: "",
+        storeName: "",
+        assignedStoreId: "",
+        assignedStoreName: "",
+
+        storeUnassignedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
+
+        storeUnassignedBy:
+          auth.currentUser?.uid || "superAdmin",
+
+        updatedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp()
+
+      }, {
+        merge: true
+      });
+
+    await audit(
+      "Rider store unassigned",
+      "deliveryPartners",
+      riderId,
+      ""
+    );
+
+    alert(
+      "✅ Rider ka Store assignment remove ho gaya."
+    );
+
+  }catch(error){
+
+    console.error(
+      "Rider store unassignment error:",
+      error
+    );
+
+    alert(
+      "Store assignment remove nahi ho paya.\n\n" +
+      error.message
+    );
+  }
+}
 async function approveRider(id){await db.collection('deliveryPartners').doc(id).set({accountStatus:'approved',approvedAt:firebase.firestore.FieldValue.serverTimestamp(),approvedBy:auth.currentUser?.uid||''},{merge:true});await audit('Rider approved','deliveryPartners',id,'approved')}
 async function setRiderStatus(id,status){await db.collection('deliveryPartners').doc(id).set({accountStatus:status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});await audit('Rider '+status,'deliveryPartners',id,status)}
 function openMap(lat,lng){window.open('https://www.google.com/maps?q='+encodeURIComponent(lat+','+lng),'_blank')}
