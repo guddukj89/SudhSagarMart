@@ -979,7 +979,214 @@ async function saveProduct(){const id=document.getElementById('productId').value
 function clearProduct(){['productId','productName','productPrice','productMrp','productStock','productCategory','productSeller','productSellerId','productImage','productDescription'].forEach(id=>document.getElementById(id).value='');document.getElementById('productStoreId').value=selectedStoreId==='__ALL__'?'':selectedStoreId;document.getElementById('productStatus').value='pending'}
 function renderOrders(){const q=(document.getElementById('orderSearch')?.value||'').toLowerCase(),rows=data.orders.filter(storeMatches).filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById('orderTable').innerHTML=rows.length?rows.map(o=>`<tr><td><b>#${esc(o.orderId||o.id||'')}</b></td><td>${esc(o.customerName||o.customer||'')}<br>${esc(o.customerMobile||o.phone||'')}</td><td>${money(o.amount||o.total)}</td><td><select onchange="updateOrderStatus('${esc(o.id)}',this.value)">${['Order Placed','Confirmed','Packed','Ready for Pickup','Picked Up','Out for Delivery','Delivered','Undelivered Attempt','Cancelled'].map(v=>`<option ${String(o.orderStatus||o.status||'Order Placed')===v?'selected':''}>${v}</option>`).join('')}</select></td><td>${esc(o.deliveryBoyName||'Not Assigned')}<br>${esc(o.deliveryBoyPhone||'')}</td><td>${esc(o.customerAddress||o.address||'')}</td><td class="actions"><button class="secondary" onclick="editOrder('${esc(o.id)}')">Edit</button><button class="primary" onclick="assignRider('${esc(o.id)}')">Assign Rider</button><button class="danger" onclick="deleteDoc('orders','${esc(o.id)}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No orders</td></tr>'}
 async function updateOrderStatus(id,status){await db.collection('orders').doc(id).update({orderStatus:status,status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});await audit('Order status '+status,'orders',id,status)}
-async function assignRider(id){const riders=data.deliveryPartners.filter(r=>r.accountStatus==='approved');if(!riders.length)return alert('Approved rider available nahi hai.');const list=riders.map((r,i)=>(i+1)+'. '+(r.name||r.email||r.id)).join('\n');const n=Number(prompt('Rider number select karein:\n'+list));if(!Number.isInteger(n)||!riders[n-1])return;const r=riders[n-1];await db.collection('orders').doc(id).update({deliveryBoyId:r.id,deliveryBoyName:r.name||r.email||'Delivery Partner',deliveryBoyPhone:r.phone||'',deliveryAssignedAt:firebase.firestore.FieldValue.serverTimestamp(),deliveryAssignmentStatus:'Assigned'});await audit('Rider assigned','orders',id,r.id)}
+async function assignRider(id){
+
+  const order =
+    data.orders.find(o => o.id === id);
+
+  if(!order){
+    return alert("Order nahi mila.");
+  }
+
+  const orderStoreId =
+    order.storeId || "";
+
+  if(!orderStoreId){
+    return alert(
+      "Is Order ka Store assign nahi hai.\n\n" +
+      "Pehle Order me Store select karein."
+    );
+  }
+
+  const store =
+    data.stores.find(s => s.id === orderStoreId);
+
+  const storeNameValue =
+    store
+      ? (store.name || store.storeName || store.id)
+      : orderStoreId;
+
+  const riders =
+    data.deliveryPartners.filter(r => {
+
+      const riderStoreId =
+        r.storeId ||
+        r.assignedStoreId ||
+        "";
+
+      return (
+        r.accountStatus === "approved" &&
+        String(riderStoreId) === String(orderStoreId)
+      );
+
+    });
+
+  if(!riders.length){
+    return alert(
+      "Is Store ke liye koi approved rider available nahi hai.\n\n" +
+      "Store: " +
+      storeNameValue
+    );
+  }
+
+  const list =
+    riders.map((r,i) => {
+
+      const riderName =
+        r.name ||
+        r.displayName ||
+        r.email ||
+        r.id;
+
+      return (
+        (i + 1) +
+        ". " +
+        riderName +
+        " (" +
+        (r.phone || r.mobile || "No Phone") +
+        ")"
+      );
+
+    }).join("\n");
+
+  const answer =
+    prompt(
+      "Order ke liye Rider select karein:\n\n" +
+      "Store: " +
+      storeNameValue +
+      "\n\n" +
+      list +
+      "\n\nRider number enter karein:"
+    );
+
+  if(answer === null){
+    return;
+  }
+
+  const n =
+    Number(answer);
+
+  if(
+    !Number.isInteger(n) ||
+    !riders[n - 1]
+  ){
+    return alert(
+      "Invalid Rider number."
+    );
+  }
+
+  const r =
+    riders[n - 1];
+
+  const riderStoreId =
+    r.storeId ||
+    r.assignedStoreId ||
+    "";
+
+  if(
+    String(riderStoreId) !==
+    String(orderStoreId)
+  ){
+    return alert(
+      "Ye Rider is Store ka nahi hai."
+    );
+  }
+
+  const riderName =
+    r.name ||
+    r.displayName ||
+    r.email ||
+    "Delivery Partner";
+
+  const ok =
+    confirm(
+      "Rider assign karein?\n\n" +
+      "Order: #" +
+      (order.orderId || order.id) +
+      "\n" +
+      "Store: " +
+      storeNameValue +
+      "\n" +
+      "Rider: " +
+      riderName
+    );
+
+  if(!ok){
+    return;
+  }
+
+  try{
+
+    await db
+      .collection("orders")
+      .doc(id)
+      .update({
+
+        deliveryBoyId:
+          r.id,
+
+        deliveryBoyName:
+          riderName,
+
+        deliveryBoyPhone:
+          r.phone ||
+          r.mobile ||
+          "",
+
+        deliveryAssignedStoreId:
+          orderStoreId,
+
+        deliveryAssignedStoreName:
+          storeNameValue,
+
+        deliveryAssignedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp(),
+
+        deliveryAssignedBy:
+          auth.currentUser?.uid ||
+          "",
+
+        deliveryAssignmentStatus:
+          "Assigned",
+
+        updatedAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp()
+
+      });
+
+    await audit(
+      "Rider assigned",
+      "orders",
+      id,
+      riderName +
+      " | Store: " +
+      storeNameValue
+    );
+
+    alert(
+      "✅ Rider successfully assigned.\n\n" +
+      "Rider: " +
+      riderName +
+      "\nStore: " +
+      storeNameValue
+    );
+
+  }catch(error){
+
+    console.error(
+      "Rider assignment error:",
+      error
+    );
+
+    alert(
+      "Rider assign nahi ho paya.\n\n" +
+      error.message
+    );
+
+  }
+}
 async function saveOrder(){const id=document.getElementById('orderId').value||('SSM'+Date.now()),status=document.getElementById('orderStatus').value,x={orderId:id,customerName:document.getElementById('orderCustomer').value.trim(),customerMobile:document.getElementById('orderPhone').value.trim(),amount:Number(document.getElementById('orderAmount').value||0),orderStatus:status,status,deliveryBoyId:document.getElementById('orderRiderId').value.trim(),deliveryBoyName:document.getElementById('orderRiderName').value.trim(),storeId:document.getElementById('orderStoreId').value || (selectedStoreId==='__ALL__'?'':selectedStoreId),customerAddress:document.getElementById('orderAddress').value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};await db.collection('orders').doc(id).set(x,{merge:true});await audit('Order saved','orders',id,'manual');clearOrder()}
 function editOrder(id){const o=data.orders.find(x=>x.id===id);if(!o)return;document.getElementById('orderId').value=id;document.getElementById('orderCustomer').value=o.customerName||o.customer||'';document.getElementById('orderPhone').value=o.customerMobile||o.phone||'';document.getElementById('orderAmount').value=o.amount||o.total||0;document.getElementById('orderStatus').value=o.orderStatus||o.status||'Order Placed';document.getElementById('orderRiderId').value=o.deliveryBoyId||'';document.getElementById('orderRiderName').value=o.deliveryBoyName||'';document.getElementById('orderAddress').value=o.customerAddress||o.address||'';document.getElementById('orderStoreId').value=o.storeId||'';showSection('orders',document.querySelectorAll('.navbtn')[4])}
 function clearOrder(){['orderId','orderCustomer','orderPhone','orderAmount','orderRiderId','orderRiderName','orderAddress'].forEach(id=>document.getElementById(id).value='');document.getElementById('orderStoreId').value=selectedStoreId==='__ALL__'?'':selectedStoreId;document.getElementById('orderStatus').value='Order Placed'}
