@@ -2294,6 +2294,136 @@ function renderSalesReport(){
   `;
 
 }
+function renderSettlement(){
+
+  const table =
+    document.getElementById(
+      "settlementTable"
+    );
+
+  if(!table) return;
+
+  const storeId =
+    String(
+      currentAdmin.storeId || ""
+    );
+
+  const riders =
+    data.deliveryPartners.filter(r => {
+
+      const riderStore =
+        String(
+          r.storeId ||
+          r.assignedStoreId ||
+          ""
+        );
+
+      return riderStore === storeId;
+
+    });
+
+
+  if(!riders.length){
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          Is Store ke liye koi rider settlement data nahi hai.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  table.innerHTML =
+    riders.map(rider => {
+
+      const riderId =
+        rider.id ||
+        rider.uid ||
+        "";
+
+
+      const deliveredOrders =
+        data.orders.filter(order => {
+
+          return (
+            String(
+              order.storeId || ""
+            ) === storeId
+
+            &&
+
+            String(
+              order.deliveryBoyId || ""
+            ) === String(riderId)
+
+            &&
+
+            String(
+              order.orderStatus ||
+              order.status ||
+              ""
+            ).toLowerCase()
+            === "delivered"
+          );
+
+        });
+
+
+      const codCollected =
+        deliveredOrders
+        .filter(order => {
+
+          return String(
+            order.paymentMethod ||
+            order.payment ||
+            ""
+          ).toLowerCase()
+          === "cod";
+
+        })
+        .reduce(
+          (sum,order) =>
+            sum +
+            Number(
+              order.total ??
+              order.amount ??
+              0
+            ),
+          0
+        );
+
+
+      const deliveryEarnings =
+        deliveredOrders.reduce(
+          (sum,order) =>
+            sum +
+            Number(
+              order.deliveryBoyPayout ??
+              order.deliveryPayout ??
+              order.deliveryEarning ??
+              0
+            ),
+          0
+        );
+
+
+      const refundPaid =
+        deliveredOrders.reduce(
+          (sum,order) =>
+            sum +
+            Number(
+              order.refundAmount || 0
+            ),
+          0
+        );
+
+
+     
 function renderDashboard(){
 
   const now = Date.now();
