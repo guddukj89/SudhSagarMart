@@ -586,7 +586,7 @@ function startLive(){
  loadSettings();renderAll();
 }
 
-function renderAll(){renderDashboard();renderSellers();renderProducts();renderOrders();renderCustomers();renderPayments();renderCategories()}
+function renderAll(){renderDashboard();renderSellers();renderProducts();renderOrders();renderCustomers();renderPayments();renderCategories();renderComplaints();}
 function renderDashboard(){
  const sales=data.orders.filter(o=>String(o.status||"").toLowerCase()!=="cancelled").reduce((a,o)=>a+Number(o.amount||0),0);
  const comm=sales*Number(data.settings.commission||0)/100;
