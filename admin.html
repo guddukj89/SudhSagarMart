@@ -64,8 +64,20 @@ th,td{padding:10px;border-bottom:1px solid #e7e9ec;text-align:left;font-size:14p
 
 <div id="app" style="display:none">
 <div class="topbar">
-  <div class="brand">🛒 <span id="storeTitle">Sudh Sagar Mart</span> - Admin</div>
-  <button class="logout" onclick="logout()">Logout</button>
+  <div class="brand">
+    🛒 <span id="storeTitle">Sudh Sagar Mart</span> - Admin
+    <span id="adminStoreInfo"
+          style="font-size:12px;margin-left:8px"></span>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="adminIdentity"
+          style="font-size:12px"></span>
+
+    <button class="logout" onclick="logout()">
+      Logout
+    </button>
+  </div>
 </div>
 <div class="layout">
 <aside class="sidebar">
@@ -241,35 +253,327 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const auth=firebase.auth();
 
-let data={sellers:[],products:[],orders:[],customers:[],payments:[],categories:[],settings:{storeName:"Sudh Sagar Mart",commission:10,currency:"₹",delivery:0}};
+let data={
+  sellers:[],
+  products:[],
+  orders:[],
+  customers:[],
+  payments:[],
+  categories:[],
+  complaints:[],
+  settings:{
+    storeName:"Sudh Sagar Mart",
+    commission:10,
+    currency:"₹",
+    delivery:0
+  }
+};
+
 let unsubs=[];
+
+let currentAdmin={
+  uid:"",
+  name:"",
+  email:"",
+  role:"",
+  storeId:"",
+  storeName:"",
+  active:false
+};
 
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function money(v){return (data.settings.currency||"₹")+Number(v||0).toLocaleString("en-IN")}
 function showSection(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active")}
 async function login(){
-  const email = document.getElementById("loginUser").value.trim();
-  const password = document.getElementById("loginPass").value;
-  const msg = document.getElementById("loginMsg");
 
-  try {
-    msg.innerText = "Login ho raha hai...";
+  const email =
+    document.getElementById("loginUser")
+      .value
+      .trim()
+      .toLowerCase();
 
-    await auth.signInWithEmailAndPassword(email, password);
+  const password =
+    document.getElementById("loginPass")
+      .value;
 
-    sessionStorage.setItem("ssm_admin","1");
+  const msg =
+    document.getElementById("loginMsg");
 
-    document.getElementById("loginPage").style.display="none";
-    document.getElementById("app").style.display="block";
+  if(!email){
+    msg.innerText="Admin email enter karein.";
+    return;
+  }
+
+  if(!password){
+    msg.innerText="Password enter karein.";
+    return;
+  }
+
+  try{
+
+    msg.style.color="#0878e8";
+    msg.innerText="Login ho raha hai...";
+
+    const cred =
+      await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+
+    const uid =
+      cred.user.uid;
+
+    /*
+      Firebase Auth ke baad
+      adminUsers/{UID} check
+    */
+
+    const adminSnap =
+      await db
+        .collection("adminUsers")
+        .doc(uid)
+        .get();
+
+    if(!adminSnap.exists){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Admin record nahi mila. Super Admin se Admin create karein."
+      );
+    }
+
+    const admin =
+      adminSnap.data();
+
+    /*
+      Sirf normal Admin
+    */
+
+    if(admin.role !== "admin"){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Is account ko Store Admin access nahi hai."
+      );
+    }
+
+    /*
+      Account active hona chahiye
+    */
+
+    if(admin.active !== true){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Admin account disabled hai."
+      );
+    }
+
+    /*
+      Store assignment compulsory
+    */
+
+    const storeId =
+      String(admin.storeId || "").trim();
+
+    if(!storeId){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Is Admin ko abhi koi Store assign nahi kiya gaya hai."
+      );
+    }
+
+    /*
+      Store exist karta hai ya nahi
+    */
+
+    const storeSnap =
+      await db
+        .collection("stores")
+        .doc(storeId)
+        .get();
+
+    if(!storeSnap.exists){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Assigned Store Firebase me nahi mila."
+      );
+    }
+
+    const store =
+      storeSnap.data();
+
+    if(
+      String(store.status || "active")
+        .toLowerCase() !== "active"
+    ){
+
+      await auth.signOut();
+
+      throw new Error(
+        "Assigned Store inactive hai."
+      );
+    }
+
+    /*
+      Current Admin information
+    */
+
+    currentAdmin={
+      uid:uid,
+      name:admin.name || "",
+      email:admin.email || cred.user.email || "",
+      role:admin.role || "",
+      storeId:storeId,
+      storeName:
+        store.name ||
+        store.storeName ||
+        storeId,
+      active:true
+    };
+
+    /*
+      Session
+    */
+
+    sessionStorage.setItem(
+      "ssm_admin",
+      "1"
+    );
+
+    sessionStorage.setItem(
+      "ssm_admin_uid",
+      uid
+    );
+
+    sessionStorage.setItem(
+      "ssm_admin_storeId",
+      storeId
+    );
+
+    /*
+      UI
+    */
+
+    document.getElementById(
+      "loginPage"
+    ).style.display="none";
+
+    document.getElementById(
+      "app"
+    ).style.display="block";
+
+    document.getElementById(
+      "adminIdentity"
+    ).textContent =
+      admin.name ||
+      admin.email ||
+      cred.user.email ||
+      uid;
+
+    document.getElementById(
+      "storeTitle"
+    ).textContent =
+      currentAdmin.storeName;
+
+    document.getElementById(
+      "adminStoreInfo"
+    ).textContent =
+      "🏬 Store ID: " +
+      currentAdmin.storeId;
+
+    /*
+      Store-specific data start
+    */
 
     startLive();
 
-  } catch(error) {
-    console.error(error);
-    msg.innerText = "Login failed: " + error.message;
+  }catch(error){
+
+    console.error(
+      "Admin login error:",
+      error
+    );
+
+    msg.style.color="#c00";
+
+    if(
+      error.code ===
+      "auth/invalid-credential"
+    ){
+
+      msg.innerText=
+        "Email ya password galat hai.";
+
+    }else if(
+      error.code ===
+      "auth/user-disabled"
+    ){
+
+      msg.innerText=
+        "Firebase Auth account disabled hai.";
+
+    }else if(
+      error.code ===
+      "auth/too-many-requests"
+    ){
+
+      msg.innerText=
+        "Bahut baar login try hua hai. Thodi der baad try karein.";
+
+    }else{
+
+      msg.innerText =
+        error.message ||
+        "Admin login failed.";
+    }
   }
 }
-function logout(){sessionStorage.removeItem("ssm_admin");unsubs.forEach(f=>f&&f());location.reload()}
+async function logout(){
+
+  try{
+
+    unsubs.forEach(
+      f=>{
+        try{
+          if(f) f();
+        }catch(e){}
+      }
+    );
+
+    unsubs=[];
+
+  }catch(e){}
+
+  try{
+    await auth.signOut();
+  }catch(e){
+    console.error(e);
+  }
+
+  sessionStorage.removeItem("ssm_admin");
+  sessionStorage.removeItem("ssm_admin_uid");
+  sessionStorage.removeItem("ssm_admin_storeId");
+
+  currentAdmin={
+    uid:"",
+    name:"",
+    email:"",
+    role:"",
+    storeId:"",
+    storeName:"",
+    active:false
+  };
+
+  location.reload();
+}
 
 function startLive(){
  document.getElementById("storeTitle").textContent=data.settings.storeName;
