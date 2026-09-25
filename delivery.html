@@ -1468,9 +1468,47 @@ window.rejectOrder=async id=>{
  try{await updateDoc(doc(db,"orders",id),{deliveryAssignmentStatus:"Rejected",riderRejectedAt:new Date()});alert("Order rejected.");}
  catch(e){alert("Error: "+e.message)}
 };
-window.markPickedUp=async id=>{
- try{await updateDoc(doc(db,"orders",id),{orderStatus:"Picked Up",pickedUpAt:new Date(),pickedUpBy:partnerId});alert("Order Picked Up!");}
- catch(e){alert(e.message)}
+window.markPickedUp = async id => {
+
+  try{
+
+    await updateDoc(
+      doc(db,"orders",id),
+      {
+
+        orderStatus:"Picked Up",
+
+        pickedUpAt:new Date(),
+
+        pickedUpBy:partnerId,
+
+        pickedUpStoreId:
+          partnerStoreId || "",
+
+        pickedUpStoreName:
+          partnerStoreName || ""
+
+      }
+    );
+
+    alert(
+      "📦 Order Picked Up successfully!"
+    );
+
+  }catch(error){
+
+    console.error(
+      "Pickup error:",
+      error
+    );
+
+    alert(
+      "Pickup update failed.\n\n" +
+      error.message
+    );
+
+  }
+
 };
 window.markOutForDelivery=async id=>{
  try{await updateDoc(doc(db,"orders",id),{orderStatus:"Out for Delivery",outForDeliveryAt:new Date(),outForDeliveryBy:partnerId});alert("Out for Delivery started!");}
