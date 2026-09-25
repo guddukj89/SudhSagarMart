@@ -1160,44 +1160,6 @@ if(!firstOrderSnapshot){
 
   snap.docChanges().forEach(change=>{
 
-    const order = {
-      id: change.doc.id,
-      ...change.doc.data()
-    };
-
-    // Existing order ko Delivery Partner ko assign/update
-    if(
-      (change.type === "added" || change.type === "modified") &&
-      order.deliveryBoyId === uid &&
-      (
-        order.deliveryAssignmentStatus === "Assigned" ||
-        order.orderStatus === "Assigned"
-      ) &&
-      !order.riderAccepted
-    ){
-
-      const notifyKey =
-        order.id + "_" +
-        (
-          order.deliveryAssignedAt?.seconds ||
-          order.assignedAt?.seconds ||
-          Date.now()
-        );
-
-      const notified =
-        sessionStorage.getItem("ssm_notified_" + order.id);
-
-      if(notified !== String(notifyKey)){
-
-        sessionStorage.setItem(
-          "ssm_notified_" + order.id,
-          String(notifyKey)
-        );
-
-        notifyNewOrder(order);
-      }
-
-    }
 
 // ================= LOAD ASSIGNED ORDERS =================
 
