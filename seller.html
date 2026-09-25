@@ -573,13 +573,40 @@ async function sendRegisterOtp(){
     /*
      * Registration data temporary save
      */
-    pendingSellerRegistration = {
-      owner: owner,
-      shop: shop,
-      mobile: mobile,
-      email: email,
-      password: password
-    };
+    const storeSelect =
+  document.getElementById("registerStoreId");
+
+const storeId =
+  storeSelect?.value || "";
+
+const storeName =
+  document.getElementById("registerStoreName")?.value || "";
+
+if(!storeId){
+
+  msg.textContent =
+    "Pehle apna Store Select karein.";
+
+  return;
+}
+
+pendingSellerRegistration = {
+
+  owner: owner,
+
+  shop: shop,
+
+  mobile: mobile,
+
+  email: email,
+
+  password: password,
+
+  storeId: storeId,
+
+  storeName: storeName
+
+};
 
     sessionStorage.setItem(
       "sellerRegistrationOtp",
