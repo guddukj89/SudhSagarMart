@@ -1713,14 +1713,91 @@ window.markOutForDelivery = async id => {
     );
   }
 };
-window.verifyDelivery=async id=>{
- const input=document.getElementById("otp-"+id),otp=input?.value.trim();if(!otp)return alert("Customer se OTP lekar enter karein.");
- try{
-  const s=await getDoc(doc(db,"orders",id));if(!s.exists())return alert("Order not found.");
-  const o=s.data();if(String(otp)!==String(o.deliveryOtp))return alert("Invalid OTP!");
-  await updateDoc(doc(db,"orders",id),{orderStatus:"Delivered",deliveredAt:new Date(),deliveredBy:partnerId});
-  alert("Order Delivered Successfully! 🎉");
- }catch(e){alert(e.message)}
+window.verifyDelivery = async id => {
+
+  const input =
+    document.getElementById("otp-" + id);
+
+  const otp =
+    input?.value.trim();
+
+  if(!otp){
+
+    return alert(
+      "Customer se OTP lekar enter karein."
+    );
+  }
+
+  try{
+
+    const orderRef =
+      doc(db,"orders",id);
+
+    const s =
+      await getDoc(orderRef);
+
+    if(!s.exists()){
+
+      return alert(
+        "Order not found."
+      );
+    }
+
+    const o = s.data();
+
+    if(
+      String(otp) !==
+      String(o.deliveryOtp || "")
+    ){
+
+      return alert(
+        "❌ Invalid Delivery OTP!"
+      );
+    }
+
+    await updateDoc(
+      orderRef,
+      {
+
+        orderStatus:
+          "Delivered",
+
+        deliveryAssignmentStatus:
+          "Delivered",
+
+        deliveredAt:
+          new Date(),
+
+        deliveredBy:
+          partnerId,
+
+        deliveredStoreId:
+          partnerStoreId || "",
+
+        deliveredStoreName:
+          partnerStoreName || ""
+
+      }
+    );
+
+    stopOrderRingtone();
+
+    alert(
+      "🎉 Order Delivered Successfully!"
+    );
+
+  }catch(error){
+
+    console.error(
+      "Delivery verification error:",
+      error
+    );
+
+    alert(
+      "Delivery update failed.\n\n" +
+      error.message
+    );
+  }
 };
 window.generateQR=(id,amount)=>{
  const box=document.getElementById("qr-"+id),img=document.getElementById("qrimg-"+id);
