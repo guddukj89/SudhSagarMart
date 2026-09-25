@@ -1209,8 +1209,21 @@ function active(o){return status(o)!=="Delivered"&&status(o)!=="Undelivered Atte
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 
 function render(){
- const newO=orders.filter(o=>active(o)&&status(o)==="Assigned");
- const ongoing=orders.filter(o=>active(o)&&status(o)!=="Assigned");
+ const newO = orders.filter(o =>
+  active(o) &&
+  status(o) === "Assigned" &&
+  !o.riderAccepted &&
+  o.deliveryAssignmentStatus !== "Rejected"
+);
+
+const ongoing = orders.filter(o =>
+  active(o) &&
+  (
+    o.riderAccepted === true ||
+    status(o) !== "Assigned"
+  ) &&
+  o.deliveryAssignmentStatus !== "Rejected"
+);
  const completed=orders.filter(o=>status(o)==="Delivered"&&isToday(o));
  document.getElementById("newCount").textContent=`(${newO.length})`;
  document.getElementById("ongoingCount").textContent=`(${ongoing.length})`;
