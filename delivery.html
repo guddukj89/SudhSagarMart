@@ -1199,24 +1199,6 @@ if(!firstOrderSnapshot){
 
     }
 
-  });
-
-}
-
-// ================= END NEW ORDER NOTIFICATION =================
-
-   firstOrderSnapshot=false;
-
- },err=>{
-
-   console.error(err);
-
-   document.getElementById("newOrders").innerHTML=
-     '<div class="empty">Orders load नहीं हो सके। Firestore permission/rules check करें.</div>';
-
- });
-
-}
 // ================= LOAD ASSIGNED ORDERS =================
 
 function loadOrders(uid){
