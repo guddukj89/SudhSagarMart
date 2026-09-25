@@ -1757,7 +1757,10 @@ window.generateQR=(id,amount)=>{
  box.style.display=box.style.display==="block"?"none":"block";
 };
 window.openOptimizedRoute=()=>{
- const list=orders.filter(active);if(!list.length)return alert("No active orders.");
+ const list=orders.filter(o =>
+  active(o) &&
+  o.deliveryAssignmentStatus !== "Rejected"
+);if(!list.length)return alert("No active orders.");
  const stops=list.map(o=>encodeURIComponent(o.address||o.customerAddress||"")).filter(Boolean);if(!stops.length)return alert("Order address not available.");
  const dest=stops.pop();let url=`https://www.google.com/maps/dir/?api=1&destination=${dest}`;if(stops.length)url+=`&waypoints=${stops.join("|")}`;url+="&dir_action=navigate";window.open(url,"_blank");
 };
