@@ -1827,7 +1827,37 @@ if(!q.empty){
   }
 
 }
+let sellerStoreLocked = false;
 
+function lockSelectedSellerStore(){
+
+  const select = document.getElementById("registerStoreId");
+  const nameInput = document.getElementById("registerStoreName");
+  const msg = document.getElementById("sellerStoreLockMsg");
+
+  if(!select || !select.value) return;
+
+  const option = select.options[select.selectedIndex];
+
+  const storeName =
+    option?.dataset.storeName ||
+    option?.textContent ||
+    "";
+
+  if(nameInput){
+    nameInput.value = storeName.trim();
+  }
+
+  sellerStoreLocked = true;
+
+  select.disabled = true;
+  select.style.background = "#eeeeee";
+  select.style.fontWeight = "bold";
+
+  if(msg){
+    msg.style.display = "block";
+  }
+}
 function loadKYCFields(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v??"";};
   set("kycAadhaar",sellerData?.aadhaarNumber||"");
