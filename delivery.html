@@ -1604,7 +1604,9 @@ window.acceptOrder=async id=>{
       deliveryAcceptedBy:partnerId,
 
       deliveryAcceptedName:
-        auth.currentUser?.displayName || "",
+  document.getElementById("profile-name")?.value?.trim() ||
+  auth.currentUser?.displayName ||
+  "",
 
       deliveryAcceptedEmail:
         auth.currentUser?.email || ""
