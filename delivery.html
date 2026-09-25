@@ -1313,7 +1313,19 @@ const ongoing = orders.filter(o =>
  document.getElementById("stat-completed").textContent=`${completed.length} Completed`;
 
  const delivery=completed.reduce((s,o)=>s+Number(o.deliveryFee??40),0);
- const cod=completed.filter(o=>o.paymentMethod==="COD").reduce((s,o)=>s+Number(o.totalAmount??0),0);
+ const cod=completed
+  .filter(o=>o.paymentMethod==="COD")
+  .reduce(
+    (s,o)=>
+      s +
+      Number(
+        o.totalAmount ??
+        o.total ??
+        o.amount ??
+        0
+      ),
+    0
+  );
  document.getElementById("stat-earnings").textContent=`₹${delivery}`;
  document.getElementById("earnDelivery").textContent=`₹${delivery}`;
  document.getElementById("earnCod").textContent=`₹${cod}`;
