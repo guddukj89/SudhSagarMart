@@ -131,8 +131,43 @@
 
     <div id="registerForm" class="auth-form">
       <div class="field"><label>Owner name</label><input id="regOwner" placeholder="Your name"></div>
-      <div class="field"><label>Shop name</label><input id="regShop" placeholder="Your shop name"></div>
-      <div class="field"><label>Mobile</label><input id="regMobile" placeholder="10 digit mobile"></div>
+
+<div class="field"><label>Shop name</label><input id="regShop" placeholder="Your shop name"></div>
+
+<div class="field">
+  <label>Store Select करें</label>
+
+  <select id="registerStoreId"
+          onchange="lockSelectedSellerStore()">
+
+    <option value="">-- Store Select करें --</option>
+
+  </select>
+
+  <input
+    type="hidden"
+    id="registerStoreName"
+    value=""
+  >
+
+  <div
+    id="sellerStoreLockMsg"
+    style="
+      display:none;
+      margin-top:8px;
+      padding:10px;
+      border-radius:8px;
+      background:#eefbf2;
+      color:#16803c;
+      font-size:13px;
+    "
+  >
+    🔒 Store Select हो गया है।<br>
+    Store बदलने के लिए Company से संपर्क करें।
+  </div>
+</div>
+
+<div class="field"><label>Mobile</label><input id="regMobile" placeholder="10 digit mobile"></div>
       <div class="field"><label>Email</label><input id="regEmail" type="email" placeholder="seller@example.com"></div>
       <div class="field"><label>Password</label><input id="regPassword" type="password" placeholder="Minimum 6 characters"></div>
       <button class="btn" style="width:100%;margin-top:8px" onclick="sendRegisterOtp()">Create Seller Account</button>
