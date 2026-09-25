@@ -2058,54 +2058,94 @@ function updateIncentiveUI(){
 
 function updateWeeklyEarningsUI(){
 
+  const now = new Date();
+
+  const day =
+    now.getDay();
+
+  const diff =
+    day === 0 ? 6 : day - 1;
+
+  const weekStart =
+    new Date(now);
+
+  weekStart.setHours(0,0,0,0);
+
+  weekStart.setDate(
+    now.getDate() - diff
+  );
+
   const completed =
-    orders.filter(o =>
-      status(o) === "Delivered"
-    );
+    orders.filter(o => {
+
+      if(status(o) !== "Delivered"){
+        return false;
+      }
+
+      const deliveredDate =
+        o.deliveredAt?.toDate
+          ? o.deliveredAt.toDate()
+          : new Date(o.deliveredAt || 0);
+
+      return deliveredDate >= weekStart;
+    });
 
   let delivery = 0;
-  let incentive = 0;
 
-  completed.forEach(o=>{
+  completed.forEach(o => {
 
     delivery +=
       Number(o.deliveryFee ?? 40);
 
   });
 
-  if(completed.length >= 15){
-    incentive = 100;
-  }
+  const todayCompleted =
+    completed.filter(o =>
+      isToday(o)
+    ).length;
+
+  const incentive =
+    todayCompleted >= 15
+      ? 100
+      : 0;
 
   const total =
     delivery + incentive;
 
   const d =
-    document.getElementById("weeklyDelivery");
+    document.getElementById(
+      "weeklyDelivery"
+    );
 
   const i =
-    document.getElementById("weeklyIncentive");
+    document.getElementById(
+      "weeklyIncentive"
+    );
 
   const t =
-    document.getElementById("weeklyTotal");
+    document.getElementById(
+      "weeklyTotal"
+    );
 
   if(d){
+
     d.textContent =
       "₹" + delivery;
   }
 
   if(i){
+
     i.textContent =
       "₹" + incentive;
   }
 
   if(t){
+
     t.textContent =
       "₹" + total;
   }
 
 }
-
 
 // ================= UPDATE ALL EARNINGS =================
 
