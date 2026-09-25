@@ -487,12 +487,99 @@ async function loadPartnerExtraData(uid){
 
 
     // ================= RATING =================
+// ================= STORE + RIDER INFORMATION =================
 
-    document.getElementById("stat-rating").textContent =
-      partnerRating > 0
-        ? partnerRating.toFixed(1)
-        : "--";
+async function loadPartnerExtraData(uid){
 
+  try{
+
+    const partnerSnap = await getDoc(
+      doc(db,"deliveryPartners",uid)
+    );
+
+    if(!partnerSnap.exists()){
+
+      alert("Delivery Partner profile नहीं मिला।");
+
+      await signOut(auth);
+
+      location.href="login.html";
+
+      return;
+    }
+
+    const p = partnerSnap.data();
+
+    // ================= STORE =================
+
+    partnerStoreId =
+      p.storeId ||
+      p.assignedStoreId ||
+      "";
+
+    partnerStoreName =
+      p.storeName ||
+      p.assignedStoreName ||
+      "";
+
+    // ================= ACCOUNT STATUS =================
+
+    partnerStatus =
+      p.accountStatus ||
+      (p.active === false ? "inactive" : "active");
+
+    const normalizedStatus =
+      String(partnerStatus).toLowerCase();
+
+    if(
+      p.active === false ||
+      normalizedStatus === "inactive" ||
+      normalizedStatus === "blocked"
+    ){
+
+      alert(
+        "आपका Delivery Partner account अभी inactive/blocked है।"
+      );
+
+      await signOut(auth);
+
+      location.href="login.html";
+
+      return;
+    }
+
+    // ================= RIDER DATA =================
+
+    partnerRating =
+      Number(p.rating || 0);
+
+    partnerTotalDeliveries =
+      Number(p.totalDeliveries || 0);
+
+    partnerWeeklyEarnings =
+      Number(p.weeklyEarnings || 0);
+
+    partnerWallet =
+      Number(p.walletBalance || 0);
+
+    partnerPendingSettlement =
+      Number(p.pendingSettlement || 0);
+
+    partnerDutyStatus =
+      p.dutyStatus || "online";
+
+    // ================= RATING =================
+
+    const ratingEl =
+      document.getElementById("stat-rating");
+
+    if(ratingEl){
+
+      ratingEl.textContent =
+        partnerRating > 0
+          ? partnerRating.toFixed(1)
+          : "--";
+    }
 
     // ================= STORE UI =================
 
@@ -507,7 +594,6 @@ async function loadPartnerExtraData(uid){
       storeNameEl.textContent =
         partnerStoreName ||
         "Store not assigned";
-
     }
 
     if(storeIdEl){
@@ -516,9 +602,7 @@ async function loadPartnerExtraData(uid){
         partnerStoreId
           ? "Store ID: " + partnerStoreId
           : "Store ID not assigned";
-
     }
-
 
     // ================= DUTY =================
 
@@ -527,7 +611,6 @@ async function loadPartnerExtraData(uid){
       false
     );
 
-
     // ================= GPS =================
 
     if(partnerDutyStatus === "online"){
@@ -535,7 +618,6 @@ async function loadPartnerExtraData(uid){
       setTimeout(()=>{
         startLiveLocation();
       },300);
-
     }
 
   }catch(error){
@@ -545,9 +627,13 @@ async function loadPartnerExtraData(uid){
       error
     );
 
+    alert(
+      "Delivery Partner data load नहीं हो पाया।\n\n" +
+      error.message
+    );
   }
-
 }
+
 lucide.createIcons();
 
 window.showPage=(id,el)=>{
