@@ -1285,7 +1285,167 @@ if(!firstOrderSnapshot){
  });
 
 }
+// ================= LOAD ASSIGNED ORDERS =================
 
+function loadOrders(uid){
+
+  const q = query(
+    collection(db,"orders"),
+    where("deliveryBoyId","==",uid)
+  );
+
+  onSnapshot(
+    q,
+    snap => {
+
+      orders = [];
+
+      // ================= LOAD ORDERS =================
+
+      snap.forEach(x => {
+
+        const orderData = x.data();
+
+        // ================= STRICT STORE CHECK =================
+
+        if(partnerStoreId){
+
+          // Store ID missing है तो rider को order मत दिखाओ
+          if(!orderData.storeId){
+
+            console.warn(
+              "Order skipped: storeId missing",
+              x.id
+            );
+
+            return;
+          }
+
+          // दूसरे Store का order नहीं दिखाना
+          if(
+            String(orderData.storeId) !==
+            String(partnerStoreId)
+          ){
+
+            return;
+          }
+        }
+
+        orders.push({
+          id: x.id,
+          ...orderData
+        });
+
+      });
+
+      // ================= SORT =================
+
+      orders.sort((a,b) => {
+
+        const aTime =
+          a.assignedAt?.seconds ||
+          a.deliveryAssignedAt?.seconds ||
+          0;
+
+        const bTime =
+          b.assignedAt?.seconds ||
+          b.deliveryAssignedAt?.seconds ||
+          0;
+
+        return bTime - aTime;
+      });
+
+      // ================= RENDER =================
+
+      render();
+
+      // ================= NEW ORDER NOTIFICATION =================
+
+      if(!firstOrderSnapshot){
+
+        snap.docChanges().forEach(change => {
+
+          const order = {
+            id: change.doc.id,
+            ...change.doc.data()
+          };
+
+          // Store check
+          if(
+            partnerStoreId &&
+            String(order.storeId || "") !==
+            String(partnerStoreId)
+          ){
+
+            return;
+          }
+
+          // केवल नए assigned orders
+          if(
+            (change.type === "added" ||
+             change.type === "modified") &&
+
+            order.deliveryBoyId === uid &&
+
+            (
+              order.deliveryAssignmentStatus === "Assigned" ||
+              order.orderStatus === "Assigned"
+            ) &&
+
+            !order.riderAccepted &&
+
+            order.deliveryAssignmentStatus !== "Rejected"
+          ){
+
+            const notifyKey =
+              order.id + "_" +
+              (
+                order.deliveryAssignedAt?.seconds ||
+                order.assignedAt?.seconds ||
+                Date.now()
+              );
+
+            const storageKey =
+              "ssm_notified_" + order.id;
+
+            const notified =
+              sessionStorage.getItem(storageKey);
+
+            if(
+              notified !== String(notifyKey)
+            ){
+
+              sessionStorage.setItem(
+                storageKey,
+                String(notifyKey)
+              );
+
+              notifyNewOrder(order);
+            }
+          }
+
+        });
+      }
+
+      firstOrderSnapshot = false;
+
+    },
+
+    error => {
+
+      console.error(
+        "Orders listener error:",
+        error
+      );
+
+      document.getElementById("newOrders").innerHTML =
+        '<div class="empty">' +
+        'Orders load नहीं हो सके।<br><br>' +
+        'Firestore permission/rules या order storeId check करें।' +
+        '</div>';
+    }
+  );
+}
 function isToday(o){
  const d=o.deliveredAt?.toDate?o.deliveredAt.toDate():new Date(o.deliveredAt||0);
  const n=new Date();return d.toDateString()===n.toDateString();
