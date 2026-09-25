@@ -695,6 +695,10 @@ let cart=JSON.parse(localStorage.getItem("ssm_cart")||"[]");
 let orders=JSON.parse(localStorage.getItem("ssm_orders")||"[]");
 let wishlist=JSON.parse(localStorage.getItem("ssm_wishlist")||"[]");
 let activeCategory="All";
+let customerStoreId = localStorage.getItem("ssm_storeId") || "";
+let customerStoreName = localStorage.getItem("ssm_storeName") || "";
+let customerStoreDistanceKm = null;
+let customerStoreCharge = 0;
 
 function renderCategories(){
   document.getElementById("categories").innerHTML=categories.map(c=>
