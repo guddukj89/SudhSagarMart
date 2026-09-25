@@ -1559,9 +1559,25 @@ window.acceptOrder=async id=>{
 
 };
 window.rejectOrder=async id=>{
- if(!confirm("Is order ko reject karna hai?"))return;
- try{await updateDoc(doc(db,"orders",id),{deliveryAssignmentStatus:"Rejected",riderRejectedAt:new Date()});alert("Order rejected.");}
- catch(e){alert("Error: "+e.message)}
+  if(!confirm("Is order ko reject karna hai?")) return;
+
+  stopOrderRingtone();
+
+  try{
+    await updateDoc(
+      doc(db,"orders",id),
+      {
+        deliveryAssignmentStatus:"Rejected",
+        riderRejectedAt:new Date(),
+        riderRejectedBy:partnerId
+      }
+    );
+
+    alert("Order rejected.");
+
+  }catch(e){
+    alert("Error: "+e.message);
+  }
 };
 window.markPickedUp = async id => {
 
