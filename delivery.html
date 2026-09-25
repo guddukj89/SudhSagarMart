@@ -1252,11 +1252,104 @@ function loadOrders(uid){
             String(order.storeId || "") !==
             String(partnerStoreId)
           ){
+// ================= LOAD ASSIGNED ORDERS =================
+
+function loadOrders(uid){
+
+  const q = query(
+    collection(db,"orders"),
+    where("deliveryBoyId","==",uid)
+  );
+
+  onSnapshot(
+    q,
+    snap => {
+
+      orders = [];
+
+      // ================= LOAD ORDERS =================
+
+      snap.forEach(x => {
+
+        const orderData = x.data();
+
+        // ================= STRICT STORE CHECK =================
+
+        if(partnerStoreId){
+
+          // Store ID missing है तो rider को order मत दिखाओ
+          if(!orderData.storeId){
+
+            console.warn(
+              "Order skipped: storeId missing",
+              x.id
+            );
 
             return;
           }
 
-          // केवल नए assigned orders
+          // दूसरे Store का order नहीं दिखाना
+          if(
+            String(orderData.storeId) !==
+            String(partnerStoreId)
+          ){
+
+            return;
+          }
+        }
+
+        orders.push({
+          id: x.id,
+          ...orderData
+        });
+
+      });
+
+      // ================= SORT =================
+
+      orders.sort((a,b) => {
+
+        const aTime =
+          a.assignedAt?.seconds ||
+          a.deliveryAssignedAt?.seconds ||
+          0;
+
+        const bTime =
+          b.assignedAt?.seconds ||
+          b.deliveryAssignedAt?.seconds ||
+          0;
+
+        return bTime - aTime;
+      });
+
+      // ================= RENDER =================
+
+      render();
+
+      // ================= NEW ORDER NOTIFICATION =================
+
+      if(!firstOrderSnapshot){
+
+        snap.docChanges().forEach(change => {
+
+          const order = {
+            id: change.doc.id,
+            ...change.doc.data()
+          };
+
+          // ================= STORE CHECK =================
+
+          if(
+            partnerStoreId &&
+            String(order.storeId || "") !==
+            String(partnerStoreId)
+          ){
+
+            return;
+          }
+
+          // ================= ONLY NEW ASSIGNED ORDER =================
+
           if(
             (change.type === "added" ||
              change.type === "modified") &&
