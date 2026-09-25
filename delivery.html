@@ -1756,9 +1756,48 @@ window.markPickedUp = async id => {
   }
 
 };
-window.markOutForDelivery=async id=>{
- try{await updateDoc(doc(db,"orders",id),{orderStatus:"Out for Delivery",outForDeliveryAt:new Date(),outForDeliveryBy:partnerId});alert("Out for Delivery started!");}
- catch(e){alert(e.message)}
+window.markOutForDelivery = async id => {
+
+  try{
+
+    await updateDoc(
+      doc(db,"orders",id),
+      {
+
+        orderStatus:
+          "Out for Delivery",
+
+        outForDeliveryAt:
+          new Date(),
+
+        outForDeliveryBy:
+          partnerId,
+
+        outForDeliveryStoreId:
+          partnerStoreId || "",
+
+        outForDeliveryStoreName:
+          partnerStoreName || ""
+
+      }
+    );
+
+    alert(
+      "🚚 Out for Delivery शुरू हो गया!"
+    );
+
+  }catch(error){
+
+    console.error(
+      "Out for delivery error:",
+      error
+    );
+
+    alert(
+      "Out for Delivery update failed.\n\n" +
+      error.message
+    );
+  }
 };
 window.verifyDelivery=async id=>{
  const input=document.getElementById("otp-"+id),otp=input?.value.trim();if(!otp)return alert("Customer se OTP lekar enter karein.");
