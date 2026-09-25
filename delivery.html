@@ -419,6 +419,7 @@ let currentOrderForAction = null;
 
 // Store + rider information
 async function loadPartnerExtraData(uid){
+async function loadPartnerExtraData(uid){
 
   try{
 
@@ -426,9 +427,16 @@ async function loadPartnerExtraData(uid){
       doc(db,"deliveryPartners",uid)
     );
 
-    if(!partnerSnap.exists()) return;
+    if(!partnerSnap.exists()){
+      alert("Delivery Partner profile नहीं मिला.");
+      await signOut(auth);
+      location.href="login.html";
+      return;
+    }
 
     const p = partnerSnap.data();
+
+    // ================= STORE =================
 
     partnerStoreId =
       p.storeId ||
@@ -437,11 +445,27 @@ async function loadPartnerExtraData(uid){
 
     partnerStoreName =
       p.storeName ||
+      p.assignedStoreName ||
       "";
+
+    // ================= ACCOUNT STATUS =================
 
     partnerStatus =
       p.accountStatus ||
       (p.active === false ? "inactive" : "active");
+
+    if(
+      p.active === false ||
+      String(partnerStatus).toLowerCase() === "inactive" ||
+      String(partnerStatus).toLowerCase() === "blocked"
+    ){
+      alert("आपका Delivery Partner account अभी inactive/blocked है।");
+      await signOut(auth);
+      location.href="login.html";
+      return;
+    }
+
+    // ================= RIDER DATA =================
 
     partnerRating =
       Number(p.rating || 0);
@@ -461,15 +485,58 @@ async function loadPartnerExtraData(uid){
     partnerDutyStatus =
       p.dutyStatus || "online";
 
+
+    // ================= RATING =================
+
     document.getElementById("stat-rating").textContent =
       partnerRating > 0
         ? partnerRating.toFixed(1)
         : "--";
 
+
+    // ================= STORE UI =================
+
+    const storeNameEl =
+      document.getElementById("assignedStoreName");
+
+    const storeIdEl =
+      document.getElementById("assignedStoreId");
+
+    if(storeNameEl){
+
+      storeNameEl.textContent =
+        partnerStoreName ||
+        "Store not assigned";
+
+    }
+
+    if(storeIdEl){
+
+      storeIdEl.textContent =
+        partnerStoreId
+          ? "Store ID: " + partnerStoreId
+          : "Store ID not assigned";
+
+    }
+
+
+    // ================= DUTY =================
+
     setDuty(
       partnerDutyStatus === "online",
       false
     );
+
+
+    // ================= GPS =================
+
+    if(partnerDutyStatus === "online"){
+
+      setTimeout(()=>{
+        startLiveLocation();
+      },300);
+
+    }
 
   }catch(error){
 
