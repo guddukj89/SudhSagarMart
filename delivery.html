@@ -1100,11 +1100,24 @@ function loadOrders(uid){
 
   // अगर rider का store assigned है,
   // तो दूसरे store के orders नहीं दिखेंगे।
+  // ================= STRICT STORE CHECK =================
+
+if(partnerStoreId){
+
+  // Rider के storeId के बिना order को मत दिखाओ
+  if(!orderData.storeId){
+    return;
+  }
+
+  // दूसरे store का order मत दिखाओ
   if(
-    partnerStoreId &&
-    orderData.storeId &&
-    String(orderData.storeId) !== String(partnerStoreId)
+    String(orderData.storeId) !==
+    String(partnerStoreId)
   ){
+    return;
+  }
+
+}
     return;
   }
 
