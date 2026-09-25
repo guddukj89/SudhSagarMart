@@ -793,9 +793,18 @@ async function verifyRegisterOtp(){
 
         role: "seller",
 
-        kycStatus: "pending",
+storeId: data.storeId || "",
 
-        accountStatus: "pending",
+storeName: data.storeName || "",
+
+storeLocked: true,
+
+storeSelectedAt:
+  firebase.firestore.FieldValue.serverTimestamp(),
+
+kycStatus: "pending",
+
+accountStatus: "pending",
 
         sellerOtpVerifiedAt:
           firebase.firestore.FieldValue.serverTimestamp(),
