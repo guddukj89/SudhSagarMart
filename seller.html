@@ -1862,6 +1862,63 @@ if(!q.empty){
   }
 
 }
+  async function loadSellerStores(){
+
+  const select =
+    document.getElementById("registerStoreId");
+
+  if(!select) return;
+
+  try{
+
+    const snap =
+      await db.collection("stores")
+        .where("status","==","active")
+        .get();
+
+    select.innerHTML =
+      `<option value="">-- Store Select करें --</option>`;
+
+    snap.forEach(doc=>{
+
+      const s = doc.data() || {};
+
+      const storeName =
+        s.name ||
+        s.storeName ||
+        "Store";
+
+      const area =
+        s.city ||
+        s.area ||
+        s.address ||
+        "";
+
+      const option =
+        document.createElement("option");
+
+      option.value = doc.id;
+
+      option.textContent =
+        storeName +
+        (area ? " - " + area : "");
+
+      option.dataset.storeName =
+        storeName;
+
+      select.appendChild(option);
+
+    });
+
+  }catch(error){
+
+    console.error(
+      "Store loading error:",
+      error
+    );
+
+  }
+  }
 let sellerStoreLocked = false;
 
 function lockSelectedSellerStore(){
