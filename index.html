@@ -1947,7 +1947,10 @@ function loadSellerProducts() {
 
    snapshot.forEach((doc) => {
   let p = doc.data();
-
+if(customerStoreId && String(p.storeId || "") !== String(customerStoreId)){
+  return;
+}
+       
   // Customer ko sirf approved product dikhana hai
   if (String(p.status || "").toLowerCase() !== "approved") {
     return;
