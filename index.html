@@ -1948,56 +1948,7 @@ let currentIndex = steps.indexOf(normalizedStatus);
     <= sevenDays
   );
 }
-function loadSellerProducts() {
-  firebase.firestore().collection("products").onSnapshot((snapshot) => {
-    let liveProducts = [];
 
-   snapshot.forEach((doc) => {
-  let p = doc.data();
-if(customerStoreId && String(p.storeId || "") !== String(customerStoreId)){
-  return;
-}
-       
-  // Customer ko sirf approved product dikhana hai
-  if (String(p.status || "").toLowerCase() !== "approved") {
-    return;
-  }
-
-  liveProducts.push([
-    p.category || "General",
-    p.title || p.name || "Product",
-    Number(p.price) || 0,
-    Number(p.mrp) || Number(p.price) || 0,
-
-    // Main image - existing code ke liye
-    p.image || (Array.isArray(p.images) ? p.images[0] : "") || "",
-
-   p.stock === undefined || p.stock === null
-    ? 0
-    : Number(p.stock),
-    p.productId || doc.id,
-    p.sellerId || "",
-    p.sellerName || p.shopName || "Seller",
-
-    // 10 = saari images
-    Array.isArray(p.images)
-        ? p.images.filter(Boolean)
-        : (p.image ? [p.image] : []),
-
-    // 11 = description
-    p.description || p.details || p.productDescription || "",
-
-    // 11 = Firebase ka poora product data
-    p
-]);
-    });
-
-    if (liveProducts.length > 0) {
-      products = liveProducts;
-      renderProducts(products);
-    }
-  });
-}
 
 // Page load hote hi run hoga
 window.addEventListener("DOMContentLoaded", loadSellerProducts);
