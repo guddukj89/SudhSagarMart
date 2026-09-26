@@ -717,6 +717,95 @@ function distanceKm(lat1, lon1, lat2, lon2){
     Math.sqrt(1 - a)
   );
 }    
+
+async function selectCustomerStore(pincode=""){
+
+  try{
+
+    const snap = await db.collection("stores").get();
+
+    let stores = [];
+
+    snap.forEach(doc=>{
+
+      const s = doc.data() || {};
+
+      const status = String(s.status || "").toLowerCase();
+
+      if(status !== "active") return;
+
+      stores.push({
+        id: doc.id,
+        name: s.name || s.storeName || "Sudh Sagar Store",
+        pincode: String(s.pincode || ""),
+        deliveryCharge: Number(
+          s.deliveryCharge ?? s.delivery ?? 0
+        )
+      });
+
+    });
+
+    if(!stores.length){
+      console.warn("No active stores found.");
+      return false;
+    }
+
+    // Pincode ke according Store search
+    let matched = stores.filter(s =>
+      String(s.pincode) === String(pincode)
+    );
+
+    if(!matched.length){
+
+      customerStoreId = "";
+      customerStoreName = "";
+      customerStoreDistanceKm = null;
+      customerStoreCharge = 0;
+
+      localStorage.removeItem("ssm_storeId");
+      localStorage.removeItem("ssm_storeName");
+
+      console.warn("Is pincode ke liye Store available nahi hai.");
+
+      return false;
+    }
+
+    // Pehla matching Store select
+    const selected = matched[0];
+
+    customerStoreId = selected.id;
+    customerStoreName = selected.name;
+    customerStoreDistanceKm = null;
+    customerStoreCharge = selected.deliveryCharge;
+
+    localStorage.setItem(
+      "ssm_storeId",
+      customerStoreId
+    );
+
+    localStorage.setItem(
+      "ssm_storeName",
+      customerStoreName
+    );
+
+    console.log(
+      "Customer Store Selected:",
+      customerStoreName,
+      customerStoreId
+    );
+
+    return true;
+
+  }catch(error){
+
+    console.error(
+      "Customer Store Selection Error:",
+      error
+    );
+
+    return false;
+  }
+}    
 function renderCategories(){
   document.getElementById("categories").innerHTML=categories.map(c=>
     `<div class="cat" onclick="${c[0]==='Travel'?'openTravel()':`filterCategory('${c[0]}')`}">
