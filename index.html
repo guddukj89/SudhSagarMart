@@ -1646,6 +1646,9 @@ async function requestAutomaticRefund(order){
   return result;
 }   
 async function placeOrder(){
+if(!customerStoreId){
+  return alert("Pehle apna Store select karein. Location set karke dobara try karein.");
+}
   if(!coName.value || !coMobile.value || !coAddress.value){
     return alert("Please fill all delivery details");
   }
