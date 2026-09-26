@@ -126,7 +126,19 @@ button{cursor:pointer}
 
 <header class="header">
   <button class="menu" onclick="showPage('home')"><i data-lucide="menu"></i></button>
-  <div class="logoBox"><i data-lucide="shopping-bag"></i></div>
+<img
+  src="logo.png"
+  alt="Sudh Sagar Mart"
+  style="
+    width:52px;
+    height:52px;
+    object-fit:contain;
+    background:#fff;
+    border-radius:10px;
+    padding:3px;
+    flex-shrink:0;
+  "
+>
   <div class="brand"><b>Sudh Sagar Mart</b><span>30 Minutes Delivery</span></div>
   <button id="dutyBtn" class="online" onclick="toggleDuty()"><i class="dot"></i><span id="dutyText">Online</span><i data-lucide="chevron-down" style="width:14px"></i></button>
   <button class="iconBtn"><i data-lucide="bell"></i><span class="bellDot">3</span></button>
