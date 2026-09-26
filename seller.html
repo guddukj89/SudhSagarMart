@@ -3434,7 +3434,98 @@ function playSellerOrderRing(){
   }
 }
 
+function playNewOrderRingtone(){
 
+  try{
+
+    // 🔔 पहले छोटा notification sound
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    const ctx = new AudioContext();
+
+    function beep(startTime){
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, startTime);
+
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(
+        0.25,
+        startTime + 0.03
+      );
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        startTime + 0.35
+      );
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.4);
+    }
+
+    beep(ctx.currentTime);
+    beep(ctx.currentTime + 0.55);
+
+    // 🔊 "Har Har Shambhu" 2 बार बोलना
+    setTimeout(() => {
+
+      if("speechSynthesis" in window){
+
+        speechSynthesis.cancel();
+
+        const speak1 =
+          new SpeechSynthesisUtterance(
+            "Har Har Shambhu"
+          );
+
+        speak1.lang = "hi-IN";
+        speak1.rate = 0.85;
+        speak1.pitch = 1.0;
+        speak1.volume = 1.0;
+
+        speechSynthesis.speak(speak1);
+
+        speak1.onend = () => {
+
+          setTimeout(() => {
+
+            const speak2 =
+              new SpeechSynthesisUtterance(
+                "Har Har Shambhu"
+              );
+
+            speak2.lang = "hi-IN";
+            speak2.rate = 0.85;
+            speak2.pitch = 1.0;
+            speak2.volume = 1.0;
+
+            speechSynthesis.speak(speak2);
+
+          }, 250);
+
+        };
+
+      }
+
+    }, 700);
+
+  }catch(error){
+
+    console.error(
+      "New order ringtone error:",
+      error
+    );
+
+  }
+
+}
+  
 function showSellerOrderAlert(notification){
 
   playSellerOrderRing();
