@@ -5481,6 +5481,7 @@ selectCustomerStore(pincode).then(storeSelected => {
       "🏪 Store: <b>" + customerStoreName + "</b>";
 
     msg.style.color = "green";
+    loadSellerProducts();
   }else{
     msg.innerHTML =
       "✅ Location mil gayi.<br>" +
