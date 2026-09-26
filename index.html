@@ -5469,7 +5469,27 @@ async function savelocation(){
             "<small>" + address + "</small>";
 
           msg.style.color = "green";
+selectCustomerStore(pincode).then(storeSelected => {
 
+  if(storeSelected){
+    msg.innerHTML =
+      "✅ Current location mil gayi.<br>" +
+      "<small>" + address + "</small><br>" +
+      "🏪 Store: <b>" + customerStoreName + "</b>";
+
+    msg.style.color = "green";
+  }else{
+    msg.innerHTML =
+      "✅ Location mil gayi.<br>" +
+      "<small>" + address + "</small><br>" +
+      "⚠️ Is pincode par active Store nahi mila.";
+
+    msg.style.color = "red";
+  }
+
+}).catch(error => {
+  console.error("Store selection error:", error);
+});
         }
       );
 
