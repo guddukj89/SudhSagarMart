@@ -699,6 +699,7 @@ let customerStoreId = localStorage.getItem("ssm_storeId") || "";
 let customerStoreName = localStorage.getItem("ssm_storeName") || "";
 let customerStoreDistanceKm = null;
 let customerStoreCharge = 0;
+let sellerProductsUnsubscribe = null;
 
 function distanceKm(lat1, lon1, lat2, lon2){
   const R = 6371;
