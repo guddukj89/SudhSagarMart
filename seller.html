@@ -3392,46 +3392,10 @@ async function updateReturnStatus(id,status){try{await db.collection("returns").
 
 let notificationFirstLoad = true;
 let orderFirstLoad = true;
-
 function playSellerOrderRing(){
 
-  try{
+  playNewOrderRingtone();
 
-    const AudioContext =
-      window.AudioContext || window.webkitAudioContext;
-
-    if(!AudioContext) return;
-
-    const ctx = new AudioContext();
-
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(880, ctx.currentTime);
-
-    gain.gain.setValueAtTime(0.001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(
-      0.35,
-      ctx.currentTime + 0.03
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      0.001,
-      ctx.currentTime + 0.45
-    );
-
-    oscillator.connect(gain);
-    gain.connect(ctx.destination);
-
-    oscillator.start();
-    oscillator.stop(ctx.currentTime + 0.45);
-
-  }catch(error){
-
-    console.log("Order ring blocked:", error);
-
-  }
 }
 
 function playNewOrderRingtone(){
