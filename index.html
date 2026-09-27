@@ -723,7 +723,9 @@ async function selectCustomerStore(pincode=""){
 
   try{
 
-    const snap = await db.collection("stores").get();
+    const snap = await db.collection("stores")
+  .where("status","==","active")
+  .get();
 
     let stores = [];
 
