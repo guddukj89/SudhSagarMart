@@ -796,7 +796,7 @@ async function saveSellerStore(sellerId){
 
   try{
 
-    await db.collection('sellers').doc(sellerId).set({
+    await db.collection('Sellers').doc(sellerId).set({
 
       storeId:storeId,
       storeName:storeName,
@@ -835,7 +835,7 @@ async function saveSellerStore(sellerId){
     );
   }
 }
-async function setSellerKYC(id,status){if(!confirm('Seller KYC '+status+' karna hai?'))return;await db.collection('sellers').doc(id).set({kycStatus:status,accountStatus:status,approvedAt:status==='approved'?firebase.firestore.FieldValue.serverTimestamp():null,approvedBy:auth.currentUser?.uid||'superAdmin'},{merge:true});await audit('Seller KYC '+status,'sellers',id,status)}
+async function setSellerKYC(id,status){if(!confirm('Seller KYC '+status+' karna hai?'))return;await db.collection('Sellers').doc(id).set({kycStatus:status,accountStatus:status,approvedAt:status==='approved'?firebase.firestore.FieldValue.serverTimestamp():null,approvedBy:auth.currentUser?.uid||'superAdmin'},{merge:true});await audit('Seller KYC '+status,'sellers',id,status)}
 function renderRiders(){
 
   const q =
