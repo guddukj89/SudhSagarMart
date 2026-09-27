@@ -5511,14 +5511,64 @@ async function savelocation(){
 
           });
 
-          const address = result.formatted_address || "";
+          // FULL ADDRESS COMPONENTS
+let house = "";
+let street = "";
+let village = "";
+let sublocality = "";
 
-          document.getElementById("address").value = address;
-          document.getElementById("city").value = city;
-          document.getElementById("pincode").value = pincode;
+components.forEach(function(c){
 
-          document.getElementById("pincodeInput").value = pincode;
+  const types = c.types || [];
 
+  if(types.includes("street_number")){
+    house = c.long_name;
+  }
+
+  if(types.includes("route")){
+    street = c.long_name;
+  }
+
+  if(
+    types.includes("premise") ||
+    types.includes("subpremise")
+  ){
+    if(!house) house = c.long_name;
+  }
+
+  if(
+    types.includes("village") ||
+    types.includes("sublocality") ||
+    types.includes("sublocality_level_1") ||
+    types.includes("neighborhood")
+  ){
+    if(!village) village = c.long_name;
+  }
+
+});
+
+// Blinkit-style readable address
+const addressParts = [
+  house,
+  street,
+  village,
+  area
+].filter(Boolean);
+
+const address =
+  addressParts.length
+    ? addressParts.join(", ")
+    : (result.formatted_address || "");
+
+document.getElementById("address").value = address;
+document.getElementById("city").value = city;
+document.getElementById("pincode").value = pincode;
+
+const pinInput = document.getElementById("pincodeInput");
+
+if(pinInput){
+  pinInput.value = pincode;
+}
           if(typeof checkDelivery === "function"){
             checkDelivery();
           }
