@@ -1964,7 +1964,9 @@ function loadSellerProducts(){
   sellerProductsUnsubscribe =
     firebase.firestore()
       .collection("products")
-      .onSnapshot((snapshot) => {
+.where("storeId","==",customerStoreId)
+.where("status","==","approved")
+.onSnapshot((snapshot) => {
 
         let liveProducts = [];
 
