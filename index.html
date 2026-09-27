@@ -2171,7 +2171,10 @@ function loadSellerProducts(){
 }
 
 // Page load hote hi run hoga
-window.addEventListener("DOMContentLoaded", loadSellerProducts);
+window.addEventListener(
+  "DOMContentLoaded",
+  initializeCustomerStore
+);    
 async function showOrders(){
 
   closeMenu();
