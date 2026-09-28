@@ -2141,7 +2141,7 @@ function loadSellerProducts(){
   sellerProductsUnsubscribe =
     firebase.firestore()
       .collection("products")
-.where("storeId","==",customerStoreId)
+.where("storeId","==","MANER0001")
 .where("status","==","approved")
 .onSnapshot((snapshot) => {
 
