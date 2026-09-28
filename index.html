@@ -2125,79 +2125,7 @@ async function initializeCustomerStore(){
   }
 }
     
-function loadSellerProducts(){
 
-  if(sellerProductsUnsubscribe){
-    sellerProductsUnsubscribe();
-    sellerProductsUnsubscribe = null;
-  }
-
-
-
-  sellerProductsUnsubscribe =
-    firebase.firestore()
-      .collection("products")
-.where("storeId","==","MANER0001")
-.onSnapshot((snapshot) => {
-
-        let liveProducts = [];
-
-        snapshot.forEach((doc) => {
-
-          const p = doc.data() || {};
-(String(p.status || "").toLowerCase() !== "approved"){
-    return;
-}
-
-          liveProducts.push([
-
-            p.category || "General",
-
-            p.title ||
-            p.name ||
-            "Product",
-
-            Number(p.price) || 0,
-
-            Number(p.mrp) ||
-            Number(p.price) ||
-            0,
-
-            p.image ||
-            (
-              Array.isArray(p.images)
-                ? p.images[0]
-                : ""
-            ) ||
-            "",
-
-            p.stock === undefined ||
-            p.stock === null
-              ? 0
-              : Number(p.stock),
-
-            p.productId ||
-            doc.id,
-
-            p.sellerId ||
-            "",
-
-            p.sellerName ||
-            p.shopName ||
-            "Seller",
-
-            Array.isArray(p.images)
-              ? p.images.filter(Boolean)
-              : (
-                  p.image
-                    ? [p.image]
-                    : []
-                ),
-
-            p.description ||
-            p.details ||
-            p.productDescription ||
-            "",
 function loadSellerProducts(){
 
     if(sellerProductsUnsubscribe){
