@@ -2058,13 +2058,7 @@ function loadSellerProducts(storeId = null){
     .collection("products")
     .where("status", "==", "approved");
 
-  // PIN code ke baad sirf selected store
-  if(storeId){
-    query = query.where("storeId", "==", storeId);
-  }
-
-  sellerProductsUnsubscribe = query.onSnapshot((snapshot) => {
-
+sellerProductsUnsubscribe = query.onSnapshot((snapshot) => {
     console.log(
       "PRODUCT SNAPSHOT COUNT:",
       snapshot.size
