@@ -3505,23 +3505,23 @@ async function saveSellerProduct(){
     const sellerData =
       sellerSnap.exists ? sellerSnap.data() : {};
 
-    const productData = {
+const productData = {
 
-      sellerId: user.uid,
+  sellerId: user.uid,
 
-      sellerName:
-        sellerData.shopName ||
-        sellerData.ownerName ||
-        user.displayName ||
-        "Seller",
+  sellerName:
+    sellerData.shopName ||
+    sellerData.ownerName ||
+    user.displayName ||
+    "Seller",
 
-      name: name,
+  name: name,
 
-      price: price,
+  price: price,
 
-      oldPrice: oldPrice || price,
+  oldPrice: oldPrice || price,
 
-      category: category,
+  category: category,
 
       image: image1,
 
