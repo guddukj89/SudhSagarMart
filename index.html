@@ -811,10 +811,12 @@ async function selectCustomerStore(pincode=""){
     }
 
     // Pincode ke according Store search
+    console.log("CUSTOMER PINCODE:", pincode);
+console.log("AVAILABLE STORES:", stores);
     let matched = stores.filter(s =>
       String(s.pincode) === String(pincode)
     );
-
+console.log("MATCHED STORE:", matched);
     if(!matched.length){
 
       customerStoreId = "";
