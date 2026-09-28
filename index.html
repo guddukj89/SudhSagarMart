@@ -2057,12 +2057,6 @@ function loadSellerProducts(storeId = null) {
     let query = firebase.firestore()
         .collection("products")
         .where("status", "==", "approved");
-
-    // Selected store ke products hi load hon
-    if (storeId) {
-        query = query.where("storeId", "==", String(storeId));
-    }
-
     sellerProductsUnsubscribe = query.onSnapshot((snapshot) => {
 
         console.log(
