@@ -2136,6 +2136,7 @@ async function initializeCustomerStore(){
     firebase.firestore()
       .collection("products")
       .where("storeId", "==", "MANER0001")
+      .where("status", "==", "approved")
       .onSnapshot((snapshot) => {
 
         console.log("PRODUCT SNAPSHOT COUNT:", snapshot.size);
