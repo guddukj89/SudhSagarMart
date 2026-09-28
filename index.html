@@ -2214,36 +2214,75 @@ function loadSellerProducts(){
             p.details ||
             p.productDescription ||
             "",
+function loadSellerProducts(){
 
-            p
+    if(sellerProductsUnsubscribe){
+        sellerProductsUnsubscribe();
+        sellerProductsUnsubscribe = null;
+    }
 
-          ]);
+    sellerProductsUnsubscribe =
+        firebase.firestore()
+        .collection("products")
+        .where("storeId", "==", "MANER0001")
+        .where("status", "==", "approved")
+        .onSnapshot((snapshot) => {
+
+            let liveProducts = [];
+
+            snapshot.forEach((doc) => {
+
+                const p = doc.data() || {};
+
+                liveProducts.push([
+                    p.category || "General",
+                    p.title || p.name || "Product",
+                    Number(p.price) || 0,
+                    Number(p.mrp || p.price) || 0,
+                    p.image ||
+                    (
+                        Array.isArray(p.images)
+                        ? p.images[0]
+                        : ""
+                    ) || "",
+                    p.stock == null ? 0 : Number(p.stock),
+                    p.productId || doc.id,
+                    p.sellerId || "",
+                    p.sellerName || p.shopName || "Seller",
+                    Array.isArray(p.images)
+                        ? p.images.filter(Boolean)
+                        : (p.image ? [p.image] : []),
+                    p.description ||
+                    p.details ||
+                    p.productDescription ||
+                    "",
+                    p
+                ]);
+
+            });
+
+            products = liveProducts;
+
+            console.log(
+                "PRODUCTS LOADED:",
+                liveProducts.length,
+                liveProducts
+            );
+
+            renderProducts(products);
+
+        }, (error) => {
+
+            console.error(
+                "Seller products load error:",
+                error
+            );
+
+            products = [];
+            renderProducts(products);
 
         });
-
-        products = liveProducts;
-
-        renderProducts(products);
-
-      }, (error) => {
-
-        console.error(
-          "Seller products load error:",
-          error
-        );
-
-        products = [];
-
-        renderProducts(products);
-
-      });
 }
-
-// Page load hote hi run hoga
-window.addEventListener(
-  "DOMContentLoaded",
-  initializeCustomerStore
-);    
 async function showOrders(){
 
   closeMenu();
