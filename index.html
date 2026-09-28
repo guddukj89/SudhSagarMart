@@ -195,8 +195,6 @@ async function checkDelivery() {
       " • " +
       customerStoreName;
 
-    loadSellerProducts(customerStoreId);
-
     return true;
 
   } catch (error) {
@@ -5708,7 +5706,6 @@ selectCustomerStore(pincode).then(storeSelected => {
       "🏪 Store: <b>" + customerStoreName + "</b>";
 
     msg.style.color = "green";
-    loadSellerProducts(customerStoreId);
   }else{
     msg.innerHTML =
       "✅ Location mil gayi.<br>" +
