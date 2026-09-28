@@ -2047,96 +2047,109 @@ let currentIndex = steps.indexOf(normalizedStatus);
   );
 }
 
-function loadSellerProducts(storeId = null){
+function loadSellerProducts(storeId = null) {
 
-  if(sellerProductsUnsubscribe){
-    sellerProductsUnsubscribe();
-    sellerProductsUnsubscribe = null;
-  }
-sellerProductsUnsubscribe = query.onSnapshot((snapshot) => {
-    console.log(
-      "PRODUCT SNAPSHOT COUNT:",
-      snapshot.size
-    );
+    if (sellerProductsUnsubscribe) {
+        sellerProductsUnsubscribe();
+        sellerProductsUnsubscribe = null;
+    }
 
-    document.getElementById("productCount").innerText =
-      snapshot.size + " products available";
+    let query = firebase.firestore()
+        .collection("products")
+        .where("status", "==", "approved");
 
-    let liveProducts = [];
+    // Selected store ke products hi load hon
+    if (storeId) {
+        query = query.where("storeId", "==", String(storeId));
+    }
 
-    snapshot.forEach((doc) => {
+    sellerProductsUnsubscribe = query.onSnapshot((snapshot) => {
 
-      const p = doc.data() || {};
+        console.log(
+            "PRODUCT SNAPSHOT COUNT:",
+            snapshot.size,
+            "STORE:",
+            storeId
+        );
 
-      console.log("PRODUCT DATA:", doc.id, p);
+        document.getElementById("productCount").innerText =
+            snapshot.size + " products available";
 
-      liveProducts.push([
-        p.category || "General",
+        let liveProducts = [];
 
-        p.title ||
-        p.name ||
-        p.productName ||
-        "Product",
+        snapshot.forEach((doc) => {
 
-        Number(p.price) || 0,
+            const p = doc.data() || {};
 
-        Number(p.mrp || p.price) || 0,
+            console.log("PRODUCT DATA:", doc.id, p);
 
-        p.image ||
-        (
-          Array.isArray(p.images)
-            ? p.images[0]
-            : ""
-        ) ||
-        p.imageURL ||
-        "",
+            liveProducts.push([
+                p.category || "General",
 
-        p.stock == null
-          ? 0
-          : Number(p.stock),
+                p.title ||
+                p.name ||
+                p.productName ||
+                "Product",
 
-        p.productId || doc.id,
+                Number(p.price) || 0,
 
-        p.sellerId || "",
+                Number(p.mrp || p.price) || 0,
 
-        p.sellerName ||
-        p.shopName ||
-        "Seller",
+                p.image ||
+                (
+                    Array.isArray(p.images)
+                        ? p.images[0]
+                        : ""
+                ) ||
+                p.imageURL ||
+                "",
 
-        Array.isArray(p.images)
-          ? p.images.filter(Boolean)
-          : (p.image ? [p.image] : []),
+                p.stock == null
+                    ? 0
+                    : Number(p.stock),
 
-        p.description ||
-        p.details ||
-        p.productDescription ||
-        "",
+                p.productId || doc.id,
 
-        p.storeId || ""
-      ]);
+                p.sellerId || "",
 
+                p.sellerName ||
+                p.shopName ||
+                "Seller",
+
+                Array.isArray(p.images)
+                    ? p.images.filter(Boolean)
+                    : (p.image ? [p.image] : []),
+
+                p.description ||
+                p.details ||
+                p.productDescription ||
+                "",
+
+                p.storeId || ""
+            ]);
+
+        });
+
+        products = liveProducts;
+
+        console.log(
+            "PRODUCTS LOADED:",
+            liveProducts.length
+        );
+
+        renderProducts(products);
+
+    }, (error) => {
+
+        console.error(
+            "Seller products load error:",
+            error
+        );
+
+        products = [];
+        renderProducts(products);
     });
-
-    products = liveProducts;
-
-    console.log(
-      "PRODUCTS LOADED:",
-      liveProducts.length
-    );
-
-    renderProducts(products);
-
-  }, (error) => {
-
-    console.error(
-      "Seller products load error:",
-      error
-    );
-
-    products = [];
-    renderProducts(products);
-  });
-}     
+}
 async function initializeCustomerStore(){
 
     try{
