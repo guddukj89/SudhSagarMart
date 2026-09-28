@@ -2140,7 +2140,7 @@ async function initializeCustomerStore(){
 
         console.log("PRODUCT SNAPSHOT COUNT:", snapshot.size);
       document.getElementById("productCount").innerText =
-  "Firebase se " + snapshot.size + " products mile";,
+  snapshot.size + " products available";
         let liveProducts = [];
 
         snapshot.forEach((doc) => {
@@ -5805,11 +5805,12 @@ selectCustomerStore(pincode).then(storeSelected => {
 
     },
 
-    enableHighAccuracy: true,
-timeout: 15000,
-maximumAge: 300000
-  );
+    {
+  enableHighAccuracy: true,
+  timeout: 15000,
+  maximumAge: 300000
 }
+);
     </script>        
 <!-- PRODUCT IMAGE / DETAIL GALLERY -->
 <div id="productGalleryModal"
