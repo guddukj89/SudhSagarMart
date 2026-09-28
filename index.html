@@ -2139,7 +2139,8 @@ async function initializeCustomerStore(){
       .onSnapshot((snapshot) => {
 
         console.log("PRODUCT SNAPSHOT COUNT:", snapshot.size);
-
+      document.getElementById("productCount").innerText =
+  "Firebase se " + snapshot.size + " products mile";,
         let liveProducts = [];
 
         snapshot.forEach((doc) => {
