@@ -178,8 +178,32 @@ const serviceablePincodes = ["801108", "801503"];
 <header>
 <div class="top">
 <button class="icon" onclick="openMenu()">☰</button>
-<div class="logo">
-  <img src="logo.png" alt="Sudh Sagar Mart">
+<div class="logo"
+     style="
+       width:75px !important;
+       height:30px !important;
+       max-width:75px !important;
+       max-height:30px !important;
+       min-width:75px !important;
+       min-height:30px !important;
+       overflow:hidden !important;
+       display:flex !important;
+       align-items:center !important;
+       flex-shrink:0 !important;
+     ">
+
+  <img src="logo.png"
+       alt="Sudh Sagar Mart"
+       style="
+         width:75px !important;
+         height:30px !important;
+         max-width:75px !important;
+         max-height:30px !important;
+         min-width:75px !important;
+         min-height:30px !important;
+         object-fit:contain !important;
+         display:block !important;
+       ">
 </div>
 <input id="search" class="search" placeholder="Search products, grocery, fashion, electronics..." oninput="searchProducts()">
 <button class="icon" onclick="openWishlist()">♡</button>
