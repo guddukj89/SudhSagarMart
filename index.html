@@ -2211,13 +2211,13 @@ function loadSellerProducts(){
         .where("storeId", "==", "MANER0001")
         .where("status", "==", "approved")
         .onSnapshot((snapshot) => {
-
+console.log("PRODUCT SNAPSHOT COUNT:", snapshot.size);
             let liveProducts = [];
 
             snapshot.forEach((doc) => {
 
                 const p = doc.data() || {};
-
+console.log("PRODUCT DATA:", doc.id, doc.data());
                 liveProducts.push([
                     p.category || "General",
                     p.title || p.name || "Product",
