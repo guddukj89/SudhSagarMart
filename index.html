@@ -2132,11 +2132,7 @@ function loadSellerProducts(){
     sellerProductsUnsubscribe = null;
   }
 
-  if(!customerStoreId){
-    products = [];
-    renderProducts(products);
-    return;
-  }
+
 
   sellerProductsUnsubscribe =
     firebase.firestore()
@@ -2149,22 +2145,9 @@ function loadSellerProducts(){
         snapshot.forEach((doc) => {
 
           const p = doc.data() || {};
-if(String(p.status || "").toLowerCase() !== "approved"){
+(String(p.status || "").toLowerCase() !== "approved"){
     return;
 }
-          if(
-            String(p.storeId || "") !==
-            String(customerStoreId)
-          ){
-            return;
-          }
-
-          if(
-            String(p.status || "").toLowerCase() !==
-            "approved"
-          ){
-            return;
-          }
 
           liveProducts.push([
 
