@@ -2125,7 +2125,107 @@ async function initializeCustomerStore(){
   }
 }
 
-     
+function loadSellerProducts(storeId = null){
+
+  if(sellerProductsUnsubscribe){
+    sellerProductsUnsubscribe();
+    sellerProductsUnsubscribe = null;
+  }
+
+  let query = firebase.firestore()
+    .collection("products")
+    .where("status", "==", "approved");
+
+  // PIN code ke baad sirf selected store
+  if(storeId){
+    query = query.where("storeId", "==", storeId);
+  }
+
+  sellerProductsUnsubscribe = query.onSnapshot((snapshot) => {
+
+    console.log(
+      "PRODUCT SNAPSHOT COUNT:",
+      snapshot.size
+    );
+
+    document.getElementById("productCount").innerText =
+      snapshot.size + " products available";
+
+    let liveProducts = [];
+
+    snapshot.forEach((doc) => {
+
+      const p = doc.data() || {};
+
+      console.log("PRODUCT DATA:", doc.id, p);
+
+      liveProducts.push([
+        p.category || "General",
+
+        p.title ||
+        p.name ||
+        p.productName ||
+        "Product",
+
+        Number(p.price) || 0,
+
+        Number(p.mrp || p.price) || 0,
+
+        p.image ||
+        (
+          Array.isArray(p.images)
+            ? p.images[0]
+            : ""
+        ) ||
+        p.imageURL ||
+        "",
+
+        p.stock == null
+          ? 0
+          : Number(p.stock),
+
+        p.productId || doc.id,
+
+        p.sellerId || "",
+
+        p.sellerName ||
+        p.shopName ||
+        "Seller",
+
+        Array.isArray(p.images)
+          ? p.images.filter(Boolean)
+          : (p.image ? [p.image] : []),
+
+        p.description ||
+        p.details ||
+        p.productDescription ||
+        "",
+
+        p.storeId || ""
+      ]);
+
+    });
+
+    products = liveProducts;
+
+    console.log(
+      "PRODUCTS LOADED:",
+      liveProducts.length
+    );
+
+    renderProducts(products);
+
+  }, (error) => {
+
+    console.error(
+      "Seller products load error:",
+      error
+    );
+
+    products = [];
+    renderProducts(products);
+  });
+}     
 async function showOrders(){
 
   closeMenu();
