@@ -150,29 +150,67 @@ const auth = firebase.auth();
 const db = firebase.firestore();     
  // Pincode Check Function
 const serviceablePincodes = ["801108", "801503"];
- function checkDelivery() {
+ const serviceablePincodes = ["801108", "801503"];
 
-    const pin = document.getElementById("pincodeInput").value.trim();
-    const msg = document.getElementById("pincodeMsg");
+async function checkDelivery() {
 
-    const match = pin.match(/\b\d{6}\b/);
+  const pinInput = document.getElementById("pincodeInput");
+  const msg = document.getElementById("pincodeMsg");
 
-    if (!match) {
-        msg.style.color = "red";
-        msg.innerText = "❌ Address me 6-digit pincode nahi mila.";
-        return;
+  const pin = pinInput.value.trim();
+
+  const match = pin.match(/\b\d{6}\b/);
+
+  if (!match) {
+    msg.style.color = "red";
+    msg.innerText = "❌ Address me 6-digit pincode nahi mila.";
+    return false;
+  }
+
+  const pincode = match[0];
+
+  if (!serviceablePincodes.includes(pincode)) {
+    msg.style.color = "red";
+    msg.innerText = "❌ Delivery not available for " + pincode;
+    return false;
+  }
+
+  try {
+
+    msg.style.color = "#333";
+    msg.innerText = "⏳ Store check ho raha hai...";
+
+    const storeSelected = await selectCustomerStore(pincode);
+
+    if (!storeSelected) {
+      msg.style.color = "red";
+      msg.innerText =
+        "⚠️ Is pincode par active Store nahi mila.";
+      return false;
     }
 
-    const pincode = match[0];
+    msg.style.color = "green";
+    msg.innerText =
+      "✅ Delivery available for " +
+      pincode +
+      " • " +
+      customerStoreName;
 
-    if (serviceablePincodes.includes(pincode)) {
-        msg.style.color = "green";
-        msg.innerText = "✓ Delivery available for " + pincode;
-    } else {
-        msg.style.color = "red";
-        msg.innerText = "✕ Delivery not available for " + pincode;
-    }
-}    
+    loadSellerProducts();
+
+    return true;
+
+  } catch (error) {
+
+    console.error("Delivery check error:", error);
+
+    msg.style.color = "red";
+    msg.innerText =
+      "❌ Store check karne me problem hui.";
+
+    return false;
+  }
+}
 </script>
  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
