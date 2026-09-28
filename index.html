@@ -795,7 +795,7 @@ async function selectCustomerStore(pincode=""){
       if(status !== "active") return;
 
       stores.push({
-        id: doc.id,
+        id: String(s.storeId || doc.id).trim(),
         name: s.name || s.storeName || "Sudh Sagar Store",
         pincode: String(s.pincode || ""),
         deliveryCharge: Number(
