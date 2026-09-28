@@ -2148,6 +2148,83 @@ function loadSellerProducts(storeId = null){
     renderProducts(products);
   });
 }     
+async function initializeCustomerStore(){
+
+  try{
+
+    let savedLocation =
+      JSON.parse(
+        localStorage.getItem("ssm_location") || "null"
+      );
+
+    let pincode =
+      savedLocation?.pincode ||
+      document.getElementById("pincodeInput")?.value ||
+      "";
+
+    pincode = String(pincode).trim();
+
+
+    // =========================================
+    // PIN CODE NAHI HAI
+    // → SABHI STORE KE PRODUCTS
+    // =========================================
+
+    if(!pincode){
+
+      console.log(
+        "Customer pincode nahi mila - all stores products loading."
+      );
+
+      await loadSellerProducts();
+
+      return;
+    }
+
+
+    // =========================================
+    // PIN CODE HAI
+    // → NEARBY / SELECTED STORE
+    // =========================================
+
+    const selected =
+      await selectCustomerStore(pincode);
+
+
+    if(selected){
+
+      console.log(
+        "Store automatically selected:",
+        customerStoreName,
+        customerStoreId
+      );
+
+      loadSellerProducts(customerStoreId);
+
+    }else{
+
+      console.log(
+        "Is pincode par active store nahi mila:",
+        pincode
+      );
+
+      products = [];
+      renderProducts(products);
+    }
+
+
+  }catch(error){
+
+    console.error(
+      "Customer store initialization error:",
+      error
+    );
+
+    // Error hone par bhi all products try karo
+    loadSellerProducts();
+  }
+}
+    
 async function showOrders(){
 
   closeMenu();
