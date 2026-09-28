@@ -195,7 +195,7 @@ async function checkDelivery() {
       " • " +
       customerStoreName;
 
-    loadSellerProducts();
+    loadSellerProducts(customerStoreId);
 
     return true;
 
@@ -2159,7 +2159,7 @@ async function initializeCustomerStore(){
             "Homepage: all approved products loading..."
         );
 
-        await loadSellerProducts();
+        await loadSellerProducts(customerStoreId);
 
     }catch(error){
 
@@ -5714,7 +5714,7 @@ selectCustomerStore(pincode).then(storeSelected => {
       "🏪 Store: <b>" + customerStoreName + "</b>";
 
     msg.style.color = "green";
-    loadSellerProducts();
+    loadSellerProducts(customerStoreId);
   }else{
     msg.innerHTML =
       "✅ Location mil gayi.<br>" +
