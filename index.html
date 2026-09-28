@@ -3514,7 +3514,11 @@ const productData = {
     sellerData.ownerName ||
     user.displayName ||
     "Seller",
-
+storeId: sellerData.storeId,
+storeName:
+  sellerData.shopName ||
+  sellerData.storeName ||
+  "Sudh Sagar Store",
   name: name,
 
   price: price,
@@ -3532,7 +3536,7 @@ const productData = {
 
       description: description,
 
-      status: "Pending Approval",
+      status: "Pending",
 
       createdAt:
         firebase.firestore.FieldValue.serverTimestamp()
