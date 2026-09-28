@@ -2142,7 +2142,6 @@ function loadSellerProducts(){
     firebase.firestore()
       .collection("products")
 .where("storeId","==","MANER0001")
-.where("status","==","approved")
 .onSnapshot((snapshot) => {
 
         let liveProducts = [];
@@ -2150,7 +2149,9 @@ function loadSellerProducts(){
         snapshot.forEach((doc) => {
 
           const p = doc.data() || {};
-
+if(String(p.status || "").toLowerCase() !== "approved"){
+    return;
+}
           if(
             String(p.storeId || "") !==
             String(customerStoreId)
