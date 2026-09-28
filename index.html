@@ -2211,62 +2211,7 @@ function loadSellerProducts(){
         .where("storeId", "==", "MANER0001")
         .where("status", "==", "approved")
         .onSnapshot((snapshot) => {
-console.log("PRODUCT SNAPSHOT COUNT:", snapshot.size);
-            let liveProducts = [];
 
-            snapshot.forEach((doc) => {
-
-                const p = doc.data() || {};
-console.log("PRODUCT DATA:", doc.id, doc.data());
-                liveProducts.push([
-                    p.category || "General",
-                    p.title || p.name || "Product",
-                    Number(p.price) || 0,
-                    Number(p.mrp || p.price) || 0,
-                    p.image ||
-                    (
-                        Array.isArray(p.images)
-                        ? p.images[0]
-                        : ""
-                    ) || "",
-                    p.stock == null ? 0 : Number(p.stock),
-                    p.productId || doc.id,
-                    p.sellerId || "",
-                    p.sellerName || p.shopName || "Seller",
-                    Array.isArray(p.images)
-                        ? p.images.filter(Boolean)
-                        : (p.image ? [p.image] : []),
-                    p.description ||
-                    p.details ||
-                    p.productDescription ||
-                    "",
-                    p
-                ]);
-
-            });
-
-            products = liveProducts;
-
-            console.log(
-                "PRODUCTS LOADED:",
-                liveProducts.length,
-                liveProducts
-            );
-
-            renderProducts(products);
-
-        }, (error) => {
-
-            console.error(
-                "Seller products load error:",
-                error
-            );
-
-            products = [];
-            renderProducts(products);
-
-        });
-}
 async function showOrders(){
 
   closeMenu();
