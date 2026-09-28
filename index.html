@@ -2053,11 +2053,6 @@ function loadSellerProducts(storeId = null){
     sellerProductsUnsubscribe();
     sellerProductsUnsubscribe = null;
   }
-
-  let query = firebase.firestore()
-    .collection("products")
-    .where("status", "==", "approved");
-
 sellerProductsUnsubscribe = query.onSnapshot((snapshot) => {
     console.log(
       "PRODUCT SNAPSHOT COUNT:",
