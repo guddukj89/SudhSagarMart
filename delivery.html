@@ -212,7 +212,7 @@ input:focus,select:focus{border-color:#22c55e}
 </div>
 
 <div class="toast" id="toast"></div>
- <div id="loginOverlay" style="
+<div id="loginOverlay" style="
 display:none;
 position:fixed;
 inset:0;
@@ -222,6 +222,7 @@ align-items:center;
 justify-content:center;
 padding:20px;
 ">
+
   <div style="
   background:#fff;
   width:100%;
@@ -230,21 +231,85 @@ padding:20px;
   border-radius:18px;
   box-shadow:0 10px 30px rgba(0,0,0,.12);
   ">
+
     <div style="text-align:center;margin-bottom:20px">
       <img src="logo.png" style="width:65px;height:65px;object-fit:contain">
       <h2 style="margin:8px 0 3px">Sudh Sagar Mart</h2>
-      <div style="font-size:12px;color:#6b7280">Delivery Partner Login</div>
+      <div style="font-size:12px;color:#6b7280">
+        Delivery Partner
+      </div>
     </div>
 
-    <label>EMAIL</label>
-    <input id="loginEmail" type="email" placeholder="Delivery partner email">
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
 
-    <label>PASSWORD</label>
-    <input id="loginPassword" type="password" placeholder="Password">
+      <label>EMAIL</label>
+      <input id="loginEmail"
+             type="email"
+             placeholder="Delivery partner email">
 
-    <button id="loginBtn" class="btn green" style="margin-top:15px">
-      🔐 Login
-    </button>
+      <label>PASSWORD</label>
+      <input id="loginPassword"
+             type="password"
+             placeholder="Password">
+
+      <button id="loginBtn"
+              class="btn green"
+              style="margin-top:15px">
+        🔐 Login
+      </button>
+
+      <button id="showRegisterBtn"
+              class="btn blue"
+              type="button">
+        👤 Create Account
+      </button>
+
+    </div>
+
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+
+      <label>FULL NAME</label>
+      <input id="registerName"
+             type="text"
+             placeholder="Full name">
+
+      <label>MOBILE NUMBER</label>
+      <input id="registerPhone"
+             type="tel"
+             placeholder="Mobile number">
+
+      <label>EMAIL</label>
+      <input id="registerEmail"
+             type="email"
+             placeholder="Email address">
+
+      <label>PASSWORD</label>
+      <input id="registerPassword"
+             type="password"
+             placeholder="Minimum 6 characters">
+
+      <label>CONFIRM PASSWORD</label>
+      <input id="registerConfirm"
+             type="password"
+             placeholder="Confirm password">
+
+      <button id="registerBtn"
+              class="btn green"
+              style="margin-top:15px">
+        👤 Create Delivery Partner Account
+      </button>
+
+      <button id="showLoginBtn"
+              class="btn gray"
+              type="button">
+        ← Back to Login
+      </button>
+
+    </div>
+
 
     <div id="loginError" style="
       display:none;
@@ -255,9 +320,10 @@ padding:20px;
       margin-top:10px;
       font-size:11px;
     "></div>
-  </div>
-</div> 
 
+  </div>
+</div>
+  
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
