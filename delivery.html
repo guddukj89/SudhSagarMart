@@ -71,6 +71,55 @@ input:focus,select:focus{border-color:#22c55e}
 .money{font-size:22px;font-weight:800}
 .listLine{padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:11px}
 @media(max-width:380px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+.productList{
+  margin:10px 0;
+}
+
+.productItem{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 0;
+  border-bottom:1px solid #f1f5f9;
+}
+
+.productItem:last-child{
+  border-bottom:0;
+}
+
+.productImage{
+  width:58px;
+  height:58px;
+  border-radius:10px;
+  object-fit:cover;
+  background:#f3f4f6;
+  border:1px solid #e5e7eb;
+  flex-shrink:0;
+}
+
+.productInfo{
+  flex:1;
+  min-width:0;
+}
+
+.productName{
+  font-size:11px;
+  font-weight:700;
+  color:#172033;
+}
+
+.productQty{
+  font-size:9px;
+  color:#6b7280;
+  margin-top:4px;
+}
+
+.productPrice{
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+}
+  
 </style>
 </head>
 <body>
