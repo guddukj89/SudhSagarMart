@@ -448,36 +448,245 @@ function isNew(o){
   const s=orderStatus(o);
   return !isCompleted(o) && !isOngoing(o) && !["rejected","cancelled","canceled"].includes(s);
 }
-
 function renderOrder(o,type){
-  const id=o.id;
-  const items=o.items||o.products||[];
-  const itemText = Array.isArray(items)
-    ? items.map(x=>`${escapeHtml(x.name||x.title||"Item")} × ${x.qty||x.quantity||1}`).join("<br>")
-    : escapeHtml(items);
-  const customer=o.customerName||o.userName||o.name||"Customer";
-  const phone=o.customerPhone||o.phone||"";
-  const address=o.deliveryAddress||o.address||o.customerAddress||"Address not available";
-  const total=o.total||o.grandTotal||o.amount||0;
-  const s=orderStatus(o);
 
-  let buttons="";
-  if(type==="new"){
-    buttons=`<button class="btn green" data-action="accept" data-id="${id}">✓ Accept Order</button>
-             <button class="btn red" data-action="reject" data-id="${id}">✕ Reject</button>`;
-  }else if(type==="ongoing"){
-    if(["accepted","assigned"].includes(s)) buttons=`<button class="btn blue" data-action="picked" data-id="${id}">📦 Mark Picked Up</button>`;
-    else if(["picked up","picked_up"].includes(s)) buttons=`<button class="btn blue" data-action="out" data-id="${id}">🛵 Out for Delivery</button>`;
-    else buttons=`<button class="btn green" data-action="deliver" data-id="${id}">✓ Verify & Deliver</button>`;
-    if(phone) buttons+=`<button class="btn gray" data-action="call" data-phone="${escapeHtml(phone)}">📞 Call Customer</button>`;
+  const id = o.id;
+
+  const items = Array.isArray(o.items)
+    ? o.items
+    : Array.isArray(o.products)
+      ? o.products
+      : [];
+
+  const customer =
+    o.customerName ||
+    o.userName ||
+    o.name ||
+    "Customer";
+
+  const phone =
+    o.customerPhone ||
+    o.phone ||
+    "";
+
+  const address =
+    o.deliveryAddress ||
+    o.address ||
+    o.customerAddress ||
+    "Address not available";
+
+  const total =
+    o.total ||
+    o.grandTotal ||
+    o.amount ||
+    0;
+
+  const s = orderStatus(o);
+
+  let productHTML = "";
+
+  if(items.length){
+
+    productHTML = items.map(x => {
+
+      const name =
+        x.name ||
+        x.title ||
+        x.productName ||
+        "Product";
+
+      const qty =
+        Number(x.qty || x.quantity || 1);
+
+      const price =
+        Number(
+          x.price ||
+          x.sellingPrice ||
+          x.salePrice ||
+          0
+        );
+
+      const image =
+        x.imageUrl ||
+        x.image ||
+        x.productImage ||
+        x.thumbnail ||
+        x.photo ||
+        "";
+
+      const safeImage = escapeHtml(image);
+
+      return `
+        <div class="productItem">
+
+          ${
+            safeImage
+            ? `<img
+                class="productImage"
+                src="${safeImage}"
+                alt="${escapeHtml(name)}"
+                onerror="this.style.display='none'"
+              >`
+            : `<div class="productImage"
+                style="display:flex;align-items:center;justify-content:center;font-size:22px">
+                🛒
+              </div>`
+          }
+
+          <div class="productInfo">
+
+            <div class="productName">
+              ${escapeHtml(name)}
+            </div>
+
+            <div class="productQty">
+              Qty: ${qty}
+            </div>
+
+          </div>
+
+          ${
+            price > 0
+            ? `<div class="productPrice">${money(price * qty)}</div>`
+            : ""
+          }
+
+        </div>
+      `;
+
+    }).join("");
+
+  }else{
+
+    productHTML = `
+      <div class="productItem">
+        <div class="productImage"
+          style="display:flex;align-items:center;justify-content:center;font-size:22px">
+          🛒
+        </div>
+
+        <div class="productInfo">
+          <div class="productName">
+            Product details unavailable
+          </div>
+        </div>
+      </div>
+    `;
+
   }
-  return `<div class="order">
-    <div class="orderHead"><div class="orderId">Order #${escapeHtml(id.slice(-8))}</div><span class="badge">${escapeHtml(s)}</span></div>
-    <div class="items">${itemText||"No item details"}</div>
-    <div class="address"><b>${escapeHtml(customer)}</b><br>${escapeHtml(address)}</div>
-    <div class="row"><span>Order Total</span><b>${money(total)}</b></div>
-    ${buttons}
-  </div>`;
+
+  let buttons = "";
+
+  if(type === "new"){
+
+    buttons = `
+      <button
+        class="btn green"
+        data-action="accept"
+        data-id="${id}">
+        ✓ Accept Order
+      </button>
+
+      <button
+        class="btn red"
+        data-action="reject"
+        data-id="${id}">
+        ✕ Reject
+      </button>
+    `;
+
+  }
+
+  else if(type === "ongoing"){
+
+    if(["accepted","assigned"].includes(s)){
+
+      buttons = `
+        <button
+          class="btn blue"
+          data-action="picked"
+          data-id="${id}">
+          📦 Mark Picked Up
+        </button>
+      `;
+
+    }
+
+    else if(["picked up","picked_up"].includes(s)){
+
+      buttons = `
+        <button
+          class="btn blue"
+          data-action="out"
+          data-id="${id}">
+          🛵 Out for Delivery
+        </button>
+      `;
+
+    }
+
+    else{
+
+      buttons = `
+        <button
+          class="btn green"
+          data-action="deliver"
+          data-id="${id}">
+          ✓ Verify & Deliver
+        </button>
+      `;
+
+    }
+
+    if(phone){
+
+      buttons += `
+        <button
+          class="btn gray"
+          data-action="call"
+          data-phone="${escapeHtml(phone)}">
+          📞 Call Customer
+        </button>
+      `;
+
+    }
+
+  }
+
+  return `
+    <div class="order">
+
+      <div class="orderHead">
+
+        <div class="orderId">
+          Order #${escapeHtml(id.slice(-8))}
+        </div>
+
+        <span class="badge">
+          ${escapeHtml(s)}
+        </span>
+
+      </div>
+
+      <div class="productList">
+        ${productHTML}
+      </div>
+
+      <div class="address">
+        <b>${escapeHtml(customer)}</b>
+        <br>
+        ${escapeHtml(address)}
+      </div>
+
+      <div class="row">
+        <span>Order Total</span>
+        <b>${money(total)}</b>
+      </div>
+
+      ${buttons}
+
+    </div>
+  `;
 }
 
 function renderOrders(){
