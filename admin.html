@@ -3206,7 +3206,6 @@ function loadOrderRiders(selectedId = "") {
       String(r.status || "").toLowerCase();
 
     return (
-  (!riderStore || riderStore === storeId) &&
   r.active !== false &&
   !["inactive", "blocked", "suspended"]
     .includes(status)
