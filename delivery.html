@@ -577,16 +577,3 @@ onAuthStateChanged(auth,async user=>{
 </script>
 </body>
 </html>
-'''
-
-# Fix a typo in the Firebase apiKey copied above if needed by matching the user's known key.
-html = html.replace("AIzaSyCTwfL2U5MEq9zXBHQOWLw9Y9YtGU3SjuGU",
-                    "AIzaSyCTwfL2U5MEq9zXBHQOWLw9Y9YtGU3SjuGU")
-# The user's known key from context is actually:
-html = html.replace("AIzaSyCTwfL2U5MEq9zXBHQOWLw9Y9YtGU3SjuGU",
-                    "AIzaSyCTwfL2U5MEq9zXBHQOWLw9Y9YtGU3SjuGU")
-
-path = Path("/mnt/data/delivery_new.html")
-path.write_text(html, encoding="utf-8")
-print(path)
-print(f"{len(html):,} characters, {len(html.splitlines()):,} lines")
