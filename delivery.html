@@ -1545,32 +1545,7 @@ if(type==="new"){
       </button>
     `;
 
-  }else if(st==="Out for Delivery"){
-
-    body = `
-      <div class="workflow">
-        <div class="step">1. PAYMENT COLLECTION</div>
-
-        <button
-          class="btn blue"
-          style="width:100%"
-          onclick="generateQR('${id}',${amount})">
-          💳 Generate UPI QR
-        </button>
-
-        <div id="qr-${id}" class="qr">
-          <img id="qrimg-${id}">
-          <small>Scan with GPay / PhonePe / Paytm</small>
-        </div>
-      </div>
-
-      <div class="workflow">
-        <div class="step">2. CUSTOMER DELIVERY OTP</div>
-
-        <input
-          id="otp-${id}"
-          class="otp"
-          
+  
 
  return `<article class="order">
   <div class="orderTop"><span class="tag new">${type==="new"?"⚡ New Order":st}</span><span class="tag timer">⏱ ${type==="completed"?"Completed":"30 min"}</span><span class="tag distance">📍 ${formatDistance(getOrderDistance(o))}</span></div>
