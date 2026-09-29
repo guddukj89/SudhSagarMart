@@ -655,7 +655,48 @@ document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",(
   if(b.closest(".menuOverlay"))closeMenu();
 }));
 
+onAuthStateChanged(auth,async user=>{
 
+  currentUser=user;
+
+  if(!user){
+
+    $("loginOverlay").style.display="flex";
+
+    $("heroTitle").textContent="Login Required";
+    $("heroSub").textContent="Please login as Delivery Partner";
+
+    $("dutySwitch").disabled=true;
+    $("dutySwitch").style.opacity=".5";
+
+    return;
+  }
+
+  $("loginOverlay").style.display="none";
+
+  $("dutySwitch").disabled=false;
+  $("dutySwitch").style.opacity="1";
+
+  partnerId=user.uid;
+
+  try{
+
+    await loadPartner();
+
+    listenOrders();
+
+    if(partnerData.dutyStatus==="online"){
+      startLocation();
+    }
+
+  }catch(e){
+
+    console.error(e);
+    toast("Partner data load failed");
+
+  }
+
+});
 </script>
 </body>
 </html>
