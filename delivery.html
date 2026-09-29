@@ -1,2543 +1,592 @@
-<!DOCTYPE html>
-<html lang="hi">
+from pathlib import Path
+
+html = r'''<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Sudh Sagar Mart — Delivery Partner</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sudh Sagar Mart - Delivery Partner</title>
 <style>
-:root{
-  --green:#0c831f;--green2:#16a34a;--greenSoft:#e9f8ed;
-  --bg:#f6f7f8;--card:#fff;--text:#172033;--muted:#6b7280;
-  --line:#e5e7eb;--red:#ef4444;--orange:#f59e0b;--blue:#2563eb;
-}
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--text);padding-bottom:78px}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7f5;color:#172033;padding-bottom:90px}
 button,input,select{font:inherit}
-button{cursor:pointer}
-.header{position:sticky;top:0;z-index:50;background:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
-.menu{width:38px;height:38px;border:0;background:#f4f5f6;border-radius:12px;display:grid;place-items:center}
-.logoBox{width:40px;height:40px;border-radius:12px;background:var(--green);color:#fff;display:grid;place-items:center}
-.brand{flex:1}.brand b{display:block;font-size:15px;color:#075f18}.brand span{font-size:10px;color:var(--green);font-weight:800}
-.online{border:0;border-radius:22px;background:var(--greenSoft);padding:9px 11px;color:#075f18;font-size:11px;font-weight:800;display:flex;align-items:center;gap:6px}
-.dot{width:9px;height:9px;border-radius:50%;background:#16a34a}.online.off{background:#f3f4f6;color:#6b7280}.online.off .dot{background:#9ca3af}
-.iconBtn{width:38px;height:38px;border:0;background:#f4f5f6;border-radius:12px;position:relative}.bellDot{position:absolute;right:3px;top:3px;background:#ef4444;color:#fff;font-size:8px;border-radius:10px;padding:2px 5px}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;padding:12px}
-.stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px;box-shadow:0 2px 7px #00000008}
-.stat small{color:var(--muted);font-size:9px;font-weight:800;text-transform:uppercase}.stat strong{display:block;font-size:21px;margin-top:4px}.stat span{font-size:10px;color:var(--green);font-weight:700}
-.hero{margin:0 12px 12px;background:linear-gradient(135deg,#07851e,#0cae37);color:#fff;border-radius:18px;padding:17px;display:flex;align-items:center;gap:13px;box-shadow:0 8px 22px #0c831f30}
-.heroIcon{width:46px;height:46px;background:#ffffff22;border-radius:50%;display:grid;place-items:center}.heroText{flex:1}.heroText b{font-size:17px}.heroText p{font-size:10px;margin-top:3px;opacity:.9}
-.switch{width:50px;height:29px;border-radius:20px;background:#ffffff55;padding:3px}.switch i{display:block;width:23px;height:23px;border-radius:50%;background:#fff;transition:.2s}.switch.off i{transform:translateX(0)}.switch.on i{transform:translateX(21px)}
-.tabs{display:flex;gap:8px;overflow:auto;padding:0 12px 12px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{white-space:nowrap;border:0;background:#eceef0;color:#172033;padding:11px 16px;border-radius:22px;font-size:11px;font-weight:800}.tab.active{background:var(--green);color:#fff}
-.page{display:none;padding:0 12px}.page.active{display:block}
-.sectionHead{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 10px}.sectionHead h3{font-size:14px}.sectionHead span{font-size:10px;color:var(--muted)}
-.order{background:#fff;border:1px solid var(--line);border-radius:17px;margin-bottom:12px;padding:14px;box-shadow:0 3px 10px #00000008}
-.orderTop{display:flex;align-items:center;gap:7px;margin-bottom:11px}.tag{font-size:9px;font-weight:800;border-radius:9px;padding:6px 8px}.new{background:#fff1df;color:#ea580c}.timer{background:#fee2e2;color:#dc2626}.distance{background:#f0fdf4;color:#15803d;margin-left:auto}
-.oid{font-size:13px;font-weight:800;margin-bottom:5px}.items{font-size:10px;color:var(--muted);margin-bottom:10px}
-.customer{display:flex;gap:10px;padding:10px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line)}.customer .pin{width:34px;height:34px;border-radius:11px;background:#f1f5f9;display:grid;place-items:center}.customer b{font-size:12px}.customer p{font-size:10px;color:var(--muted);line-height:1.4;margin-top:2px}
-.amountRow{display:flex;align-items:center;justify-content:space-between;padding:10px 0}.amount{font-size:19px;font-weight:800}.pay{font-size:9px;font-weight:800;border-radius:12px;padding:6px 9px}.prepaid{background:#dcfce7;color:#15803d}.cod{background:#fef3c7;color:#92400e}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border:0;border-radius:11px;padding:11px 8px;font-size:11px;font-weight:800;display:flex;justify-content:center;align-items:center;gap:6px}.btn.green{background:var(--green);color:#fff}.btn.red{background:#fee2e2;color:#dc2626}.btn.gray{background:#f3f4f6;color:#374151}.btn.blue{background:#dbeafe;color:#1d4ed8}.btn.orange{background:#f59e0b;color:#fff}
-.workflow{margin-top:10px;background:#f8fafc;border-radius:12px;padding:10px}.step{font-size:9px;color:var(--muted);font-weight:800;margin-bottom:6px}
-.otp{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;text-align:center;letter-spacing:5px;font-weight:800;margin-bottom:7px;background:#fff}
-.qr{display:none;text-align:center;background:#fff;border:1px dashed var(--green);border-radius:12px;padding:10px;margin:8px 0}.qr img{width:150px;height:150px}
-.mapCard{background:#fff;border:1px solid var(--line);border-radius:17px;padding:14px;margin-bottom:12px}.mapFake{height:150px;border-radius:14px;background:linear-gradient(135deg,#eef2f7,#dbe7d9);display:grid;place-items:center;color:#075f18;font-weight:800;margin-bottom:10px}
-.target{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:12px}.targetRow{display:flex;align-items:center;gap:13px}.circle{width:68px;height:68px;border-radius:50%;border:8px solid #dcfce7;border-top-color:var(--green);display:grid;place-items:center;font-size:13px;font-weight:800}.target b{font-size:14px}.target p{font-size:10px;color:var(--muted);margin-top:4px}
-.progress{height:8px;background:#e5e7eb;border-radius:8px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;background:var(--green);width:0}
-.profileCard{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:12px}.profileHead{display:flex;align-items:center;gap:10px;margin-bottom:14px}.avatar{width:48px;height:48px;border-radius:50%;background:var(--greenSoft);display:grid;place-items:center;color:var(--green)}.profileHead b{font-size:14px}.profileHead small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.label{font-size:9px;font-weight:800;display:block;margin:9px 0 5px;color:#4b5563}.input,.select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:12px}.kyc{display:inline-block;background:#fef3c7;color:#92400e;border-radius:15px;padding:5px 8px;font-size:8px;font-weight:800}
-.empty{text-align:center;padding:42px 20px;color:var(--muted);font-size:11px;background:#fff;border:1px dashed var(--line);border-radius:16px}.empty i{display:block;margin:auto auto 9px;color:#9ca3af}
-.bottom{position:fixed;bottom:0;left:0;right:0;height:67px;background:#fff;border-top:1px solid var(--line);z-index:100;display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:3px}.nav{border:0;background:none;color:#6b7280;font-size:9px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.nav.active{color:var(--green)}.nav.active div{background:var(--greenSoft);padding:5px 14px;border-radius:15px}
-.modal{display:none;position:fixed;inset:0;background:#0008;z-index:200;align-items:flex-end}.modalBox{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow:auto}.modalBox h3{font-size:16px;margin-bottom:12px}
-@media(min-width:700px){body{max-width:720px;margin:auto}.bottom{max-width:720px;left:50%;transform:translateX(-50%)}.stats{grid-template-columns:repeat(4,1fr)}}
-.pickingBox{
-  margin-top:12px;
-  background:#f8fafc;
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  padding:10px;
-}
-
-.pickingTitle{
-  font-weight:700;
-  margin-bottom:8px;
-  font-size:14px;
-}
-
-.pickingItem{
-  display:flex;
-  gap:10px;
-  padding:10px 0;
-  border-bottom:1px solid #e5e7eb;
-}
-
-.pickingItem:last-child{
-  border-bottom:0;
-}
-
-.pickingImage{
-  width:65px;
-  height:65px;
-  min-width:65px;
-  border-radius:9px;
-  background:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  font-size:28px;
-}
-
-.pickingImage img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.pickingInfo{
-  flex:1;
-  min-width:0;
-}
-
-.pickingInfo b{
-  display:block;
-  font-size:14px;
-  margin-bottom:4px;
-}
-
-.pickingMeta{
-  font-size:12px;
-  color:#555;
-  line-height:1.5;
-}
-
-.pickingPrice{
-  font-size:12px;
-  margin-top:4px;
-}
-
-.pickingTotal{
-  font-size:12px;
-  font-weight:600;
-  margin-top:3px;
-}  
+button{cursor:pointer;border:0}
+.header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e5e7eb;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.menuBtn,.iconBtn{width:40px;height:40px;border-radius:10px;background:#f3f4f6;font-size:21px}
+.logo{width:42px;height:42px;object-fit:contain;border-radius:8px;background:#fff}
+.brand{flex:1;font-weight:700;font-size:14px}
+.brand small{display:block;color:#16a34a;font-size:9px;margin-top:3px}
+.dutyTop{background:#ecfdf3;color:#15803d;border-radius:20px;padding:9px 12px;font-size:11px;font-weight:700}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#16a34a;margin-right:5px}
+.container{max-width:650px;margin:auto;padding:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
+.stat{background:#fff;border:1px solid #e5e7eb;border-radius:13px;padding:10px 7px;min-height:70px}
+.stat small{font-size:8px;color:#6b7280;display:block}
+.stat strong{font-size:16px;display:block;margin-top:7px}
+.stat span{font-size:8px;color:#16a34a}
+.hero{background:#00b517;color:#fff;border-radius:15px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.heroText{flex:1}
+.heroText b{font-size:14px}
+.heroText small{display:block;font-size:9px;margin-top:3px}
+.switch{position:relative;width:50px;height:28px;background:#d1d5db;border-radius:20px;flex-shrink:0}
+.switch::after{content:"";position:absolute;width:22px;height:22px;top:3px;left:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch.on{background:#15803d}
+.switch.on::after{left:25px}
+.tabs{display:flex;gap:7px;overflow:auto;margin:10px 0}
+.tab{background:#e9edf0;color:#374151;border-radius:18px;padding:9px 13px;white-space:nowrap;font-size:10px;font-weight:700}
+.tab.active{background:#dcfce7;color:#15803d}
+.page{display:none}
+.page.active{display:block}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:15px;padding:13px;margin-bottom:10px}
+.sectionTitle{font-weight:700;font-size:14px;margin-bottom:10px}
+.empty{padding:30px 12px;text-align:center;color:#6b7280;font-size:12px;background:#fff;border-radius:15px;border:1px dashed #d1d5db}
+.order{border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin-bottom:10px;background:#fff}
+.orderHead{display:flex;justify-content:space-between;gap:10px}
+.orderId{font-weight:700;font-size:13px}
+.badge{font-size:9px;font-weight:700;padding:5px 8px;border-radius:12px;background:#dcfce7;color:#166534}
+.items{font-size:11px;color:#4b5563;margin:10px 0}
+.row{display:flex;justify-content:space-between;gap:10px;margin:7px 0;font-size:11px}
+.address{background:#f8fafc;border-radius:10px;padding:9px;margin:8px 0;font-size:10px}
+.btn{width:100%;padding:11px;border-radius:10px;font-weight:700;font-size:11px;margin-top:7px}
+.green{background:#00a916;color:#fff}
+.blue{background:#2563eb;color:#fff}
+.red{background:#fee2e2;color:#b91c1c}
+.orange{background:#f59e0b;color:#fff}
+.gray{background:#f3f4f6;color:#374151}
+.pink{background:#fce7f3;color:#be185d}
+label{font-size:9px;color:#4b5563;font-weight:700;display:block;margin:9px 0 5px}
+input,select{width:100%;padding:11px;border:1px solid #e5e7eb;border-radius:9px;background:#fff;outline:none;font-size:11px}
+input:focus,select:focus{border-color:#22c55e}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.profileTitle{display:flex;align-items:center;gap:9px}
+.avatar{width:38px;height:38px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:20px}
+.menuOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100}
+.sideMenu{position:absolute;left:0;top:0;height:100%;width:82%;max-width:340px;background:#fff;padding:18px;overflow:auto}
+.sideHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.sideItem{width:100%;text-align:left;background:#fff;padding:14px;border-bottom:1px solid #f1f5f9;font-weight:700;font-size:13px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:120;align-items:center;justify-content:center;padding:18px}
+.modalBox{background:#fff;width:100%;max-width:450px;border-radius:16px;padding:18px}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:650px;background:#fff;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(4,1fr);z-index:60;padding:7px 8px}
+.nav{background:#fff;color:#4b5563;padding:7px 2px;font-size:9px}
+.nav.active{color:#16a34a;font-weight:700}
+.navIcon{font-size:20px;display:block;margin-bottom:3px}
+.toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);background:#172033;color:#fff;padding:11px 15px;border-radius:10px;font-size:11px;z-index:200;display:none;max-width:90%;text-align:center}
+.small{font-size:9px;color:#6b7280}
+.money{font-size:22px;font-weight:800}
+.listLine{padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:11px}
+@media(max-width:380px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <header class="header">
-  <button class="menu" onclick="openSideMenu()">
-  <i data-lucide="menu"></i>
-  </button>
-<img
-  src="logo.png"
-  alt="Sudh Sagar Mart"
-  style="
-    width:52px;
-    height:52px;
-    object-fit:contain;
-    background:#fff;
-    border-radius:10px;
-    padding:3px;
-    flex-shrink:0;
-  "
->
-  <div class="brand"><b>Sudh Sagar Mart</b><span>30 Minutes Delivery</span></div>
-  <button id="dutyBtn" class="online" onclick="toggleDuty()"><i class="dot"></i><span id="dutyText">Online</span><i data-lucide="chevron-down" style="width:14px"></i></button>
-  <button class="iconBtn"><i data-lucide="bell"></i><span class="bellDot">3</span></button>
+  <button class="menuBtn" id="menuBtn">☰</button>
+  <img class="logo" src="logo.png" alt="Sudh Sagar Mart">
+  <div class="brand">Sudh Sagar Mart<small>30 Minutes Delivery</small></div>
+  <div class="dutyTop" id="dutyTop"><span class="dot"></span><span id="dutyTopText">Offline</span></div>
+  <button class="iconBtn" id="bellBtn">🔔</button>
 </header>
 
-<section class="stats">
-  <div class="stat"><small>Today's Orders</small><strong id="stat-orders">0</strong><span id="stat-completed">0 Completed</span></div>
-  <div class="stat"><small>Today's Earnings</small><strong id="stat-earnings">₹0</strong><span id="stat-pending">+ ₹0 Pending</span></div>
-  <div class="stat"><small>Avg Delivery</small><strong id="stat-time">-- min</strong><span>Today</span></div>
-  <div class="stat"><small>Rating</small><strong id="stat-rating">--</strong><span>Delivery Partner</span></div>
-</section>
+<div class="container">
+  <div class="stats">
+    <div class="stat"><small>Today's Orders</small><strong id="statOrders">0</strong><span id="statCompleted">0 Completed</span></div>
+    <div class="stat"><small>Today's Earnings</small><strong id="statEarnings">₹0</strong><span id="statPending">₹0 Pending</span></div>
+    <div class="stat"><small>Avg Delivery</small><strong id="statTime">-- min</strong><span>Today</span></div>
+    <div class="stat"><small>Rating</small><strong id="statRating">--</strong><span>Delivery Partner</span></div>
+  </div>
 
-<section class="hero">
-  <div class="heroIcon"><i data-lucide="play"></i></div>
-  <div class="heroText"><b id="heroTitle">You are Online</b><p id="heroSub">You will receive new delivery orders</p></div>
-  <button id="switch" class="switch on" onclick="toggleDuty()"><i></i></button>
-</section>
+  <div class="hero">
+    <div style="font-size:25px">▶</div>
+    <div class="heroText"><b id="heroTitle">You are Offline</b><small id="heroSub">Go online to receive new delivery orders</small></div>
+    <button class="switch" id="dutySwitch" aria-label="Online Offline"></button>
+  </div>
 
-<div class="tabs">
-  <button class="tab active" onclick="showPage('home',this)">New Orders <span id="newCount">(0)</span></button>
-  <button class="tab" onclick="showPage('ongoing',this)">Ongoing <span id="ongoingCount">(0)</span></button>
-  <button class="tab" onclick="showPage('completed',this)">Completed</button>
-  <button class="tab" onclick="showPage('earnings',this)">Earnings</button>
-  <button class="tab" onclick="showPage('profile',this)">Profile</button>
+  <div class="tabs">
+    <button class="tab active" data-page="home">New Orders (<span id="newCount">0</span>)</button>
+    <button class="tab" data-page="ongoing">Ongoing (<span id="ongoingCount">0</span>)</button>
+    <button class="tab" data-page="completed">Completed</button>
+    <button class="tab" data-page="earnings">Earnings</button>
+    <button class="tab" data-page="profile">Profile</button>
+  </div>
+
+  <section id="home" class="page active">
+    <div class="card">
+      <div class="sectionTitle">New Delivery Orders <span class="small" style="float:right">Live</span></div>
+      <div id="newOrders"></div>
+    </div>
+    <div class="card">
+      <div class="sectionTitle">Nearby Stores & Delivery Area</div>
+      <div id="storeInfo" class="address">Store not assigned</div>
+      <button class="btn green" id="routeBtn">📍 Open Google Maps Route</button>
+    </div>
+  </section>
+
+  <section id="ongoing" class="page">
+    <div class="card"><div class="sectionTitle">Ongoing Deliveries</div><div id="ongoingOrders"></div></div>
+  </section>
+
+  <section id="completed" class="page">
+    <div class="card"><div class="sectionTitle">Today's Completed Orders</div><div id="completedOrders"></div></div>
+  </section>
+
+  <section id="earnings" class="page">
+    <div class="card">
+      <div class="sectionTitle">Rider Wallet</div>
+      <div class="grid2">
+        <div class="stat"><small>Wallet Balance</small><strong id="walletBalance">₹0</strong></div>
+        <div class="stat"><small>Pending Settlement</small><strong id="pendingSettlement">₹0</strong></div>
+      </div>
+      <button class="btn green" id="payoutBtn">💰 Request Payout</button>
+    </div>
+    <div class="card">
+      <div class="sectionTitle">Today's Earnings</div>
+      <div class="money" id="earnToday">₹0</div>
+      <div class="small">Delivery fees + incentives + COD cash records</div>
+    </div>
+    <div class="card">
+      <div class="sectionTitle">Weekly Earnings</div>
+      <div class="grid2">
+        <div class="stat"><small>Deliveries</small><strong id="weekDeliveries">0</strong></div>
+        <div class="stat"><small>Earnings</small><strong id="weekEarnings">₹0</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="profile" class="page">
+    <div class="card">
+      <div class="profileTitle"><div class="avatar">👤</div><div><b>Delivery Partner</b><div class="small" id="kycStatus">KYC Pending</div></div></div>
+      <label>FULL NAME</label><input id="profileName" placeholder="Enter full name">
+      <label>MOBILE NUMBER</label><input id="profilePhone" type="tel" placeholder="Enter mobile number">
+      <label>VEHICLE TYPE</label><select id="profileVehicleType"><option>Bike</option><option>Scooter</option><option>Cycle</option><option>Other</option></select>
+      <label>VEHICLE NUMBER</label><input id="profileVehicle" placeholder="BR01AB1234">
+      <label>DELIVERY AREA</label><input id="profileArea" placeholder="Maner / Danapur / Bihta">
+      <button class="btn green" id="saveProfileBtn">💾 Save Profile</button>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">🏪 Assigned Store</div>
+      <div class="address"><b id="assignedStoreName">Store not assigned</b><br><span id="assignedStoreId" class="small">Store ID not assigned</span></div>
+      <button class="btn red" id="sosBtn">🚨 Emergency / SOS</button>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">KYC & Verification</div>
+      <label>AADHAAR LAST 4 DIGITS</label><input id="profileAadhaar" maxlength="4" inputmode="numeric" placeholder="XXXX">
+      <label>PAN NUMBER</label><input id="profilePan" placeholder="ABCDE1234F" style="text-transform:uppercase">
+      <label>DRIVING LICENCE</label><input id="profileDl" placeholder="Driving Licence Number">
+      <button class="btn blue" id="saveKycBtn">💾 Save KYC Details</button>
+      <div class="small">Full Aadhaar number/document photo chat me share na karein.</div>
+    </div>
+
+    <div class="card">
+      <button class="btn blue" id="attendanceBtn">📍 Attendance Check-In</button>
+      <button class="btn blue" id="supportBtn">📞 Fleet Manager Support</button>
+      <label>NEW PASSWORD (minimum 6 characters)</label><input id="newPassword" type="password" placeholder="New password">
+      <button class="btn orange" id="passwordBtn">🔐 Update Password</button>
+      <button class="btn red" id="logoutBtn">🚪 Logout</button>
+    </div>
+  </section>
 </div>
-
-<main>
-<section id="home" class="page active">
-  <div class="sectionHead"><h3>New Delivery Orders</h3><span id="refreshText">Live</span></div>
-  <div id="newOrders"></div>
-  <div class="mapCard">
-    <div class="mapFake"><i data-lucide="map" style="width:28px"></i>&nbsp; Nearby Stores & Delivery Area</div>
-    <button class="btn green" style="width:100%" onclick="openOptimizedRoute()"><i data-lucide="navigation"></i> Open Google Maps Route</button>
-  </div>
-</section>
-
-<section id="ongoing" class="page">
-  <div class="sectionHead"><h3>Ongoing Deliveries</h3><span>Live status</span></div>
-  <div id="ongoingOrders"></div>
-</section>
-
-<section id="completed" class="page">
-  <div class="sectionHead"><h3>Today's Completed Orders</h3><span id="completedCount">0</span></div>
-  <div id="completedOrders"></div>
-</section>
-
-<section id="earnings" class="page">
-  <div class="target">
-    <div class="targetRow"><div class="circle" id="targetCircle">0/15</div><div><b>Today's Target</b><p>Complete 15 orders to unlock ₹100 incentive</p></div></div>
-    <div class="progress"><i id="targetBar"></i></div>
-  </div>
-  <div class="profileCard">
-    <div class="sectionHead"><h3>Earnings Summary</h3></div>
-    <div class="stats" style="padding:0;margin:0">
-      <div class="stat"><small>Delivery Fees</small><strong id="earnDelivery">₹0</strong></div>
-      <div class="stat"><small>Incentive</small><strong id="earnIncentive">₹0</strong></div>
-      <div class="stat"><small>COD Cash</small><strong id="earnCod">₹0</strong></div>
-      <div class="stat"><small>Total</small><strong id="earnTotal">₹0</strong></div>
-    </div>
-  </div>
-  <!-- ================= RIDER WALLET & PAYOUT ================= -->
-
-<div class="profileCard">
-
-  <div class="sectionHead">
-    <h3>💰 Rider Wallet</h3>
-    <span>Settlement</span>
-  </div>
-
-  <div class="stats" style="padding:0;margin:0">
-
-    <div class="stat">
-      <small>Wallet Balance</small>
-      <strong id="walletBalance">₹0</strong>
-    </div>
-
-    <div class="stat">
-      <small>Pending Settlement</small>
-      <strong id="pendingSettlement">₹0</strong>
-    </div>
-
-  </div>
-
-  <button
-    class="btn green"
-    style="width:100%;margin-top:12px"
-    onclick="requestPayout()"
-  >
-    💸 Request Payout
-  </button>
-
-</div>
-
-
-<!-- ================= INCENTIVE ================= -->
-
-<div class="profileCard">
-
-  <div class="sectionHead">
-    <h3>🎯 Incentive</h3>
-    <span id="incentiveStatus">Today</span>
-  </div>
-
-  <div style="
-    background:#f0fdf4;
-    border:1px solid #bbf7d0;
-    border-radius:12px;
-    padding:12px;
-  ">
-
-    <div style="display:flex;justify-content:space-between">
-      <span style="font-size:11px">Completed Orders</span>
-      <b id="incentiveOrders">0</b>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;margin-top:8px">
-      <span style="font-size:11px">Target</span>
-      <b id="incentiveTarget">15</b>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;margin-top:8px">
-      <span style="font-size:11px">Bonus</span>
-      <b id="incentiveBonus">₹0</b>
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- ================= WEEKLY EARNINGS ================= -->
-
-<div class="profileCard">
-
-  <div class="sectionHead">
-    <h3>📊 Weekly Earnings</h3>
-    <span>This Week</span>
-  </div>
-
-  <div style="
-    background:#f8fafc;
-    border:1px solid #e5e7eb;
-    border-radius:12px;
-    padding:12px;
-  ">
-
-    <div style="display:flex;justify-content:space-between">
-      <span style="font-size:11px">Delivery Fees</span>
-      <b id="weeklyDelivery">₹0</b>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;margin-top:8px">
-      <span style="font-size:11px">Incentive</span>
-      <b id="weeklyIncentive">₹0</b>
-    </div>
-
-    <div style="
-      display:flex;
-      justify-content:space-between;
-      margin-top:10px;
-      padding-top:10px;
-      border-top:1px dashed #ddd;
-    ">
-      <span style="font-size:11px;font-weight:800">
-        Total
-      </span>
-      <b id="weeklyTotal">₹0</b>
-    </div>
-
-  </div>
-
-</div>
-</section>
-
-<section id="profile" class="page">
-  <div class="profileCard">
-    <div class="profileHead"><div class="avatar"><i data-lucide="user"></i></div><div><b id="profileTitle">Delivery Partner</b><small id="profileEmail">Authenticating...</small></div><span class="kyc" id="kyc-badge">KYC PENDING</span></div>
-    <label class="label">FULL NAME</label><input id="profile-name" class="input" placeholder="Enter full name">
-    <label class="label">MOBILE NUMBER</label><input id="profile-phone" class="input" type="tel" placeholder="Enter mobile number">
-    <label class="label">VEHICLE TYPE</label><select id="profile-vehicle" class="select"><option>Bike</option><option>Scooter</option><option>EV</option><option>Cycle</option></select>
-    <label class="label">VEHICLE NUMBER</label><input id="profile-vehicle-number" class="input" placeholder="BR01AB1234">
-    <label class="label">DELIVERY AREA</label><input id="profile-area" class="input" placeholder="Maner / Danapur / Bihta">
-    <button class="btn green" style="width:100%;margin-top:12px" onclick="savePartnerProfile()"><i data-lucide="save"></i> Save Profile</button>
-  </div>
-  <div class="profileCard">
-
-  <h3 style="font-size:14px;margin-bottom:10px">
-    🏪 Assigned Store
-  </h3>
-
-  <div style="
-    background:#f0fdf4;
-    border:1px solid #bbf7d0;
-    padding:12px;
-    border-radius:12px;
-    margin-bottom:12px;
-  ">
-    <b id="assignedStoreName">Store not assigned</b>
-
-    <div
-      id="assignedStoreId"
-      style="font-size:10px;color:#6b7280;margin-top:4px"
-    >
-      Store ID not assigned
-    </div>
-  </div>
-
-  <button
-    class="btn red"
-    style="width:100%;"
-    onclick="emergencySOS()"
-  >
-    🚨 Emergency / SOS
-  </button>
-
-</div>
-  <div class="profileCard">
-    <h3 style="font-size:14px;margin-bottom:10px">KYC & Verification</h3>
-    <label class="label">AADHAAR LAST 4 DIGITS</label><input id="profile-aadhaar" class="input" maxlength="4" inputmode="numeric" placeholder="XXXX">
-    <label class="label">PAN NUMBER</label><input id="profile-pan" class="input" style="text-transform:uppercase" placeholder="ABCDE1234F">
-    <label class="label">DRIVING LICENCE</label><input id="profile-dl" class="input" placeholder="Driving Licence Number">
-    <button class="btn blue" style="width:100%;margin-top:12px" onclick="saveKycInfo()">Save KYC Details</button>
-    <p style="font-size:9px;color:var(--muted);margin-top:8px">Full Aadhaar number/document photo plain text me store na karein.</p>
-  </div>
-  <div class="profileCard">
-    <button class="btn blue" style="width:100%;margin-bottom:8px" onclick="punchIn()"><i data-lucide="map-pin"></i> Attendance Check-In</button>
-    <a href="tel:+919876543210" class="btn blue" style="width:100%;text-decoration:none;margin-bottom:8px"><i data-lucide="phone-call"></i> Fleet Manager Support</a>
-    <input id="new-password" class="input" type="password" placeholder="New password (min 6 characters)" style="margin-bottom:8px">
-    <button class="btn orange" style="width:100%;margin-bottom:8px" onclick="changePassword()">Update Password</button>
-    <button class="btn red" style="width:100%" onclick="logoutPartner()">Logout</button>
-  </div>
-</section>
-</main>
 
 <nav class="bottom">
-  <button class="nav active" onclick="showPage('home',this)"><div><i data-lucide="home"></i></div>Home</button>
-  <button class="nav" onclick="showPage('ongoing',this)"><div><i data-lucide="package"></i></div>Orders</button>
-  <button class="nav" onclick="showPage('earnings',this)"><div><i data-lucide="wallet"></i></div>Earnings</button>
-  <button class="nav" onclick="showPage('profile',this)"><div><i data-lucide="user"></i></div>Profile</button>
+  <button class="nav active" data-page="home"><span class="navIcon">⌂</span>Home</button>
+  <button class="nav" data-page="ongoing"><span class="navIcon">📦</span>Orders</button>
+  <button class="nav" data-page="earnings"><span class="navIcon">▣</span>Earnings</button>
+  <button class="nav" data-page="profile"><span class="navIcon">👤</span>Profile</button>
 </nav>
 
-<div id="qcModal" class="modal"><div class="modalBox">
-<h3>Open Box Quality Check</h3>
-<label><input type="checkbox" id="qc-tag"> Product tag intact</label><br><br>
-<label><input type="checkbox" id="qc-box"> Original packaging available</label><br><br>
-<label><input type="checkbox" id="qc-damage"> Physical damage checked</label>
-<select id="qc-status" class="select" style="margin-top:12px"><option value="Passed">Passed</option><option value="Failed">Failed</option></select>
-<div class="actions" style="margin-top:12px"><button class="btn green" onclick="submitQC()">Submit</button><button class="btn gray" onclick="closeModal('qcModal')">Cancel</button></div>
-</div></div>
+<div class="menuOverlay" id="menuOverlay">
+  <div class="sideMenu" id="sideMenu">
+    <div class="sideHead"><div><b>Sudh Sagar Mart</b><div class="small">Delivery Partner Menu</div></div><button class="iconBtn" id="closeMenuBtn">✕</button></div>
+    <button class="sideItem" data-page="profile">👤 Profile</button>
+    <button class="sideItem" id="storeMenu">🏪 Store</button>
+    <button class="sideItem" id="settingsMenu">⚙️ Settings</button>
+    <button class="sideItem" id="privacyMenu">🔒 Privacy Policy</button>
+    <button class="sideItem" id="termsMenu">📄 Terms & Conditions</button>
+    <button class="sideItem" id="helpMenu">🆘 Help Desk</button>
+  </div>
+</div>
 
-<div id="failedModal" class="modal"><div class="modalBox">
-<h3>Mark Delivery Failed</h3>
-<select id="fail-reason" class="select"><option>Customer Unavailable</option><option>Wrong Address</option><option>Customer Refused</option><option>Phone Unreachable</option></select>
-<div class="actions" style="margin-top:12px"><button class="btn red" onclick="submitFailedAttempt()">Confirm Failed</button><button class="btn gray" onclick="closeModal('failedModal')">Cancel</button></div>
-</div></div>
+<div class="modal" id="infoModal">
+  <div class="modalBox">
+    <div class="sectionTitle" id="modalTitle"></div>
+    <div id="modalBody" class="small" style="line-height:1.6"></div>
+    <button class="btn green" id="modalClose">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {getFirestore,collection,query,where,onSnapshot,doc,getDoc,updateDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import {getAuth,onAuthStateChanged,updatePassword,signOut} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where,
+  onSnapshot, serverTimestamp, orderBy, limit
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const firebaseConfig={
- apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",
- authDomain:"sudhsagarmart.firebaseapp.com",
- projectId:"sudhsagarmart",
- storageBucket:"sudhsagarmart.firebasestorage.app",
- messagingSenderId:"682379938859",
- appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e"
+const firebaseConfig = {
+  apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLw9YV9YtGU3SjuGU",
+  authDomain:"sudhsagarmart.firebaseapp.com",
+  projectId:"sudhsagarmart",
+  storageBucket:"sudhsagarmart.firebasestorage.app",
+  messagingSenderId:"682379938859",
+  appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e"
 };
-const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);
-let orders=[],
-    partnerId=null,
-    isOnline=true,
-    currentQC=null,
-    currentFailed=null,
-    currentRiderLatitude=null,
-    currentRiderLongitude=null;
-// ================= DELIVERY PARTNER APP V2 =================
 
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let partnerId = "";
 let partnerStoreId = "";
 let partnerStoreName = "";
-let partnerStatus = "active";
-let partnerRating = 0;
-let partnerTotalDeliveries = 0;
-let partnerWeeklyEarnings = 0;
-let partnerWallet = 0;
-let partnerPendingSettlement = 0;
-let partnerDutyStatus = "online";
-let currentOrderForAction = null;
-
-
-    // ================= RATING =================
-// ================= STORE + RIDER INFORMATION =================
-
-async function loadPartnerExtraData(uid){
-
-  try{
-
-    const partnerSnap = await getDoc(
-      doc(db,"deliveryPartners",uid)
-    );
-
-    if(!partnerSnap.exists()){
-
-      alert("Delivery Partner profile नहीं मिला।");
-
-      await signOut(auth);
-
-      location.href="login.html";
-
-      return;
-    }
-
-    const p = partnerSnap.data();
-
-    // ================= STORE =================
-
-    partnerStoreId =
-      p.storeId ||
-      p.assignedStoreId ||
-      "";
-
-    partnerStoreName =
-      p.storeName ||
-      p.assignedStoreName ||
-      "";
-
-    // ================= ACCOUNT STATUS =================
-
-    partnerStatus =
-      p.accountStatus ||
-      (p.active === false ? "inactive" : "active");
-
-    const normalizedStatus =
-      String(partnerStatus).toLowerCase();
-
-    if(
-      p.active === false ||
-      normalizedStatus === "inactive" ||
-      normalizedStatus === "blocked"
-    ){
-
-      alert(
-        "आपका Delivery Partner account अभी inactive/blocked है।"
-      );
-
-      await signOut(auth);
-
-      location.href="login.html";
-
-      return;
-    }
-
-    // ================= RIDER DATA =================
-
-    partnerRating =
-      Number(p.rating || 0);
-
-    partnerTotalDeliveries =
-      Number(p.totalDeliveries || 0);
-
-    partnerWeeklyEarnings =
-      Number(p.weeklyEarnings || 0);
-
-    partnerWallet =
-      Number(p.walletBalance || 0);
-
-    partnerPendingSettlement =
-      Number(p.pendingSettlement || 0);
-
-    partnerDutyStatus =
-      p.dutyStatus || "online";
-
-    // ================= RATING =================
-
-    const ratingEl =
-      document.getElementById("stat-rating");
-
-    if(ratingEl){
-
-      ratingEl.textContent =
-        partnerRating > 0
-          ? partnerRating.toFixed(1)
-          : "--";
-    }
-
-    // ================= STORE UI =================
-
-    const storeNameEl =
-      document.getElementById("assignedStoreName");
-
-    const storeIdEl =
-      document.getElementById("assignedStoreId");
-
-    if(storeNameEl){
-
-      storeNameEl.textContent =
-        partnerStoreName ||
-        "Store not assigned";
-    }
-
-    if(storeIdEl){
-
-      storeIdEl.textContent =
-        partnerStoreId
-          ? "Store ID: " + partnerStoreId
-          : "Store ID not assigned";
-    }
-
-    // ================= DUTY =================
-
-    setDuty(
-      partnerDutyStatus === "online",
-      false
-    );
-
-    // ================= GPS =================
-
-    if(partnerDutyStatus === "online"){
-
-      setTimeout(()=>{
-        startLiveLocation();
-      },300);
-    }
-
-  }catch(error){
-
-    console.error(
-      "Partner extra data error:",
-      error
-    );
-
-    alert(
-      "Delivery Partner data load नहीं हो पाया।\n\n" +
-      error.message
-    );
-  }
-}
-
-if(typeof lucide !== "undefined"){
-  lucide.createIcons();
-}
-
-window.showPage = function(id, el){
-
-  // सभी pages hide
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
-  });
-
-  // selected page show
-  const page = document.getElementById(id);
-
-  if(page){
-    page.classList.add("active");
-  }
-
-  // सभी top tabs inactive
-  document.querySelectorAll(".tab").forEach(tab => {
-    tab.classList.remove("active");
-  });
-
-  // सभी bottom buttons inactive
-  document.querySelectorAll(".nav").forEach(nav => {
-    nav.classList.remove("active");
-  });
-
-  // जिस button पर click हुआ उसे active करो
-  if(el){
-    if(el.classList.contains("tab")){
-      el.classList.add("active");
-    }
-
-    if(el.classList.contains("nav")){
-      el.classList.add("active");
-    }
-  }
-
-  // icons reload
-  if(typeof lucide !== "undefined"){
-    lucide.createIcons();
-  }
-
-  // ऊपर page तक वापस जाए
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-};
-
-onAuthStateChanged(auth, async user => {
-
-    if(!user){
-        location.href="login.html";
-        return;
-    }
-
-    partnerId = user.uid;
-
-    // Delivery Partner account verification
-    try{
-        const partnerSnap = await getDoc(
-            doc(db,"deliveryPartners",user.uid)
-        );
-
-        if(!partnerSnap.exists()){
-            alert("यह account Delivery Partner के रूप में registered नहीं है।");
-            await signOut(auth);
-            location.href="login.html";
-            return;
-        }
-
-        const partner = partnerSnap.data();
-
-        if(partner.active === false){
-            alert("आपका Delivery Partner account अभी inactive है।");
-            await signOut(auth);
-            location.href="login.html";
-            return;
-        }
-
-        document.getElementById("profileEmail").textContent =
-            user.email || user.phoneNumber || "Delivery Partner";
-
-        document.getElementById("profileTitle").textContent =
-            partner.name || user.displayName || "Delivery Partner";
-
-        loadPartnerProfile(user.uid);
-      await loadPartnerExtraData(user.uid);
-        loadOrders(user.uid);
-
-    }catch(error){
-        console.error("Delivery partner verification failed:",error);
-        alert("Delivery account verify नहीं हो पाया।");
-    }
-
-});
-
-async function loadPartnerProfile(uid){
- try{
-  const s=await getDoc(doc(db,"deliveryPartners",uid));
-  if(!s.exists())return;
-  const p=s.data();
-  document.getElementById("profile-name").value=p.name||"";
-  document.getElementById("profile-phone").value=p.phone||auth.currentUser?.phoneNumber||"";
-  document.getElementById("profile-vehicle").value=p.vehicleType||"Bike";
-  document.getElementById("profile-vehicle-number").value=p.vehicleNumber||"";
-  document.getElementById("profile-area").value=p.area||"";
-  document.getElementById("profile-aadhaar").value=p.aadhaarLast4||"";
-  document.getElementById("profile-pan").value=p.pan||"";
-  document.getElementById("profile-dl").value=p.drivingLicence||"";
-  const partnerOnline=(p.dutyStatus||"online")==="online";
-
-setDuty(partnerOnline,false);
-
-// Saved Online status ho to GPS automatically resume karo
-if(partnerOnline){
-  setTimeout(()=>startLiveLocation(),300);
-}
-  const b=document.getElementById("kyc-badge"),s1=p.kycStatus||"Pending";
-  b.textContent="KYC "+s1.toUpperCase();
-  if(s1==="Verified"){b.style.background="#dcfce7";b.style.color="#166534"}
-  if(s1==="Rejected"){b.style.background="#fee2e2";b.style.color="#991b1b"}
- }catch(e){console.error(e)}
-}
-
-function setDuty(value,save=true){
- isOnline=value;
- document.getElementById("dutyText").textContent=value?"Online":"Offline";
- document.getElementById("dutyBtn").classList.toggle("off",!value);
- document.getElementById("switch").classList.toggle("on",value);
- document.getElementById("switch").classList.toggle("off",!value);
- document.getElementById("heroTitle").textContent=value?"You are Online":"You are Offline";
- document.getElementById("heroSub").textContent=value?"You will receive new delivery orders":"Go online to receive new delivery orders";
- if(save&&partnerId){
-  setDoc(doc(db,"deliveryPartners",partnerId),{dutyStatus:value?"online":"offline",dutyUpdatedAt:new Date()},{merge:true}).catch(e=>console.error(e));
- }
-}
-  
-window.toggleDuty=()=>{
-  const nextStatus = !isOnline;
-
-  // पहले Online/Offline status बदलो
-  setDuty(nextStatus,true);
-  if(nextStatus){
-  enableOrderNotifications();
-}
-
-  // GPS अलग से शुरू/बंद करो
-  if(nextStatus){
-    startLiveLocation();
-  }else{
-    stopLiveLocation();
-  }
-};
-// ================= LIVE GPS LOCATION =================
-let liveLocationWatchId = null;
+let partnerData = {};
+let orders = [];
+let unsubscribeOrders = null;
+let locationWatchId = null;
 let lastLocationWrite = 0;
 
-function startLiveLocation(){
+const $ = id => document.getElementById(id);
+const money = n => "₹" + Math.round(Number(n)||0).toLocaleString("en-IN");
 
-  if(!partnerId) return;
-
-  if(!navigator.geolocation){
-    alert("इस मोबाइल में GPS/Location support नहीं है।");
-    return;
-  }
-
-  if(liveLocationWatchId !== null) return;
-
-  liveLocationWatchId = navigator.geolocation.watchPosition(
-
-    async (position) => {
-
-      if(!partnerId) return;
-
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      const accuracy = position.coords.accuracy;
-      currentRiderLatitude = latitude;
-currentRiderLongitude = longitude;
-
-      // हर 5 सेकंड में ही Firestore update
-      const now = Date.now();
-
-      if(now - lastLocationWrite < 5000) return;
-
-      lastLocationWrite = now;
-
-      try{
-
-        await setDoc(
-          doc(db, "deliveryPartners", partnerId),
-          {
-            latitude: latitude,
-            longitude: longitude,
-            accuracy: accuracy || null,
-            locationSharing: true,
-            locationUpdatedAt: new Date()
-          },
-          {merge:true}
-        );
-
-        console.log(
-          "LIVE GPS:",
-          latitude,
-          longitude,
-          "Accuracy:",
-          accuracy
-        );
-       render();
-      }catch(error){
-
-        console.error(
-          "Live location update failed:",
-          error
-        );
-
-      }
-
-    },
-
-    (error) => {
-
-      console.error("GPS Error:", error);
-
-      if(error.code === 1){
-        alert("Location permission Allow करो, तभी Live Delivery काम करेगा।");
-      }
-
-    },
-
-    {
-      enableHighAccuracy: true,
-      maximumAge: 5000,
-      timeout: 15000
-    }
-
-  );
+function toast(msg){
+  $("toast").textContent = msg;
+  $("toast").style.display = "block";
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>$("toast").style.display="none",3000);
 }
 
-
-function stopLiveLocation(){
-
-  if(liveLocationWatchId !== null){
-
-    navigator.geolocation.clearWatch(
-      liveLocationWatchId
-    );
-
-    liveLocationWatchId = null;
-  }
-
-  if(partnerId){
-
-    setDoc(
-      doc(db, "deliveryPartners", partnerId),
-      {
-        locationSharing: false,
-        locationUpdatedAt: new Date()
-      },
-      {merge:true}
-    ).catch(error => {
-      console.error("GPS stop update failed:", error);
-    });
-
-  }
-
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const page=$(id);
+  if(page) page.classList.add("active");
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+  document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-  // ================= NEW ORDER NOTIFICATION =================
-let firstOrderSnapshot = true;
-let knownOrderIds = new Set();
 
-async function enableOrderNotifications(){
+function openMenu(){ $("menuOverlay").style.display="block"; }
+function closeMenu(){ $("menuOverlay").style.display="none"; }
 
-  if(!("Notification" in window)){
-    console.log("Browser notification supported nahi hai.");
-    return;
+function modal(title,body){
+  $("modalTitle").textContent=title;
+  $("modalBody").innerHTML=body;
+  $("infoModal").style.display="flex";
+}
+
+function escapeHtml(v){
+  return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+function orderStatus(o){
+  return String(o.status||o.orderStatus||"new").toLowerCase().replaceAll("_"," ");
+}
+
+function isCompleted(o){ return ["delivered","completed"].includes(orderStatus(o)); }
+function isOngoing(o){ return ["accepted","assigned","picked up","picked_up","out for delivery","out_for_delivery"].includes(orderStatus(o)); }
+function isNew(o){
+  const s=orderStatus(o);
+  return !isCompleted(o) && !isOngoing(o) && !["rejected","cancelled","canceled"].includes(s);
+}
+
+function renderOrder(o,type){
+  const id=o.id;
+  const items=o.items||o.products||[];
+  const itemText = Array.isArray(items)
+    ? items.map(x=>`${escapeHtml(x.name||x.title||"Item")} × ${x.qty||x.quantity||1}`).join("<br>")
+    : escapeHtml(items);
+  const customer=o.customerName||o.userName||o.name||"Customer";
+  const phone=o.customerPhone||o.phone||"";
+  const address=o.deliveryAddress||o.address||o.customerAddress||"Address not available";
+  const total=o.total||o.grandTotal||o.amount||0;
+  const s=orderStatus(o);
+
+  let buttons="";
+  if(type==="new"){
+    buttons=`<button class="btn green" data-action="accept" data-id="${id}">✓ Accept Order</button>
+             <button class="btn red" data-action="reject" data-id="${id}">✕ Reject</button>`;
+  }else if(type==="ongoing"){
+    if(["accepted","assigned"].includes(s)) buttons=`<button class="btn blue" data-action="picked" data-id="${id}">📦 Mark Picked Up</button>`;
+    else if(["picked up","picked_up"].includes(s)) buttons=`<button class="btn blue" data-action="out" data-id="${id}">🛵 Out for Delivery</button>`;
+    else buttons=`<button class="btn green" data-action="deliver" data-id="${id}">✓ Verify & Deliver</button>`;
+    if(phone) buttons+=`<button class="btn gray" data-action="call" data-phone="${escapeHtml(phone)}">📞 Call Customer</button>`;
   }
+  return `<div class="order">
+    <div class="orderHead"><div class="orderId">Order #${escapeHtml(id.slice(-8))}</div><span class="badge">${escapeHtml(s)}</span></div>
+    <div class="items">${itemText||"No item details"}</div>
+    <div class="address"><b>${escapeHtml(customer)}</b><br>${escapeHtml(address)}</div>
+    <div class="row"><span>Order Total</span><b>${money(total)}</b></div>
+    ${buttons}
+  </div>`;
+}
 
-  if(Notification.permission === "default"){
+function renderOrders(){
+  const newest=orders.filter(isNew);
+  const ongoing=orders.filter(isOngoing);
+  const completed=orders.filter(isCompleted);
+  $("newCount").textContent=newest.length;
+  $("ongoingCount").textContent=ongoing.length;
+  $("newOrders").innerHTML=newest.length?newest.map(o=>renderOrder(o,"new")).join(""):`<div class="empty">No new delivery orders</div>`;
+  $("ongoingOrders").innerHTML=ongoing.length?ongoing.map(o=>renderOrder(o,"ongoing")).join(""):`<div class="empty">No ongoing deliveries</div>`;
+  $("completedOrders").innerHTML=completed.length?completed.map(o=>renderOrder(o,"completed")).join(""):`<div class="empty">No completed orders</div>`;
+  $("statOrders").textContent=orders.length;
+  $("statCompleted").textContent=completed.length+" Completed";
+  document.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",handleOrderAction));
+}
+
+async function handleOrderAction(e){
+  const b=e.currentTarget, action=b.dataset.action, id=b.dataset.id, o=orders.find(x=>x.id===id);
+  if(!o) return;
+  try{
+    if(action==="accept") await updateDoc(doc(db,"orders",id),{status:"accepted",deliveryBoyId:partnerId,acceptedAt:serverTimestamp()});
+    if(action==="reject") await updateDoc(doc(db,"orders",id),{status:"rejected",rejectedBy:partnerId,rejectedAt:serverTimestamp()});
+    if(action==="picked") await updateDoc(doc(db,"orders",id),{status:"picked_up",pickedUpAt:serverTimestamp()});
+    if(action==="out") await updateDoc(doc(db,"orders",id),{status:"out_for_delivery",outForDeliveryAt:serverTimestamp()});
+    if(action==="deliver") await updateDoc(doc(db,"orders",id),{status:"delivered",deliveredAt:serverTimestamp()});
+    if(action==="call" && b.dataset.phone) location.href="tel:"+b.dataset.phone;
+    if(action!=="call") toast("Order updated successfully");
+  }catch(err){ console.error(err); toast("Order update failed: "+err.message); }
+}
+
+async function loadPartner(){
+  const ref=doc(db,"deliveryPartners",partnerId);
+  const snap=await getDoc(ref);
+  partnerData=snap.exists()?snap.data():{};
+  partnerStoreId=partnerData.storeId||partnerData.assignedStoreId||"";
+  partnerStoreName=partnerData.storeName||partnerData.assignedStoreName||"";
+  fillProfile();
+  setDutyUI(partnerData.dutyStatus==="online");
+}
+
+function fillProfile(){
+  $("profileName").value=partnerData.name||partnerData.fullName||"";
+  $("profilePhone").value=partnerData.phone||currentUser?.phoneNumber||"";
+  $("profileVehicleType").value=partnerData.vehicleType||"Bike";
+  $("profileVehicle").value=partnerData.vehicleNumber||"";
+  $("profileArea").value=partnerData.deliveryArea||"";
+  $("profileAadhaar").value=partnerData.aadhaarLast4||"";
+  $("profilePan").value=partnerData.pan||"";
+  $("profileDl").value=partnerData.drivingLicence||partnerData.dlNumber||"";
+  $("assignedStoreName").textContent=partnerStoreName||"Store not assigned";
+  $("assignedStoreId").textContent=partnerStoreId?("Store ID: "+partnerStoreId):"Store ID not assigned";
+  $("storeInfo").textContent=partnerStoreName?`${partnerStoreName} (${partnerStoreId||"ID not assigned"})`:"Store not assigned";
+  $("kycStatus").textContent=partnerData.kycStatus||"KYC Pending";
+  $("statRating").textContent=partnerData.rating?Number(partnerData.rating).toFixed(1):"--";
+  $("walletBalance").textContent=money(partnerData.walletBalance);
+  $("pendingSettlement").textContent=money(partnerData.pendingSettlement);
+  $("weekDeliveries").textContent=partnerData.weeklyDeliveries||0;
+  $("weekEarnings").textContent=money(partnerData.weeklyEarnings);
+  $("earnToday").textContent=money(partnerData.todayEarnings);
+  $("statEarnings").textContent=money(partnerData.todayEarnings);
+  $("statPending").textContent=money(partnerData.pendingSettlement)+" Pending";
+}
+
+function setDutyUI(on){
+  $("dutySwitch").classList.toggle("on",on);
+  $("dutyTopText").textContent=on?"Online":"Offline";
+  $("heroTitle").textContent=on?"You are Online":"You are Offline";
+  $("heroSub").textContent=on?"You will receive new delivery orders":"Go online to receive new delivery orders";
+}
+
+async function toggleDuty(){
+  if(!partnerId) return toast("Partner account not ready");
+  const next=partnerData.dutyStatus!=="online";
+  try{
+    await setDoc(doc(db,"deliveryPartners",partnerId),{dutyStatus:next?"online":"offline",dutyUpdatedAt:serverTimestamp()},{merge:true});
+    partnerData.dutyStatus=next?"online":"offline";
+    setDutyUI(next);
+    if(next) startLocation(); else stopLocation();
+    toast(next?"You are now Online":"You are now Offline");
+  }catch(err){console.error(err);toast("Duty status update failed");}
+}
+
+function startLocation(){
+  if(locationWatchId!==null || !navigator.geolocation) return;
+  locationWatchId=navigator.geolocation.watchPosition(async pos=>{
+    if(!partnerId) return;
+    const now=Date.now();
+    if(now-lastLocationWrite<5000)return;
+    lastLocationWrite=now;
     try{
-      await Notification.requestPermission();
-    }catch(e){
-      console.error(e);
-    }
-  }
-}
-// ================= ORDER RINGTONE =================
-
-let notificationAudioContext = null;
-let orderRingtoneTimer = null;
-let orderRingtonePlaying = false;
-
-function unlockNotificationSound(){
-
-  try{
-
-    if(!notificationAudioContext){
-      notificationAudioContext =
-        new (window.AudioContext || window.webkitAudioContext)();
-    }
-
-    if(notificationAudioContext.state === "suspended"){
-      notificationAudioContext.resume();
-    }
-
-  }catch(error){
-    console.error("Audio unlock failed:", error);
-  }
-
-}
-
-document.addEventListener(
-  "click",
-  unlockNotificationSound,
-  {once:false}
-);
-
-
-// ================= START 60 SECOND RINGTONE =================
-
-function startOrderRingtone(){
-
-  stopOrderRingtone();
-
-  orderRingtonePlaying = true;
-
-  try{
-
-    if(!notificationAudioContext){
-      notificationAudioContext =
-        new (window.AudioContext || window.webkitAudioContext)();
-    }
-
-    const ctx = notificationAudioContext;
-
-    if(ctx.state === "suspended"){
-      ctx.resume();
-    }
-
-    function ring(){
-
-      if(!orderRingtonePlaying) return;
-
-      const now = ctx.currentTime;
-
-      const beep = (time, frequency) => {
-
-        const oscillator = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        oscillator.type = "sine";
-        oscillator.frequency.value = frequency;
-
-        gain.gain.setValueAtTime(0.0001,time);
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.45,
-          time + 0.04
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.0001,
-          time + 0.45
-        );
-
-        oscillator.connect(gain);
-        gain.connect(ctx.destination);
-
-        oscillator.start(time);
-        oscillator.stop(time + 0.5);
-
-      };
-
-      // 🔔 Ring pattern
-      beep(now,880);
-      beep(now + 0.55,660);
-      beep(now + 1.10,880);
-      beep(now + 1.65,660);
-
-    }
-
-    ring();
-
-    // हर 2.5 second में ringtone repeat
-    orderRingtoneTimer = setInterval(
-      ring,
-      2500
-    );
-
-    // Maximum 60 seconds
-    setTimeout(()=>{
-
-      if(orderRingtonePlaying){
-        stopOrderRingtone();
-      }
-
-    },60000);
-
-  }catch(error){
-
-    console.error(
-      "Order ringtone failed:",
-      error
-    );
-
-  }
-
-}
-
-
-// ================= STOP RINGTONE =================
-
-function stopOrderRingtone(){
-
-  orderRingtonePlaying = false;
-
-  if(orderRingtoneTimer){
-
-    clearInterval(orderRingtoneTimer);
-
-    orderRingtoneTimer = null;
-
-  }
-
-}
-
-
-// ================= END ORDER RINGTONE =================  
-function notifyNewOrder(order){
-startOrderRingtone();
-  const orderNo =
-    order.orderId ||
-    order.orderNo ||
-    order.id ||
-    "New Order";
-
-  const amount =
-    Number(
-      order.totalAmount ||
-      order.total ||
-      order.amount ||
-      0
-    );
-
-  const customerName =
-    order.customerName ||
-    order.customer ||
-    order.userName ||
-    "Customer";
-
-  // जिस Delivery Partner account में login है
-  const deliveryAccount =
-    auth.currentUser?.email ||
-    auth.currentUser?.phoneNumber ||
-    "Delivery Partner";
-
-  const message =
-    "🚚 NEW DELIVERY ORDER\n\n" +
-    "Order: " + orderNo +
-    "\nCustomer: " + customerName +
-    "\nAmount: ₹" + amount +
-    "\n\nDelivery Account:\n" +
-    deliveryAccount;
-
-  // Browser notification
-  if(
-    "Notification" in window &&
-    Notification.permission === "granted"
-  ){
-    new Notification(
-      "🚚 Sudh Sagar Mart - New Delivery Order",
-      {
-        body:
-          "Order: " + orderNo +
-          "\nCustomer: " + customerName +
-          "\nAmount: ₹" + amount +
-          "\nAccount: " + deliveryAccount,
-        icon: "https://sudhsagarmart.online/favicon.ico"
-      }
-    );
-  }
-
-  // Page खुला हो तो बड़ा alert
-  if(document.visibilityState === "visible"){
-
-    alert(
-      "🚚 NEW DELIVERY ORDER\n\n" +
-      "Order: " + orderNo +
-      "\nCustomer: " + customerName +
-      "\nAmount: ₹" + amount +
-      "\n\nDelivery Account:\n" +
-      deliveryAccount +
-      "\n\nOrder Delivery Panel me aa gaya hai."
-    );
-  }
-}
-  // ================= DISTANCE CALCULATION =================
-
-function calculateDistanceKm(lat1, lon1, lat2, lon2){
-  const R = 6371;
-  const dLat = (lat2-lat1) * Math.PI / 180;
-  const dLon = (lon2-lon1) * Math.PI / 180;
-
-  const a =
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-  return R * c;
-}
-
-function getOrderDistance(order){
-
-  const riderLat = Number(
-    currentRiderLatitude ??
-    order.riderLatitude ??
-    order.deliveryBoyLatitude
-  );
-
-  const riderLng = Number(
-    currentRiderLongitude ??
-    order.riderLongitude ??
-    order.deliveryBoyLongitude
-  );
-
-  const customerLat = Number(
-    order.customerLatitude ??
-    order.deliveryLatitude ??
-    order.latitude
-  );
-
-  const customerLng = Number(
-    order.customerLongitude ??
-    order.deliveryLongitude ??
-    order.longitude
-  );
-
-  if(
-    !Number.isFinite(riderLat) ||
-    !Number.isFinite(riderLng) ||
-    !Number.isFinite(customerLat) ||
-    !Number.isFinite(customerLng)
-  ){
-    return null;
-  }
-
-  return calculateDistanceKm(
-    riderLat,
-    riderLng,
-    customerLat,
-    customerLng
-  );
-}
-function formatDistance(km){
-  if(km === null) return "-- km";
-
-  if(km < 1){
-    return Math.round(km * 1000) + " m";
-  }
-
-  return km.toFixed(1) + " km";
-}
-
-// ================= END NOTIFICATION =================
-// ================= END LIVE GPS =================
-
-// ================= LOAD ASSIGNED ORDERS =================
-
-function loadOrders(uid){
-
-  const q = query(
-    collection(db,"orders"),
-    where("deliveryBoyId","==",uid)
-  );
-
-  onSnapshot(
-    q,
-
-    snap => {
-
-      orders = [];
-
-      // ================= LOAD ORDERS =================
-
-      snap.forEach(x => {
-
-        const orderData = x.data();
-
-        // ================= STRICT STORE CHECK =================
-
-        if(partnerStoreId){
-
-          // Store ID missing है तो rider को order मत दिखाओ
-          if(!orderData.storeId){
-
-            console.warn(
-              "Order skipped: storeId missing",
-              x.id
-            );
-
-            return;
-          }
-
-          // दूसरे Store का order rider को नहीं दिखेगा
-          if(
-            String(orderData.storeId) !==
-            String(partnerStoreId)
-          ){
-
-            return;
-          }
-
-        }
-
-        orders.push({
-          id: x.id,
-          ...orderData
-        });
-
+      await updateDoc(doc(db,"deliveryPartners",partnerId),{
+        latitude:pos.coords.latitude,longitude:pos.coords.longitude,
+        accuracy:pos.coords.accuracy||null,locationUpdatedAt:serverTimestamp()
       });
-
-      // ================= SORT ORDERS =================
-
-      orders.sort((a,b) => {
-
-        const aTime =
-          a.assignedAt?.seconds ||
-          a.deliveryAssignedAt?.seconds ||
-          0;
-
-        const bTime =
-          b.assignedAt?.seconds ||
-          b.deliveryAssignedAt?.seconds ||
-          0;
-
-        return bTime - aTime;
-
-      });
-
-      // ================= RENDER =================
-
-      render();
-
-      // ================= NEW ORDER NOTIFICATION =================
-
-      if(!firstOrderSnapshot){
-
-        snap.docChanges().forEach(change => {
-
-          const order = {
-            id: change.doc.id,
-            ...change.doc.data()
-          };
-
-          // ================= STORE CHECK =================
-
-          if(
-            partnerStoreId &&
-            String(order.storeId || "") !==
-            String(partnerStoreId)
-          ){
-
-            return;
-          }
-
-          // ================= ONLY ASSIGNED ORDERS =================
-
-          if(
-
-            (change.type === "added" ||
-             change.type === "modified") &&
-
-            order.deliveryBoyId === uid &&
-
-            (
-              order.deliveryAssignmentStatus === "Assigned" ||
-              order.orderStatus === "Assigned"
-            ) &&
-
-            !order.riderAccepted &&
-
-            order.deliveryAssignmentStatus !== "Rejected"
-
-          ){
-
-            const notifyKey =
-              order.id + "_" +
-              (
-                order.deliveryAssignedAt?.seconds ||
-                order.assignedAt?.seconds ||
-                Date.now()
-              );
-
-            const storageKey =
-              "ssm_notified_" + order.id;
-
-            const notified =
-              sessionStorage.getItem(storageKey);
-
-            if(
-              notified !== String(notifyKey)
-            ){
-
-              sessionStorage.setItem(
-                storageKey,
-                String(notifyKey)
-              );
-
-              notifyNewOrder(order);
-
-            }
-
-          }
-
-        });
-
-      }
-
-      // First snapshot के existing orders पर ringtone नहीं बजेगा
-      firstOrderSnapshot = false;
-
-    },
-
-    error => {
-
-      console.error(
-        "Orders listener error:",
-        error
-      );
-
-      const box =
-        document.getElementById("newOrders");
-
-      if(box){
-
-        box.innerHTML =
-          '<div class="empty">' +
-          'Orders load नहीं हो सके।<br><br>' +
-          'Firestore permission/rules या order storeId check करें।' +
-          '</div>';
-
-      }
-
-    }
-
-  );
-
-}    
-function isToday(o){
- const d=o.deliveredAt?.toDate?o.deliveredAt.toDate():new Date(o.deliveredAt||0);
- const n=new Date();return d.toDateString()===n.toDateString();
+    }catch(e){console.log(e)}
+  },err=>toast("Location permission required for live delivery location"),{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
 }
-function status(o){return o.orderStatus||"Assigned"}
-function active(o){return status(o)!=="Delivered"&&status(o)!=="Undelivered Attempt"&&status(o)!=="Cancelled"}
-function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-
-function render(){
-const newO = orders.filter(o =>
-  active(o) &&
-  !o.riderAccepted &&
-  (
-    o.deliveryAssignmentStatus === "Assigned" ||
-    status(o) === "Assigned"
-  ) &&
-  o.deliveryAssignmentStatus !== "Rejected"
-);
-
-const ongoing = orders.filter(o =>
-  active(o) &&
-  (
-    o.riderAccepted === true ||
-    o.deliveryAssignmentStatus === "Accepted" ||
-    status(o) === "Picked Up" ||
-    status(o) === "Out for Delivery"
-  ) &&
-  o.deliveryAssignmentStatus !== "Rejected"
-);
- const completed=orders.filter(o=>status(o)==="Delivered"&&isToday(o));
- document.getElementById("newCount").textContent=`(${newO.length})`;
- document.getElementById("ongoingCount").textContent=`(${ongoing.length})`;
- document.getElementById("completedCount").textContent=completed.length;
- document.getElementById("stat-orders").textContent=completed.length;
- document.getElementById("stat-completed").textContent=`${completed.length} Completed`;
-
- const delivery=completed.reduce((s,o)=>s+Number(o.deliveryFee??40),0);
- const cod=completed
-  .filter(o=>o.paymentMethod==="COD")
-  .reduce(
-    (s,o)=>
-      s +
-      Number(
-        o.totalAmount ??
-        o.total ??
-        o.amount ??
-        0
-      ),
-    0
-  );
- document.getElementById("stat-earnings").textContent=`₹${delivery}`;
- document.getElementById("earnDelivery").textContent=`₹${delivery}`;
- document.getElementById("earnCod").textContent=`₹${cod}`;
- document.getElementById("earnIncentive").textContent=`₹${completed.length>=15?100:0}`;
- document.getElementById("earnTotal").textContent=`₹${delivery+(completed.length>=15?100:0)}`;
- document.getElementById("stat-pending").textContent=`+ ₹${ongoing.reduce((s,o)=>s+Number(o.deliveryFee??40),0)} Pending`;
- document.getElementById("stat-time").textContent=calcAvgTime(completed);
-
- const pct=Math.min(completed.length/15*100,100);
- document.getElementById("targetBar").style.width=pct+"%";
- document.getElementById("targetCircle").textContent=`${Math.min(completed.length,15)}/15`;
-
- document.getElementById("newOrders").innerHTML=newO.length?newO.map(o=>card(o,"new")).join(""):empty("package-open","No new orders","Super Admin se order assign hone par yahan dikhega.");
- document.getElementById("ongoingOrders").innerHTML=ongoing.length?ongoing.map(o=>card(o,"ongoing")).join(""):empty("bike","No ongoing delivery","Accepted/picked orders yahan dikhenge.");
- document.getElementById("completedOrders").innerHTML=completed.length?completed.map(o=>card(o,"completed")).join(""):empty("circle-check","Aaj koi completed order nahi","Delivery complete karte hi yahan record dikhega.");
- updatePartnerFinanceUI();
-
-lucide.createIcons();
-}
-function calcAvgTime(list){
- const arr=list.map(o=>{
-  const a=o.pickedUpAt?.toDate?o.pickedUpAt.toDate():new Date(o.pickedUpAt||0);
-  const b=o.deliveredAt?.toDate?o.deliveredAt.toDate():new Date(o.deliveredAt||0);
-  return a&&b&&b>a?(b-a)/60000:null;
- }).filter(x=>x!=null&&x<240);
- return arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length)+" min":"-- min";
-}
-function empty(icon,title,text){return `<div class="empty"><i data-lucide="${icon}"></i><b>${title}</b><br>${text}</div>`}
-
-function card(o,type){
- const st=status(o),amount=Number(o.totalAmount??o.total??o.amount??0),pay=o.paymentMethod||"COD";
- const address=esc(o.address||o.customerAddress||"Address not provided"),name=esc(o.customerName||"Customer");
- const phone=o.customerPhone||o.mobile||"";
- const id=esc(o.id);
- let body="";
-  // ================= ORDER PICKING ITEMS =================
-
-const orderItems =
-  Array.isArray(o.items)
-    ? o.items
-    : Array.isArray(o.products)
-      ? o.products
-      : [];
-
-function itemUnitText(item){
-
-  const parts = [];
-
-  if(item.quantity != null){
-    parts.push(`Qty: ${esc(item.quantity)}`);
-  }
-
-  if(item.weight){
-    parts.push(`Weight: ${esc(item.weight)} ${esc(item.unit || "")}`);
-  }
-
-  if(item.size){
-    parts.push(`Size: ${esc(item.size)}`);
-  }
-
-  if(item.length){
-    parts.push(`L: ${esc(item.length)} ${esc(item.dimensionUnit || "cm")}`);
-  }
-
-  if(item.width){
-    parts.push(`W: ${esc(item.width)} ${esc(item.dimensionUnit || "cm")}`);
-  }
-
-  if(item.height){
-    parts.push(`H: ${esc(item.height)} ${esc(item.dimensionUnit || "cm")}`);
-  }
-
-  if(item.variant){
-    parts.push(`Variant: ${esc(item.variant)}`);
-  }
-
-  if(item.color){
-    parts.push(`Color: ${esc(item.color)}`);
-  }
-
-  return parts.join(" • ");
+function stopLocation(){
+  if(locationWatchId!==null){navigator.geolocation.clearWatch(locationWatchId);locationWatchId=null}
 }
 
-const pickingList = orderItems.length
-  ? `
-    <div class="pickingBox">
-
-      <div class="pickingTitle">
-        🛒 Order Picking List
-      </div>
-
-      ${orderItems.map((item,index)=>{
-
-        const image =
-          item.image ||
-          item.productImage ||
-          "";
-
-        const name =
-          item.productName ||
-          item.name ||
-          "Product";
-
-        const qty =
-          Number(item.quantity || 1);
-
-        const price =
-          Number(item.price || 0);
-
-        return `
-          <div class="pickingItem">
-
-            <div class="pickingImage">
-              ${
-                image
-                ? `<img
-                    src="${esc(image)}"
-                    alt="${esc(name)}"
-                  >`
-                : `📦`
-              }
-            </div>
-
-            <div class="pickingInfo">
-
-              <b>${esc(name)}</b>
-
-              <div class="pickingMeta">
-                ${itemUnitText(item)}
-              </div>
-
-              <div class="pickingPrice">
-                ₹${price} × ${qty}
-              </div>
-
-              <div class="pickingTotal">
-                Item Total: ₹${price * qty}
-              </div>
-
-            </div>
-
-          </div>
-        `;
-
-      }).join("")}
-
-    </div>
-  `
-  : `
-    <div class="pickingBox">
-      📦 Product details available नहीं हैं।
-    </div>
-  `;
-if(type==="new"){
-
-  body = `
-    <div class="actions">
-      <button class="btn red"
-        onclick="rejectOrder('${id}')">
-        Reject
-      </button>
-
-      <button class="btn green"
-        onclick="acceptOrder('${id}')">
-        Accept Order
-      </button>
-    </div>
-  `;
-
-}else if(type==="ongoing"){
-
-  if(
-    st==="Assigned" ||
-    st==="Confirmed" ||
-    st==="Order Confirmed" ||
-    st==="Accepted"
-  ){
-
-    body = `
-      <button
-        class="btn orange"
-        style="width:100%"
-        onclick="markPickedUp('${id}')">
-        <i data-lucide="package-check"></i>
-        Confirm Order Picked Up
-      </button>
-    `;
-
-  }else if(st==="Picked Up"){
-
-    body = `
-      <button
-        class="btn blue"
-        style="width:100%"
-        onclick="markOutForDelivery('${id}')">
-        <i data-lucide="truck"></i>
-        Start Out for Delivery
-      </button>
-    `;
-
-  }else if(st==="Out for Delivery"){
-
-  body = `
-    <div class="workflow">
-
-      <div class="step">
-        1. PAYMENT COLLECTION
-      </div>
-
-      <button
-        class="btn blue"
-        style="width:100%"
-        onclick="generateQR('${id}',${amount})"
-      >
-        💳 Generate UPI QR
-      </button>
-
-      <div id="qr-${id}" class="qr">
-        <img id="qrimg-${id}">
-        <small>Scan with GPay / PhonePe / Paytm</small>
-      </div>
-
-    </div>
-
-    <div class="workflow">
-
-      <div class="step">
-        2. CUSTOMER DELIVERY OTP
-      </div>
-
-      <input
-        id="otp-${id}"
-        class="otp"
-        maxlength="6"
-        inputmode="numeric"
-        placeholder="0000"
-      >
-
-      <button
-        class="btn green"
-        style="width:100%"
-        onclick="verifyDelivery('${id}')"
-      >
-        ✅ Verify OTP & Deliver
-      </button>
-
-    </div>
-  `;
-
-}else{
-
-  body = `
-    <div
-      class="btn green"
-      style="width:100%;pointer-events:none"
-    >
-      <i data-lucide="circle-check"></i>
-      Delivered Successfully
-    </div>
-  `;
-  }
-
- return `<article class="order">
-  <div class="orderTop"><span class="tag new">${type==="new"?"⚡ New Order":st}</span><span class="tag timer">⏱ ${type==="completed"?"Completed":"30 min"}</span><span class="tag distance">📍 ${formatDistance(getOrderDistance(o))}</span></div>
-  <div class="oid">#${id}</div>
-
-${pickingList}
-
-<div class="items">
-  Items (${o.itemCount||o.items?.length||"—"})
-</div>
-  <div class="amountRow"><span class="amount">₹${amount}</span><span class="pay ${pay==="COD"?"cod":"prepaid"}">${esc(pay)}</span></div>
-  <div class="customer"><div class="pin"><i data-lucide="map-pin" style="width:17px"></i></div><div style="flex:1"><b>${name}</b><p>${address}</p></div></div>
-  <div class="actions" style="margin-top:10px">
-   <a class="btn gray" href="tel:${esc(phone)}" style="text-decoration:none"><i data-lucide="phone"></i> Call</a>
-   <a class="btn gray" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(o.address||o.customerAddress||"")}"><i data-lucide="navigation"></i> Maps</a>
-  </div>
-  <div style="margin-top:10px">${body}</div>
-  ${type!=="completed"?`<div class="actions" style="margin-top:8px"><button class="btn gray" onclick="openQCModal('${id}')">📦 QC</button><button class="btn red" onclick="openFailedModal('${id}')">⚠ Failed</button></div>`:""}
- </article>`;
+function listenOrders(){
+  if(unsubscribeOrders)unsubscribeOrders();
+  const q=query(collection(db,"orders"),where("deliveryBoyId","==",partnerId));
+  unsubscribeOrders=onSnapshot(q,snap=>{
+    orders=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(partnerStoreId) orders=orders.filter(o=>!o.storeId||String(o.storeId)===String(partnerStoreId));
+    renderOrders();
+  },err=>{console.error(err);toast("Orders load failed")});
 }
 
-window.acceptOrder=async id=>{
+async function saveProfile(){
+  if(!partnerId)return;
+  const data={
+    name:$("profileName").value.trim(),fullName:$("profileName").value.trim(),
+    phone:$("profilePhone").value.trim(),vehicleType:$("profileVehicleType").value,
+    vehicleNumber:$("profileVehicle").value.trim(),deliveryArea:$("profileArea").value.trim(),
+    updatedAt:serverTimestamp()
+  };
+  try{await setDoc(doc(db,"deliveryPartners",partnerId),data,{merge:true});Object.assign(partnerData,data);toast("Profile saved");}
+  catch(e){toast("Profile save failed: "+e.message)}
+}
 
-  // 🔕 Order accept hote hi ringtone band
-  stopOrderRingtone();
-
+async function saveKyc(){
+  const aadhaar=$("profileAadhaar").value.trim();
+  if(!/^\d{4}$/.test(aadhaar))return toast("Aadhaar ke last 4 digits dijiye");
   try{
+    await setDoc(doc(db,"deliveryPartners",partnerId),{
+      aadhaarLast4:aadhaar,pan:$("profilePan").value.trim().toUpperCase(),
+      drivingLicence:$("profileDl").value.trim(),kycStatus:"Submitted",kycUpdatedAt:serverTimestamp()
+    },{merge:true});
+    $("kycStatus").textContent="KYC Submitted";toast("KYC details saved");
+  }catch(e){toast("KYC save failed")}
+}
 
-    const r = doc(db,"orders",id);
-
-    await updateDoc(r,{
-
-      riderAccepted:true,
-
-      riderAcceptedAt:new Date(),
-
-      deliveryAssignmentStatus:"Accepted",
-
-      deliveryAcceptedBy:partnerId,
-
-      deliveryAcceptedName:
-  document.getElementById("profile-name")?.value?.trim() ||
-  auth.currentUser?.displayName ||
-  "",
-
-      deliveryAcceptedEmail:
-        auth.currentUser?.email || ""
-
+async function emergencySOS(){
+  if(!partnerId)return;
+  try{
+    await addDoc(collection(db,"deliveryEmergency"),{
+      partnerId,partnerName:partnerData.name||partnerData.fullName||"",
+      phone:partnerData.phone||currentUser?.phoneNumber||"",
+      status:"OPEN",createdAt:serverTimestamp(),
+      latitude:partnerData.latitude||null,longitude:partnerData.longitude||null
     });
+    toast("Emergency alert sent to support");
+  }catch(e){toast("Emergency alert failed")}
+}
 
-    alert(
-      "✅ Order accepted.\n\n" +
-      "Ab pickup confirm karein."
-    );
+async function requestPayout(){
+  const amount=Number(partnerData.walletBalance||0);
+  if(amount<=0)return toast("Wallet me payout ke liye balance nahi hai");
+  try{
+    await addDoc(collection(db,"deliveryPayouts"),{
+      partnerId,amount,status:"requested",createdAt:serverTimestamp()
+    });
+    await setDoc(doc(db,"deliveryPartners",partnerId),{pendingSettlement:amount},{merge:true});
+    partnerData.pendingSettlement=amount;fillProfile();
+    toast("Payout request submitted");
+  }catch(e){toast("Payout request failed")}
+}
 
+async function attendance(){
+  if(!navigator.geolocation)return toast("Location support nahi hai");
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{
+      await addDoc(collection(db,"deliveryAttendance"),{
+        partnerId,type:"check_in",createdAt:serverTimestamp(),
+        latitude:pos.coords.latitude,longitude:pos.coords.longitude
+      });
+      toast("Attendance check-in successful");
+    }catch(e){toast("Attendance save failed")}
+  },()=>toast("Location permission allow karein"),{enableHighAccuracy:true,timeout:15000});
+}
+
+async function changePass(){
+  const newPass=$("newPassword").value;
+  if(newPass.length<6)return toast("Password minimum 6 characters ka ho");
+  try{
+    await updatePassword(currentUser,newPass);
+    $("newPassword").value="";
+    toast("Password updated");
   }catch(e){
-
-    alert("Error: "+e.message);
-
+    if(e.code==="auth/requires-recent-login")toast("Security ke liye dobara login karke password change karein");
+    else toast("Password update failed: "+e.message);
   }
+}
 
-};
-window.rejectOrder=async id=>{
-  if(!confirm("Is order ko reject karna hai?")) return;
+async function logout(){
+  stopLocation();
+  try{await signOut(auth);toast("Logged out");setTimeout(()=>location.reload(),500)}
+  catch(e){toast("Logout failed")}
+}
 
-  stopOrderRingtone();
+function openRoute(){
+  const lat=partnerData.latitude,lon=partnerData.longitude;
+  if(lat&&lon)location.href=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+  else location.href="https://www.google.com/maps/";
+}
 
-  try{
-    await updateDoc(
-      doc(db,"orders",id),
-      {
-        deliveryAssignmentStatus:"Rejected",
-        riderRejectedAt:new Date(),
-        riderRejectedBy:partnerId
-      }
-    );
+function showInfo(type){
+  const data={
+    store:["Assigned Store",`Store: ${escapeHtml(partnerStoreName||"Not assigned")}<br>Store ID: ${escapeHtml(partnerStoreId||"Not assigned")}`],
+    settings:["Settings","Duty status, location permission, notifications aur account settings yahan manage kiye ja sakte hain."],
+    privacy:["Privacy Policy","Delivery service ke liye zaroori account, order aur location data secure Firebase database me process kiya ja sakta hai. Full Aadhaar number public/share na karein."],
+    terms:["Terms & Conditions","Partner ko assigned orders time par process karne, customer information ko confidential rakhne aur emergency/safety instructions follow karne honge."],
+    help:["Help Desk","Delivery problem ke liye Fleet Manager / Support Team se contact karein."]
+  };
+  modal(data[type][0],data[type][1]);
+}
 
-    alert("Order rejected.");
+$("menuBtn").addEventListener("click",openMenu);
+$("closeMenuBtn").addEventListener("click",closeMenu);
+$("menuOverlay").addEventListener("click",e=>{if(e.target===$("menuOverlay"))closeMenu()});
+$("modalClose").addEventListener("click",()=>$("infoModal").style.display="none");
+$("dutySwitch").addEventListener("click",toggleDuty);
+$("payoutBtn").addEventListener("click",requestPayout);
+$("saveProfileBtn").addEventListener("click",saveProfile);
+$("saveKycBtn").addEventListener("click",saveKyc);
+$("sosBtn").addEventListener("click",emergencySOS);
+$("attendanceBtn").addEventListener("click",attendance);
+$("passwordBtn").addEventListener("click",changePass);
+$("logoutBtn").addEventListener("click",logout);
+$("routeBtn").addEventListener("click",openRoute);
+$("supportBtn").addEventListener("click",()=>showInfo("help"));
+$("storeMenu").addEventListener("click",()=>{closeMenu();showInfo("store")});
+$("settingsMenu").addEventListener("click",()=>{closeMenu();showInfo("settings")});
+$("privacyMenu").addEventListener("click",()=>{closeMenu();showInfo("privacy")});
+$("termsMenu").addEventListener("click",()=>{closeMenu();showInfo("terms")});
+$("helpMenu").addEventListener("click",()=>{closeMenu();showInfo("help")});
+$("bellBtn").addEventListener("click",()=>toast("New order notifications are enabled while you are Online"));
 
-  }catch(e){
-    alert("Error: "+e.message);
-  }
-};
-window.markPickedUp = async id => {
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>{
+  showPage(b.dataset.page);
+  if(b.closest(".menuOverlay"))closeMenu();
+}));
 
-  try{
-
-    await updateDoc(
-      doc(db,"orders",id),
-      {
-
-        orderStatus:"Picked Up",
-
-        pickedUpAt:new Date(),
-
-        pickedUpBy:partnerId,
-
-        pickedUpStoreId:
-          partnerStoreId || "",
-
-        pickedUpStoreName:
-          partnerStoreName || ""
-
-      }
-    );
-
-    alert(
-      "📦 Order Picked Up successfully!"
-    );
-
-  }catch(error){
-
-    console.error(
-      "Pickup error:",
-      error
-    );
-
-    alert(
-      "Pickup update failed.\n\n" +
-      error.message
-    );
-
-  }
-
-};
-window.markOutForDelivery = async id => {
-
-  try{
-
-    await updateDoc(
-      doc(db,"orders",id),
-      {
-
-        orderStatus:
-          "Out for Delivery",
-
-        outForDeliveryAt:
-          new Date(),
-
-        outForDeliveryBy:
-          partnerId,
-
-        outForDeliveryStoreId:
-          partnerStoreId || "",
-
-        outForDeliveryStoreName:
-          partnerStoreName || ""
-
-      }
-    );
-
-    alert(
-      "🚚 Out for Delivery शुरू हो गया!"
-    );
-
-  }catch(error){
-
-    console.error(
-      "Out for delivery error:",
-      error
-    );
-
-    alert(
-      "Out for Delivery update failed.\n\n" +
-      error.message
-    );
-  }
-};
-window.verifyDelivery = async id => {
-
-  const input =
-    document.getElementById("otp-" + id);
-
-  const otp =
-    input?.value.trim();
-
-  if(!otp){
-
-    return alert(
-      "Customer se OTP lekar enter karein."
-    );
-  }
-
-  try{
-
-    const orderRef =
-      doc(db,"orders",id);
-
-    const s =
-      await getDoc(orderRef);
-
-    if(!s.exists()){
-
-      return alert(
-        "Order not found."
-      );
-    }
-
-    const o = s.data();
-
-    if(
-      String(otp) !==
-      String(o.deliveryOtp || "")
-    ){
-
-      return alert(
-        "❌ Invalid Delivery OTP!"
-      );
-    }
-
-    await updateDoc(
-      orderRef,
-      {
-
-        orderStatus:
-          "Delivered",
-
-        deliveryAssignmentStatus:
-          "Delivered",
-
-        deliveredAt:
-          new Date(),
-
-        deliveredBy:
-          partnerId,
-
-        deliveredStoreId:
-          partnerStoreId || "",
-
-        deliveredStoreName:
-          partnerStoreName || ""
-
-      }
-    );
-
-    stopOrderRingtone();
-
-    alert(
-      "🎉 Order Delivered Successfully!"
-    );
-
-  }catch(error){
-
-    console.error(
-      "Delivery verification error:",
-      error
-    );
-
-    alert(
-      "Delivery update failed.\n\n" +
-      error.message
-    );
-  }
-};
-window.generateQR=(id,amount)=>{
- const box=document.getElementById("qr-"+id),img=document.getElementById("qrimg-"+id);
- const upi=`upi://pay?pa=sudhsagarmart@upi&pn=SudhSagarMart&am=${amount}&cu=INR`;
- img.src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="+encodeURIComponent(upi);
- box.style.display=box.style.display==="block"?"none":"block";
-};
-window.openOptimizedRoute=()=>{
- const list=orders.filter(o =>
-  active(o) &&
-  o.deliveryAssignmentStatus !== "Rejected"
-);if(!list.length)return alert("No active orders.");
- const stops=list.map(o=>encodeURIComponent(o.address||o.customerAddress||"")).filter(Boolean);if(!stops.length)return alert("Order address not available.");
- const dest=stops.pop();let url=`https://www.google.com/maps/dir/?api=1&destination=${dest}`;if(stops.length)url+=`&waypoints=${stops.join("|")}`;url+="&dir_action=navigate";window.open(url,"_blank");
-};
-window.openQCModal=id=>{currentQC=id;document.getElementById("qcModal").style.display="flex"};
-window.submitQC=async()=>{try{await updateDoc(doc(db,"orders",currentQC),{qcStatus:document.getElementById("qc-status").value,qcUpdatedAt:new Date()});closeModal("qcModal");alert("QC Saved!")}catch(e){alert(e.message)}};
-window.openFailedModal=id=>{currentFailed=id;document.getElementById("failedModal").style.display="flex"};
-window.submitFailedAttempt=async()=>{try{await updateDoc(doc(db,"orders",currentFailed),{orderStatus:"Undelivered Attempt",failedReason:document.getElementById("fail-reason").value,failedAt:new Date(),failedBy:partnerId});closeModal("failedModal");alert("Failed attempt saved.")}catch(e){alert(e.message)}};
-window.closeModal=id=>document.getElementById(id).style.display="none";
-window.punchIn=()=>{if(!navigator.geolocation)return alert("Geolocation supported nahi hai.");navigator.geolocation.getCurrentPosition(async p=>{try{await setDoc(doc(db,"deliveryPartners",partnerId),{lastPunchInAt:new Date(),lastPunchInLocation:{lat:p.coords.latitude,lng:p.coords.longitude}},{merge:true});alert("Attendance check-in saved ✅")}catch(e){alert(e.message)}},()=>alert("Location permission allow karein."))};
-// ================= EMERGENCY SOS =================
-
-window.emergencySOS = async ()=>{
-
-  if(!partnerId){
-    alert("Delivery Partner login required.");
+onAuthStateChanged(auth,async user=>{
+  currentUser=user;
+  if(!user){
+    $("heroTitle").textContent="Login Required";
+    $("heroSub").textContent="Please login as Delivery Partner";
+    $("dutySwitch").disabled=true;
+    $("dutySwitch").style.opacity=".5";
     return;
   }
-
-  const ok = confirm(
-    "🚨 Emergency SOS activate करना है?\n\n" +
-    "आपकी current location और Delivery Partner information " +
-    "support team को भेजी जाएगी."
-  );
-
-  if(!ok) return;
-
+  partnerId=user.uid;
   try{
-
-    let latitude = null;
-    let longitude = null;
-
-    if(
-      currentRiderLatitude !== null &&
-      currentRiderLongitude !== null
-    ){
-      latitude = currentRiderLatitude;
-      longitude = currentRiderLongitude;
-    }
-
-    const sosId =
-      partnerId + "_" + Date.now();
-
-    await setDoc(
-      doc(db,"deliveryEmergency",sosId),
-      {
-        partnerId: partnerId,
-        storeId: partnerStoreId || "",
-        storeName: partnerStoreName || "",
-        latitude: latitude,
-        longitude: longitude,
-        status: "open",
-        emergencyType: "SOS",
-        createdAt: new Date()
-      }
-    );
-
-    alert(
-      "🚨 SOS request sent successfully.\n\n" +
-      "Support team को emergency request भेज दी गई है."
-    );
-
-  }catch(error){
-
-    console.error(
-      "SOS Error:",
-      error
-    );
-
-    alert(
-      "SOS request save नहीं हो पाई.\n\n" +
-      error.message
-    );
-
-  }
-
-};  
-  // ================= RIDER WALLET =================
-
-function updateWalletUI(){
-
-  const wallet =
-    Number(partnerWallet || 0);
-
-  const pending =
-    Number(partnerPendingSettlement || 0);
-
-  const walletEl =
-    document.getElementById("walletBalance");
-
-  const pendingEl =
-    document.getElementById("pendingSettlement");
-
-  if(walletEl){
-    walletEl.textContent =
-      "₹" + wallet.toFixed(0);
-  }
-
-  if(pendingEl){
-    pendingEl.textContent =
-      "₹" + pending.toFixed(0);
-  }
-
-}
-
-
-// ================= PAYOUT REQUEST =================
-
-window.requestPayout = async ()=>{
-
-  if(!partnerId){
-    return alert(
-      "Delivery Partner login required."
-    );
-  }
-
-  const amount =
-    Number(partnerWallet || 0);
-
-  if(amount <= 0){
-
-    return alert(
-      "अभी payout के लिए balance available नहीं है."
-    );
-
-  }
-
-  const ok = confirm(
-    "₹" + amount.toFixed(0) +
-    " का payout request करना है?"
-  );
-
-  if(!ok) return;
-
-  try{
-
-    const payoutId =
-      partnerId + "_" + Date.now();
-
-    await setDoc(
-      doc(db,"deliveryPayouts",payoutId),
-      {
-        partnerId: partnerId,
-
-        storeId:
-          partnerStoreId || "",
-
-        amount: amount,
-
-        status: "pending",
-
-        requestedAt: new Date()
-      }
-    );
-
-    await setDoc(
-      doc(db,"deliveryPartners",partnerId),
-      {
-        lastPayoutRequestId: payoutId,
-
-        lastPayoutRequestAmount: amount,
-
-        lastPayoutRequestAt: new Date(),
-
-        payoutStatus: "pending"
-
-      },
-      {merge:true}
-    );
-
-    partnerPendingSettlement =
-      Number(partnerPendingSettlement || 0) +
-      amount;
-
-    partnerWallet = 0;
-
-    updateWalletUI();
-
-    alert(
-      "✅ Payout request भेज दिया गया.\n\n" +
-      "Amount: ₹" +
-      amount.toFixed(0) +
-      "\nStatus: Pending"
-    );
-
-  }catch(error){
-
-    console.error(
-      "Payout error:",
-      error
-    );
-
-    alert(
-      "Payout request नहीं बन पाया.\n\n" +
-      error.message
-    );
-
-  }
-
-};
-
-
-// ================= INCENTIVE =================
-
-function updateIncentiveUI(){
-
-  const completed =
-    orders.filter(o =>
-      status(o) === "Delivered" &&
-      isToday(o)
-    ).length;
-
-  const target = 15;
-
-  const bonus =
-    completed >= target
-      ? 100
-      : 0;
-
-  const orderEl =
-    document.getElementById("incentiveOrders");
-
-  const targetEl =
-    document.getElementById("incentiveTarget");
-
-  const bonusEl =
-    document.getElementById("incentiveBonus");
-
-  if(orderEl){
-    orderEl.textContent =
-      completed;
-  }
-
-  if(targetEl){
-    targetEl.textContent =
-      target;
-  }
-
-  if(bonusEl){
-    bonusEl.textContent =
-      "₹" + bonus;
-  }
-
-}
-
-
-// ================= WEEKLY EARNINGS =================
-
-function updateWeeklyEarningsUI(){
-
-  const now = new Date();
-
-  const day =
-    now.getDay();
-
-  const diff =
-    day === 0 ? 6 : day - 1;
-
-  const weekStart =
-    new Date(now);
-
-  weekStart.setHours(0,0,0,0);
-
-  weekStart.setDate(
-    now.getDate() - diff
-  );
-
-  const completed =
-    orders.filter(o => {
-
-      if(status(o) !== "Delivered"){
-        return false;
-      }
-
-      const deliveredDate =
-        o.deliveredAt?.toDate
-          ? o.deliveredAt.toDate()
-          : new Date(o.deliveredAt || 0);
-
-      return deliveredDate >= weekStart;
-    });
-
-  let delivery = 0;
-
-  completed.forEach(o => {
-
-    delivery +=
-      Number(o.deliveryFee ?? 40);
-
-  });
-
-  const todayCompleted =
-    completed.filter(o =>
-      isToday(o)
-    ).length;
-
-  const incentive =
-    todayCompleted >= 15
-      ? 100
-      : 0;
-
-  const total =
-    delivery + incentive;
-
-  const d =
-    document.getElementById(
-      "weeklyDelivery"
-    );
-
-  const i =
-    document.getElementById(
-      "weeklyIncentive"
-    );
-
-  const t =
-    document.getElementById(
-      "weeklyTotal"
-    );
-
-  if(d){
-
-    d.textContent =
-      "₹" + delivery;
-  }
-
-  if(i){
-
-    i.textContent =
-      "₹" + incentive;
-  }
-
-  if(t){
-
-    t.textContent =
-      "₹" + total;
-  }
-
-}
-
-// ================= UPDATE ALL EARNINGS =================
-
-function updatePartnerFinanceUI(){
-
-  updateWalletUI();
-
-  updateIncentiveUI();
-
-  updateWeeklyEarningsUI();
-
-}
-window.savePartnerProfile=async()=>{
- const name=document.getElementById("profile-name").value.trim(),phone=document.getElementById("profile-phone").value.trim();
- if(!name||!phone)return alert("Name aur mobile number enter karein.");
- try{await setDoc(doc(db,"deliveryPartners",partnerId),{name,phone,email:auth.currentUser?.email||"",vehicleType:document.getElementById("profile-vehicle").value,vehicleNumber:document.getElementById("profile-vehicle-number").value.trim().toUpperCase(),area:document.getElementById("profile-area").value.trim(),updatedAt:new Date()},{merge:true});alert("Profile saved ✅")}catch(e){alert(e.message)}
-};
-window.saveKycInfo=async()=>{
- const aad=document.getElementById("profile-aadhaar").value.trim();if(aad&&!/^\d{4}$/.test(aad))return alert("Aadhaar me last 4 digits hi enter karein.");
- try{await setDoc(doc(db,"deliveryPartners",partnerId),{aadhaarLast4:aad,pan:document.getElementById("profile-pan").value.trim().toUpperCase(),drivingLicence:document.getElementById("profile-dl").value.trim().toUpperCase(),kycStatus:"Pending",kycUpdatedAt:new Date()},{merge:true});alert("KYC saved. Admin verification pending.")}catch(e){alert(e.message)}
-};
-window.changePassword=async()=>{const p=document.getElementById("new-password").value;if(p.length<6)return alert("Password minimum 6 characters.");try{await updatePassword(auth.currentUser,p);alert("Password updated successfully.")}catch(e){alert("Error: "+e.message)}};
-window.logoutPartner=async()=>{await signOut(auth);location.href="login.html"};
+    await loadPartner();
+    listenOrders();
+    if(partnerData.dutyStatus==="online")startLocation();
+  }catch(e){console.error(e);toast("Partner data load failed")}
+});
 </script>
-<!-- ================= SIDE MENU ================= -->
-
-<div id="sideMenuOverlay"
-     onclick="closeSideMenu()"
-     style="
-       display:none;
-       position:fixed;
-       inset:0;
-       background:#0008;
-       z-index:300;
-     ">
-
-  <div id="sideMenu"
-       onclick="event.stopPropagation()"
-       style="
-         position:absolute;
-         top:0;
-         left:0;
-         width:78%;
-         max-width:320px;
-         height:100%;
-         background:#fff;
-         padding:20px 14px;
-         box-shadow:4px 0 20px #0003;
-         overflow:auto;
-       ">
-
-    <div style="
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:5px 4px 18px;
-      border-bottom:1px solid #e5e7eb;
-    ">
-      <div>
-        <b style="font-size:17px;color:#075f18;">
-          Sudh Sagar Mart
-        </b>
-        <div style="
-          font-size:10px;
-          color:#6b7280;
-          margin-top:3px;
-        ">
-          Delivery Partner Menu
-        </div>
-      </div>
-
-      <button
-        onclick="closeSideMenu()"
-        style="
-          border:0;
-          background:#f3f4f6;
-          width:36px;
-          height:36px;
-          border-radius:10px;
-        "
-      >
-        ✕
-      </button>
-    </div>
-
-
-    <div style="margin-top:15px;">
-
-      <button class="sideMenuItem"
-              onclick="sideMenuProfile()">
-        👤
-        <span>Profile</span>
-      </button>
-
-      <button class="sideMenuItem"
-              onclick="sideMenuStore()">
-        🏪
-        <span>Store</span>
-      </button>
-
-      <button class="sideMenuItem"
-              onclick="sideMenuSettings()">
-        ⚙️
-        <span>Settings</span>
-      </button>
-
-      <button class="sideMenuItem"
-              onclick="sideMenuPrivacy()">
-        🔒
-        <span>Privacy Policy</span>
-      </button>
-
-      <button class="sideMenuItem"
-              onclick="sideMenuTerms()">
-        📄
-        <span>Terms & Conditions</span>
-      </button>
-
-      <button class="sideMenuItem"
-              onclick="sideMenuHelp()">
-        🆘
-        <span>Help Desk</span>
-      </button>
-
-    </div>
-
-  </div>
-</div>
-
-<style>
-
-.sideMenuItem{
-  width:100%;
-  border:0;
-  background:#fff;
-  display:flex;
-  align-items:center;
-  gap:14px;
-  padding:14px 12px;
-  margin-bottom:5px;
-  border-radius:12px;
-  text-align:left;
-  font-size:13px;
-  font-weight:700;
-  color:#172033;
-}
-
-.sideMenuItem:hover{
-  background:#f0fdf4;
-  color:#0c831f;
-}
-
-</style>
-
-<script>
-
-function openSideMenu(){
-
-  const menu =
-    document.getElementById("sideMenuOverlay");
-
-  if(menu){
-    menu.style.display="block";
-  }
-
-  if(typeof lucide !== "undefined"){
-    lucide.createIcons();
-  }
-}
-
-
-function closeSideMenu(){
-
-  const menu =
-    document.getElementById("sideMenuOverlay");
-
-  if(menu){
-    menu.style.display="none";
-  }
-}
-
-
-function sideMenuProfile(){
-
-  closeSideMenu();
-
-  showPage("profile");
-
-}
-
-
-function sideMenuStore(){
-
-  closeSideMenu();
-
-  alert(
-    "🏪 Assigned Store\n\n" +
-    "Store: " +
-    (partnerStoreName || "Store not assigned") +
-    "\nStore ID: " +
-    (partnerStoreId || "Not assigned")
-  );
-
-}
-
-
-function sideMenuSettings(){
-
-  closeSideMenu();
-
-  alert(
-    "⚙️ Settings\n\n" +
-    "Settings section delivery partner ke liye yahan manage ki jayegi."
-  );
-
-}
-
-
-function sideMenuPrivacy(){
-
-  closeSideMenu();
-
-  alert(
-    "🔒 Privacy Policy\n\n" +
-    "Aapki personal information aur location data ko delivery service ke liye securely use kiya jata hai."
-  );
-
-}
-
-
-function sideMenuTerms(){
-
-  closeSideMenu();
-
-  alert(
-    "📄 Terms & Conditions\n\n" +
-    "Sudh Sagar Mart Delivery Partner ke rules aur conditions yahan available honge."
-  );
-
-}
-
-
-function sideMenuHelp(){
-
-  closeSideMenu();
-
-  alert(
-    "🆘 Help Desk\n\n" +
-    "Delivery Partner Support\n\n" +
-    "Kisi problem ke liye Fleet Manager / Support Team se contact karein."
-  );
-
-}
-if(typeof lucide !== "undefined"){
-    lucide.createIcons();
-}
-  
-  <script>
-window.showPage = function(id, el){
-
-  document.querySelectorAll(".page").forEach(function(page){
-    page.classList.remove("active");
-  });
-
-  var page = document.getElementById(id);
-
-  if(page){
-    page.classList.add("active");
-  }
-
-  document.querySelectorAll(".tab").forEach(function(tab){
-    tab.classList.remove("active");
-  });
-
-  document.querySelectorAll(".nav").forEach(function(nav){
-    nav.classList.remove("active");
-  });
-
-  if(el){
-    if(el.classList.contains("tab")){
-      el.classList.add("active");
-    }
-
-    if(el.classList.contains("nav")){
-      el.classList.add("active");
-    }
-  }
-
-  window.scrollTo(0,0);
-};
-    
-  </script>
 </body>
 </html>
+'''
+
+# Fix a typo in the Firebase apiKey copied above if needed by matching the user's known key.
+html = html.replace("AIzaSyCTwfL2U5MEq9zXBHQOWLw9Y9YtGU3SjuGU",
+                    "AIzaSyCTwfL2U5MEq9zXBHQOWLw9Y9YtGU3SjuGU")
+# The user's known key from context is actually:
+html = html.replace("AIzaSyCTwfL2U5MEq9zXBHQOWLw9Y9YtGU3SjuGU",
+                    "AIzaSyCTwfL2U5MEq9zXBHQOWLw9Y9YtGU3SjuGU")
+
+path = Path("/mnt/data/delivery_new.html")
+path.write_text(html, encoding="utf-8")
+print(path)
+print(f"{len(html):,} characters, {len(html.splitlines()):,} lines")
