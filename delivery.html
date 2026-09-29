@@ -580,7 +580,9 @@ async function loadPartnerExtraData(uid){
   }
 }
 
-lucide.createIcons();
+if(typeof lucide !== "undefined"){
+  lucide.createIcons();
+}
 
 window.showPage = function(id, el){
 
