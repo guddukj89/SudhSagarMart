@@ -1505,8 +1505,9 @@ const pickingList = orderItems.length
 if(
   st==="Assigned" ||
   st==="Confirmed" ||
+  st==="Order Confirmed" ||
   st==="Accepted"
-)body=`<button class="btn orange" style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`; style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`;
+)body=`<button class="btn orange" style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`;body=`<button class="btn orange" style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`; style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`;
   if(st==="Picked Up")body=`<button class="btn blue" style="width:100%" onclick="markOutForDelivery('${id}')"><i data-lucide="truck"></i> Start Out for Delivery</button>`;
   if(st==="Out for Delivery")body=`
    <div class="workflow"><div class="step">1. PAYMENT COLLECTION</div>
