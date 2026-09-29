@@ -1316,7 +1316,9 @@ const ongoing = orders.filter(o =>
   active(o) &&
   (
     o.riderAccepted === true ||
-    status(o) !== "Assigned"
+    o.deliveryAssignmentStatus === "Accepted" ||
+    status(o) === "Picked Up" ||
+    status(o) === "Out for Delivery"
   ) &&
   o.deliveryAssignmentStatus !== "Rejected"
 );
