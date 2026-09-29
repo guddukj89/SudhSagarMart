@@ -572,7 +572,63 @@ function showInfo(type){
   };
   modal(data[type][0],data[type][1]);
 }
+async function loginPartner(){
 
+  const email=$("loginEmail").value.trim();
+  const password=$("loginPassword").value;
+
+  if(!email || !password){
+    $("loginError").textContent="Email aur password dono dijiye";
+    $("loginError").style.display="block";
+    return;
+  }
+
+  $("loginError").style.display="none";
+  $("loginBtn").disabled=true;
+  $("loginBtn").textContent="Logging in...";
+
+  try{
+
+    await signInWithEmailAndPassword(auth,email,password);
+
+    $("loginOverlay").style.display="none";
+    toast("Login successful");
+
+  }catch(e){
+
+    console.error(e);
+
+    let msg="Login failed";
+
+    if(e.code==="auth/invalid-credential"){
+      msg="Email ya password galat hai";
+    }else if(e.code==="auth/user-not-found"){
+      msg="Ye Delivery Partner account nahi mila";
+    }else if(e.code==="auth/wrong-password"){
+      msg="Password galat hai";
+    }else if(e.code==="auth/invalid-email"){
+      msg="Email address galat hai";
+    }else if(e.code==="auth/too-many-requests"){
+      msg="Bahut baar try hua. Thodi der baad try karein";
+    }
+
+    $("loginError").textContent=msg;
+    $("loginError").style.display="block";
+
+  }finally{
+
+    $("loginBtn").disabled=false;
+    $("loginBtn").textContent="🔐 Login";
+
+  }
+}
+
+$("loginBtn").addEventListener("click",loginPartner);
+
+$("loginPassword").addEventListener("keydown",e=>{
+  if(e.key==="Enter") loginPartner();
+});
+  
 $("menuBtn").addEventListener("click",openMenu);
 $("closeMenuBtn").addEventListener("click",closeMenu);
 $("menuOverlay").addEventListener("click",e=>{if(e.target===$("menuOverlay"))closeMenu()});
