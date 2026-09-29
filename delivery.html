@@ -624,7 +624,23 @@ async function loginPartner(){
 }
 
 $("loginBtn").addEventListener("click",loginPartner);
+$("showRegisterBtn").addEventListener("click",()=>{
+  $("loginForm").style.display="none";
+  $("registerForm").style.display="block";
+  $("loginError").style.display="none";
+});
 
+$("showLoginBtn").addEventListener("click",()=>{
+  $("registerForm").style.display="none";
+  $("loginForm").style.display="block";
+  $("loginError").style.display="none";
+});
+
+$("registerBtn").addEventListener("click",registerPartner);
+
+$("registerConfirm").addEventListener("keydown",e=>{
+  if(e.key==="Enter") registerPartner();
+});
 $("loginPassword").addEventListener("keydown",e=>{
   if(e.key==="Enter") loginPartner();
 });
