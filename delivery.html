@@ -212,6 +212,51 @@ input:focus,select:focus{border-color:#22c55e}
 </div>
 
 <div class="toast" id="toast"></div>
+ <div id="loginOverlay" style="
+display:none;
+position:fixed;
+inset:0;
+background:#f4f7f5;
+z-index:9999;
+align-items:center;
+justify-content:center;
+padding:20px;
+">
+  <div style="
+  background:#fff;
+  width:100%;
+  max-width:400px;
+  padding:22px;
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
+  ">
+    <div style="text-align:center;margin-bottom:20px">
+      <img src="logo.png" style="width:65px;height:65px;object-fit:contain">
+      <h2 style="margin:8px 0 3px">Sudh Sagar Mart</h2>
+      <div style="font-size:12px;color:#6b7280">Delivery Partner Login</div>
+    </div>
+
+    <label>EMAIL</label>
+    <input id="loginEmail" type="email" placeholder="Delivery partner email">
+
+    <label>PASSWORD</label>
+    <input id="loginPassword" type="password" placeholder="Password">
+
+    <button id="loginBtn" class="btn green" style="margin-top:15px">
+      🔐 Login
+    </button>
+
+    <div id="loginError" style="
+      display:none;
+      color:#b91c1c;
+      background:#fee2e2;
+      padding:10px;
+      border-radius:8px;
+      margin-top:10px;
+      font-size:11px;
+    "></div>
+  </div>
+</div> 
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
