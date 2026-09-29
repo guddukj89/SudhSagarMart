@@ -1498,29 +1498,80 @@ const pickingList = orderItems.length
       📦 Product details available नहीं हैं।
     </div>
   `;
- if(type==="new"){
-  body=`<div class="actions">
-   <button class="btn red" onclick="rejectOrder('${id}')">Reject</button>
-   <button class="btn green" onclick="acceptOrder('${id}')">Accept Order</button>
-  </div>`;
- }else if(type==="ongoing"){
-if(
-  st==="Assigned" ||
-  st==="Confirmed" ||
-  st==="Order Confirmed" ||
-  st==="Accepted"
-)body=`<button class="btn orange" style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`;body=`<button class="btn orange" style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`; style="width:100%" onclick="markPickedUp('${id}')"><i data-lucide="package-check"></i> Confirm Order Picked Up</button>`;
-  if(st==="Picked Up")body=`<button class="btn blue" style="width:100%" onclick="markOutForDelivery('${id}')"><i data-lucide="truck"></i> Start Out for Delivery</button>`;
-  if(st==="Out for Delivery")body=`
-   <div class="workflow"><div class="step">1. PAYMENT COLLECTION</div>
-    <button class="btn blue" style="width:100%" onclick="generateQR('${id}',${amount})">💳 Generate UPI QR</button>
-    <div id="qr-${id}" class="qr"><img id="qrimg-${id}"><small>Scan with GPay / PhonePe / Paytm</small></div>
-   </div>
-   <div class="workflow"><div class="step">2. CUSTOMER DELIVERY OTP</div>
-    <input id="otp-${id}" class="otp" maxlength="6" inputmode="numeric" placeholder="0000">
-    <button class="btn green" style="width:100%" onclick="verifyDelivery('${id}')">✅ Verify OTP & Deliver</button>
-   </div>`;
- }else body=`<div class="btn green" style="width:100%;pointer-events:none"><i data-lucide="circle-check"></i> Delivered Successfully</div>`;
+if(type==="new"){
+
+  body = `
+    <div class="actions">
+      <button class="btn red"
+        onclick="rejectOrder('${id}')">
+        Reject
+      </button>
+
+      <button class="btn green"
+        onclick="acceptOrder('${id}')">
+        Accept Order
+      </button>
+    </div>
+  `;
+
+}else if(type==="ongoing"){
+
+  if(
+    st==="Assigned" ||
+    st==="Confirmed" ||
+    st==="Order Confirmed" ||
+    st==="Accepted"
+  ){
+
+    body = `
+      <button
+        class="btn orange"
+        style="width:100%"
+        onclick="markPickedUp('${id}')">
+        <i data-lucide="package-check"></i>
+        Confirm Order Picked Up
+      </button>
+    `;
+
+  }else if(st==="Picked Up"){
+
+    body = `
+      <button
+        class="btn blue"
+        style="width:100%"
+        onclick="markOutForDelivery('${id}')">
+        <i data-lucide="truck"></i>
+        Start Out for Delivery
+      </button>
+    `;
+
+  }else if(st==="Out for Delivery"){
+
+    body = `
+      <div class="workflow">
+        <div class="step">1. PAYMENT COLLECTION</div>
+
+        <button
+          class="btn blue"
+          style="width:100%"
+          onclick="generateQR('${id}',${amount})">
+          💳 Generate UPI QR
+        </button>
+
+        <div id="qr-${id}" class="qr">
+          <img id="qrimg-${id}">
+          <small>Scan with GPay / PhonePe / Paytm</small>
+        </div>
+      </div>
+
+      <div class="workflow">
+        <div class="step">2. CUSTOMER DELIVERY OTP</div>
+
+        <input
+          id="otp-${id}"
+          class="otp"
+          
+
  return `<article class="order">
   <div class="orderTop"><span class="tag new">${type==="new"?"⚡ New Order":st}</span><span class="tag timer">⏱ ${type==="completed"?"Completed":"30 min"}</span><span class="tag distance">📍 ${formatDistance(getOrderDistance(o))}</span></div>
   <div class="oid">#${id}</div>
