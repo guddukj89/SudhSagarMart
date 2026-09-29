@@ -622,7 +622,119 @@ async function loginPartner(){
 
   }
 }
+async function registerPartner(){
 
+  const name=$("registerName").value.trim();
+  const phone=$("registerPhone").value.trim();
+  const email=$("registerEmail").value.trim();
+  const password=$("registerPassword").value;
+  const confirm=$("registerConfirm").value;
+
+  if(!name || !phone || !email || !password || !confirm){
+    $("loginError").textContent="Sabhi details bharna zaroori hai";
+    $("loginError").style.display="block";
+    return;
+  }
+
+  if(password.length<6){
+    $("loginError").textContent="Password minimum 6 characters ka hona chahiye";
+    $("loginError").style.display="block";
+    return;
+  }
+
+  if(password!==confirm){
+    $("loginError").textContent="Password aur Confirm Password same nahi hai";
+    $("loginError").style.display="block";
+    return;
+  }
+
+  $("loginError").style.display="none";
+  $("registerBtn").disabled=true;
+  $("registerBtn").textContent="Creating Account...";
+
+  try{
+
+    const credential=await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const uid=credential.user.uid;
+
+    await setDoc(
+      doc(db,"deliveryPartners",uid),
+      {
+        uid:uid,
+        name:name,
+        fullName:name,
+        phone:phone,
+        email:email,
+
+        dutyStatus:"offline",
+        kycStatus:"Pending",
+
+        vehicleType:"Bike",
+        vehicleNumber:"",
+        deliveryArea:"",
+
+        storeId:"",
+        storeName:"",
+
+        rating:0,
+        todayEarnings:0,
+        walletBalance:0,
+        pendingSettlement:0,
+        weeklyDeliveries:0,
+        weeklyEarnings:0,
+
+        createdAt:serverTimestamp(),
+        updatedAt:serverTimestamp()
+      },
+      {merge:true}
+    );
+
+    $("loginError").style.display="none";
+
+    toast("Account created successfully");
+
+    $("registerForm").style.display="none";
+    $("loginForm").style.display="block";
+
+    $("loginEmail").value=email;
+    $("loginPassword").value=password;
+
+  }catch(e){
+
+    console.error(e);
+
+    let msg="Account create nahi hua";
+
+    if(e.code==="auth/email-already-in-use"){
+      msg="Ye email already registered hai";
+    }else if(e.code==="auth/invalid-email"){
+      msg="Email address galat hai";
+    }else if(e.code==="auth/weak-password"){
+      msg="Password weak hai. Minimum 6 characters rakhein";
+    }else if(e.code==="auth/network-request-failed"){
+      msg="Internet connection check karein";
+    }else if(e.code==="permission-denied"){
+      msg="Firestore permission denied";
+    }else{
+      msg=e.message||msg;
+    }
+
+    $("loginError").textContent=msg;
+    $("loginError").style.display="block";
+
+  }finally{
+
+    $("registerBtn").disabled=false;
+    $("registerBtn").textContent="👤 Create Delivery Partner Account";
+
+  }
+}
+  
 $("loginBtn").addEventListener("click",loginPartner);
 $("showRegisterBtn").addEventListener("click",()=>{
   $("loginForm").style.display="none";
