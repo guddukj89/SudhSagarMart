@@ -2146,5 +2146,237 @@ window.saveKycInfo=async()=>{
 window.changePassword=async()=>{const p=document.getElementById("new-password").value;if(p.length<6)return alert("Password minimum 6 characters.");try{await updatePassword(auth.currentUser,p);alert("Password updated successfully.")}catch(e){alert("Error: "+e.message)}};
 window.logoutPartner=async()=>{await signOut(auth);location.href="login.html"};
 </script>
+<!-- ================= SIDE MENU ================= -->
+
+<div id="sideMenuOverlay"
+     onclick="closeSideMenu()"
+     style="
+       display:none;
+       position:fixed;
+       inset:0;
+       background:#0008;
+       z-index:300;
+     ">
+
+  <div id="sideMenu"
+       onclick="event.stopPropagation()"
+       style="
+         position:absolute;
+         top:0;
+         left:0;
+         width:78%;
+         max-width:320px;
+         height:100%;
+         background:#fff;
+         padding:20px 14px;
+         box-shadow:4px 0 20px #0003;
+         overflow:auto;
+       ">
+
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:5px 4px 18px;
+      border-bottom:1px solid #e5e7eb;
+    ">
+      <div>
+        <b style="font-size:17px;color:#075f18;">
+          Sudh Sagar Mart
+        </b>
+        <div style="
+          font-size:10px;
+          color:#6b7280;
+          margin-top:3px;
+        ">
+          Delivery Partner Menu
+        </div>
+      </div>
+
+      <button
+        onclick="closeSideMenu()"
+        style="
+          border:0;
+          background:#f3f4f6;
+          width:36px;
+          height:36px;
+          border-radius:10px;
+        "
+      >
+        ✕
+      </button>
+    </div>
+
+
+    <div style="margin-top:15px;">
+
+      <button class="sideMenuItem"
+              onclick="sideMenuProfile()">
+        👤
+        <span>Profile</span>
+      </button>
+
+      <button class="sideMenuItem"
+              onclick="sideMenuStore()">
+        🏪
+        <span>Store</span>
+      </button>
+
+      <button class="sideMenuItem"
+              onclick="sideMenuSettings()">
+        ⚙️
+        <span>Settings</span>
+      </button>
+
+      <button class="sideMenuItem"
+              onclick="sideMenuPrivacy()">
+        🔒
+        <span>Privacy Policy</span>
+      </button>
+
+      <button class="sideMenuItem"
+              onclick="sideMenuTerms()">
+        📄
+        <span>Terms & Conditions</span>
+      </button>
+
+      <button class="sideMenuItem"
+              onclick="sideMenuHelp()">
+        🆘
+        <span>Help Desk</span>
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+
+.sideMenuItem{
+  width:100%;
+  border:0;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 12px;
+  margin-bottom:5px;
+  border-radius:12px;
+  text-align:left;
+  font-size:13px;
+  font-weight:700;
+  color:#172033;
+}
+
+.sideMenuItem:hover{
+  background:#f0fdf4;
+  color:#0c831f;
+}
+
+</style>
+
+<script>
+
+function openSideMenu(){
+
+  const menu =
+    document.getElementById("sideMenuOverlay");
+
+  if(menu){
+    menu.style.display="block";
+  }
+
+  if(typeof lucide !== "undefined"){
+    lucide.createIcons();
+  }
+}
+
+
+function closeSideMenu(){
+
+  const menu =
+    document.getElementById("sideMenuOverlay");
+
+  if(menu){
+    menu.style.display="none";
+  }
+}
+
+
+function sideMenuProfile(){
+
+  closeSideMenu();
+
+  showPage("profile");
+
+}
+
+
+function sideMenuStore(){
+
+  closeSideMenu();
+
+  alert(
+    "🏪 Assigned Store\n\n" +
+    "Store: " +
+    (partnerStoreName || "Store not assigned") +
+    "\nStore ID: " +
+    (partnerStoreId || "Not assigned")
+  );
+
+}
+
+
+function sideMenuSettings(){
+
+  closeSideMenu();
+
+  alert(
+    "⚙️ Settings\n\n" +
+    "Settings section delivery partner ke liye yahan manage ki jayegi."
+  );
+
+}
+
+
+function sideMenuPrivacy(){
+
+  closeSideMenu();
+
+  alert(
+    "🔒 Privacy Policy\n\n" +
+    "Aapki personal information aur location data ko delivery service ke liye securely use kiya jata hai."
+  );
+
+}
+
+
+function sideMenuTerms(){
+
+  closeSideMenu();
+
+  alert(
+    "📄 Terms & Conditions\n\n" +
+    "Sudh Sagar Mart Delivery Partner ke rules aur conditions yahan available honge."
+  );
+
+}
+
+
+function sideMenuHelp(){
+
+  closeSideMenu();
+
+  alert(
+    "🆘 Help Desk\n\n" +
+    "Delivery Partner Support\n\n" +
+    "Kisi problem ke liye Fleet Manager / Support Team se contact karein."
+  );
+
+}
+
+</script>
+  
 </body>
 </html>
