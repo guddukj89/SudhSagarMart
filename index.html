@@ -1638,14 +1638,7 @@ renderCheckoutSummary();
   const orderItems = cart.map(x => {
 
   const p = x.p || [];
-const summary = getCheckoutSummary();
 
-const productTotal = summary.productTotal;
-const chargeableWeightKg = summary.chargeableWeightKg;
-const weightCharge = summary.weightCharge;
-const deliveryCharge = summary.deliveryCharge;
-const deliveryDistanceKm = summary.deliveryDistanceKm;
-const finalTotal = summary.finalTotal;
   return {
     productId: x.p[6] || "",
     sellerId: x.p[7] || "",
