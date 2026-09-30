@@ -783,9 +783,11 @@ async function handleOrderAction(e){
     else if(action === "deliver"){
 
       await updateDoc(doc(db,"orders",id),{
-        status:"delivered",
-        deliveredAt:serverTimestamp()
-      });
+  status:"delivered",
+  deliveryPartnerEarning:15,
+  deliveredBy:partnerId,
+  deliveredAt:serverTimestamp()
+});
 
       o.status = "delivered";
 
