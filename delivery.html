@@ -698,8 +698,28 @@ function renderOrders(){
   $("newOrders").innerHTML=newest.length?newest.map(o=>renderOrder(o,"new")).join(""):`<div class="empty">No new delivery orders</div>`;
   $("ongoingOrders").innerHTML=ongoing.length?ongoing.map(o=>renderOrder(o,"ongoing")).join(""):`<div class="empty">No ongoing deliveries</div>`;
   $("completedOrders").innerHTML=completed.length?completed.map(o=>renderOrder(o,"completed")).join(""):`<div class="empty">No completed orders</div>`;
-  $("statOrders").textContent=orders.length;
-  $("statCompleted").textContent=completed.length+" Completed";
+const deliveryEarning =
+  completed.reduce(
+    (sum,o) => sum + Number(o.deliveryPartnerEarning || 15),
+    0
+  );
+
+const incentive =
+  Number(partnerData.incentiveToday || 0);
+
+const totalEarning =
+  deliveryEarning + incentive;
+
+$("statOrders").textContent = orders.length;
+
+$("statCompleted").textContent =
+  completed.length + " Completed";
+
+$("statEarnings").textContent =
+  money(totalEarning);
+
+$("earnToday").textContent =
+  money(totalEarning);
   document.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",handleOrderAction));
 }
 async function handleOrderAction(e){
