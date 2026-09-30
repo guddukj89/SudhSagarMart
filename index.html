@@ -1730,9 +1730,8 @@ chargeableWeightKg:
   )];
 // Customer saved location
 const savedLocation = JSON.parse(
-  localStorage.getItem("ssm_location") || "null"
+  localStorage.getItem("ssm_current_location") || "null"
 );
-
 const customerLatitude =
   savedLocation && savedLocation.latitude != null
     ? Number(savedLocation.latitude)
@@ -1917,7 +1916,8 @@ if(!customerStoreId){
     return alert("Please fill all delivery details");
   }
 
-  const total = cart.reduce((s,x)=>s + x.p[2] * x.qty, 0);
+const summary = getCheckoutSummary();
+const total = summary.finalTotal;
   const paymentMethod = document.getElementById("payment").value;
 
   if(paymentMethod === "Cash on Delivery"){
