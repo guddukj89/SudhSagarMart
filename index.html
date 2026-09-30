@@ -870,13 +870,17 @@ async function selectCustomerStore(pincode=""){
       if(status !== "active") return;
 
       stores.push({
-        id: String(s.storeId || doc.id).trim(),
-        name: s.name || s.storeName || "Sudh Sagar Store",
-        pincode: String(s.pincode || ""),
-        deliveryCharge: Number(
-          s.deliveryCharge ?? s.delivery ?? 0
-        )
-      });
+  id: String(s.storeId || doc.id).trim(),
+  name: s.name || s.storeName || "Sudh Sagar Store",
+  pincode: String(s.pincode || ""),
+
+  latitude: Number(s.latitude || s.lat || 0),
+  longitude: Number(s.longitude || s.lng || 0),
+
+  deliveryCharge: Number(
+    s.deliveryCharge ?? s.delivery ?? 0
+  )
+});
 
     });
 
