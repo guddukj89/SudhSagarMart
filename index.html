@@ -847,11 +847,23 @@ function getWeightCharge(weightKg){
   if(weightKg <= 15) return 20;
   if(weightKg <= 20) return 30;
   if(weightKg <= 25) return 40;
-
-  return 40 + Math.ceil((weightKg - 25) / 5) * 5;
+return 40 + Math.ceil((weightKg - 25) / 5) * 5;
 }
-    
+
+function getDistanceDeliveryCharge(km){
+  km = Number(km) || 0;
+
+  if(km <= 1) return 15;
+  if(km <= 2) return 25;
+  if(km <= 3) return 35;
+  if(km <= 4) return 45;
+  if(km <= 5) return 55;
+
+  return 55 + Math.ceil(km - 5) * 10;
+}
+
 async function selectCustomerStore(pincode=""){
+  
 
   try{
 
