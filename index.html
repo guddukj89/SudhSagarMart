@@ -3399,7 +3399,12 @@ placeholder="Extra Product Image URL">
     <input id="spStock"
       type="number"
       placeholder="Stock Quantity">
+<input id="spWeight" type="number" step="0.001" min="0" placeholder="Product Weight (kg)">
 
+<select id="spWeightChargeable">
+  <option value="no">No – Light Product</option>
+  <option value="yes">Yes – Heavy / Chargeable Product</option>
+</select>
     <textarea id="spDescription"
       placeholder="Product Description"></textarea>
 
