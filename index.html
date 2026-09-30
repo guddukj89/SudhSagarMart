@@ -914,10 +914,34 @@ console.log("MATCHED STORE:", matched);
     // Pehla matching Store select
     const selected = matched[0];
 
-    customerStoreId = selected.id;
-    customerStoreName = selected.name;
-    customerStoreDistanceKm = null;
-    customerStoreCharge = selected.deliveryCharge;
+customerStoreId = selected.id;
+customerStoreName = selected.name;
+
+const currentLocation = JSON.parse(
+  localStorage.getItem("ssm_current_location") || "null"
+);
+
+if(
+  currentLocation &&
+  Number.isFinite(Number(currentLocation.latitude)) &&
+  Number.isFinite(Number(currentLocation.longitude)) &&
+  selected.latitude &&
+  selected.longitude
+){
+  customerStoreDistanceKm = distanceKm(
+    Number(currentLocation.latitude),
+    Number(currentLocation.longitude),
+    Number(selected.latitude),
+    Number(selected.longitude)
+  );
+
+  customerStoreCharge = getDistanceDeliveryCharge(
+    customerStoreDistanceKm
+  );
+}else{
+  customerStoreDistanceKm = null;
+  customerStoreCharge = 0;
+}
 
     localStorage.setItem(
       "ssm_storeId",
