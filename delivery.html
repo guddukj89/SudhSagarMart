@@ -709,11 +709,28 @@ const incentive =
 
 const totalEarning =
   deliveryEarning + incentive;
+const deliveryEarning =
+  completed.reduce(
+    (sum,o) => sum + Number(o.deliveryPartnerEarning || 15),
+    0
+  );
+
+const incentive =
+  Number(partnerData.incentiveToday || 0);
+
+const totalEarning =
+  deliveryEarning + incentive;
 
 $("statOrders").textContent = orders.length;
 
 $("statCompleted").textContent =
   completed.length + " Completed";
+
+$("statEarnings").textContent =
+  money(totalEarning);
+
+$("earnToday").textContent =
+  money(totalEarning);
 
 $("statEarnings").textContent =
   money(totalEarning);
