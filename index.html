@@ -2125,12 +2125,17 @@ function loadSellerProducts(storeId = null) {
                     : (p.image ? [p.image] : []),
 
                 p.description ||
-                p.details ||
-                p.productDescription ||
-                "",
+p.details ||
+p.productDescription ||
+"",
 
-                p.storeId || ""
-            ]);
+p.storeId || "",
+
+Number(p.weightKg || p.weight || 0),
+
+p.weightChargeable === true
+
+]);
 
         });
 
