@@ -800,7 +800,21 @@ async function handleOrderAction(e){
       location.href = "tel:" + b.dataset.phone;
 
     }
+else if(action === "navigate"){
 
+  const lat = b.dataset.lat;
+  const lon = b.dataset.lon;
+
+  if(!lat || !lon){
+    return toast("Customer location available nahi hai");
+  }
+
+  window.open(
+    `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`,
+    "_blank"
+  );
+
+}
   }catch(err){
 
     console.error(err);
