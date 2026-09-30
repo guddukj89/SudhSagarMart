@@ -1625,6 +1625,7 @@ if(!cart.length)return alert("Cart is empty");
 closeModal("cartModal");openModal("checkoutModal");
 let loc=JSON.parse(localStorage.getItem("ssm_location")||"null");
 if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.address+", "+loc.city+" - "+loc.pincode}
+renderCheckoutSummary();
 }
  async function saveOrderToFirestore(orderId, status, paymentMethod, paymentData = {}){
 
