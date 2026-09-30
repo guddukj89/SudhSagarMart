@@ -869,7 +869,77 @@ function getDistanceDeliveryCharge(km){
 
   return 55 + Math.ceil(km - 5) * 10;
 }
+function getCheckoutSummary(){
 
+  const productTotal = cart.reduce(
+    (sum, item) => sum + (Number(item.p[2]) || 0) * (Number(item.qty) || 1),
+    0
+  );
+
+  const chargeableWeightKg = getChargeableWeightKg();
+
+  const weightCharge = getWeightCharge(chargeableWeightKg);
+
+  const deliveryCharge = Number(customerStoreCharge) || 0;
+
+  const finalTotal =
+    productTotal +
+    weightCharge +
+    deliveryCharge;
+
+  return {
+    productTotal,
+    chargeableWeightKg,
+    weightCharge,
+    deliveryCharge,
+    deliveryDistanceKm: customerStoreDistanceKm,
+    finalTotal
+  };
+}    
+
+function renderCheckoutSummary(){
+
+  const summary = getCheckoutSummary();
+
+  const distanceText =
+    summary.deliveryDistanceKm != null
+      ? summary.deliveryDistanceKm.toFixed(2) + " km"
+      : "Location required";
+
+  document.getElementById("checkoutSummary").innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span>Product Total</span>
+      <strong>₹${summary.productTotal.toFixed(2)}</strong>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span>Chargeable Weight</span>
+      <strong>${summary.chargeableWeightKg.toFixed(2)} kg</strong>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span>Weight / Handling Charge</span>
+      <strong>₹${summary.weightCharge.toFixed(2)}</strong>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span>Delivery Distance</span>
+      <strong>${distanceText}</strong>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+      <span>Delivery Charge</span>
+      <strong>₹${summary.deliveryCharge.toFixed(2)}</strong>
+    </div>
+
+    <hr>
+
+    <div style="display:flex;justify-content:space-between;font-size:18px;">
+      <strong>Final Payable</strong>
+      <strong>₹${summary.finalTotal.toFixed(2)}</strong>
+    </div>
+  `;
+}    
 async function selectCustomerStore(pincode=""){
   
 
