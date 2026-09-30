@@ -1038,29 +1038,108 @@ if(
       customerStoreId
     );
 
+   async function selectCustomerStore(pincode=""){
+
+  try{
+
+    const snap = await db.collection("stores")
+      .where("status","==","active")
+      .get();
+
+    let stores = [];
+
+    snap.forEach(doc=>{
+
+      const s = doc.data() || {};
+
+      const status = String(s.status || "").toLowerCase();
+
+      if(status !== "active") return;
+
+      stores.push({
+        id: String(s.storeId || doc.id).trim(),
+        name: s.name || s.storeName || "Sudh Sagar Store",
+        pincode: String(s.pincode || "").trim(),
+
+        latitude: Number(
+          s.latitude ?? s.lat ?? 0
+        ),
+
+        longitude: Number(
+          s.longitude ?? s.lng ?? 0
+        )
+      });
+
+    });
+
+    const selected = stores.find(
+      s => s.pincode === String(pincode || "").trim()
+    );
+
+    if(!selected){
+
+      customerStoreId = "";
+      customerStoreName = "";
+      customerStoreDistanceKm = null;
+      customerStoreCharge = 0;
+
+      return;
+    }
+
+    customerStoreId = selected.id;
+    customerStoreName = selected.name;
+
+    const savedLocation = JSON.parse(
+      localStorage.getItem("ssm_current_location") || "null"
+    );
+
+    if(
+      savedLocation &&
+      savedLocation.latitude != null &&
+      savedLocation.longitude != null &&
+      selected.latitude &&
+      selected.longitude
+    ){
+
+      customerStoreDistanceKm = distanceKm(
+        Number(savedLocation.latitude),
+        Number(savedLocation.longitude),
+        selected.latitude,
+        selected.longitude
+      );
+
+      customerStoreCharge =
+        getDistanceDeliveryCharge(customerStoreDistanceKm);
+
+    }else{
+
+      customerStoreDistanceKm = null;
+      customerStoreCharge = 0;
+
+    }
+
+    localStorage.setItem(
+      "ssm_storeId",
+      customerStoreId
+    );
+
     localStorage.setItem(
       "ssm_storeName",
       customerStoreName
     );
 
-    console.log(
-      "Customer Store Selected:",
-      customerStoreName,
-      customerStoreId
-    );
-
-    return true;
-
   }catch(error){
 
     console.error(
-      "Customer Store Selection Error:",
+      "Store selection error:",
       error
     );
 
-    return false;
+    customerStoreDistanceKm = null;
+    customerStoreCharge = 0;
   }
-}    
+
+}   
 function renderCategories(){
   document.getElementById("categories").innerHTML=categories.map(c=>
     `<div class="cat" onclick="${c[0]==='Travel'?'openTravel()':`filterCategory('${c[0]}')`}">
