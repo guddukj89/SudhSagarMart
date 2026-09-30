@@ -1722,7 +1722,14 @@ chargeableWeightKg:
       Number(x.qty || 1)
   };
 });
+const summary = getCheckoutSummary();
 
+const productTotal = summary.productTotal;
+const chargeableWeightKg = summary.chargeableWeightKg;
+const weightCharge = summary.weightCharge;
+const deliveryCharge = summary.deliveryCharge;
+const deliveryDistanceKm = summary.deliveryDistanceKm;
+const finalTotal = summary.finalTotal;
   const sellerIds = [...new Set(
     orderItems
       .map(x => x.sellerId)
