@@ -3463,6 +3463,11 @@ async function saveSellerProduct(){
 
   const description =
     document.getElementById("spDescription").value.trim();
+    const weightKg =
+  Number(document.getElementById("spWeight").value) || 0;
+
+const weightChargeable =
+  document.getElementById("spWeightChargeable").value === "yes";
 
   if(!name || !price || !category || !image1){
 
