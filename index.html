@@ -1638,7 +1638,14 @@ renderCheckoutSummary();
   const orderItems = cart.map(x => {
 
   const p = x.p || [];
+const summary = getCheckoutSummary();
 
+const productTotal = summary.productTotal;
+const chargeableWeightKg = summary.chargeableWeightKg;
+const weightCharge = summary.weightCharge;
+const deliveryCharge = summary.deliveryCharge;
+const deliveryDistanceKm = summary.deliveryDistanceKm;
+const finalTotal = summary.finalTotal;
   return {
     productId: x.p[6] || "",
     sellerId: x.p[7] || "",
@@ -1764,7 +1771,7 @@ customerLatitude: customerLatitude,
 customerLongitude: customerLongitude,        
 storeId: customerStoreId,
 storeName: customerStoreName,
-deliveryCharge: customerStoreCharge,
+deliveryCharge: deliveryCharge,
         
 items: orderItems,
 products: orderItems,
@@ -1774,15 +1781,15 @@ itemCount: orderItems.reduce(
   0
 ),
 
-total: Number(orderItems.reduce(
-  (sum, x) => sum + x.itemTotal,
-  0
-)),
+productTotal: productTotal,
+chargeableWeightKg: chargeableWeightKg,
+weightCharge: weightCharge,
+deliveryDistanceKm: deliveryDistanceKm,
+deliveryCharge: deliveryCharge,
 
-amount: Number(orderItems.reduce(
-  (sum, x) => sum + x.itemTotal,
-  0
-)),
+total: finalTotal,
+
+amount: finalTotal,
 
 status: status,
 orderStatus: status,
