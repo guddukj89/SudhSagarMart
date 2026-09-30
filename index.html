@@ -822,7 +822,35 @@ function distanceKm(lat1, lon1, lat2, lon2){
     Math.sqrt(1 - a)
   );
 }    
+function getChargeableWeightKg(){
+  let totalWeight = 0;
 
+  cart.forEach(item => {
+    const product = item.p || [];
+    const weightKg = Number(product[12] || 0);
+    const chargeable = product[13] === true;
+    const quantity = Number(item.qty || 1);
+
+    if(chargeable){
+      totalWeight += weightKg * quantity;
+    }
+  });
+
+  return totalWeight;
+}
+
+function getWeightCharge(weightKg){
+  weightKg = Number(weightKg) || 0;
+
+  if(weightKg <= 5) return 0;
+  if(weightKg <= 10) return 10;
+  if(weightKg <= 15) return 20;
+  if(weightKg <= 20) return 30;
+  if(weightKg <= 25) return 40;
+
+  return 40 + Math.ceil((weightKg - 25) / 5) * 5;
+}
+    
 async function selectCustomerStore(pincode=""){
 
   try{
