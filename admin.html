@@ -3760,7 +3760,7 @@ loadOrderRiders(order.deliveryBoyId || "");
   }
 
 }
-function clearOrder(){["orderId","orderCustomer","orderPhone","orderAmount","orderAddress"].forEach(id=>document.getElementById(id).value="");document.getElementById("orderStatus").value="Processing"}
+function clearOrder(){["orderId","orderCustomer","orderPhone","orderAmount","orderAddress"].forEach(id=>document.getElementById(id).value="");document.getElementById("orderStatus").value="Order Placed"}
 
 function renderCustomers(){const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();const rows=data.customers.filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById("customerTable").innerHTML=rows.length?rows.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.city)}</td><td>${esc(c.address)}</td><td class="actions"><button class="secondary" onclick="editCustomer('${esc(c.id)}')">Edit</button><button class="danger" onclick="deleteDoc('customers','${esc(c.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No customers</td></tr>`}
 async function saveCustomer(){
