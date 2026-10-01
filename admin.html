@@ -3495,16 +3495,51 @@ orderStatus:
 
 // Delivery Partner
 deliveryBoyId:
-  document.getElementById("orderRiderId")?.value || "",
+  document.getElementById("orderRider")?.value || "",
 
-deliveryBoyName:
-  document.getElementById("orderRiderName")?.value || "",
+deliveryBoyName: (() => {
 
-deliveryBoyPhone:
-  document.getElementById("orderRiderPhone")?.value || "",
+  const riderId =
+    document.getElementById("orderRider")?.value || "";
+
+  const rider =
+    data.deliveryPartners.find(
+      r => String(r.id || r.uid) === String(riderId)
+    );
+
+  return rider
+    ? (
+        rider.name ||
+        rider.fullName ||
+        rider.displayName ||
+        ""
+      )
+    : "";
+
+})(),
+
+deliveryBoyPhone: (() => {
+
+  const riderId =
+    document.getElementById("orderRider")?.value || "";
+
+  const rider =
+    data.deliveryPartners.find(
+      r => String(r.id || r.uid) === String(riderId)
+    );
+
+  return rider
+    ? (
+        rider.phone ||
+        rider.mobile ||
+        ""
+      )
+    : "";
+
+})(),
 
 deliveryAssignmentStatus:
-  document.getElementById("orderRiderId")?.value
+  document.getElementById("orderRider")?.value
     ? "Assigned"
     : "Unassigned",
 
