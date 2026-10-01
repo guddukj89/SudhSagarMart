@@ -509,24 +509,213 @@ function renderOrder(o,type){
 
   const phone =
     o.customerPhone ||
+    o.customerMobile ||
     o.phone ||
+    o.mobile ||
     "";
 
   const address =
     o.deliveryAddress ||
-    o.address ||
     o.customerAddress ||
+    o.address ||
     "Address not available";
 
   const total =
-    o.total ||
-    o.grandTotal ||
-    o.amount ||
-    0;
+    Number(
+      o.total ??
+      o.grandTotal ??
+      o.amount ??
+      0
+    );
+
+
+  // ================= PAYMENT =================
+
+  const rawPaymentMethod =
+    String(
+      o.paymentMethod ||
+      o.payment ||
+      o.paymentType ||
+      ""
+    ).toLowerCase().trim();
+
+  const paymentStatus =
+    String(
+      o.paymentStatus ||
+      ""
+    ).toLowerCase().trim();
+
+  const isCOD =
+    rawPaymentMethod.includes("cash") ||
+    rawPaymentMethod === "cod" ||
+    rawPaymentMethod === "cash on delivery";
+
+  const isPaid =
+    paymentStatus === "paid" ||
+    paymentStatus === "success" ||
+    paymentStatus === "successful" ||
+    paymentStatus === "completed" ||
+    o.paid === true ||
+    o.paymentPaid === true;
+
+
+  let paymentHTML = "";
+
+  if(isCOD && !isPaid){
+
+    paymentHTML = `
+      <div class="paymentBox"
+        style="
+          margin-top:10px;
+          padding:12px;
+          border:1px solid #ddd;
+          border-radius:8px;
+          background:#fff8e1;
+        ">
+
+        <div>
+          <b>💳 Payment: COD</b>
+        </div>
+
+        <div style="margin-top:5px">
+          Amount: <b>${money(total)}</b>
+        </div>
+
+        <div style="
+          margin-top:10px;
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        ">
+
+          <button
+            class="btn green"
+            data-action="cash_paid"
+            data-id="${escapeHtml(id)}">
+            💵 Cash Received
+          </button>
+
+          <button
+            class="btn blue"
+            data-action="upi_paid"
+            data-id="${escapeHtml(id)}">
+            📱 UPI Paid
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+  }
+
+  else if(isPaid){
+
+    paymentHTML = `
+      <div
+        style="
+          margin-top:10px;
+          padding:10px;
+          border-radius:8px;
+          background:#e8f5e9;
+          color:#176b2c;
+          font-weight:bold;
+        ">
+        ✅ Payment: Paid Online
+        <br>
+        Amount: ${money(total)}
+      </div>
+    `;
+
+  }
+
+  else{
+
+    paymentHTML = `
+      <div
+        style="
+          margin-top:10px;
+          padding:10px;
+          border-radius:8px;
+          background:#fff3cd;
+        ">
+        💳 Payment:
+        ${escapeHtml(
+          o.paymentMethod ||
+          o.payment ||
+          "Pending"
+        )}
+        <br>
+        Amount: ${money(total)}
+      </div>
+    `;
+
+  }
+
+
+  // ================= CUSTOMER LOCATION =================
+
+  const latitude =
+    o.customerLatitude ??
+    o.deliveryLatitude ??
+    o.latitude ??
+    o.lat ??
+    "";
+
+  const longitude =
+    o.customerLongitude ??
+    o.deliveryLongitude ??
+    o.longitude ??
+    o.lng ??
+    "";
+
+
+  let navigationHTML = "";
+
+  if(
+    latitude !== "" &&
+    longitude !== ""
+  ){
+
+    navigationHTML = `
+      <button
+        class="btn blue"
+        data-action="navigate"
+        data-id="${escapeHtml(id)}"
+        data-lat="${escapeHtml(String(latitude))}"
+        data-lng="${escapeHtml(String(longitude))}">
+        📍 Navigate to Customer
+      </button>
+    `;
+
+  }
+
+  else if(
+    address &&
+    address !== "Address not available"
+  ){
+
+    navigationHTML = `
+      <button
+        class="btn blue"
+        data-action="navigate_address"
+        data-id="${escapeHtml(id)}"
+        data-address="${escapeHtml(address)}">
+        📍 Navigate to Customer
+      </button>
+    `;
+
+  }
+
+
+  // ================= STATUS =================
 
   const s = orderStatus(o);
 
   let productHTML = "";
+
+
+  // ================= PRODUCTS =================
 
   if(items.length){
 
@@ -539,7 +728,11 @@ function renderOrder(o,type){
         "Product";
 
       const qty =
-        Number(x.qty || x.quantity || 1);
+        Number(
+          x.qty ||
+          x.quantity ||
+          1
+        );
 
       const price =
         Number(
@@ -557,7 +750,8 @@ function renderOrder(o,type){
         x.photo ||
         "";
 
-      const safeImage = escapeHtml(image);
+      const safeImage =
+        escapeHtml(image);
 
       return `
         <div class="productItem">
@@ -570,8 +764,14 @@ function renderOrder(o,type){
                 alt="${escapeHtml(name)}"
                 onerror="this.style.display='none'"
               >`
-            : `<div class="productImage"
-                style="display:flex;align-items:center;justify-content:center;font-size:22px">
+            : `<div
+                class="productImage"
+                style="
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  font-size:22px
+                ">
                 🛒
               </div>`
           }
@@ -590,7 +790,11 @@ function renderOrder(o,type){
 
           ${
             price > 0
-            ? `<div class="productPrice">${money(price * qty)}</div>`
+            ? `
+              <div class="productPrice">
+                ${money(price * qty)}
+              </div>
+            `
             : ""
           }
 
@@ -599,26 +803,42 @@ function renderOrder(o,type){
 
     }).join("");
 
-  }else{
+  }
+
+  else{
 
     productHTML = `
       <div class="productItem">
-        <div class="productImage"
-          style="display:flex;align-items:center;justify-content:center;font-size:22px">
+
+        <div
+          class="productImage"
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:22px
+          ">
           🛒
         </div>
 
         <div class="productInfo">
+
           <div class="productName">
             Product details unavailable
           </div>
+
         </div>
+
       </div>
     `;
 
   }
 
+
+  // ================= ACTION BUTTONS =================
+
   let buttons = "";
+
 
   if(type === "new"){
 
@@ -626,41 +846,48 @@ function renderOrder(o,type){
       <button
         class="btn green"
         data-action="accept"
-        data-id="${id}">
+        data-id="${escapeHtml(id)}">
         ✓ Accept Order
       </button>
 
       <button
         class="btn red"
         data-action="reject"
-        data-id="${id}">
+        data-id="${escapeHtml(id)}">
         ✕ Reject
       </button>
     `;
 
   }
 
+
   else if(type === "ongoing"){
 
     if(s === "accepted"){
 
-  buttons = `
-    <button
-      class="btn blue"
-      data-action="picked"
-      data-id="${id}">
-      📦 Mark Picked Up
-    </button>
-  `;
+      buttons = `
+        <button
+          class="btn blue"
+          data-action="picked"
+          data-id="${escapeHtml(id)}">
+          📦 Mark Picked Up
+        </button>
+      `;
 
-}
-    else if(["picked up","picked_up"].includes(s)){
+    }
+
+    else if(
+      [
+        "picked up",
+        "picked_up"
+      ].includes(s)
+    ){
 
       buttons = `
         <button
           class="btn blue"
           data-action="out"
-          data-id="${id}">
+          data-id="${escapeHtml(id)}">
           🛵 Out for Delivery
         </button>
       `;
@@ -673,12 +900,13 @@ function renderOrder(o,type){
         <button
           class="btn green"
           data-action="deliver"
-          data-id="${id}">
+          data-id="${escapeHtml(id)}">
           ✓ Verify & Deliver
         </button>
       `;
 
     }
+
 
     if(phone){
 
@@ -695,6 +923,7 @@ function renderOrder(o,type){
 
   }
 
+
   return `
     <div class="order">
 
@@ -710,27 +939,47 @@ function renderOrder(o,type){
 
       </div>
 
+
       <div class="productList">
         ${productHTML}
       </div>
 
+
       <div class="address">
-        <b>${escapeHtml(customer)}</b>
+
+        <b>
+          ${escapeHtml(customer)}
+        </b>
+
         <br>
+
         ${escapeHtml(address)}
+
       </div>
 
+
+      ${navigationHTML}
+
+
       <div class="row">
+
         <span>Order Total</span>
-        <b>${money(total)}</b>
+
+        <b>
+          ${money(total)}
+        </b>
+
       </div>
+
+
+      ${paymentHTML}
+
 
       ${buttons}
 
     </div>
   `;
 }
-
 function renderOrders(){
   const newest=orders.filter(isNew);
   const ongoing=orders.filter(isOngoing);
