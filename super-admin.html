@@ -1366,8 +1366,62 @@ async function setProductStatus(id,status){await db.collection('products').doc(i
 function editProduct(id){const p=data.products.find(x=>x.id===id);if(!p)return;['productId','productName','productPrice','productMrp','productStock','productCategory','productSeller','productSellerId','productImage','productDescription'].forEach(k=>{const el=document.getElementById(k);if(k==='productId')el.value=id});document.getElementById('productName').value=p.productName||p.name||'';document.getElementById('productPrice').value=p.price||'';document.getElementById('productMrp').value=p.mrp||p.oldPrice||'';document.getElementById('productStock').value=p.stock||0;document.getElementById('productCategory').value=p.category||'';document.getElementById('productSeller').value=p.sellerName||p.seller||'';document.getElementById('productSellerId').value=p.sellerId||'';document.getElementById('productImage').value=p.imageURL||p.image||'';document.getElementById('productDescription').value=p.description||'';document.getElementById('productStatus').value=p.status||'pending';document.getElementById('productStoreId').value=p.storeId||'';showSection('products',document.querySelectorAll('.navbtn')[3])}
 async function saveProduct(){const id=document.getElementById('productId').value,x={productName:document.getElementById('productName').value.trim(),price:Number(document.getElementById('productPrice').value||0),mrp:Number(document.getElementById('productMrp').value||0),stock:Number(document.getElementById('productStock').value||0),category:document.getElementById('productCategory').value.trim(),sellerName:document.getElementById('productSeller').value.trim(),sellerId:document.getElementById('productSellerId').value.trim(),imageURL:document.getElementById('productImage').value.trim(),description:document.getElementById('productDescription').value.trim(),status:document.getElementById('productStatus').value,approved:document.getElementById('productStatus').value==='approved',storeId:document.getElementById('productStoreId').value || (selectedStoreId==='__ALL__'?'':selectedStoreId)};if(!x.productName)return alert('Product name required');if(id)await db.collection('products').doc(id).update(x);else await db.collection('products').add({...x,createdAt:firebase.firestore.FieldValue.serverTimestamp()});await audit('Product saved','products',id||'new',x.productName);clearProduct()}
 function clearProduct(){['productId','productName','productPrice','productMrp','productStock','productCategory','productSeller','productSellerId','productImage','productDescription'].forEach(id=>document.getElementById(id).value='');document.getElementById('productStoreId').value=selectedStoreId==='__ALL__'?'':selectedStoreId;document.getElementById('productStatus').value='pending'}
-function renderOrders(){const q=(document.getElementById('orderSearch')?.value||'').toLowerCase(),rows=data.orders.filter(storeMatches).filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById('orderTable').innerHTML=rows.length?rows.map(o=>`<tr><td><b>#${esc(o.orderId||o.id||'')}</b></td><td>${esc(o.customerName||o.customer||'')}<br>${esc(o.customerMobile||o.phone||'')}</td><td>${money(o.amount||o.total)}</td><td><select onchange="updateOrderStatus('${esc(o.id)}',this.value)">${['Order Placed','Confirmed','Packed','Ready for Pickup','Picked Up','Out for Delivery','Delivered','Undelivered Attempt','Cancelled'].map(v=>`<option ${String(o.orderStatus||o.status||'Order Placed')===v?'selected':''}>${v}</option>`).join('')}</select></td><td>${esc(o.deliveryBoyName||'Not Assigned')}<br>${esc(o.deliveryBoyPhone||'')}</td><td>${esc(o.customerAddress||o.address||'')}</td><td class="actions"><button class="secondary" onclick="editOrder('${esc(o.id)}')">Edit</button><button class="primary" onclick="assignRider('${esc(o.id)}')">Assign Rider</button><button class="danger" onclick="deleteDoc('orders','${esc(o.id)}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No orders</td></tr>'}
-async function updateOrderStatus(id,status){await db.collection('orders').doc(id).update({orderStatus:status,status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});await audit('Order status '+status,'orders',id,status)}
+function renderOrders(){const q=(document.getElementById('orderSearch')?.value||'').toLowerCase(),rows=data.orders.filter(storeMatches).filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById('orderTable').innerHTML=rows.length?rows.map(o=>`<tr><td><b>#${esc(o.orderId||o.id||'')}</b></td><td>${esc(o.customerName||o.customer||'')}<br>${esc(o.customerMobile||o.phone||'')}</td><td>${money(o.amount||o.total)}</td><td><select onchange="updateOrderStatus('${esc(o.id)}',this.value)">${[
+  ['order_placed','Order Placed'],
+  ['confirmed','Confirmed'],
+  ['packed','Packed'],
+  ['ready_for_pickup','Ready for Pickup'],
+  ['assigned','Assigned'],
+  ['accepted','Accepted'],
+  ['picked_up','Picked Up'],
+  ['out_for_delivery','Out for Delivery'],
+  ['delivered','Delivered'],
+  ['undelivered_attempt','Undelivered Attempt'],
+  ['cancelled','Cancelled'],
+  ['rejected','Rejected']
+].map(([value,label]) =>
+  `<option value="${value}" ${
+    String(o.orderStatus || o.status || 'order_placed') === value
+      ? 'selected'
+      : ''
+  }>${label}</option>`
+).join('')}</select></td><td>${esc(o.deliveryBoyName||'Not Assigned')}<br>${esc(o.deliveryBoyPhone||'')}</td><td>${esc(o.customerAddress||o.address||'')}</td><td class="actions"><button class="secondary" onclick="editOrder('${esc(o.id)}')">Edit</button><button class="primary" onclick="assignRider('${esc(o.id)}')">Assign Rider</button><button class="danger" onclick="deleteDoc('orders','${esc(o.id)}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No orders</td></tr>'}
+async function updateOrderStatus(id,status){
+
+  try{
+
+    await db.collection('orders').doc(id).update({
+
+      orderStatus: status,
+      status: status,
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    });
+
+    await audit(
+      'Order status ' + status,
+      'orders',
+      id,
+      status
+    );
+
+  }catch(error){
+
+    console.error(
+      "Order status update error:",
+      error
+    );
+
+    alert(
+      "Order status update nahi ho paya.\n\n" +
+      error.message
+    );
+
+  }
+
+}
 async function assignRider(id){
 
   const order =
