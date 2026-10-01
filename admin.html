@@ -3466,17 +3466,32 @@ async function saveOrder(){
           .value || 0
       ),
 
-    status:
-      document.getElementById("orderStatus")
-        .value,
+  status:
+  document.getElementById("orderStatus")
+    .value,
 
-    orderStatus:
-      document.getElementById("orderStatus")
-        .value,
+orderStatus:
+  document.getElementById("orderStatus")
+    .value,
 
-    address:
-      document.getElementById("orderAddress")
-        .value.trim(),
+// Delivery Partner
+deliveryBoyId:
+  document.getElementById("orderRiderId")?.value || "",
+
+deliveryBoyName:
+  document.getElementById("orderRiderName")?.value || "",
+
+deliveryBoyPhone:
+  document.getElementById("orderRiderPhone")?.value || "",
+
+deliveryAssignmentStatus:
+  document.getElementById("orderRiderId")?.value
+    ? "Assigned"
+    : "Unassigned",
+
+address:
+  document.getElementById("orderAddress")
+    .value.trim(),
 
     // Store information
     storeId:
