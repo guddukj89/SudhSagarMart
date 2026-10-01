@@ -724,7 +724,98 @@ $("earnToday").textContent =
 
   document.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",handleOrderAction));
 }
+async function handleOrderAction(e){
+  const b = e.currentTarget;
+  const action = b.dataset.action;
+  const id = b.dataset.id;
+  const o = orders.find(x => x.id === id);
 
+  if(!o){
+    alert("Order nahi mila");
+    return;
+  }
+
+  if(!action){
+    alert("Action nahi mila");
+    return;
+  }
+
+  try{
+    b.disabled = true;
+
+    const orderRef = doc(db, "orders", id);
+
+    if(action === "accept"){
+      await updateDoc(orderRef, {
+        status: "accepted",
+        orderStatus: "accepted",
+        deliveryBoyId: partnerId,
+        deliveryBoyName: partnerData?.name || partnerData?.fullName || "",
+        deliveryBoyPhone: partnerData?.phone || "",
+        acceptedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      alert("Order accepted");
+    }
+
+    else if(action === "reject"){
+      await updateDoc(orderRef, {
+        status: "rejected",
+        orderStatus: "rejected",
+        rejectedBy: partnerId,
+        rejectedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      alert("Order rejected");
+    }
+
+    else if(action === "picked"){
+      await updateDoc(orderRef, {
+        status: "picked_up",
+        orderStatus: "picked_up",
+        pickedUpAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      alert("Order picked up");
+    }
+
+    else if(action === "out"){
+      await updateDoc(orderRef, {
+        status: "out_for_delivery",
+        orderStatus: "out_for_delivery",
+        outForDeliveryAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      alert("Order out for delivery");
+    }
+
+    else if(action === "deliver"){
+      await updateDoc(orderRef, {
+        status: "delivered",
+        orderStatus: "delivered",
+
+        deliveryPartnerEarning: 15,
+        deliveryPayoutStatus: "pending",
+
+        deliveredBy: partnerId,
+        deliveredAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      alert("Order delivered successfully");
+    }
+
+  }catch(error){
+    console.error("Order action error:", error);
+    alert("Order update failed: " + error.message);
+  }finally{
+    b.disabled = false;
+  }
+}
 
 async function loadPartner(){
   const ref=doc(db,"deliveryPartners",partnerId);
