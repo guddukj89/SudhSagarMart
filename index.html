@@ -725,7 +725,7 @@ async function changePassword(){
       <p>Fraudulent orders, fake accounts, payment abuse, misleading information or misuse of the platform may result in account restriction or termination.</p>
 
       <h3>12. Platform Rights</h3>
-      <p>Kuchu Puchu Mart may update products, services, policies and these Terms & Conditions when necessary.</p>
+      <p>Sudh Sagar Mart may update products, services, policies and these Terms & Conditions when necessary.</p>
 
       <h3>13. Privacy</h3>
       <p>Customer and seller information will be handled according to our applicable privacy practices.</p>
@@ -1940,7 +1940,7 @@ const total = summary.finalTotal;
 
       // 1. WhatsApp pehle open hoga (Pop-up block nahi hoga)
       const phone = coMobile.value;
-      const msg = `Hello ${coName.value}! 👋\n\nKuchu Puchu Mart par aapka order successfully place ho gaya hai! 🎉\n\n📦 *Order ID:* ${id}\n💰 *Total Amount:* ₹${total}\n\nAapka order jaldi hi deliver kar diya jayega. Dhanyawad! 🙏`;
+      const msg = `Hello ${coName.value}! 👋\n\nSudh Sagar Mart par aapka order successfully place ho gaya hai! 🎉\n\n📦 *Order ID:* ${id}\n💰 *Total Amount:* ₹${total}\n\nAapka order jaldi hi deliver kar diya jayega. Dhanyawad! 🙏`;
 
       window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
 
@@ -1972,7 +1972,7 @@ const total = summary.finalTotal;
     const token = await user.getIdToken();
 
     const response = await fetch(
-      "https://asia-south1-KuchuPuchuMart.cloudfunctions.net/createRazorpayOrder",
+      "https://asia-south1-SudhSagarMart.cloudfunctions.net/createRazorpayOrder",
       {
         method:"POST",
         headers:{
