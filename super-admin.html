@@ -1790,7 +1790,43 @@ document.getElementById("payoutBox").innerHTML =
       </div>
     `;
 }
-async function markPayoutPaid(id){await db.collection('orders').doc(id).update({payoutStatus:'Paid',payoutPaid:true,payoutPaidAt:firebase.firestore.FieldValue.serverTimestamp(),payoutPaidBy:auth.currentUser?.uid||''});await audit('Seller payout paid','orders',id,'Paid')}
+async function markPayoutPaid(id){
+
+  await db.collection("orders").doc(id).update({
+
+    // New seller payout fields
+    sellerPayoutStatus: "Paid",
+
+    // Legacy fields — compatibility ke liye
+    payoutStatus: "Paid",
+    payoutPaid: true,
+
+    // Seller payout object bhi sync rahe
+    sellerPayout: {
+      status: "paid",
+      eligible: true,
+      paid: true
+    },
+
+    payoutPaidAt:
+      firebase.firestore.FieldValue.serverTimestamp(),
+
+    payoutPaidBy:
+      auth.currentUser?.uid || "",
+
+    updatedAt:
+      firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  await audit(
+    "Seller payout paid",
+    "orders",
+    id,
+    "Paid"
+  );
+
+  alert("Seller payout marked as Paid successfully.");
+}
 async function savePayment(){const id=document.getElementById('paymentId').value||db.collection('payments').doc().id;const x={order:document.getElementById('paymentOrder').value.trim(),customer:document.getElementById('paymentCustomer').value.trim(),amount:Number(document.getElementById('paymentAmount').value||0),method:document.getElementById('paymentMethod').value,status:document.getElementById('paymentStatus').value,txn:document.getElementById('paymentTxn').value.trim(),storeId:document.getElementById('paymentStoreId').value || (selectedStoreId==='__ALL__'?'':selectedStoreId),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};await db.collection('payments').doc(id).set(x,{merge:true});await audit('Payment saved','payments',id,x.status);clearPayment()}
 function editPayment(id){const p=data.payments.find(x=>x.id===id);if(!p)return;document.getElementById('paymentId').value=id;document.getElementById('paymentOrder').value=p.order||'';document.getElementById('paymentCustomer').value=p.customer||'';document.getElementById('paymentAmount').value=p.amount||0;document.getElementById('paymentMethod').value=p.method||'UPI';document.getElementById('paymentStatus').value=p.status||'Pending';document.getElementById('paymentTxn').value=p.txn||'';document.getElementById('paymentStoreId').value=p.storeId||'';showSection('payments',document.querySelectorAll('.navbtn')[6])}
 function clearPayment(){['paymentId','paymentOrder','paymentCustomer','paymentAmount','paymentTxn'].forEach(id=>document.getElementById(id).value='');document.getElementById('paymentStoreId').value=selectedStoreId==='__ALL__'?'':selectedStoreId}
