@@ -2095,17 +2095,47 @@ function trackingStep(step, currentStatus){
 ];
 
  const statusMap = {
-  "Pending": "Order Placed",
-  "Confirmed": "Order Confirmed",
-  "Packed": "Packed",
-  "Ready for Pickup": "Ready for Pickup",
-  "Picked Up": "Picked Up",
-  "Out for Delivery": "Out for Delivery",
-  "Delivered": "Delivered",
-  "Payment Successful": "Order Placed"
+
+  // Order placed
+  "pending": "Order Placed",
+  "order placed": "Order Placed",
+  "order_placed": "Order Placed",
+  "payment successful": "Order Placed",
+  "payment_successful": "Order Placed",
+
+  // Confirmed
+  "confirmed": "Order Confirmed",
+  "order confirmed": "Order Confirmed",
+  "order_confirmed": "Order Confirmed",
+
+  // Packed
+  "packed": "Packed",
+
+  // Rider assigned / accepted
+  // Customer ke liye dono ko Ready for Pickup dikhayenge
+  "assigned": "Ready for Pickup",
+  "accepted": "Ready for Pickup",
+
+  // Picked up
+  "picked up": "Picked Up",
+  "picked_up": "Picked Up",
+
+  // Out for delivery
+  "out for delivery": "Out for Delivery",
+  "out_for_delivery": "Out for Delivery",
+
+  // Delivered
+  "delivered": "Delivered",
+  "completed": "Delivered"
+
 };
 
-const normalizedStatus = statusMap[currentStatus] || currentStatus;
+const rawStatus = String(
+  currentStatus || ""
+).toLowerCase().replaceAll("_", " ").trim();
+
+const normalizedStatus =
+  statusMap[rawStatus] || currentStatus;
 
 let currentIndex = steps.indexOf(normalizedStatus);
 
