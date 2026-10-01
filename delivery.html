@@ -1016,98 +1016,418 @@ $("earnToday").textContent =
   document.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",handleOrderAction));
 }
 async function handleOrderAction(e){
-  const b = e.currentTarget;
-  const action = b.dataset.action;
-  const id = b.dataset.id;
-  const o = orders.find(x => x.id === id);
+
+  const b =
+    e.currentTarget;
+
+  const action =
+    b.dataset.action;
+
+  const id =
+    b.dataset.id;
+
+  const o =
+    orders.find(
+      x => x.id === id
+    );
+
+
+  // ================= NAVIGATION =================
+
+  if(action === "navigate"){
+
+    const lat =
+      b.dataset.lat;
+
+    const lng =
+      b.dataset.lng;
+
+    if(!lat || !lng){
+
+      alert(
+        "Customer location available nahi hai."
+      );
+
+      return;
+
+    }
+
+    const url =
+      "https://www.google.com/maps/dir/?api=1" +
+      "&destination=" +
+      encodeURIComponent(
+        lat + "," + lng
+      );
+
+    window.open(
+      url,
+      "_blank"
+    );
+
+    return;
+  }
+
+
+  if(action === "navigate_address"){
+
+    const address =
+      b.dataset.address;
+
+    if(!address){
+
+      alert(
+        "Customer address available nahi hai."
+      );
+
+      return;
+
+    }
+
+    const url =
+      "https://www.google.com/maps/dir/?api=1" +
+      "&destination=" +
+      encodeURIComponent(address);
+
+    window.open(
+      url,
+      "_blank"
+    );
+
+    return;
+  }
+
+
+  // ================= CALL =================
+
+  if(action === "call"){
+
+    const phone =
+      b.dataset.phone;
+
+    if(phone){
+
+      window.location.href =
+        "tel:" + phone;
+
+    }
+
+    return;
+  }
+
 
   if(!o){
-    alert("Order nahi mila");
+
+    alert("Order nahi mila.");
     return;
+
   }
 
-  if(!action){
-    alert("Action nahi mila");
-    return;
-  }
 
   try{
+
     b.disabled = true;
 
-    const orderRef = doc(db, "orders", id);
+
+    const orderRef =
+      doc(
+        db,
+        "orders",
+        id
+      );
+
+
+    // ================= ACCEPT =================
 
     if(action === "accept"){
-      await updateDoc(orderRef, {
-        status: "accepted",
-        orderStatus: "accepted",
-        deliveryBoyId: partnerId,
-        deliveryBoyName: partnerData?.name || partnerData?.fullName || "",
-        deliveryBoyPhone: partnerData?.phone || "",
-        acceptedAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
 
-      alert("Order accepted");
+      await updateDoc(
+        orderRef,
+        {
+
+          status:
+            "accepted",
+
+          orderStatus:
+            "accepted",
+
+          deliveryBoyId:
+            partnerId,
+
+          deliveryBoyName:
+            partnerData?.name ||
+            partnerData?.fullName ||
+            "",
+
+          deliveryBoyPhone:
+            partnerData?.phone ||
+            partnerData?.mobile ||
+            "",
+
+          riderAccepted:
+            true,
+
+          deliveryAssignmentStatus:
+            "Accepted",
+
+          deliveryAcceptedBy:
+            partnerId,
+
+          acceptedAt:
+            serverTimestamp(),
+
+          deliveryAcceptedAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      alert(
+        "Order accepted"
+      );
+
     }
+
+
+    // ================= REJECT =================
 
     else if(action === "reject"){
-      await updateDoc(orderRef, {
-        status: "rejected",
-        orderStatus: "rejected",
-        rejectedBy: partnerId,
-        rejectedAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
 
-      alert("Order rejected");
+      await updateDoc(
+        orderRef,
+        {
+
+          status:
+            "rejected",
+
+          orderStatus:
+            "rejected",
+
+          rejectedBy:
+            partnerId,
+
+          rejectedAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      alert(
+        "Order rejected"
+      );
+
     }
+
+
+    // ================= PICKED =================
 
     else if(action === "picked"){
-      await updateDoc(orderRef, {
-        status: "picked_up",
-        orderStatus: "picked_up",
-        pickedUpAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
 
-      alert("Order picked up");
+      await updateDoc(
+        orderRef,
+        {
+
+          status:
+            "picked_up",
+
+          orderStatus:
+            "picked_up",
+
+          pickedUpAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      alert(
+        "Order picked up"
+      );
+
     }
+
+
+    // ================= OUT =================
 
     else if(action === "out"){
-      await updateDoc(orderRef, {
-        status: "out_for_delivery",
-        orderStatus: "out_for_delivery",
-        outForDeliveryAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
 
-      alert("Order out for delivery");
+      await updateDoc(
+        orderRef,
+        {
+
+          status:
+            "out_for_delivery",
+
+          orderStatus:
+            "out_for_delivery",
+
+          outForDeliveryAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      alert(
+        "Order out for delivery"
+      );
+
     }
+
+
+    // ================= CASH PAYMENT =================
+
+    else if(action === "cash_paid"){
+
+      await updateDoc(
+        orderRef,
+        {
+
+          paymentMethod:
+            "Cash",
+
+          payment:
+            "Cash",
+
+          paymentStatus:
+            "Paid",
+
+          paymentPaid:
+            true,
+
+          paymentCollectedBy:
+            partnerId,
+
+          paymentCollectedAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      alert(
+        "✅ Cash payment received."
+      );
+
+    }
+
+
+    // ================= UPI PAYMENT =================
+
+    else if(action === "upi_paid"){
+
+      await updateDoc(
+        orderRef,
+        {
+
+          paymentMethod:
+            "UPI",
+
+          payment:
+            "UPI",
+
+          paymentStatus:
+            "Paid",
+
+          paymentPaid:
+            true,
+
+          paymentCollectedBy:
+            partnerId,
+
+          paymentCollectedAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      alert(
+        "✅ UPI payment marked as paid."
+      );
+
+    }
+
+
+    // ================= DELIVER =================
 
     else if(action === "deliver"){
-      await updateDoc(orderRef, {
-        status: "delivered",
-        orderStatus: "delivered",
 
-        deliveryPartnerEarning: 15,
-        deliveryPayoutStatus: "pending",
+      await updateDoc(
+        orderRef,
+        {
 
-        deliveredBy: partnerId,
-        deliveredAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+          status:
+            "delivered",
 
-      alert("Order delivered successfully");
+          orderStatus:
+            "delivered",
+
+          deliveryPartnerEarning:
+            15,
+
+          deliveryPayoutStatus:
+            "pending",
+
+          deliveredBy:
+            partnerId,
+
+          deliveredAt:
+            serverTimestamp(),
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      alert(
+        "Order delivered successfully"
+      );
+
     }
 
-  }catch(error){
-    console.error("Order action error:", error);
-    alert("Order update failed: " + error.message);
-  }finally{
-    b.disabled = false;
-  }
-}
 
+  }catch(error){
+
+    console.error(
+      "Order action error:",
+      error
+    );
+
+    alert(
+      "Order update failed: " +
+      error.message
+    );
+
+  }finally{
+
+    b.disabled =
+      false;
+
+  }
+
+}
 async function loadPartner(){
   const ref=doc(db,"deliveryPartners",partnerId);
   const snap=await getDoc(ref);
