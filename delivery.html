@@ -443,7 +443,12 @@ function orderStatus(o){
 }
 
 function isCompleted(o){
-  return ["delivered","completed"].includes(orderStatus(o));
+  const s = orderStatus(o);
+
+  return [
+    "delivered",
+    "completed"
+  ].includes(s);
 }
 
 function isOngoing(o){
@@ -461,9 +466,30 @@ function isOngoing(o){
 }
 
 function isNew(o){
-  const s = orderStatus(o);
 
-  return s === "assigned";
+  const assignment =
+    String(
+      o.deliveryAssignmentStatus || ""
+    ).toLowerCase();
+
+  const s =
+    orderStatus(o);
+
+  return (
+    assignment === "assigned" &&
+    ![
+      "accepted",
+      "picked up",
+      "picked_up",
+      "out for delivery",
+      "out_for_delivery",
+      "delivered",
+      "completed",
+      "rejected",
+      "cancelled",
+      "canceled"
+    ].includes(s)
+  );
 }
 function renderOrder(o,type){
 
