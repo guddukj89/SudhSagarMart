@@ -452,7 +452,159 @@ async function checkDelivery() {
 </header>
 
 <div class="categories" id="categories"></div>
+<!-- ================================= -->
+<!-- SUDH SAGAR MART BANNER SLIDER -->
+<!-- ================================= -->
 
+<div class="swiper bannerSlider" id="homeBannerSlider">
+
+  <div class="swiper-wrapper">
+
+    <!-- BANNER 1 -->
+    <div class="swiper-slide banner1">
+
+      <div class="bannerContent">
+
+        <h2>🛒 Sab Kuchh Ek Hi Jagah</h2>
+
+        <p>
+          Grocery, Fashion, Electronics aur bahut kuchh
+          ab Sudh Sagar Mart par.
+        </p>
+
+        <button
+          class="bannerBtn"
+          onclick="allProducts()">
+          Shop Now →
+        </button>
+
+      </div>
+
+      <div class="bannerIcon">
+        🛍️
+      </div>
+
+    </div>
+
+
+    <!-- BANNER 2 -->
+    <div class="swiper-slide banner2">
+
+      <div class="bannerContent">
+
+        <h2>🥦 Fresh Grocery</h2>
+
+        <p>
+          Daily grocery products ghar tak
+          easy delivery ke saath.
+        </p>
+
+        <button
+          class="bannerBtn"
+          onclick="filterCategory('Grocery')">
+          Shop Grocery →
+        </button>
+
+      </div>
+
+      <div class="bannerIcon">
+        🥦
+      </div>
+
+    </div>
+
+
+    <!-- BANNER 3 -->
+    <div class="swiper-slide banner3">
+
+      <div class="bannerContent">
+
+        <h2>📱 Electronics</h2>
+
+        <p>
+          Mobile, Electronics aur useful
+          technology products dekhein.
+        </p>
+
+        <button
+          class="bannerBtn"
+          onclick="filterCategory('Electronics')">
+          Explore Electronics →
+        </button>
+
+      </div>
+
+      <div class="bannerIcon">
+        📱
+      </div>
+
+    </div>
+
+
+    <!-- BANNER 4 -->
+    <div class="swiper-slide banner4">
+
+      <div class="bannerContent">
+
+        <h2>👗 Fashion Collection</h2>
+
+        <p>
+          Men, Women aur Kids Fashion
+          products explore karein.
+        </p>
+
+        <button
+          class="bannerBtn"
+          onclick="filterCategory('Women Fashion')">
+          Explore Fashion →
+        </button>
+
+      </div>
+
+      <div class="bannerIcon">
+        👗
+      </div>
+
+    </div>
+
+
+    <!-- BANNER 5 -->
+    <div class="swiper-slide banner5">
+
+      <div class="bannerContent">
+
+        <h2>✈️ Travel Services</h2>
+
+        <p>
+          Flight, Train, Bus, Hotel aur Cab
+          services ek hi jagah.
+        </p>
+
+        <button
+          class="bannerBtn"
+          onclick="openTravel()">
+          Explore Travel →
+        </button>
+
+      </div>
+
+      <div class="bannerIcon">
+        ✈️
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- LEFT / RIGHT ARROWS -->
+  <div class="swiper-button-prev"></div>
+  <div class="swiper-button-next"></div>
+
+  <!-- DOTS -->
+  <div class="swiper-pagination"></div>
+
+</div>
 <section class="hero">
 <div style="text-align:center;padding:22px 15px;">
   <div style="font-size:14px;font-weight:700;letter-spacing:1px;opacity:.9;">
