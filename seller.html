@@ -2853,41 +2853,7 @@ function renderOrders(){
 
   }
 
-  // ================= READY FOR PACK BUTTON =================
-
-  let readyPackButton = "";
-
-  const currentStatus =
-    String(status).toLowerCase();
-
-  if(
-    deliveryAccepted &&
-    (
-      currentStatus === "pending" ||
-      currentStatus === "confirmed"
-    )
-  ){
-
-   readyPackButton = `
-  <button
-    id="readyPackBtn"
-    style="
-      width:100%;
-      padding:13px;
-      margin-top:15px;
-      border:0;
-      border-radius:8px;
-      background:#16a34a;
-      color:white;
-      font-size:16px;
-      font-weight:bold;
-      cursor:pointer;
-    "
-  >
-    📦 Ready for Pack
-  </button>
-`;
-  }
+ 
 
   // ================= DETAILS =================
 
@@ -3032,9 +2998,6 @@ function renderOrders(){
         ${esc(address)}
 
       </div>
-
-
-      ${readyPackButton}
 
     </div>
 
