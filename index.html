@@ -1777,15 +1777,29 @@ orderStatus: status,
 
 payment: paymentMethod,
 paymentMethod: paymentMethod,
+
+// Seller payout
+sellerPayoutAmount:
+  Number(productTotal || 0),
+
+sellerPayoutStatus:
+  "pending",
+
 sellerPayout: {
   status: "pending",
   eligible: false,
-  paid: false
+  paid: false,
+  amount: Number(productTotal || 0)
 },
 
+// Legacy payout fields
 payoutStatus: "pending",
 payoutEligible: false,
 payoutPaid: false,
+
+// Delivery partner payout
+deliveryPartnerEarning: 0,
+deliveryPayoutStatus: "pending",
 paymentStatus:
   paymentMethod === "Razorpay"
     ? "Paid"
