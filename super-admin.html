@@ -1537,11 +1537,17 @@ async function assignRider(id){
           "",
 
         deliveryAssignmentStatus:
-          "Assigned",
+  "Assigned",
 
-        updatedAt:
-          firebase.firestore.FieldValue
-            .serverTimestamp()
+status:
+  "assigned",
+
+orderStatus:
+  "assigned",
+
+updatedAt:
+  firebase.firestore.FieldValue
+    .serverTimestamp()
 
       });
 
