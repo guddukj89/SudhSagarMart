@@ -3696,114 +3696,130 @@ function editOrder(id){
     );
 
   if(!order){
-
     alert("Order nahi mila.");
-
     return;
   }
 
+  // Store security check
+  if(
+    order.storeId &&
+    String(order.storeId) !==
+    String(currentAdmin.storeId)
+  ){
+    alert("Dusre Store ka order edit nahi kar sakte.");
+    return;
+  }
 
   const orderId =
     document.getElementById("orderId");
 
   const customer =
-    document.getElementById("orderCustomer");
+    document.getElementById("customer");
 
   const phone =
-    document.getElementById("orderPhone");
+    document.getElementById("phone");
 
   const amount =
-    document.getElementById("orderAmount");
+    document.getElementById("amount");
 
   const address =
-    document.getElementById("orderAddress");
+    document.getElementById("address");
 
-
-  if(orderId)
+  if(orderId){
     orderId.value =
       order.orderId ||
       order.orderNo ||
       order.id ||
       "";
+  }
 
-
-  if(customer)
+  if(customer){
     customer.value =
       order.customerName ||
       order.customer ||
       "";
+  }
 
-
-  if(phone)
+  if(phone){
     phone.value =
       order.customerMobile ||
       order.mobile ||
       order.phone ||
       "";
+  }
 
-
-  if(amount)
+  if(amount){
     amount.value =
       Number(
         order.total ??
         order.amount ??
         0
       );
+  }
 
-
-  if(address)
+  if(address){
     address.value =
       order.customerAddress ||
       order.address ||
       "";
-
-
-  /*
-    Store safety check
-
-    Admin sirf apne Store ka
-    order edit kar sakta hai.
-  */
-
-  if(
-    order.storeId &&
-    String(order.storeId) !==
-    String(currentAdmin.storeId)
-  ){
-
-    alert(
-      "Dusre Store ka order edit nahi kar sakte."
-    );
-
-    return;
   }
 
-
+  // Order Status
   const statusSelect =
     document.getElementById("orderStatus");
 
   if(statusSelect){
 
-    statusSelect.value =
+    const savedStatus =
       order.orderStatus ||
       order.status ||
-      "Pending";
+      "Order Placed";
 
+    statusSelect.value =
+      savedStatus;
+
+    // Agar old status option me nahi hai
+    if(statusSelect.value !== savedStatus){
+
+      const normalized =
+        String(savedStatus)
+          .toLowerCase()
+          .replaceAll("_"," ");
+
+      const statusMap = {
+        "pending": "Order Placed",
+        "order placed": "Order Placed",
+        "confirmed": "Confirmed",
+        "packed": "Packed",
+        "ready for pickup": "Ready for Pickup",
+        "picked up": "Picked Up",
+        "out for delivery": "Out for Delivery",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "canceled": "Cancelled"
+      };
+
+      statusSelect.value =
+        statusMap[normalized] ||
+        "Order Placed";
+    }
   }
-loadOrderRiders(order.deliveryBoyId || "");
 
+  // Delivery Partner
+  loadOrderRiders(
+    order.deliveryBoyId || ""
+  );
+
+  // Form ko screen par lao
   const form =
     document.getElementById("orderForm");
 
   if(form){
-
     form.scrollIntoView({
-      behavior:"smooth",
-      block:"start"
+      behavior: "smooth",
+      block: "start"
     });
-
   }
-
 }
 function clearOrder(){["orderId","orderCustomer","orderPhone","orderAmount","orderAddress"].forEach(id=>document.getElementById(id).value="");document.getElementById("orderStatus").value="Order Placed"}
 
