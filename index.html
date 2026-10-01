@@ -71,6 +71,88 @@
 <body>
   <div id="google_translate_element"></div>
  <style>
+     /* =============================== */
+/* HERO 5 SLIDE BANNER */
+/* =============================== */
+
+.heroSwiper{
+  margin:12px;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.heroSwiper .hero{
+  margin:0;
+  border-radius:12px;
+  min-height:190px;
+  box-sizing:border-box;
+  color:#fff;
+}
+
+.heroSlide1{
+  background:linear-gradient(120deg,#a00080,#e000a9);
+}
+
+.heroSlide2{
+  background:linear-gradient(120deg,#008f70,#00b894);
+}
+
+.heroSlide3{
+  background:linear-gradient(120deg,#7b1fa2,#ba68c8);
+}
+
+.heroSlide4{
+  background:linear-gradient(120deg,#1565c0,#42a5f5);
+}
+
+.heroSlide5{
+  background:linear-gradient(120deg,#ef6c00,#ffb300);
+}
+
+.heroSwiper .swiper-button-next,
+.heroSwiper .swiper-button-prev{
+  color:#fff;
+  background:rgba(0,0,0,.20);
+  width:34px;
+  height:34px;
+  border-radius:50%;
+}
+
+.heroSwiper .swiper-button-next:after,
+.heroSwiper .swiper-button-prev:after{
+  font-size:16px;
+}
+
+.heroSwiper .swiper-pagination-bullet{
+  background:#fff;
+  opacity:.7;
+}
+
+.heroSwiper .swiper-pagination-bullet-active{
+  opacity:1;
+  width:20px;
+  border-radius:10px;
+}
+
+@media(max-width:700px){
+
+  .heroSwiper{
+    margin:8px;
+  }
+
+  .heroSwiper .hero{
+    min-height:180px;
+  }
+
+  .heroSwiper h1{
+    font-size:25px !important;
+  }
+
+  .heroSwiper p{
+    font-size:13px !important;
+  }
+
+}
      .top{
   display:flex;
   align-items:center;
