@@ -3725,12 +3725,17 @@ function editOrder(id){
   const address =
     document.getElementById("address");
 
+
+  // ================= ORDER DETAILS =================
+
   if(orderId){
     orderId.value =
       order.orderId ||
       order.orderNo ||
       order.id ||
       "";
+
+    orderId.readOnly = true;
   }
 
   if(customer){
@@ -3738,6 +3743,8 @@ function editOrder(id){
       order.customerName ||
       order.customer ||
       "";
+
+    customer.readOnly = true;
   }
 
   if(phone){
@@ -3746,6 +3753,8 @@ function editOrder(id){
       order.mobile ||
       order.phone ||
       "";
+
+    phone.readOnly = true;
   }
 
   if(amount){
@@ -3755,6 +3764,8 @@ function editOrder(id){
         order.amount ??
         0
       );
+
+    amount.readOnly = true;
   }
 
   if(address){
@@ -3762,9 +3773,13 @@ function editOrder(id){
       order.customerAddress ||
       order.address ||
       "";
+
+    address.readOnly = true;
   }
 
-  // Order Status
+
+  // ================= ORDER STATUS =================
+
   const statusSelect =
     document.getElementById("orderStatus");
 
@@ -3775,40 +3790,69 @@ function editOrder(id){
       order.status ||
       "Order Placed";
 
+    const normalized =
+      String(savedStatus)
+        .toLowerCase()
+        .replaceAll("_"," ")
+        .trim();
+
+    const statusMap = {
+
+      "pending":
+        "Order Placed",
+
+      "order placed":
+        "Order Placed",
+
+      "confirmed":
+        "Confirmed",
+
+      "packed":
+        "Packed",
+
+      "ready for pickup":
+        "Ready for Pickup",
+
+      "picked up":
+        "Picked Up",
+
+      "out for delivery":
+        "Out for Delivery",
+
+      "delivered":
+        "Delivered",
+
+      "cancelled":
+        "Cancelled",
+
+      "canceled":
+        "Cancelled"
+
+    };
+
     statusSelect.value =
-      savedStatus;
+      statusMap[normalized] ||
+      "Order Placed";
 
-    // Agar old status option me nahi hai
-    if(statusSelect.value !== savedStatus){
-
-      const normalized =
-        String(savedStatus)
-          .toLowerCase()
-          .replaceAll("_"," ");
-
-      const statusMap = {
-        "pending": "Order Placed",
-        "order placed": "Order Placed",
-        "confirmed": "Confirmed",
-        "packed": "Packed",
-        "ready for pickup": "Ready for Pickup",
-        "picked up": "Picked Up",
-        "out for delivery": "Out for Delivery",
-        "delivered": "Delivered",
-        "cancelled": "Cancelled",
-        "canceled": "Cancelled"
-      };
-
-      statusSelect.value =
-        statusMap[normalized] ||
-        "Order Placed";
-    }
+    // Status editable rahega
+    statusSelect.disabled = false;
   }
 
-  // Delivery Partner
+
+  // ================= DELIVERY PARTNER =================
+
   loadOrderRiders(
     order.deliveryBoyId || ""
   );
+
+
+  const riderSelect =
+    document.getElementById("orderRider");
+
+  if(riderSelect){
+    riderSelect.disabled = false;
+  }
+
 
   // Form ko screen par lao
   const form =
@@ -3820,9 +3864,58 @@ function editOrder(id){
       block: "start"
     });
   }
-}
-function clearOrder(){["orderId","orderCustomer","orderPhone","orderAmount","orderAddress"].forEach(id=>document.getElementById(id).value="");document.getElementById("orderStatus").value="Order Placed"}
 
+}
+
+function clearOrder(){
+
+  const fields = [
+    "orderId",
+    "customer",
+    "phone",
+    "amount",
+    "address"
+  ];
+
+  fields.forEach(id => {
+
+    const el =
+      document.getElementById(id);
+
+    if(!el) return;
+
+    el.value = "";
+
+    el.readOnly = false;
+
+  });
+
+
+  const statusSelect =
+    document.getElementById("orderStatus");
+
+  if(statusSelect){
+
+    statusSelect.value =
+      "Order Placed";
+
+    statusSelect.disabled = false;
+
+  }
+
+
+  const riderSelect =
+    document.getElementById("orderRider");
+
+  if(riderSelect){
+
+    riderSelect.value = "";
+
+    riderSelect.disabled = false;
+
+  }
+
+}
 function renderCustomers(){const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();const rows=data.customers.filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById("customerTable").innerHTML=rows.length?rows.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.email)}</td><td>${esc(c.city)}</td><td>${esc(c.address)}</td><td class="actions"><button class="secondary" onclick="editCustomer('${esc(c.id)}')">Edit</button><button class="danger" onclick="deleteDoc('customers','${esc(c.id)}')">Delete</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No customers</td></tr>`}
 async function saveCustomer(){
 
