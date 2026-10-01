@@ -442,8 +442,24 @@ function orderStatus(o){
   return String(o.status||o.orderStatus||"new").toLowerCase().replaceAll("_"," ");
 }
 
-function isCompleted(o){ return ["delivered","completed"].includes(orderStatus(o)); }
-function isOngoing(o){ return ["accepted","assigned","picked up","picked_up","out for delivery","out_for_delivery"].includes(orderStatus(o)); }
+function isCompleted(o){
+  return ["delivered","completed"].includes(orderStatus(o));
+}
+
+function isOngoing(o){
+  const s = orderStatus(o);
+
+  return [
+    "accepted",
+    "picked up",
+    "picked_up",
+    "out for delivery",
+    "out_for_delivery",
+    "undelivered attempt",
+    "undelivered_attempt"
+  ].includes(s);
+}
+
 function isNew(o){
   const s = orderStatus(o);
 
