@@ -3206,21 +3206,28 @@ function loadOrderRiders(selectedId = "") {
   const storeId =
     String(currentAdmin.storeId || "");
 
-  const riders = data.deliveryPartners.filter(r => {
+  const riders =
+    data.deliveryPartners.filter(r => {
 
-    const riderStore =
-      String(r.storeId || r.assignedStoreId || "");
+      const riderStore =
+        String(
+          r.storeId ||
+          r.assignedStoreId ||
+          ""
+        );
 
-    const status =
-      String(r.status || "").toLowerCase();
+      const accountStatus =
+        String(
+          r.accountStatus ||
+          ""
+        ).toLowerCase();
 
-    return (
-  r.active !== false &&
-  !["inactive", "blocked", "suspended"]
-    .includes(status)
-);
+      return (
+        riderStore === storeId &&
+        accountStatus === "approved"
+      );
 
-  });
+    });
 
   select.innerHTML =
     '<option value="">Select Delivery Partner</option>';
@@ -3230,20 +3237,23 @@ function loadOrderRiders(selectedId = "") {
     const option =
       document.createElement("option");
 
-    option.value = r.id || r.uid;
+    option.value =
+      r.id || r.uid;
 
     option.textContent =
       r.name ||
       r.fullName ||
       r.displayName ||
       r.mobile ||
-      r.id;
+      r.phone ||
+      r.id ||
+      r.uid;
 
     select.appendChild(option);
 
   });
 
-  select.value = selectedId;
+  select.value = selectedId || "";
 }
 function renderOrders(){
 
