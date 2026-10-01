@@ -445,8 +445,9 @@ function orderStatus(o){
 function isCompleted(o){ return ["delivered","completed"].includes(orderStatus(o)); }
 function isOngoing(o){ return ["accepted","assigned","picked up","picked_up","out for delivery","out_for_delivery"].includes(orderStatus(o)); }
 function isNew(o){
-  const s=orderStatus(o);
-  return !isCompleted(o) && !isOngoing(o) && !["rejected","cancelled","canceled"].includes(s);
+  const s = orderStatus(o);
+
+  return s === "assigned";
 }
 function renderOrder(o,type){
 
@@ -599,19 +600,18 @@ function renderOrder(o,type){
 
   else if(type === "ongoing"){
 
-    if(["accepted","assigned"].includes(s)){
+    if(s === "accepted"){
 
-      buttons = `
-        <button
-          class="btn blue"
-          data-action="picked"
-          data-id="${id}">
-          📦 Mark Picked Up
-        </button>
-      `;
+  buttons = `
+    <button
+      class="btn blue"
+      data-action="picked"
+      data-id="${id}">
+      📦 Mark Picked Up
+    </button>
+  `;
 
-    }
-
+}
     else if(["picked up","picked_up"].includes(s)){
 
       buttons = `
