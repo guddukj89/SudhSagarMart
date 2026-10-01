@@ -1380,56 +1380,424 @@ function renderCategories(){
       </button>`
     ).join("");
 }
-function renderProducts(list=products){
-  document.getElementById("products").innerHTML=list.map(p=>{
-    let i=products.indexOf(p);
-    let discount=Math.round(((p[3]-p[2])/p[3])*100);
-    let liked=wishlist.some(x=>x[1]===p[1]);
-    
-    // Stock Check Logic (p[5] <= 0 check)
-    let isOut = p[5] !== undefined ? (p[5] <= 0) : false;
 
-    return `<div class="product">
-      <img
-  src="${p[4]}"
-  alt="${p[1]}"
-  onclick="openProductGallery(${i})"
-  style="width:100%;height:150px;object-fit:contain;cursor:pointer;border-radius:8px;background:#fff;"
->
-      
-      <div class="info">
-        <div class="category">${p[0]}</div>
-        <h3>${p[1]}</h3>
-        <div>
-          <span class="price">₹${p[2]}</span>
-          <span class="old">₹${p[3]}</span>
-          <span style="color:#d00;font-size:11px;font-weight:bold">${discount}% OFF</span>
+  function renderProducts(list=products){
+
+  document.getElementById("products").innerHTML =
+    list.map(p => {
+
+      let i = products.indexOf(p);
+
+      let discount =
+        p[3] > 0
+          ? Math.round(((p[3] - p[2]) / p[3]) * 100)
+          : 0;
+
+      let liked =
+        wishlist.some(x => x[1] === p[1]);
+
+      // Stock Check
+      let isOut =
+        p[5] !== undefined
+          ? (p[5] <= 0)
+          : false;
+
+      // Product ki multiple images
+      let imageList = [];
+
+      if(Array.isArray(p[9])){
+        imageList =
+          p[9].filter(Boolean);
+      }
+
+      // Agar multiple images nahi hain
+      if(!imageList.length && p[4]){
+        imageList = [p[4]];
+      }
+
+      // Maximum 5 images
+      imageList =
+        imageList.slice(0,5);
+
+      // Safety fallback
+      if(!imageList.length){
+        imageList = [
+          "https://via.placeholder.com/500x400?text=No+Image"
+        ];
+      }
+
+      return `
+
+      <div class="product">
+
+        <!-- ========================= -->
+        <!-- PRODUCT IMAGE SLIDER -->
+        <!-- ========================= -->
+
+        <div
+          class="productImageSlider"
+          data-product-index="${i}"
+          style="
+            position:relative;
+            width:100%;
+            height:150px;
+            overflow:hidden;
+            background:#fff;
+            border-radius:8px;
+            touch-action:pan-y;
+          "
+        >
+
+          <div
+            class="productImageTrack"
+            id="productTrack_${i}"
+            style="
+              display:flex;
+              width:${imageList.length * 100}%;
+              height:100%;
+              transform:translateX(0%);
+              transition:transform .3s ease;
+            "
+          >
+
+            ${imageList.map((img, imgIndex) => `
+
+              <div
+                style="
+                  width:${100 / imageList.length}%;
+                  flex:0 0 ${100 / imageList.length}%;
+                  height:100%;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                "
+              >
+
+                <img
+                  src="${img}"
+                  alt="${p[1]}"
+                  onclick="openProductGallery(${i})"
+                  style="
+                    width:100%;
+                    height:150px;
+                    object-fit:contain;
+                    cursor:pointer;
+                    border-radius:8px;
+                    background:#fff;
+                  "
+                  onerror="this.style.display='none'"
+                >
+
+              </div>
+
+            `).join("")}
+
+          </div>
+
+
+          ${
+            imageList.length > 1
+            ? `
+
+              <!-- LEFT -->
+              <button
+                type="button"
+                onclick="productSlide(${i},-1)"
+                style="
+                  position:absolute;
+                  left:5px;
+                  top:50%;
+                  transform:translateY(-50%);
+                  width:30px;
+                  height:30px;
+                  border:0;
+                  border-radius:50%;
+                  background:rgba(0,0,0,.45);
+                  color:#fff;
+                  font-size:18px;
+                  z-index:5;
+                  cursor:pointer;
+                "
+              >
+                ‹
+              </button>
+
+
+              <!-- RIGHT -->
+              <button
+                type="button"
+                onclick="productSlide(${i},1)"
+                style="
+                  position:absolute;
+                  right:5px;
+                  top:50%;
+                  transform:translateY(-50%);
+                  width:30px;
+                  height:30px;
+                  border:0;
+                  border-radius:50%;
+                  background:rgba(0,0,0,.45);
+                  color:#fff;
+                  font-size:18px;
+                  z-index:5;
+                  cursor:pointer;
+                "
+              >
+                ›
+              </button>
+
+
+              <!-- DOTS -->
+              <div
+                style="
+                  position:absolute;
+                  bottom:5px;
+                  left:0;
+                  right:0;
+                  display:flex;
+                  justify-content:center;
+                  gap:4px;
+                  z-index:5;
+                "
+              >
+
+                ${imageList.map((img,imgIndex) => `
+
+                  <span
+                    id="productDot_${i}_${imgIndex}"
+                    style="
+                      width:6px;
+                      height:6px;
+                      border-radius:50%;
+                      background:${imgIndex === 0 ? "#c00091" : "#ccc"};
+                      display:block;
+                    "
+                  ></span>
+
+                `).join("")}
+
+              </div>
+
+            `
+            : ""
+          }
+
         </div>
-        
-        <!-- Stock Status Badge -->
-        <div class="stock" style="color:${isOut ? 'red' : 'green'}; font-weight:bold; margin-top:4px;">
-          ${isOut ? '❌ Out of Stock' : '✅ In Stock'}
+
+
+        <!-- ========================= -->
+        <!-- PRODUCT INFORMATION -->
+        <!-- ========================= -->
+
+        <div class="info">
+
+          <div class="category">
+            ${p[0]}
+          </div>
+
+          <h3>
+            ${p[1]}
+          </h3>
+
+          <div>
+
+            <span class="price">
+              ₹${p[2]}
+            </span>
+
+            <span class="old">
+              ₹${p[3]}
+            </span>
+
+            <span
+              style="
+                color:#d00;
+                font-size:11px;
+                font-weight:bold
+              "
+            >
+              ${discount}% OFF
+            </span>
+
+          </div>
+
+
+          <!-- STOCK -->
+
+          <div
+            class="stock"
+            style="
+              color:${isOut ? 'red' : 'green'};
+              font-weight:bold;
+              margin-top:4px;
+            "
+          >
+
+            ${
+              isOut
+                ? '❌ Out of Stock'
+                : '✅ In Stock'
+            }
+
+          </div>
+
+
+          <!-- BUTTONS -->
+
+          <div
+            style="
+              display:flex;
+              gap:8px;
+              margin-top:7px
+            "
+          >
+
+            <button
+              class="add"
+              onclick="${
+                isOut
+                  ? ''
+                  : `addCart(${i})`
+              }"
+              ${
+                isOut
+                  ? 'disabled style="background:#ccc;cursor:not-allowed;"'
+                  : ''
+              }
+            >
+              🛒 ${
+                isOut
+                  ? 'Unavailable'
+                  : 'Add to Cart'
+              }
+            </button>
+
+
+            <button
+              class="primary"
+              type="button"
+              onclick="${
+                isOut
+                  ? ''
+                  : `buyNow(${i})`
+              }"
+              style="
+                width:100%;
+                margin-top:6px;
+                ${
+                  isOut
+                    ? 'background:#ccc;cursor:not-allowed;'
+                    : ''
+                }
+              "
+              ${
+                isOut
+                  ? 'disabled'
+                  : ''
+              }
+            >
+              ⚡ ${
+                isOut
+                  ? 'Out of Stock'
+                  : 'Buy Now'
+              }
+            </button>
+
+
+            <button
+              onclick="toggleWishlist(${i})"
+              style="
+                border:1px solid #ddd;
+                background:#fff;
+                border-radius:7px;
+                padding:5px 12px;
+                font-size:20px;
+                cursor:pointer
+              "
+            >
+              ${
+                liked
+                  ? "❤️"
+                  : "🤍"
+              }
+            </button>
+
+          </div>
+
         </div>
-        
-        <div style="display:flex;gap:8px;margin-top:7px">
-          <button class="add" onclick="${isOut ? '' : `addCart(${i})`}" ${isOut ? 'disabled style="background:#ccc;cursor:not-allowed;"' : ''}>
-            🛒 ${isOut ? 'Unavailable' : 'Add to Cart'}
-          </button>
-          
-          <button class="primary" type="button" onclick="${isOut ? '' : `buyNow(${i})`}" style="width:100%;margin-top:6px;${isOut ? 'background:#ccc;cursor:not-allowed;' : ''}" ${isOut ? 'disabled' : ''}>
-            ⚡ ${isOut ? 'Out of Stock' : 'Buy Now'}
-          </button>
-          
-          <button onclick="toggleWishlist(${i})" style="border:1px solid #ddd;background:#fff;border-radius:7px;padding:5px 12px;font-size:20px;cursor:pointer">
-            ${liked ? "❤️" : "🤍"}
-          </button>
-        </div>
+
       </div>
-    </div>`
-  }).join("") || '<div class="empty">No products found</div>';
 
-  document.getElementById("productCount").innerText = list.length + " products available";
-}
+      `;
+
+    }).join("")
+    ||
+    '<div class="empty">No products found</div>';
+
+
+  document.getElementById("productCount").innerText =
+    list.length + " products available";
+
+
+  // ================================
+  // MOBILE SWIPE SUPPORT
+  // ================================
+
+  document
+    .querySelectorAll(".productImageSlider")
+    .forEach(slider => {
+
+      let startX = 0;
+      let endX = 0;
+
+      slider.addEventListener(
+        "touchstart",
+        function(e){
+          startX =
+            e.touches[0].clientX;
+        },
+        {passive:true}
+      );
+
+      slider.addEventListener(
+        "touchend",
+        function(e){
+
+          endX =
+            e.changedTouches[0].clientX;
+
+          const difference =
+            startX - endX;
+
+          if(Math.abs(difference) < 40){
+            return;
+          }
+
+          const productIndex =
+            Number(
+              slider.dataset.productIndex
+            );
+
+          if(difference > 0){
+            productSlide(
+              productIndex,
+              1
+            );
+          }
+          else{
+            productSlide(
+              productIndex,
+              -1
+            );
+          }
+
+        },
+        {passive:true}
+      );
+
+    });
+
+}  
 function filterCategory(c){
 activeCategory=c;
 document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x.innerText===c));
