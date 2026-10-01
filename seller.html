@@ -3315,6 +3315,10 @@ async function updateOrderStatus(id,status){
 
   try{
 
+    if(!currentUser){
+      return alert("Seller login required.");
+    }
+
     const ref =
       db.collection("orders").doc(id);
 
@@ -3325,21 +3329,55 @@ async function updateOrderStatus(id,status){
       return alert("Order nahi mila.");
     }
 
-    const order = snap.data();
+    const order =
+      snap.data();
 
-    const currentStatus = String(
-      order.status ||
-      order.orderStatus ||
-      "Pending"
-    ).toLowerCase();
+    // Seller ownership check
+    if(
+      order.sellerId &&
+      String(order.sellerId) !==
+      String(currentUser.uid)
+    ){
+      return alert(
+        "❌ Aap is order ko update nahi kar sakte."
+      );
+    }
+
+    const currentStatus =
+      String(
+        order.status ||
+        order.orderStatus ||
+        "order placed"
+      )
+      .toLowerCase()
+      .replaceAll("_"," ")
+      .trim();
 
     const requestedStatus =
-      String(status || "").toLowerCase();
+      String(status || "")
+      .toLowerCase()
+      .replaceAll("_"," ")
+      .trim();
 
     let allowed = false;
 
-    // Confirmed → Packed
+    // =================================
+    // QUICK COMMERCE SELLER FLOW
+    // =================================
+
+    // Order Placed → Confirmed
     if(
+      (
+        currentStatus === "order placed" ||
+        currentStatus === "pending"
+      ) &&
+      requestedStatus === "confirmed"
+    ){
+      allowed = true;
+    }
+
+    // Confirmed → Packed
+    else if(
       currentStatus === "confirmed" &&
       requestedStatus === "packed"
     ){
@@ -3354,50 +3392,161 @@ async function updateOrderStatus(id,status){
       allowed = true;
     }
 
+    // =================================
+    // READY FOR PICKUP KE BAAD
+    // SELLER STATUS CHANGE NAHI KAREGA
+    // =================================
+
     if(!allowed){
+
+      let nextStep =
+        "Confirm Order";
+
+      if(currentStatus === "confirmed"){
+        nextStep = "Mark Packed";
+      }
+      else if(currentStatus === "packed"){
+        nextStep = "Ready for Pickup";
+      }
+      else if(
+        currentStatus === "ready for pickup"
+      ){
+        nextStep =
+          "Delivery Partner pickup karega";
+      }
+      else if(
+        [
+          "assigned",
+          "accepted",
+          "picked up",
+          "out for delivery"
+        ].includes(currentStatus)
+      ){
+        nextStep =
+          "Delivery Partner process";
+      }
+      else if(
+        [
+          "delivered",
+          "cancelled",
+          "canceled"
+        ].includes(currentStatus)
+      ){
+        nextStep = "No further seller action";
+      }
 
       return alert(
         "❌ Ye status abhi allowed nahi hai.\n\n" +
         "Current Status: " +
-        (order.status || order.orderStatus) +
-        "\n\nNext step: " +
         (
-          currentStatus === "confirmed"
-            ? "Ready for Pack"
-            : currentStatus === "packed"
-              ? "Ready for Pickup"
-              : "Order confirmation required"
-        )
+          order.status ||
+          order.orderStatus ||
+          "Order Placed"
+        ) +
+        "\n\nNext Step: " +
+        nextStep
       );
-
     }
 
-    await ref.update({
+    // =================================
+    // SAVE STATUS
+    // =================================
 
-      status: status,
+    let savedStatus = status;
 
-      orderStatus: status,
+    if(requestedStatus === "confirmed"){
+      savedStatus = "Confirmed";
+    }
+
+    else if(requestedStatus === "packed"){
+      savedStatus = "Packed";
+    }
+
+    else if(
+      requestedStatus === "ready for pickup"
+    ){
+      savedStatus = "Ready for Pickup";
+    }
+
+    const updateData = {
+
+      status: savedStatus,
+
+      orderStatus: savedStatus,
 
       updatedAt:
         firebase.firestore.FieldValue
           .serverTimestamp()
 
-    });
+    };
+
+    // =================================
+    // SELLER CONFIRM
+    // =================================
+
+    if(savedStatus === "Confirmed"){
+
+      updateData.confirmedBy =
+        currentUser.uid;
+
+      updateData.confirmedAt =
+        firebase.firestore.FieldValue
+          .serverTimestamp();
+
+    }
+
+    // =================================
+    // SELLER PACKED
+    // =================================
+
+    if(savedStatus === "Packed"){
+
+      updateData.packedBy =
+        currentUser.uid;
+
+      updateData.packedAt =
+        firebase.firestore.FieldValue
+          .serverTimestamp();
+
+    }
+
+    // =================================
+    // READY FOR PICKUP
+    // =================================
+
+    if(
+      savedStatus ===
+      "Ready for Pickup"
+    ){
+
+      updateData.readyForPickup =
+        true;
+
+      updateData.readyForPickupBy =
+        currentUser.uid;
+
+      updateData.readyForPickupAt =
+        firebase.firestore.FieldValue
+          .serverTimestamp();
+
+    }
+
+    await ref.update(updateData);
 
     alert(
-      "✅ Order status updated:\n\n" +
-      status
+      "✅ Order status updated.\n\n" +
+      savedStatus
     );
 
   }catch(error){
 
     console.error(
-      "Order Status Update Error:",
+      "Seller Order Status Update Error:",
       error
     );
 
     alert(
-      "Order status update nahi ho paya.\n\n" +
+      "❌ Order status update nahi ho paya.\n\n" +
       error.message
     );
 
