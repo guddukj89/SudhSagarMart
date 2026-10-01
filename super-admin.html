@@ -1706,15 +1706,10 @@ function renderPayments(){
  const pending =
   data.orders
     .filter(storeMatches)
-    .filter(o => {
-
-      const sellerAmount =
-        Number(o.sellerPayoutAmount || 0) ||
-        (
-          typeof o.sellerPayout === "number"
-            ? Number(o.sellerPayout)
-            : 0
-        );
+    .filter(o =>
+      String(o.sellerPayoutStatus || "pending").toLowerCase() !== "paid" &&
+      Number(o.sellerPayoutAmount || 0) > 0
+    );
 
       const sellerStatus =
         o.sellerPayoutStatus ||
