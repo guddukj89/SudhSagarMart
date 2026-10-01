@@ -6775,6 +6775,54 @@ document.addEventListener("keydown", function(e) {
 
 });
 
-</script>    
+</script>   
+    <script>
+/* ================================= */
+/* HOME BANNER SWIPER INITIALIZATION */
+/* ================================= */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+  const bannerElement =
+    document.getElementById("homeBannerSlider");
+
+  if(!bannerElement){
+    console.error("Banner slider nahi mila.");
+    return;
+  }
+
+  new Swiper("#homeBannerSlider", {
+
+    loop:true,
+
+    slidesPerView:1,
+
+    spaceBetween:0,
+
+    speed:700,
+
+    autoplay:{
+      delay:3500,
+      disableOnInteraction:false
+    },
+
+    grabCursor:true,
+
+    allowTouchMove:true,
+
+    pagination:{
+      el:"#homeBannerSlider .swiper-pagination",
+      clickable:true
+    },
+
+    navigation:{
+      nextEl:"#homeBannerSlider .swiper-button-next",
+      prevEl:"#homeBannerSlider .swiper-button-prev"
+    }
+
+  });
+
+});
+</script>
 </body>
 </html>
