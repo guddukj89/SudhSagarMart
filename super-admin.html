@@ -1703,30 +1703,97 @@ function renderPayments(){
         </tr>
       `;
 
-  const pending =
-    data.orders
-      .filter(storeMatches)
-      .filter(o =>
-        o.payoutStatus !== 'Paid' &&
-        Number(o.sellerPayout || 0) > 0
+ const pending =
+  data.orders
+    .filter(storeMatches)
+    .filter(o => {
+
+      const sellerAmount =
+        Number(o.sellerPayoutAmount || 0) ||
+        (
+          typeof o.sellerPayout === "number"
+            ? Number(o.sellerPayout)
+            : 0
+        );
+
+      const sellerStatus =
+        o.sellerPayoutStatus ||
+        o.payoutStatus ||
+        (
+          o.sellerPayout &&
+          typeof o.sellerPayout === "object"
+            ? o.sellerPayout.status
+            : ""
+        ) ||
+        "pending";
+
+      return (
+        sellerStatus.toLowerCase() !== "paid" &&
+        sellerAmount > 0
       );
 
-  document.getElementById('payoutBox').innerHTML =
-    pending.length
-      ? pending.map(o => `
-          <div class="pill">
-            #${esc(o.orderId || o.id)}
-            — Seller payout ${money(o.sellerPayout)}
-            — ${esc(o.payoutStatus || 'Pending')}
+    });
 
-            <button
-              class="success"
-              onclick="markPayoutPaid('${esc(o.id)}')">
-              Mark Paid
-            </button>
+document.getElementById("payoutBox").innerHTML =
+  pending.length
+    ? pending.map(o => {
+
+        const sellerAmount =
+          Number(o.sellerPayoutAmount || 0) ||
+          (
+            typeof o.sellerPayout === "number"
+              ? Number(o.sellerPayout)
+              : 0
+          );
+
+        const sellerStatus =
+          o.sellerPayoutStatus ||
+          o.payoutStatus ||
+          (
+            o.sellerPayout &&
+            typeof o.sellerPayout === "object"
+              ? o.sellerPayout.status
+              : ""
+          ) ||
+          "Pending";
+
+        const deliveryAmount =
+          Number(o.deliveryPartnerEarning || 0);
+
+        const deliveryStatus =
+          o.deliveryPayoutStatus ||
+          "Pending";
+
+        return `
+          <div class="pill">
+
+            <b>
+              #${esc(o.orderId || o.id || "")}
+            </b>
+
+            <br>
+
+            Seller payout:
+            ${money(sellerAmount)}
+            -
+            ${esc(sellerStatus)}
+
+            <br>
+
+            Delivery earning:
+            ${money(deliveryAmount)}
+            -
+            ${esc(deliveryStatus)}
+
           </div>
-        `).join('')
-      : 'No pending seller payouts';
+        `;
+
+      }).join("")
+    : `
+      <div class="empty">
+        No pending payouts
+      </div>
+    `;
 }
 async function markPayoutPaid(id){await db.collection('orders').doc(id).update({payoutStatus:'Paid',payoutPaid:true,payoutPaidAt:firebase.firestore.FieldValue.serverTimestamp(),payoutPaidBy:auth.currentUser?.uid||''});await audit('Seller payout paid','orders',id,'Paid')}
 async function savePayment(){const id=document.getElementById('paymentId').value||db.collection('payments').doc().id;const x={order:document.getElementById('paymentOrder').value.trim(),customer:document.getElementById('paymentCustomer').value.trim(),amount:Number(document.getElementById('paymentAmount').value||0),method:document.getElementById('paymentMethod').value,status:document.getElementById('paymentStatus').value,txn:document.getElementById('paymentTxn').value.trim(),storeId:document.getElementById('paymentStoreId').value || (selectedStoreId==='__ALL__'?'':selectedStoreId),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};await db.collection('payments').doc(id).set(x,{merge:true});await audit('Payment saved','payments',id,x.status);clearPayment()}
