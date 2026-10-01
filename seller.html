@@ -2483,48 +2483,60 @@ async function deleteProduct(id){if(!confirm("Product delete karna hai?"))return
 
 function orderStatusOptions(current){
 
-  const status = String(
-    current || "Pending"
-  ).toLowerCase();
+  const raw =
+    String(current || "order placed")
+      .toLowerCase()
+      .replaceAll("_"," ")
+      .trim();
 
-  let nextAction = "";
+  const statusMap = {
+    "pending": "order placed",
+    "order placed": "order placed",
+    "confirmed": "confirmed",
+    "packed": "packed",
+    "ready for pickup": "ready for pickup",
+    "assigned": "assigned",
+    "accepted": "accepted",
+    "picked up": "picked up",
+    "out for delivery": "out for delivery",
+    "delivered": "delivered",
+    "cancelled": "cancelled",
+    "canceled": "cancelled"
+  };
 
-  if(
-    status === "confirmed"
-  ){
+  const status =
+    statusMap[raw] || "order placed";
 
-    nextAction = "Ready for Pack";
+  // Order Placed → Seller Confirm
+  if(status === "order placed"){
+    return `
+      <option value="Order Placed" selected>
+        Order Placed
+      </option>
 
-  }else if(
-    status === "packed"
-  ){
-
-    nextAction = "Ready for Pickup";
-
+      <option value="Confirmed">
+        Confirm Order
+      </option>
+    `;
   }
 
-  // Confirmed order ke baad seller sirf
-  // Ready for Pack kar sakta hai
+  // Confirmed → Seller Packed
   if(status === "confirmed"){
-
     return `
-      <option selected disabled>
+      <option value="Confirmed" selected disabled>
         Confirmed
       </option>
 
       <option value="Packed">
-        Ready for Pack
+        Mark Packed
       </option>
     `;
-
   }
 
-  // Packed ke baad seller sirf
-  // Ready for Pickup kar sakta hai
+  // Packed → Seller Ready for Pickup
   if(status === "packed"){
-
     return `
-      <option selected disabled>
+      <option value="Packed" selected disabled>
         Packed
       </option>
 
@@ -2532,27 +2544,28 @@ function orderStatusOptions(current){
         Ready for Pickup
       </option>
     `;
-
   }
 
-  // Ready for Pickup ke baad seller ka kaam khatam
+  // Seller ka kaam yahan complete
   if(status === "ready for pickup"){
-
     return `
-      <option selected disabled>
+      <option value="Ready for Pickup" selected disabled>
         Ready for Pickup
       </option>
     `;
-
   }
 
-  // New/Pending order
+  // Rider/Admin ke status Seller change nahi karega
   return `
     <option selected disabled>
-      ${current || "Pending"}
+      ${esc(
+        status
+          .split(" ")
+          .map(x => x.charAt(0).toUpperCase()+x.slice(1))
+          .join(" ")
+      )}
     </option>
   `;
-
 }
 function renderOrders(){
   const box=document.getElementById("ordersTable");
