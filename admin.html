@@ -3454,7 +3454,8 @@ function renderOrders(){
 }
 async function saveOrder(){
 
-  // Admin ka Store check
+  // ================= STORE CHECK =================
+
   if(!currentAdmin.storeId){
 
     alert("Admin ke saath Store assign nahi hai.");
@@ -3465,207 +3466,297 @@ async function saveOrder(){
 
   const oldId =
     document.getElementById("orderId")
-      .value.trim();
+      ?.value.trim() || "";
 
 
-  // Order data
-  const orderData = {
+  // ================= STATUS =================
 
-    customer:
-      document.getElementById("orderCustomer")
-        .value.trim(),
+  const status =
+    document.getElementById("orderStatus")
+      ?.value || "Order Placed";
 
-    phone:
-      document.getElementById("orderPhone")
-        .value.trim(),
 
-    amount:
-      Number(
-        document.getElementById("orderAmount")
-          .value || 0
-      ),
-
-  status:
-  document.getElementById("orderStatus")
-    .value,
-
-orderStatus:
-  document.getElementById("orderStatus")
-    .value,
-
-// Delivery Partner
-deliveryBoyId:
-  document.getElementById("orderRider")?.value || "",
-
-deliveryBoyName: (() => {
+  // ================= DELIVERY PARTNER =================
 
   const riderId =
-    document.getElementById("orderRider")?.value || "";
+    document.getElementById("orderRider")
+      ?.value || "";
+
 
   const rider =
     data.deliveryPartners.find(
-      r => String(r.id || r.uid) === String(riderId)
+      r =>
+        String(r.id || r.uid) ===
+        String(riderId)
     );
 
-  return rider
-    ? (
-        rider.name ||
-        rider.fullName ||
-        rider.displayName ||
-        ""
-      )
-    : "";
 
-})(),
-
-deliveryBoyPhone: (() => {
-
-  const riderId =
-    document.getElementById("orderRider")?.value || "";
-
-  const rider =
-    data.deliveryPartners.find(
-      r => String(r.id || r.uid) === String(riderId)
-    );
-
-  return rider
-    ? (
-        rider.phone ||
-        rider.mobile ||
-        ""
-      )
-    : "";
-
-})(),
-
-deliveryAssignmentStatus:
-  document.getElementById("orderRider")?.value
-    ? "Assigned"
-    : "Unassigned",
-
-address:
-  document.getElementById("orderAddress")
-    .value.trim(),
-
-    // Store information
-    storeId:
-      currentAdmin.storeId,
-
-    storeName:
-      currentAdmin.storeName,
-
-    updatedAt:
-      firebase.firestore.FieldValue
-        .serverTimestamp()
-
-  };
+  const riderName =
+    rider
+      ? (
+          rider.name ||
+          rider.fullName ||
+          rider.displayName ||
+          ""
+        )
+      : "";
 
 
-  // Required fields
-  if(
-    !orderData.customer ||
-    !orderData.amount
-  ){
-
-    alert(
-      "Customer Name aur Amount required hai."
-    );
-
-    return;
-
-  }
+  const riderPhone =
+    rider
+      ? (
+          rider.phone ||
+          rider.mobile ||
+          ""
+        )
+      : "";
 
 
   try{
 
-    let orderRef;
-
-
-    // =========================
+    // =================================================
     // EDIT EXISTING ORDER
-    // =========================
+    // =================================================
 
     if(oldId){
 
-      orderRef =
+      const orderRef =
         db.collection("orders")
           .doc(oldId);
 
 
-      // Existing order check
-      const oldOrder =
-        data.orders.find(
-          o => o.id === oldId
-        );
+      const snap =
+        await orderRef.get();
 
 
-      if(oldOrder){
+      if(!snap.exists){
 
-        // Existing order ko doosre Store me
-        // move nahi hone dena
-        orderData.storeId =
-          oldOrder.storeId ||
-          currentAdmin.storeId;
-
-        orderData.storeName =
-          oldOrder.storeName ||
-          currentAdmin.storeName;
+        alert("Order nahi mila.");
+        return;
 
       }
 
 
-      await orderRef.set(
-        orderData,
-        {
-          merge:true
-        }
-      );
-
-    }
+      const oldOrder =
+        snap.data();
 
 
-    // =========================
-    // NEW ORDER
-    // =========================
+      // ================= STORE SECURITY =================
 
-    else{
+      if(
+        oldOrder.storeId &&
+        String(oldOrder.storeId) !==
+        String(currentAdmin.storeId)
+      ){
 
-      orderRef =
-        db.collection("orders")
-          .doc();
+        alert(
+          "Dusre Store ka order edit nahi kar sakte."
+        );
+
+        return;
+
+      }
 
 
-      const orderId =
-        orderRef.id;
+      // =================================================
+      // EXISTING ORDER ME SIRF STATUS + DELIVERY PARTNER
+      // CHANGE HOGA
+      // =================================================
 
+      const updateData = {
 
-      await orderRef.set({
+        status:
+          status,
 
-        ...orderData,
+        orderStatus:
+          status,
 
-        orderId:
-          orderId,
+        deliveryBoyId:
+          riderId,
 
-        orderNo:
-          orderId,
+        deliveryBoyName:
+          riderName,
 
-        createdAt:
+        deliveryBoyPhone:
+          riderPhone,
+
+        deliveryAssignmentStatus:
+          riderId
+            ? "Assigned"
+            : "Unassigned",
+
+        updatedAt:
           firebase.firestore.FieldValue
             .serverTimestamp(),
 
-        createdBy:
-          currentAdmin.uid,
+        updatedBy:
+          currentAdmin.uid
 
-        createdByName:
-          currentAdmin.name
+      };
 
-      });
+
+      // Delivery assign hone ka time
+      if(riderId){
+
+        updateData.deliveryAssignedAt =
+          firebase.firestore.FieldValue
+            .serverTimestamp();
+
+        updateData.deliveryAssignedBy =
+          currentAdmin.uid;
+
+      }
+
+
+      await orderRef.update(
+        updateData
+      );
+
+
+      alert(
+        "✅ Order successfully updated.\n\n" +
+        "Status: " + status +
+        "\nDelivery Partner: " +
+        (
+          riderName ||
+          "Not Assigned"
+        )
+      );
+
+
+      clearOrder();
+
+      return;
 
     }
 
 
+    // =================================================
+    // NEW ORDER
+    // =================================================
+
+    const customer =
+      document.getElementById("orderCustomer")
+        ?.value.trim() || "";
+
+
+    const phone =
+      document.getElementById("orderPhone")
+        ?.value.trim() || "";
+
+
+    const amount =
+      Number(
+        document.getElementById("orderAmount")
+          ?.value || 0
+      );
+
+
+    const address =
+      document.getElementById("orderAddress")
+        ?.value.trim() || "";
+
+
+    if(
+      !customer ||
+      !amount
+    ){
+
+      alert(
+        "Customer Name aur Amount required hai."
+      );
+
+      return;
+
+    }
+
+
+    const orderRef =
+      db.collection("orders")
+        .doc();
+
+
+    const orderId =
+      orderRef.id;
+
+
+    await orderRef.set({
+
+      orderId:
+        orderId,
+
+      orderNo:
+        orderId,
+
+      customer:
+        customer,
+
+      customerName:
+        customer,
+
+      phone:
+        phone,
+
+      customerMobile:
+        phone,
+
+      amount:
+        amount,
+
+      total:
+        amount,
+
+      address:
+        address,
+
+      customerAddress:
+        address,
+
+      status:
+        "Order Placed",
+
+      orderStatus:
+        "Order Placed",
+
+      deliveryBoyId:
+        riderId,
+
+      deliveryBoyName:
+        riderName,
+
+      deliveryBoyPhone:
+        riderPhone,
+
+      deliveryAssignmentStatus:
+        riderId
+          ? "Assigned"
+          : "Unassigned",
+
+      storeId:
+        currentAdmin.storeId,
+
+      storeName:
+        currentAdmin.storeName,
+
+      createdAt:
+        firebase.firestore.FieldValue
+          .serverTimestamp(),
+
+      createdBy:
+        currentAdmin.uid,
+
+      createdByName:
+        currentAdmin.name || "",
+
+      updatedAt:
+        firebase.firestore.FieldValue
+          .serverTimestamp()
+
+    });
+
+
     alert(
-      "Order successfully Firebase me save ho gaya."
+      "✅ New order successfully Firebase me save ho gaya."
     );
 
 
@@ -3681,7 +3772,7 @@ address:
 
 
     alert(
-      "Order save failed:\n" +
+      "❌ Order save failed:\n" +
       error.message
     );
 
@@ -3700,35 +3791,29 @@ function editOrder(id){
     return;
   }
 
+
   // Store security check
   if(
     order.storeId &&
     String(order.storeId) !==
     String(currentAdmin.storeId)
   ){
-    alert("Dusre Store ka order edit nahi kar sakte.");
+
+    alert(
+      "Dusre Store ka order edit nahi kar sakte."
+    );
+
     return;
   }
+
+
+  // ================= ORDER ID =================
 
   const orderId =
     document.getElementById("orderId");
 
-  const customer =
-    document.getElementById("customer");
-
-  const phone =
-    document.getElementById("phone");
-
-  const amount =
-    document.getElementById("amount");
-
-  const address =
-    document.getElementById("address");
-
-
-  // ================= ORDER DETAILS =================
-
   if(orderId){
+
     orderId.value =
       order.orderId ||
       order.orderNo ||
@@ -3736,18 +3821,34 @@ function editOrder(id){
       "";
 
     orderId.readOnly = true;
+
   }
 
+
+  // ================= CUSTOMER =================
+
+  const customer =
+    document.getElementById("orderCustomer");
+
   if(customer){
+
     customer.value =
       order.customerName ||
       order.customer ||
       "";
 
     customer.readOnly = true;
+
   }
 
+
+  // ================= PHONE =================
+
+  const phone =
+    document.getElementById("orderPhone");
+
   if(phone){
+
     phone.value =
       order.customerMobile ||
       order.mobile ||
@@ -3755,9 +3856,17 @@ function editOrder(id){
       "";
 
     phone.readOnly = true;
+
   }
 
+
+  // ================= AMOUNT =================
+
+  const amount =
+    document.getElementById("orderAmount");
+
   if(amount){
+
     amount.value =
       Number(
         order.total ??
@@ -3766,19 +3875,28 @@ function editOrder(id){
       );
 
     amount.readOnly = true;
+
   }
 
+
+  // ================= ADDRESS =================
+
+  const address =
+    document.getElementById("orderAddress");
+
   if(address){
+
     address.value =
       order.customerAddress ||
       order.address ||
       "";
 
     address.readOnly = true;
+
   }
 
 
-  // ================= ORDER STATUS =================
+  // ================= STATUS =================
 
   const statusSelect =
     document.getElementById("orderStatus");
@@ -3790,11 +3908,13 @@ function editOrder(id){
       order.status ||
       "Order Placed";
 
+
     const normalized =
       String(savedStatus)
         .toLowerCase()
         .replaceAll("_"," ")
         .trim();
+
 
     const statusMap = {
 
@@ -3830,12 +3950,15 @@ function editOrder(id){
 
     };
 
+
     statusSelect.value =
       statusMap[normalized] ||
       "Order Placed";
 
-    // Status editable rahega
-    statusSelect.disabled = false;
+
+    statusSelect.disabled =
+      false;
+
   }
 
 
@@ -3850,19 +3973,28 @@ function editOrder(id){
     document.getElementById("orderRider");
 
   if(riderSelect){
-    riderSelect.disabled = false;
+
+    riderSelect.disabled =
+      false;
+
   }
 
 
-  // Form ko screen par lao
+  // ================= SHOW FORM =================
+
   const form =
     document.getElementById("orderForm");
 
   if(form){
+
     form.scrollIntoView({
+
       behavior: "smooth",
+
       block: "start"
+
     });
+
   }
 
 }
