@@ -1472,6 +1472,555 @@ async function setProductStatus(id,status){await db.collection('products').doc(i
 function editProduct(id){const p=data.products.find(x=>x.id===id);if(!p)return;['productId','productName','productPrice','productMrp','productStock','productCategory','productSeller','productSellerId','productImage','productDescription'].forEach(k=>{const el=document.getElementById(k);if(k==='productId')el.value=id});document.getElementById('productName').value=p.productName||p.name||'';document.getElementById('productPrice').value=p.price||'';document.getElementById('productMrp').value=p.mrp||p.oldPrice||'';document.getElementById('productStock').value=p.stock||0;document.getElementById('productCategory').value=p.category||'';document.getElementById('productSeller').value=p.sellerName||p.seller||'';document.getElementById('productSellerId').value=p.sellerId||'';document.getElementById('productImage').value=p.imageURL||p.image||'';document.getElementById('productDescription').value=p.description||'';document.getElementById('productStatus').value=p.status||'pending';document.getElementById('productStoreId').value=p.storeId||'';showSection('products',document.querySelectorAll('.navbtn')[3])}
 async function saveProduct(){const id=document.getElementById('productId').value,x={productName:document.getElementById('productName').value.trim(),price:Number(document.getElementById('productPrice').value||0),mrp:Number(document.getElementById('productMrp').value||0),stock:Number(document.getElementById('productStock').value||0),category:document.getElementById('productCategory').value.trim(),sellerName:document.getElementById('productSeller').value.trim(),sellerId:document.getElementById('productSellerId').value.trim(),imageURL:document.getElementById('productImage').value.trim(),description:document.getElementById('productDescription').value.trim(),status:document.getElementById('productStatus').value,approved:document.getElementById('productStatus').value==='approved',storeId:document.getElementById('productStoreId').value || (selectedStoreId==='__ALL__'?'':selectedStoreId)};if(!x.productName)return alert('Product name required');if(id)await db.collection('products').doc(id).update(x);else await db.collection('products').add({...x,createdAt:firebase.firestore.FieldValue.serverTimestamp()});await audit('Product saved','products',id||'new',x.productName);clearProduct()}
 function clearProduct(){['productId','productName','productPrice','productMrp','productStock','productCategory','productSeller','productSellerId','productImage','productDescription'].forEach(id=>document.getElementById(id).value='');document.getElementById('productStoreId').value=selectedStoreId==='__ALL__'?'':selectedStoreId;document.getElementById('productStatus').value='pending'}
+// ================= BANNER MANAGEMENT =================
+
+async function saveBanner(){
+
+  try{
+
+    const id =
+      document.getElementById("bannerId").value.trim();
+
+    const title =
+      document.getElementById("bannerTitle").value.trim();
+
+    const image =
+      document.getElementById("bannerImage").value.trim();
+
+    const button =
+      document.getElementById("bannerButton").value.trim();
+
+    const link =
+      document.getElementById("bannerLink").value.trim();
+
+    const linkType =
+      document.getElementById("bannerLinkType").value;
+
+    const start =
+      document.getElementById("bannerStart").value;
+
+    const end =
+      document.getElementById("bannerEnd").value;
+
+    const slideOrder =
+      Number(
+        document.getElementById("bannerOrder").value || 1
+      );
+
+    const status =
+      document.getElementById("bannerStatus").value;
+
+    const description =
+      document.getElementById("bannerDescription").value.trim();
+
+
+    if(!title){
+      return alert("Banner title required.");
+    }
+
+    if(!image){
+      return alert("Banner image URL required.");
+    }
+
+
+    const bannerData = {
+
+      title: title,
+
+      image: image,
+      imageUrl: image,
+
+      buttonText: button,
+
+      link: link,
+      linkType: linkType,
+
+      description: description,
+
+      slideOrder: slideOrder,
+
+      status: status,
+
+      startAt: start
+        ? firebase.firestore.Timestamp.fromDate(
+            new Date(start)
+          )
+        : null,
+
+      endAt: end
+        ? firebase.firestore.Timestamp.fromDate(
+            new Date(end)
+          )
+        : null,
+
+      updatedAt:
+        firebase.firestore.FieldValue.serverTimestamp()
+
+    };
+
+
+    if(id){
+
+      await db
+        .collection("banners")
+        .doc(id)
+        .update(bannerData);
+
+      await audit(
+        "Banner updated",
+        "banners",
+        id,
+        title
+      );
+
+      alert("✅ Banner updated successfully.");
+
+    }
+    else{
+
+      bannerData.createdAt =
+        firebase.firestore.FieldValue.serverTimestamp();
+
+      await db
+        .collection("banners")
+        .add(bannerData);
+
+      await audit(
+        "Banner created",
+        "banners",
+        "new",
+        title
+      );
+
+      alert("✅ Banner added successfully.");
+
+    }
+
+
+    clearBanner();
+
+    renderBanners();
+
+  }
+  catch(error){
+
+    console.error(
+      "Banner save error:",
+      error
+    );
+
+    alert(
+      "❌ Banner save failed.\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+function clearBanner(){
+
+  const fields = [
+
+    "bannerId",
+    "bannerTitle",
+    "bannerImage",
+    "bannerButton",
+    "bannerLink",
+    "bannerStart",
+    "bannerEnd",
+    "bannerDescription"
+
+  ];
+
+  fields.forEach(id => {
+
+    const el =
+      document.getElementById(id);
+
+    if(el){
+      el.value = "";
+    }
+
+  });
+
+
+  const linkType =
+    document.getElementById("bannerLinkType");
+
+  if(linkType){
+    linkType.value = "none";
+  }
+
+
+  const order =
+    document.getElementById("bannerOrder");
+
+  if(order){
+    order.value = 1;
+  }
+
+
+  const status =
+    document.getElementById("bannerStatus");
+
+  if(status){
+    status.value = "active";
+  }
+
+}
+
+
+async function renderBanners(){
+
+  const table =
+    document.getElementById("bannerTable");
+
+  if(!table) return;
+
+
+  try{
+
+    const snap =
+      await db
+        .collection("banners")
+        .get();
+
+
+    const banners =
+      snap.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .sort(
+          (a,b) =>
+            Number(a.slideOrder || 1) -
+            Number(b.slideOrder || 1)
+        );
+
+
+    if(!banners.length){
+
+      table.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty">
+            No banners found
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    table.innerHTML =
+      banners.map(b => `
+
+        <tr>
+
+          <td>
+
+            <img
+              src="${esc(
+                b.imageUrl ||
+                b.image ||
+                ""
+              )}"
+
+              style="
+                width:120px;
+                height:60px;
+                object-fit:cover;
+                border-radius:8px;
+                background:#f5f5f5;
+              "
+
+              onerror="
+                this.style.display='none'
+              "
+            >
+
+          </td>
+
+
+          <td>
+            <b>
+              ${esc(b.title || "")}
+            </b>
+          </td>
+
+
+          <td>
+
+            ${esc(
+              b.linkType || "none"
+            )}
+
+            ${
+              b.link
+                ? `<br><small>${esc(b.link)}</small>`
+                : ""
+            }
+
+          </td>
+
+
+          <td>
+            ${Number(
+              b.slideOrder || 1
+            )}
+          </td>
+
+
+          <td>
+
+            <span
+              style="
+                font-weight:bold;
+                color:${
+                  b.status === "active"
+                    ? "green"
+                    : "red"
+                };
+              "
+            >
+
+              ${
+                b.status === "active"
+                  ? "🟢 Active"
+                  : "🔴 Inactive"
+              }
+
+            </span>
+
+          </td>
+
+
+          <td class="actions">
+
+            <button
+              class="secondary"
+              onclick="editBanner('${esc(b.id)}')"
+            >
+              Edit
+            </button>
+
+
+            <button
+              class="danger"
+              onclick="deleteBanner('${esc(b.id)}')"
+            >
+              Delete
+            </button>
+
+          </td>
+
+        </tr>
+
+      `).join("");
+
+
+  }
+  catch(error){
+
+    console.error(
+      "Banner load error:",
+      error
+    );
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">
+          Banner load failed
+        </td>
+      </tr>
+    `;
+
+  }
+
+}
+
+
+async function editBanner(id){
+
+  try{
+
+    const snap =
+      await db
+        .collection("banners")
+        .doc(id)
+        .get();
+
+
+    if(!snap.exists){
+      return alert("Banner nahi mila.");
+    }
+
+
+    const b =
+      snap.data();
+
+
+    document.getElementById("bannerId").value =
+      id;
+
+    document.getElementById("bannerTitle").value =
+      b.title || "";
+
+    document.getElementById("bannerImage").value =
+      b.imageUrl ||
+      b.image ||
+      "";
+
+    document.getElementById("bannerButton").value =
+      b.buttonText ||
+      "";
+
+    document.getElementById("bannerLink").value =
+      b.link ||
+      "";
+
+    document.getElementById("bannerLinkType").value =
+      b.linkType ||
+      "none";
+
+    document.getElementById("bannerOrder").value =
+      b.slideOrder ||
+      1;
+
+    document.getElementById("bannerStatus").value =
+      b.status ||
+      "active";
+
+    document.getElementById("bannerDescription").value =
+      b.description ||
+      "";
+
+
+    if(b.startAt){
+
+      const d =
+        b.startAt.toDate
+          ? b.startAt.toDate()
+          : new Date(b.startAt);
+
+      document.getElementById("bannerStart").value =
+        toDateTimeLocal(d);
+
+    }
+
+
+    if(b.endAt){
+
+      const d =
+        b.endAt.toDate
+          ? b.endAt.toDate()
+          : new Date(b.endAt);
+
+      document.getElementById("bannerEnd").value =
+        toDateTimeLocal(d);
+
+    }
+
+
+    document
+      .getElementById("banners")
+      .scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+
+
+  }
+  catch(error){
+
+    console.error(
+      "Edit banner error:",
+      error
+    );
+
+    alert(
+      "Banner edit nahi ho paya.\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+function toDateTimeLocal(date){
+
+  const pad =
+    n => String(n).padStart(2,"0");
+
+  return (
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth()+1) +
+    "-" +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes())
+  );
+
+}
+
+
+async function deleteBanner(id){
+
+  if(
+    !confirm(
+      "Kya aap is banner ko delete karna chahte hain?"
+    )
+  ){
+    return;
+  }
+
+
+  try{
+
+    await db
+      .collection("banners")
+      .doc(id)
+      .delete();
+
+
+    await audit(
+      "Banner deleted",
+      "banners",
+      id,
+      ""
+    );
+
+
+    alert("✅ Banner deleted.");
+
+    renderBanners();
+
+
+  }
+  catch(error){
+
+    console.error(
+      "Delete banner error:",
+      error
+    );
+
+    alert(
+      "❌ Banner delete nahi hua.\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+// ================= END BANNER MANAGEMENT =================
 function renderOrders(){const q=(document.getElementById('orderSearch')?.value||'').toLowerCase(),rows=data.orders.filter(storeMatches).filter(o=>JSON.stringify(o).toLowerCase().includes(q));document.getElementById('orderTable').innerHTML=rows.length?rows.map(o=>`<tr><td><b>#${esc(o.orderId||o.id||'')}</b></td><td>${esc(o.customerName||o.customer||'')}<br>${esc(o.customerMobile||o.phone||'')}</td><td>${money(o.amount||o.total)}</td><td><select onchange="updateOrderStatus('${esc(o.id)}',this.value)">${[
   ['order_placed','Order Placed'],
   ['confirmed','Confirmed'],
