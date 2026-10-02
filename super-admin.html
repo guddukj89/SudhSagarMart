@@ -77,6 +77,112 @@
 <section id="dashboard" class="section active"><h1>Master Dashboard</h1><div class="stats"><div class="stat"><small>Total Sales</small><strong id="statSales">₹0</strong></div><div class="stat"><small>Total Orders</small><strong id="statOrders">0</strong></div><div class="stat"><small>Sellers</small><strong id="statSellers">0</strong></div><div class="stat"><small>Customers</small><strong id="statCustomers">0</strong></div><div class="stat"><small>Delivery Partners</small><strong id="statRiders">0</strong></div><div class="stat"><small>Commission</small><strong id="statCommission">₹0</strong></div><div class="stat"><small>Pending KYC</small><strong id="statKyc">0</strong></div><div class="stat"><small>Open Complaints</small><strong id="statComplaints">0</strong></div></div><div class="card"><h2>Master Control</h2><div class="actions"><button class="primary" onclick="showSection('sellers',document.querySelectorAll('.navbtn')[1])">Manage Sellers</button><button class="primary" onclick="showSection('riders',document.querySelectorAll('.navbtn')[2])">Manage Riders</button><button class="primary" onclick="showSection('orders',document.querySelectorAll('.navbtn')[4])">Manage Orders</button><button class="primary" onclick="showSection('payments',document.querySelectorAll('.navbtn')[6])">Payments</button><button class="secondary" onclick="exportData()">Export Backup</button></div></div><div class="card"><h2>Pending / Attention</h2><div id="pendingBox">Loading...</div></div><div class="card"><h2>Recent Orders</h2><div id="recentOrders"></div></div></section>
 <section id="sellers" class="section"><h1>Seller Management / KYC</h1><div class="card"><input class="search" id="sellerSearch" oninput="renderSellers()" placeholder="Search seller, shop, phone or email..."><div class="tablewrap"><table><thead><tr><th>Seller / Shop</th><th>Contact</th><th>City / Address</th><th>KYC</th><th>Documents</th><th>Action</th></tr></thead><tbody id="sellerTable"></tbody></table></div></div></section>
 <section id="riders" class="section"><h1>Delivery Partner / Rider Control</h1><div class="card"><input class="search" id="riderSearch" oninput="renderRiders()" placeholder="Search rider, phone, email, status..."><div class="tablewrap"><table><thead><tr><th>Rider</th><th>Contact</th><th>Status</th><th>Store</th><th>Live Location</th><th>Action</th></tr></thead><tbody id="riderTable"></tbody></table></div></div></section>
+ <section id="banners" class="section">
+
+  <h1>🖼️ Banner Management</h1>
+
+  <div class="card">
+
+    <h2>Add / Edit Banner</h2>
+
+    <input type="hidden" id="bannerId">
+
+    <div class="formgrid">
+
+      <input
+        id="bannerTitle"
+        placeholder="Banner Title">
+
+      <input
+        id="bannerImage"
+        placeholder="Banner Image URL">
+
+      <input
+        id="bannerButton"
+        placeholder="Button Text e.g. Shop Now">
+
+      <input
+        id="bannerLink"
+        placeholder="Product ID / Category">
+
+      <select id="bannerLinkType">
+        <option value="none">No Link</option>
+        <option value="product">Product</option>
+        <option value="category">Category</option>
+        <option value="all">All Products</option>
+      </select>
+
+      <input
+        id="bannerStart"
+        type="datetime-local">
+
+      <input
+        id="bannerEnd"
+        type="datetime-local">
+
+      <input
+        id="bannerOrder"
+        type="number"
+        value="1"
+        min="1"
+        placeholder="Slide Order">
+
+      <select id="bannerStatus">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+
+      <textarea
+        id="bannerDescription"
+        class="full"
+        placeholder="Banner Description"></textarea>
+
+    </div>
+
+    <br>
+
+    <button
+      class="primary"
+      onclick="saveBanner()">
+      Save Banner
+    </button>
+
+    <button
+      class="secondary"
+      onclick="clearBanner()">
+      Clear
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <h2>All Banners</h2>
+
+    <div class="tablewrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Banner</th>
+            <th>Title</th>
+            <th>Link</th>
+            <th>Order</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="bannerTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section> 
 <section id="products" class="section"><h1>Product Master Control</h1><div class="card"><h2>Add / Edit Product</h2><input type="hidden" id="productId"><div class="formgrid"><input id="productName" placeholder="Product Name"><input id="productPrice" type="number" placeholder="Selling Price"><input id="productMrp" type="number" placeholder="MRP"><input id="productStock" type="number" placeholder="Stock"><input id="productCategory" placeholder="Category"><input id="productSeller" placeholder="Seller Name"><input id="productSellerId" placeholder="Seller UID"><select id="productStoreId"><option value="">Store (Global/Unassigned)</option></select><input id="productImage" placeholder="Image URL (optional)"><select id="productStatus"><option>pending</option><option>approved</option><option>rejected</option></select><textarea id="productDescription" class="full" placeholder="Description"></textarea></div><br><button class="primary" onclick="saveProduct()">Save Product</button> <button class="secondary" onclick="clearProduct()">Clear</button></div><div class="card"><input class="search" id="productSearch" oninput="renderProducts()" placeholder="Search product..."><div class="tablewrap"><table><thead><tr><th>Product</th><th>Seller</th><th>Category</th><th>Price/MRP</th><th>Stock</th><th>Status</th><th>Action</th></tr></thead><tbody id="productTable"></tbody></table></div></div></section>
 <section id="orders" class="section"><h1>Orders / Dispatch Master Control</h1><div class="card"><h2>Add / Edit Order</h2><input type="hidden" id="orderId"><div class="formgrid"><input id="orderCustomer" placeholder="Customer Name"><input id="orderPhone" placeholder="Customer Phone"><input id="orderAmount" type="number" placeholder="Amount"><select id="orderStatus"><option>Order Placed</option><option>Confirmed</option><option>Packed</option><option>Ready for Pickup</option><option>Picked Up</option><option>Out for Delivery</option><option>Delivered</option><option>Undelivered Attempt</option><option>Cancelled</option></select><input id="orderRiderId" placeholder="Delivery Partner UID"><input id="orderRiderName" placeholder="Delivery Partner Name"><select id="orderStoreId"><option value="">Store (Global/Unassigned)</option></select><input id="orderAddress" class="full" placeholder="Delivery Address"></div><br><button class="primary" onclick="saveOrder()">Save Order</button> <button class="secondary" onclick="clearOrder()">Clear</button></div><div class="card"><input class="search" id="orderSearch" oninput="renderOrders()" placeholder="Search order/customer/phone/rider..."><div class="tablewrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th><th>Rider</th><th>Address</th><th>Action</th></tr></thead><tbody id="orderTable"></tbody></table></div></div></section>
 <section id="customers" class="section"><h1>Customer Management</h1><div class="card"><h2>Add / Edit Customer</h2><input type="hidden" id="customerId"><div class="formgrid"><input id="customerName" placeholder="Customer Name"><input id="customerPhone" placeholder="Phone"><input id="customerEmail" placeholder="Email"><input id="customerCity" placeholder="City"><select id="customerStoreId"><option value="">Store (Global/Unassigned)</option></select><input id="customerAddress" class="full" placeholder="Address"></div><br><button class="primary" onclick="saveCustomer()">Save Customer</button> <button class="secondary" onclick="clearCustomer()">Clear</button></div><div class="card"><input class="search" id="customerSearch" oninput="renderCustomers()" placeholder="Search customer..."><div class="tablewrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>City</th><th>Address</th><th>Action</th></tr></thead><tbody id="customerTable"></tbody></table></div></div></section>
