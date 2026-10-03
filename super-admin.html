@@ -1569,7 +1569,6 @@ function previewBannerImage(event){
 // ================= END BANNER IMAGE UPLOAD =================
   
 // ================= BANNER MANAGEMENT =================
-
 async function saveBanner(){
 
   try{
@@ -1580,8 +1579,15 @@ async function saveBanner(){
     const title =
       document.getElementById("bannerTitle").value.trim();
 
-    const image =
-      document.getElementById("bannerImage").value.trim();
+    const fileInput =
+      document.getElementById("bannerImageFile");
+
+    const file =
+      fileInput &&
+      fileInput.files &&
+      fileInput.files[0]
+        ? fileInput.files[0]
+        : null;
 
     const button =
       document.getElementById("bannerButton").value.trim();
@@ -1609,26 +1615,118 @@ async function saveBanner(){
     const description =
       document.getElementById("bannerDescription").value.trim();
 
+    let image =
+      document.getElementById("bannerImage").value.trim();
+
 
     if(!title){
       return alert("Banner title required.");
     }
 
-    if(!image){
-      return alert("Banner image URL required.");
+
+    /* ================= IMAGE UPLOAD ================= */
+
+    if(file){
+
+      if(!file.type.startsWith("image/")){
+        return alert("Sirf image file upload karein.");
+      }
+
+      if(file.size > 5 * 1024 * 1024){
+        return alert("Banner image maximum 5 MB ki ho sakti hai.");
+      }
+
+      const safeName =
+        file.name
+          .replace(/[^a-zA-Z0-9._-]/g,"_");
+
+      const fileName =
+        Date.now() +
+        "_" +
+        safeName;
+
+      const storageRef =
+        storage
+          .ref()
+          .child(
+            "banners/" +
+            fileName
+          );
+
+      const preview =
+        document.getElementById("bannerImagePreview");
+
+      if(preview){
+
+        preview.innerHTML = `
+          <div style="
+            padding:10px;
+            background:#eef6ff;
+            border-radius:8px;
+            color:#0878e8;
+            font-weight:600;
+          ">
+            ⏳ Banner image upload ho rahi hai...
+          </div>
+        `;
+
+      }
+
+      await storageRef.put(file);
+
+      image =
+        await storageRef.getDownloadURL();
+
+      document.getElementById(
+        "bannerImage"
+      ).value = image;
+
+      if(preview){
+
+        preview.innerHTML = `
+          <img
+            src="${esc(image)}"
+            style="
+              width:100%;
+              max-width:500px;
+              max-height:220px;
+              object-fit:cover;
+              border-radius:10px;
+              border:1px solid #ddd;
+            "
+          >
+        `;
+
+      }
+
     }
 
+
+    /* ================= IMAGE CHECK ================= */
+
+    if(!image){
+
+      return alert(
+        "Banner image select karein."
+      );
+
+    }
+
+
+    /* ================= BANNER DATA ================= */
 
     const bannerData = {
 
       title: title,
 
       image: image,
+
       imageUrl: image,
 
       buttonText: button,
 
       link: link,
+
       linkType: linkType,
 
       description: description,
@@ -1637,23 +1735,27 @@ async function saveBanner(){
 
       status: status,
 
-      startAt: start
-        ? firebase.firestore.Timestamp.fromDate(
-            new Date(start)
-          )
-        : null,
+      startAt:
+        start
+          ? firebase.firestore.Timestamp.fromDate(
+              new Date(start)
+            )
+          : null,
 
-      endAt: end
-        ? firebase.firestore.Timestamp.fromDate(
-            new Date(end)
-          )
-        : null,
+      endAt:
+        end
+          ? firebase.firestore.Timestamp.fromDate(
+              new Date(end)
+            )
+          : null,
 
       updatedAt:
         firebase.firestore.FieldValue.serverTimestamp()
 
     };
 
+
+    /* ================= UPDATE ================= */
 
     if(id){
 
@@ -1669,9 +1771,15 @@ async function saveBanner(){
         title
       );
 
-      alert("✅ Banner updated successfully.");
+      alert(
+        "✅ Banner updated successfully."
+      );
 
     }
+
+
+    /* ================= CREATE ================= */
+
     else{
 
       bannerData.createdAt =
@@ -1688,7 +1796,9 @@ async function saveBanner(){
         title
       );
 
-      alert("✅ Banner added successfully.");
+      alert(
+        "✅ Banner added successfully."
+      );
 
     }
 
@@ -1713,7 +1823,6 @@ async function saveBanner(){
   }
 
 }
-
 
 function clearBanner(){
 
