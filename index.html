@@ -7230,15 +7230,17 @@ async function loadHomeBanners(){
             Number(a.slideOrder || 1) -
             Number(b.slideOrder || 1)
         );
+if(!banners.length){
 
-    if(!banners.length){
+  console.log(
+    "Koi active Firebase banner nahi mila. Default banner use hoga."
+  );
 
-      console.log("Koi active banner nahi mila.");
+  // Default banner ko delete mat karo
+  // Existing HTML wala banner hi show hoga.
 
-      wrapper.innerHTML = "";
-
-      return;
-    }
+  return;
+}
 
     wrapper.innerHTML =
       banners.map(b => {
