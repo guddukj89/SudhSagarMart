@@ -243,6 +243,21 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();     
+   // HTML escape helper
+function esc(v){
+  return String(v ?? "").replace(
+    /[&<>"']/g,
+    function(m){
+      return {
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[m];
+    }
+  );
+}  
  // Pincode Check Function
  const serviceablePincodes = ["801108", "801503"];
 
