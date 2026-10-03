@@ -93,9 +93,41 @@
         id="bannerTitle"
         placeholder="Banner Title">
 
-      <input
-        id="bannerImage"
-        placeholder="Banner Image URL">
+<div style="grid-column:1/-1">
+
+  <label style="
+    display:block;
+    font-weight:700;
+    margin-bottom:6px;
+  ">
+    🖼️ Banner Image
+  </label>
+
+  <input
+    id="bannerImageFile"
+    type="file"
+    accept="image/*"
+    onchange="previewBannerImage(event)"
+  >
+
+  <small
+    class="muted"
+    style="display:block;margin-top:5px">
+    JPG, PNG या WEBP image upload करें
+  </small>
+
+  <div
+    id="bannerImagePreview"
+    style="margin-top:10px">
+  </div>
+
+  <input
+    id="bannerImage"
+    type="hidden"
+    value=""
+  >
+
+</div>
 
       <input
         id="bannerButton"
