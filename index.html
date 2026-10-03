@@ -7149,7 +7149,234 @@ document.addEventListener("keydown", function(e) {
 
 </script>
       <script>
+// =====================================================
+// DYNAMIC FIREBASE BANNERS
+// =====================================================
 
+async function loadHomeBanners(){
+
+  const heroSlider =
+    document.querySelector(".heroSwiper");
+
+  if(!heroSlider){
+    console.error("Hero slider nahi mila.");
+    return;
+  }
+
+  const wrapper =
+    heroSlider.querySelector(".swiper-wrapper");
+
+  if(!wrapper){
+    console.error("Swiper wrapper nahi mila.");
+    return;
+  }
+
+  try{
+
+    const snap =
+      await db
+        .collection("banners")
+        .where("status","==","active")
+        .get();
+
+    const banners =
+      snap.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .filter(b => {
+
+          const now = new Date();
+
+          if(b.startAt){
+            const start =
+              b.startAt.toDate
+                ? b.startAt.toDate()
+                : new Date(b.startAt);
+
+            if(now < start) return false;
+          }
+
+          if(b.endAt){
+            const end =
+              b.endAt.toDate
+                ? b.endAt.toDate()
+                : new Date(b.endAt);
+
+            if(now > end) return false;
+          }
+
+          return true;
+
+        })
+        .sort(
+          (a,b) =>
+            Number(a.slideOrder || 1) -
+            Number(b.slideOrder || 1)
+        );
+
+    if(!banners.length){
+
+      console.log("Koi active banner nahi mila.");
+
+      wrapper.innerHTML = "";
+
+      return;
+    }
+
+    wrapper.innerHTML =
+      banners.map(b => {
+
+        const image =
+          b.imageUrl ||
+          b.image ||
+          "";
+
+        if(!image) return "";
+
+        return `
+          <div
+            class="swiper-slide"
+            data-banner-id="${esc(b.id)}"
+            data-link-type="${esc(b.linkType || "none")}"
+            data-link="${esc(b.link || "")}"
+            style="cursor:pointer;"
+          >
+
+            <img
+              src="${esc(image)}"
+              alt="${esc(b.title || "Banner")}"
+              style="
+                width:100%;
+                display:block;
+                object-fit:cover;
+              "
+              loading="lazy"
+            >
+
+          </div>
+        `;
+
+      }).join("");
+
+    // Purana Swiper destroy karein agar pehle se bana hua hai
+    if(window.homeBannerSwiper){
+
+      try{
+        window.homeBannerSwiper.destroy(
+          true,
+          true
+        );
+      }catch(e){
+        console.log(e);
+      }
+
+    }
+
+    // Naya Swiper
+    window.homeBannerSwiper =
+      new Swiper(".heroSwiper", {
+
+        loop: banners.length > 1,
+
+        slidesPerView:1,
+
+        speed:700,
+
+        spaceBetween:0,
+
+        grabCursor:true,
+
+        allowTouchMove:true,
+
+        autoplay:{
+          delay:3500,
+          disableOnInteraction:false
+        },
+
+        pagination:{
+          el:".heroSwiper .swiper-pagination",
+          clickable:true
+        },
+
+        navigation:{
+          nextEl:".heroSwiper .swiper-button-next",
+          prevEl:".heroSwiper .swiper-button-prev"
+        }
+
+      });
+
+    // Banner click
+    wrapper
+      .querySelectorAll(".swiper-slide")
+      .forEach(slide => {
+
+        slide.addEventListener(
+          "click",
+          function(){
+
+            const type =
+              this.dataset.linkType;
+
+            const link =
+              this.dataset.link;
+
+            if(!link || type === "none"){
+              return;
+            }
+
+            if(type === "product"){
+
+              // Product ID ke saath product page/search
+              window.location.href =
+                "index.html?product=" +
+                encodeURIComponent(link);
+
+            }
+
+            else if(type === "category"){
+
+              window.location.href =
+                "index.html?category=" +
+                encodeURIComponent(link);
+
+            }
+
+            else if(type === "all"){
+
+              window.location.href =
+                "index.html";
+
+            }
+
+          }
+        );
+
+      });
+
+  }
+  catch(error){
+
+    console.error(
+      "Firebase banner load error:",
+      error
+    );
+
+  }
+
+}
+
+
+// Page load par banners load karein
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
+
+    loadHomeBanners();
+
+  }
+);
  </script>
 </body>
 </html>
