@@ -1508,6 +1508,66 @@ async function setProductStatus(id,status){await db.collection('products').doc(i
 function editProduct(id){const p=data.products.find(x=>x.id===id);if(!p)return;['productId','productName','productPrice','productMrp','productStock','productCategory','productSeller','productSellerId','productImage','productDescription'].forEach(k=>{const el=document.getElementById(k);if(k==='productId')el.value=id});document.getElementById('productName').value=p.productName||p.name||'';document.getElementById('productPrice').value=p.price||'';document.getElementById('productMrp').value=p.mrp||p.oldPrice||'';document.getElementById('productStock').value=p.stock||0;document.getElementById('productCategory').value=p.category||'';document.getElementById('productSeller').value=p.sellerName||p.seller||'';document.getElementById('productSellerId').value=p.sellerId||'';document.getElementById('productImage').value=p.imageURL||p.image||'';document.getElementById('productDescription').value=p.description||'';document.getElementById('productStatus').value=p.status||'pending';document.getElementById('productStoreId').value=p.storeId||'';showSection('products',document.querySelectorAll('.navbtn')[3])}
 async function saveProduct(){const id=document.getElementById('productId').value,x={productName:document.getElementById('productName').value.trim(),price:Number(document.getElementById('productPrice').value||0),mrp:Number(document.getElementById('productMrp').value||0),stock:Number(document.getElementById('productStock').value||0),category:document.getElementById('productCategory').value.trim(),sellerName:document.getElementById('productSeller').value.trim(),sellerId:document.getElementById('productSellerId').value.trim(),imageURL:document.getElementById('productImage').value.trim(),description:document.getElementById('productDescription').value.trim(),status:document.getElementById('productStatus').value,approved:document.getElementById('productStatus').value==='approved',storeId:document.getElementById('productStoreId').value || (selectedStoreId==='__ALL__'?'':selectedStoreId)};if(!x.productName)return alert('Product name required');if(id)await db.collection('products').doc(id).update(x);else await db.collection('products').add({...x,createdAt:firebase.firestore.FieldValue.serverTimestamp()});await audit('Product saved','products',id||'new',x.productName);clearProduct()}
 function clearProduct(){['productId','productName','productPrice','productMrp','productStock','productCategory','productSeller','productSellerId','productImage','productDescription'].forEach(id=>document.getElementById(id).value='');document.getElementById('productStoreId').value=selectedStoreId==='__ALL__'?'':selectedStoreId;document.getElementById('productStatus').value='pending'}
+// ================= BANNER IMAGE UPLOAD =================
+
+function previewBannerImage(event){
+
+  const file =
+    event.target.files &&
+    event.target.files[0];
+
+  const preview =
+    document.getElementById("bannerImagePreview");
+
+  if(!file){
+    if(preview) preview.innerHTML = "";
+    return;
+  }
+
+  if(!file.type.startsWith("image/")){
+    alert("Sirf image file upload karein.");
+    event.target.value = "";
+    if(preview) preview.innerHTML = "";
+    return;
+  }
+
+  if(file.size > 5 * 1024 * 1024){
+    alert("Banner image maximum 5 MB ki ho sakti hai.");
+    event.target.value = "";
+    if(preview) preview.innerHTML = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+
+    if(preview){
+
+      preview.innerHTML = `
+        <img
+          src="${e.target.result}"
+          style="
+            width:100%;
+            max-width:500px;
+            max-height:220px;
+            object-fit:cover;
+            border-radius:10px;
+            border:1px solid #ddd;
+          "
+        >
+      `;
+
+    }
+
+  };
+
+  reader.readAsDataURL(file);
+}
+
+
+// ================= END BANNER IMAGE UPLOAD =================
+  
 // ================= BANNER MANAGEMENT =================
 
 async function saveBanner(){
