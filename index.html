@@ -7356,14 +7356,19 @@ async function loadHomeBanners(){
       });
 
   }
-  catch(error){
+catch(error){
 
-    console.error(
-      "Firebase banner load error:",
-      error
-    );
+  console.error(
+    "Firebase banner load error:",
+    error
+  );
 
-  }
+  alert(
+    "Banner load error:\n\n" +
+    error.message
+  );
+
+}
 
 }
 
