@@ -230,7 +230,11 @@
 </main></div></div>
 <script>
 const firebaseConfig={apiKey:"AIzaSyCTwfL2U5MEq9zXBHQOWLwY9yGt93SjuGU",authDomain:"sudhsagarmart.firebaseapp.com",projectId:"sudhsagarmart",storageBucket:"sudhsagarmart.firebasestorage.app",messagingSenderId:"682379938859",appId:"1:682379938859:web:4cb3581fd0de81f4e72e6e",measurementId:"G-VZY41YWFXP"};
-firebase.initializeApp(firebaseConfig);const db=firebase.firestore(),auth=firebase.auth();
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+const storage = firebase.storage();
 let data={sellers:[],products:[],orders:[],customers:[],payments:[],categories:[],deliveryPartners:[],complaints:[],notifications:[],adminUsers:[],auditLogs:[],stores:[],settings:{storeName:"Sudh Sagar Mart",commission:10,currency:"₹",delivery:0}};let unsubs=[];let selectedStoreId='__ALL__';
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));const money=v=>(data.settings.currency||"₹")+Number(v||0).toLocaleString("en-IN");
 function showSection(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active")}
