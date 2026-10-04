@@ -7006,6 +7006,73 @@ if (galleryImages.length === 0 && product[4]) {
             "Seller: " + (product[8] || "Seller");
     }
 
+    // Rating
+const ratingValue =
+    document.getElementById("galleryRatingValue");
+
+const ratingStars =
+    document.getElementById("galleryRatingStars");
+
+const reviewCount =
+    document.getElementById("galleryReviewCount");
+
+const rating =
+    Number(
+        product.rating ||
+        product.averageRating ||
+        product[11] ||
+        0
+    );
+
+const reviews =
+    Number(
+        product.reviewCount ||
+        product.reviewsCount ||
+        product[12] ||
+        0
+    );
+
+if(ratingValue){
+    ratingValue.innerText =
+        rating > 0
+            ? rating.toFixed(1)
+            : "0.0";
+}
+
+if(ratingStars){
+
+    const fullStars =
+        Math.round(rating);
+
+    ratingStars.innerText =
+        "★".repeat(
+            Math.min(fullStars,5)
+        ) +
+        "☆".repeat(
+            Math.max(0,5-fullStars)
+        );
+}
+
+if(reviewCount){
+    reviewCount.innerText =
+        "(" + reviews + " Reviews)";
+}
+
+
+// Product Highlights
+const highlights =
+    document.getElementById(
+        "galleryProductHighlights"
+    );
+
+if(highlights){
+
+    highlights.innerText =
+        product.highlights ||
+        product.productHighlights ||
+        product[13] ||
+        "Product highlights available nahi hain.";
+}
     // Images render
     renderGalleryImages();
 
