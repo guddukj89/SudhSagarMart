@@ -6795,13 +6795,81 @@ selectCustomerStore(pincode).then(storeSelected => {
                  style="margin-bottom:8px;">
             </div>
 
-            <div id="galleryExtraDetails"
-                 style="
-                 margin-top:15px;
-                 border-top:1px solid #ddd;
-                 padding-top:15px;
-                 ">
-            </div>
+    <div
+    id="galleryExtraDetails"
+    style="
+        margin-top:15px;
+        border-top:1px solid #ddd;
+        padding-top:15px;
+    "
+>
+
+    <!-- RATING & REVIEWS -->
+    <div
+        id="galleryProductRating"
+        style="
+            display:flex;
+            align-items:center;
+            gap:8px;
+            margin-bottom:12px;
+            font-size:15px;
+        "
+    >
+        <span
+            id="galleryRatingStars"
+            style="
+                color:#f5a623;
+                font-size:20px;
+                letter-spacing:1px;
+            "
+        >
+            ★★★★★
+        </span>
+
+        <span
+            id="galleryRatingValue"
+            style="
+                font-weight:bold;
+                color:#222;
+            "
+        >
+            0.0
+        </span>
+
+        <span
+            id="galleryReviewCount"
+            style="
+                color:#777;
+            "
+        >
+            (0 Reviews)
+        </span>
+    </div>
+
+
+    <!-- PRODUCT HIGHLIGHTS -->
+    <div
+        style="
+            font-size:18px;
+            font-weight:bold;
+            margin-bottom:8px;
+        "
+    >
+        Product Highlights
+    </div>
+
+    <div
+        id="galleryProductHighlights"
+        style="
+            color:#444;
+            line-height:1.6;
+            white-space:pre-wrap;
+        "
+    >
+        Product highlights available nahi hain.
+    </div>
+
+    </div>
 <div style="
     display:flex;
     gap:12px;
