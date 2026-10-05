@@ -766,11 +766,13 @@ async function login(){
     document.getElementById("loginMsg");
 
   if(!email){
+    msg.style.color="#c00";
     msg.innerText="Admin email enter karein.";
     return;
   }
 
   if(!password){
+    msg.style.color="#c00";
     msg.innerText="Password enter karein.";
     return;
   }
@@ -780,186 +782,28 @@ async function login(){
     msg.style.color="#0878e8";
     msg.innerText="Login ho raha hai...";
 
-    const cred =
-      await auth.signInWithEmailAndPassword(
-        email,
-        password
-      );
-
-    const uid =
-      cred.user.uid;
-
     /*
-      Firebase Auth ke baad
-      adminUsers/{UID} check
+    =========================================
+    FIREBASE AUTH LOGIN
+    =========================================
     */
 
-    const adminSnap =
-      await db
-        .collection("adminUsers")
-        .doc(uid)
-        .get();
-
-    if(!adminSnap.exists){
-
-      await auth.signOut();
-
-      throw new Error(
-        "Admin record nahi mila. Super Admin se Admin create karein."
-      );
-    }
-
-    const admin =
-      adminSnap.data();
-
-    /*
-      Sirf normal Admin
-    */
-
-    if(admin.role !== "admin"){
-
-      await auth.signOut();
-
-      throw new Error(
-        "Is account ko Store Admin access nahi hai."
-      );
-    }
-
-    /*
-      Account active hona chahiye
-    */
-
-    if(admin.active !== true){
-
-      await auth.signOut();
-
-      throw new Error(
-        "Admin account disabled hai."
-      );
-    }
-
-    /*
-      Store assignment compulsory
-    */
-
-    const storeId =
-      String(admin.storeId || "").trim();
-
-    if(!storeId){
-
-      await auth.signOut();
-
-      throw new Error(
-        "Is Admin ko abhi koi Store assign nahi kiya gaya hai."
-      );
-    }
-
-    /*
-      Store exist karta hai ya nahi
-    */
-
-    const storeSnap =
-      await db
-        .collection("stores")
-        .doc(storeId)
-        .get();
-
-    if(!storeSnap.exists){
-
-      await auth.signOut();
-
-      throw new Error(
-        "Assigned Store Firebase me nahi mila."
-      );
-    }
-
-    const store =
-      storeSnap.data();
-
-    if(
-      String(store.status || "active")
-        .toLowerCase() !== "active"
-    ){
-
-      await auth.signOut();
-
-      throw new Error(
-        "Assigned Store inactive hai."
-      );
-    }
-
-    /*
-      Current Admin information
-    */
-
-    currentAdmin={
-      uid:uid,
-      name:admin.name || "",
-      email:admin.email || cred.user.email || "",
-      role:admin.role || "",
-      storeId:storeId,
-      storeName:
-        store.name ||
-        store.storeName ||
-        storeId,
-      active:true
-    };
-
-    /*
-      Session
-    */
-
-    sessionStorage.setItem(
-      "ssm_admin",
-      "1"
-    );
-
-    sessionStorage.setItem(
-      "ssm_admin_uid",
-      uid
-    );
-
-    sessionStorage.setItem(
-      "ssm_admin_storeId",
-      storeId
+    await auth.signInWithEmailAndPassword(
+      email,
+      password
     );
 
     /*
-      UI
+    IMPORTANT:
+    Yahan manually panel open nahi karenge.
+
+    Firebase ka onAuthStateChanged()
+    login ke baad admin + store check karega
+    aur wahi panel open karega.
     */
 
-    document.getElementById(
-      "loginPage"
-    ).style.display="none";
-
-    document.getElementById(
-      "app"
-    ).style.display="block";
-
-    document.getElementById(
-      "adminIdentity"
-    ).textContent =
-      admin.name ||
-      admin.email ||
-      cred.user.email ||
-      uid;
-
-    document.getElementById(
-      "storeTitle"
-    ).textContent =
-      currentAdmin.storeName;
-
-    document.getElementById(
-      "adminStoreInfo"
-    ).textContent =
-      "🏬 Store ID: " +
-      currentAdmin.storeId;
-
-    /*
-      Store-specific data start
-    */
-
-    startLive();
+    msg.style.color="#0878e8";
+    msg.innerText="Login successful. Panel load ho raha hai...";
 
   }catch(error){
 
@@ -975,7 +819,7 @@ async function login(){
       "auth/invalid-credential"
     ){
 
-      msg.innerText=
+      msg.innerText =
         "Email ya password galat hai.";
 
     }else if(
@@ -983,7 +827,7 @@ async function login(){
       "auth/user-disabled"
     ){
 
-      msg.innerText=
+      msg.innerText =
         "Firebase Auth account disabled hai.";
 
     }else if(
@@ -991,7 +835,7 @@ async function login(){
       "auth/too-many-requests"
     ){
 
-      msg.innerText=
+      msg.innerText =
         "Bahut baar login try hua hai. Thodi der baad try karein.";
 
     }else{
@@ -999,431 +843,10 @@ async function login(){
       msg.innerText =
         error.message ||
         "Admin login failed.";
-    }
-  }
-}
-async function logout(){
-
-  try{
-
-    unsubs.forEach(
-      f=>{
-        try{
-          if(f) f();
-        }catch(e){}
-      }
-    );
-
-    unsubs=[];
-
-  }catch(e){}
-
-  try{
-    await auth.signOut();
-  }catch(e){
-    console.error(e);
-  }
-
-  sessionStorage.removeItem("ssm_admin");
-  sessionStorage.removeItem("ssm_admin_uid");
-  sessionStorage.removeItem("ssm_admin_storeId");
-
-  currentAdmin={
-    uid:"",
-    name:"",
-    email:"",
-    role:"",
-    storeId:"",
-    storeName:"",
-    active:false
-  };
-
-  location.reload();
-}
-
-function startLive(){
-
-  // =========================
-  // OLD LISTENERS STOP
-  // =========================
-
-  unsubs.forEach(fn=>{
-    try{
-      if(fn) fn();
-    }catch(e){}
-  });
-
-  unsubs=[];
-
-
-  // =========================
-  // STORE CHECK
-  // =========================
-
-  const storeId =
-    String(currentAdmin.storeId || "")
-      .trim();
-
-
-  if(!storeId){
-
-    console.error(
-      "Admin storeId missing."
-    );
-
-    alert(
-      "Admin ke saath Store assign nahi hai."
-    );
-
-    return;
-  }
-
-
-  // =========================
-  // TOPBAR
-  // =========================
-
-  document.getElementById(
-    "storeTitle"
-  ).textContent =
-    currentAdmin.storeName ||
-    storeId;
-
-
-  document.getElementById(
-    "adminStoreInfo"
-  ).textContent =
-    "🏬 Store ID: " +
-    storeId;
-
-
-  // =========================
-  // STORE-WISE COLLECTIONS
-  // =========================
-
-  const storeCollections = [
-  "products",
-  "orders",
-  "customers",
-  "payments",
-  "complaints",
-  "returns",
-];
-
-
-  storeCollections.forEach(
-    collectionName => {
-
-      const unsubscribe =
-        db
-          .collection(collectionName)
-          .where(
-            "storeId",
-            "==",
-            storeId
-          )
-          .onSnapshot(
-
-            snapshot => {
-
-              data[collectionName] =
-                snapshot.docs.map(
-                  doc => ({
-
-                    id:doc.id,
-
-                    ...doc.data()
-
-                  })
-                );
-
-
-              renderAll();
-
-            },
-
-            error => {
-
-              console.error(
-                collectionName +
-                " listener error:",
-                error
-              );
-
-            }
-
-          );
-
-
-      unsubs.push(
-        unsubscribe
-      );
 
     }
-  );
 
-// =========================
-// DELIVERY PARTNERS
-// =========================
-
-const deliveryPartners = [];
-
-const riderStoreListener =
-  db
-    .collection("deliveryPartners")
-    .where("storeId", "==", storeId)
-    .onSnapshot(
-
-      snapshot => {
-
-        const riders =
-          snapshot.docs.map(doc => ({
-            id:doc.id,
-            ...doc.data()
-          }));
-
-        data.deliveryPartners = riders;
-
-        renderAll();
-
-      },
-
-      error => {
-
-        console.error(
-          "deliveryPartners storeId listener error:",
-          error
-        );
-
-      }
-
-    );
-
-unsubs.push(
-  riderStoreListener
-);
-  // =========================
-  // SELLERS
-  // =========================
-  //
-  // IMPORTANT:
-  // Pehle check kiya tha ki
-  // Seller collection ka naam
-  // "sellers" ya "Sellers" ho sakta hai.
-  //
-  // Abhi existing Admin code ke
-  // according lowercase use kar rahe hain.
-  //
-  // Baad me Firestore Rules ke saath
-  // collection name final karenge.
-  // =========================
-
-  const sellerUnsubscribe =
-    db
-      .collection("Sellers")
-      .where(
-        "storeId",
-        "==",
-        storeId
-      )
-      .onSnapshot(
-
-        snapshot => {
-
-          data.sellers =
-            snapshot.docs.map(
-              doc => ({
-
-                id:doc.id,
-
-                ...doc.data()
-
-              })
-            );
-
-
-          renderAll();
-
-        },
-
-        error => {
-
-          console.error(
-            "sellers listener error:",
-            error
-          );
-
-        }
-
-      );
-
-
-  unsubs.push(
-    sellerUnsubscribe
-  );
-
-
-  // =========================
-  // CATEGORIES
-  // =========================
-  //
-  // Categories abhi platform-wide
-  // rakhe ja rahe hain.
-  // =========================
-
-  const categoryUnsubscribe =
-    db
-      .collection("categories")
-      .onSnapshot(
-
-        snapshot => {
-
-          data.categories =
-            snapshot.docs.map(
-              doc => ({
-
-                id:doc.id,
-
-                ...doc.data()
-
-              })
-            );
-
-
-          renderCategories();
-
-        },
-
-        error => {
-
-          console.error(
-            "categories listener error:",
-            error
-          );
-
-        }
-
-      );
-
-
-  unsubs.push(
-    categoryUnsubscribe
-  );
-
-
-  // =========================
-  // STORE SETTINGS
-  // =========================
-  //
-  // Settings directly stores/{storeId}
-  // se aayengi.
-  // =========================
-
-  const storeUnsubscribe =
-    db
-      .collection("stores")
-      .doc(storeId)
-      .onSnapshot(
-
-        snapshot => {
-
-          if(!snapshot.exists){
-
-            console.error(
-              "Assigned Store not found:",
-              storeId
-            );
-
-            return;
-
-          }
-
-
-          const store =
-            snapshot.data();
-
-
-          data.settings = {
-
-            ...data.settings,
-
-            storeName:
-              store.name ||
-              store.storeName ||
-              currentAdmin.storeName,
-
-            phone:
-              store.phone || "",
-
-            email:
-              store.email || "",
-
-            commission:
-              Number(
-                store.commission || 0
-              ),
-
-            currency:
-              "₹",
-
-            delivery:
-              Number(
-                store.deliveryCharge || 0
-              ),
-
-            address:
-              store.address || ""
-
-          };
-
-
-          currentAdmin.storeName =
-            data.settings.storeName;
-
-
-          document.getElementById(
-            "storeTitle"
-          ).textContent =
-            data.settings.storeName;
-
-
-          document.getElementById(
-            "adminStoreInfo"
-          ).textContent =
-            "🏬 Store ID: " +
-            storeId;
-
-
-          loadSettings();
-
-          renderDashboard();
-
-        },
-
-        error => {
-
-          console.error(
-            "store settings error:",
-            error
-          );
-
-        }
-
-      );
-
-
-  unsubs.push(
-    storeUnsubscribe
-  );
-
-
-  // =========================
-  // INITIAL RENDER
-  // =========================
-
-  loadSettings();
-
-  renderAll();
+  }
 
 }
 
