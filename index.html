@@ -3006,7 +3006,8 @@ function loadSellerProducts(storeId = null) {
             const p = doc.data() || {};
 
             console.log("PRODUCT DATA:", doc.id, p);
-let productImages = [];
+
+            let productImages = [];
 
 if(Array.isArray(p.images)){
 
@@ -3045,15 +3046,41 @@ else if(
 
 }
 
+
+// Agar seller ne image1-image5 fields me save ki hain
+[
+    p.image1,
+    p.image2,
+    p.image3,
+    p.image4,
+    p.image5
+].forEach(function(img){
+
+    if(img && !productImages.includes(img)){
+
+        productImages.push(img);
+
+    }
+
+});
+
+
+// Main/old image
 if(
-    !productImages.length &&
-    p.image
+    p.image &&
+    !productImages.includes(p.image)
 ){
 
-    productImages =
-        [p.image];
+    productImages.unshift(p.image);
 
 }
+
+
+// Maximum 5 images
+productImages =
+    productImages
+        .filter(Boolean)
+        .slice(0,5);
             liveProducts.push([
                 p.category || "General",
 
