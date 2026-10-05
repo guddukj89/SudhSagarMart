@@ -1090,72 +1090,49 @@ $("earnToday").textContent =
 
   document.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",handleOrderAction));
 }
-async function handleOrderAction(e){
 
-  const b =
-    e.currentTarget;
+  async function handleOrderAction(e){
 
-  const action =
-    b.dataset.action;
+  const b = e.currentTarget;
 
-  const id =
-    b.dataset.id;
+  const action = b.dataset.action;
+  const id = b.dataset.id;
 
-  const o =
-    orders.find(
-      x => x.id === id
-    );
+  const o = orders.find(
+    x => x.id === id
+  );
 
-
-  // ================= NAVIGATION =================
+  // =====================================================
+  // NAVIGATION / CALL
+  // =====================================================
 
   if(action === "navigate"){
 
-    const lat =
-      b.dataset.lat;
-
-    const lng =
-      b.dataset.lng;
+    const lat = b.dataset.lat;
+    const lng = b.dataset.lng;
 
     if(!lat || !lng){
-
-      alert(
-        "Customer location available nahi hai."
-      );
-
+      alert("Customer location available nahi hai.");
       return;
-
     }
 
     const url =
       "https://www.google.com/maps/dir/?api=1" +
       "&destination=" +
-      encodeURIComponent(
-        lat + "," + lng
-      );
+      encodeURIComponent(lat + "," + lng);
 
-    window.open(
-      url,
-      "_blank"
-    );
-
+    window.open(url,"_blank");
     return;
   }
 
 
   if(action === "navigate_address"){
 
-    const address =
-      b.dataset.address;
+    const address = b.dataset.address;
 
     if(!address){
-
-      alert(
-        "Customer address available nahi hai."
-      );
-
+      alert("Customer address available nahi hai.");
       return;
-
     }
 
     const url =
@@ -1163,27 +1140,18 @@ async function handleOrderAction(e){
       "&destination=" +
       encodeURIComponent(address);
 
-    window.open(
-      url,
-      "_blank"
-    );
-
+    window.open(url,"_blank");
     return;
   }
 
 
-  // ================= CALL =================
-
   if(action === "call"){
 
-    const phone =
-      b.dataset.phone;
+    const phone = b.dataset.phone;
 
     if(phone){
-
       window.location.href =
         "tel:" + phone;
-
     }
 
     return;
@@ -1194,39 +1162,117 @@ async function handleOrderAction(e){
 
     alert("Order nahi mila.");
     return;
-
   }
 
+
+  // =====================================================
+  // CURRENT ORDER STATUS
+  // =====================================================
+
+  const normalizeStatus = value =>
+    String(value || "")
+      .toLowerCase()
+      .replaceAll("_"," ")
+      .trim();
+
+  const currentStatus =
+    normalizeStatus(
+      o.orderStatus || o.status
+    );
+
+  const assignmentStatus =
+    normalizeStatus(
+      o.deliveryAssignmentStatus
+    );
+
+
+  // =====================================================
+  // PAYMENT STATUS
+  // =====================================================
+
+  const paymentMethod =
+    String(
+      o.paymentMethod ||
+      o.payment ||
+      o.paymentType ||
+      ""
+    )
+      .toLowerCase()
+      .trim();
+
+  const paymentStatus =
+    String(
+      o.paymentStatus ||
+      ""
+    )
+      .toLowerCase()
+      .trim();
+
+  const isCOD =
+    paymentMethod.includes("cash") ||
+    paymentMethod === "cod" ||
+    paymentMethod === "cash on delivery";
+
+  const isPaid =
+    paymentStatus === "paid" ||
+    paymentStatus === "success" ||
+    paymentStatus === "successful" ||
+    paymentStatus === "completed" ||
+    o.paid === true ||
+    o.paymentPaid === true;
+
+
+  // =====================================================
+  // BUTTON DISABLED
+  // =====================================================
 
   try{
 
     b.disabled = true;
 
 
-    const orderRef =
-      doc(
-        db,
-        "orders",
-        id
-      );
-
-
-    // ================= ACCEPT =================
+    // ===================================================
+    // ACCEPT
+    // Allowed ONLY when order is assigned
+    // ===================================================
 
     if(action === "accept"){
 
+      if(
+        assignmentStatus !== "assigned"
+      ){
+
+        alert(
+          "⚠️ Ye order ab Accept karne ke liye available nahi hai."
+        );
+
+        return;
+      }
+
+      if(
+        ![
+          "assigned",
+          "ready for pickup"
+        ].includes(currentStatus)
+      ){
+
+        alert(
+          "⚠️ Order ka current step Accept ke liye valid nahi hai."
+        );
+
+        return;
+      }
+
+
       await updateDoc(
-        orderRef,
+        doc(db,"orders",id),
         {
 
-          status:
-            "accepted",
+          status:"accepted",
 
-          orderStatus:
-            "accepted",
+          orderStatus:"accepted",
 
-          deliveryBoyId:
-            partnerId,
+          deliveryBoyId:partnerId,
 
           deliveryBoyName:
             partnerData?.name ||
@@ -1238,11 +1284,9 @@ async function handleOrderAction(e){
             partnerData?.mobile ||
             "",
 
-          riderAccepted:
-            true,
+          riderAccepted:true,
 
-          deliveryAssignmentStatus:
-            "Accepted",
+          deliveryAssignmentStatus:"Accepted",
 
           deliveryAcceptedBy:
             partnerId,
@@ -1259,27 +1303,52 @@ async function handleOrderAction(e){
         }
       );
 
+      alert("✅ Order accepted.");
 
-      alert(
-        "Order accepted"
-      );
-
+      return;
     }
 
 
-    // ================= REJECT =================
+    // ===================================================
+    // REJECT
+    // Allowed ONLY before acceptance
+    // ===================================================
 
-    else if(action === "reject"){
+    if(action === "reject"){
+
+      if(
+        assignmentStatus !== "assigned"
+      ){
+
+        alert(
+          "⚠️ Ye order ab Reject nahi kiya ja sakta."
+        );
+
+        return;
+      }
+
+      if(
+        ![
+          "assigned",
+          "ready for pickup"
+        ].includes(currentStatus)
+      ){
+
+        alert(
+          "⚠️ Order already next step par hai."
+        );
+
+        return;
+      }
+
 
       await updateDoc(
-        orderRef,
+        doc(db,"orders",id),
         {
 
-          status:
-            "rejected",
+          status:"rejected",
 
-          orderStatus:
-            "rejected",
+          orderStatus:"rejected",
 
           rejectedBy:
             partnerId,
@@ -1293,27 +1362,38 @@ async function handleOrderAction(e){
         }
       );
 
+      alert("❌ Order rejected.");
 
-      alert(
-        "Order rejected"
-      );
-
+      return;
     }
 
 
-    // ================= PICKED =================
+    // ===================================================
+    // PICKED UP
+    // Allowed ONLY after ACCEPTED
+    // ===================================================
 
-    else if(action === "picked"){
+    if(action === "picked"){
+
+      if(
+        currentStatus !== "accepted"
+      ){
+
+        alert(
+          "⚠️ Pehle Order Accept karna zaroori hai."
+        );
+
+        return;
+      }
+
 
       await updateDoc(
-        orderRef,
+        doc(db,"orders",id),
         {
 
-          status:
-            "picked_up",
+          status:"picked_up",
 
-          orderStatus:
-            "picked_up",
+          orderStatus:"picked_up",
 
           pickedUpAt:
             serverTimestamp(),
@@ -1324,27 +1404,41 @@ async function handleOrderAction(e){
         }
       );
 
+      alert("📦 Order picked up.");
 
-      alert(
-        "Order picked up"
-      );
-
+      return;
     }
 
 
-    // ================= OUT =================
+    // ===================================================
+    // OUT FOR DELIVERY
+    // Allowed ONLY after PICKED UP
+    // ===================================================
 
-    else if(action === "out"){
+    if(action === "out"){
+
+      if(
+        ![
+          "picked up",
+          "picked_up"
+        ].includes(currentStatus)
+      ){
+
+        alert(
+          "⚠️ Pehle Order Picked Up karna zaroori hai."
+        );
+
+        return;
+      }
+
 
       await updateDoc(
-        orderRef,
+        doc(db,"orders",id),
         {
 
-          status:
-            "out_for_delivery",
+          status:"out_for_delivery",
 
-          orderStatus:
-            "out_for_delivery",
+          orderStatus:"out_for_delivery",
 
           outForDeliveryAt:
             serverTimestamp(),
@@ -1355,33 +1449,65 @@ async function handleOrderAction(e){
         }
       );
 
+      alert("🛵 Order Out for Delivery.");
 
-      alert(
-        "Order out for delivery"
-      );
-
+      return;
     }
 
 
-    // ================= CASH PAYMENT =================
+    // ===================================================
+    // CASH PAYMENT
+    // Allowed ONLY OUT FOR DELIVERY + COD
+    // ===================================================
 
-    else if(action === "cash_paid"){
+    if(action === "cash_paid"){
+
+      if(
+        ![
+          "out for delivery",
+          "out_for_delivery"
+        ].includes(currentStatus)
+      ){
+
+        alert(
+          "⚠️ Payment collect karne se pehle Order Out for Delivery hona chahiye."
+        );
+
+        return;
+      }
+
+
+      if(!isCOD){
+
+        alert(
+          "⚠️ Ye COD order nahi hai."
+        );
+
+        return;
+      }
+
+
+      if(isPaid){
+
+        alert(
+          "✅ Payment already paid hai."
+        );
+
+        return;
+      }
+
 
       await updateDoc(
-        orderRef,
+        doc(db,"orders",id),
         {
 
-          paymentMethod:
-            "Cash",
+          paymentMethod:"Cash",
 
-          payment:
-            "Cash",
+          payment:"Cash",
 
-          paymentStatus:
-            "Paid",
+          paymentStatus:"Paid",
 
-          paymentPaid:
-            true,
+          paymentPaid:true,
 
           paymentCollectedBy:
             partnerId,
@@ -1395,33 +1521,65 @@ async function handleOrderAction(e){
         }
       );
 
+      alert("✅ Cash payment received.");
 
-      alert(
-        "✅ Cash payment received."
-      );
-
+      return;
     }
 
 
-    // ================= UPI PAYMENT =================
+    // ===================================================
+    // UPI PAYMENT
+    // Allowed ONLY OUT FOR DELIVERY + COD
+    // ===================================================
 
-    else if(action === "upi_paid"){
+    if(action === "upi_paid"){
+
+      if(
+        ![
+          "out for delivery",
+          "out_for_delivery"
+        ].includes(currentStatus)
+      ){
+
+        alert(
+          "⚠️ Payment collect karne se pehle Order Out for Delivery hona chahiye."
+        );
+
+        return;
+      }
+
+
+      if(!isCOD){
+
+        alert(
+          "⚠️ Ye COD order nahi hai."
+        );
+
+        return;
+      }
+
+
+      if(isPaid){
+
+        alert(
+          "✅ Payment already paid hai."
+        );
+
+        return;
+      }
+
 
       await updateDoc(
-        orderRef,
+        doc(db,"orders",id),
         {
 
-          paymentMethod:
-            "UPI",
+          paymentMethod:"UPI",
 
-          payment:
-            "UPI",
+          payment:"UPI",
 
-          paymentStatus:
-            "Paid",
+          paymentStatus:"Paid",
 
-          paymentPaid:
-            true,
+          paymentPaid:true,
 
           paymentCollectedBy:
             partnerId,
@@ -1435,33 +1593,56 @@ async function handleOrderAction(e){
         }
       );
 
+      alert("✅ UPI payment marked as paid.");
 
-      alert(
-        "✅ UPI payment marked as paid."
-      );
-
+      return;
     }
 
 
-    // ================= DELIVER =================
+    // ===================================================
+    // DELIVER
+    // Allowed ONLY OUT FOR DELIVERY
+    // COD MUST BE PAID FIRST
+    // ===================================================
 
-    else if(action === "deliver"){
+    if(action === "deliver"){
+
+      if(
+        ![
+          "out for delivery",
+          "out_for_delivery"
+        ].includes(currentStatus)
+      ){
+
+        alert(
+          "⚠️ Pehle Order Out for Delivery hona chahiye."
+        );
+
+        return;
+      }
+
+
+      if(isCOD && !isPaid){
+
+        alert(
+          "⚠️ COD payment pehle receive/verify karein."
+        );
+
+        return;
+      }
+
 
       await updateDoc(
-        orderRef,
+        doc(db,"orders",id),
         {
 
-          status:
-            "delivered",
+          status:"delivered",
 
-          orderStatus:
-            "delivered",
+          orderStatus:"delivered",
 
-          deliveryPartnerEarning:
-            15,
+          deliveryPartnerEarning:15,
 
-          deliveryPayoutStatus:
-            "pending",
+          deliveryPayoutStatus:"pending",
 
           deliveredBy:
             partnerId,
@@ -1475,15 +1656,14 @@ async function handleOrderAction(e){
         }
       );
 
+      alert("✅ Order delivered successfully.");
 
-      alert(
-        "Order delivered successfully"
-      );
-
+      return;
     }
 
 
-  }catch(error){
+  }
+  catch(error){
 
     console.error(
       "Order action error:",
@@ -1491,18 +1671,19 @@ async function handleOrderAction(e){
     );
 
     alert(
-      "Order update failed: " +
+      "❌ Order update failed:\n\n" +
       error.message
     );
 
-  }finally{
+  }
+  finally{
 
-    b.disabled =
-      false;
+    b.disabled = false;
 
   }
 
 }
+
 async function loadPartner(){
   const ref=doc(db,"deliveryPartners",partnerId);
   const snap=await getDoc(ref);
