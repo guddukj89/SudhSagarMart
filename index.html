@@ -13,6 +13,7 @@
     <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-storage-compat.js"></script>
     
     <!-- Google Maps API -->
 <script
@@ -1330,7 +1331,9 @@ function renderCategories(){
 
       return `
 
-      <div class="product">
+   <div class="product"
+     onclick="openProductDetails(${i})"
+     style="cursor:pointer;">
 
         <!-- ========================= -->
         <!-- PRODUCT IMAGE SLIDER -->
@@ -7535,5 +7538,1849 @@ document.addEventListener(
   }
 );
  </script>
+    <!-- =========================================================
+     SUDH SAGAR MART
+     PRODUCT DETAIL + REVIEWS + PHOTO REVIEW + Q&A
+     ========================================================= -->
+
+<style>
+
+.ssm-detail-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  z-index:100000;
+  overflow-y:auto;
+  padding:12px;
+  box-sizing:border-box;
+}
+
+.ssm-detail-box{
+  width:100%;
+  max-width:1000px;
+  margin:20px auto;
+  background:#fff;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 10px 50px rgba(0,0,0,.3);
+}
+
+.ssm-detail-close{
+  position:fixed;
+  right:20px;
+  top:15px;
+  z-index:100002;
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:50%;
+  background:#fff;
+  font-size:25px;
+  cursor:pointer;
+}
+
+.ssm-detail-images{
+  background:#f7f7f7;
+  padding:15px;
+}
+
+.ssm-detail-main-image{
+  width:100%;
+  height:430px;
+  object-fit:contain;
+  background:#fff;
+  border-radius:12px;
+}
+
+.ssm-detail-thumbs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  margin-top:10px;
+}
+
+.ssm-detail-thumb{
+  width:70px;
+  height:70px;
+  object-fit:cover;
+  border-radius:8px;
+  border:2px solid #ddd;
+  cursor:pointer;
+  flex:none;
+  background:#fff;
+}
+
+.ssm-detail-thumb.active{
+  border-color:#a00080;
+}
+
+.ssm-detail-content{
+  padding:20px;
+}
+
+.ssm-detail-title{
+  font-size:24px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.ssm-detail-price{
+  font-size:26px;
+  font-weight:700;
+  color:#008b75;
+}
+
+.ssm-detail-mrp{
+  color:#888;
+  text-decoration:line-through;
+  margin-left:8px;
+}
+
+.ssm-detail-discount{
+  color:#d00;
+  font-weight:bold;
+  margin-left:8px;
+}
+
+.ssm-rating-box{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:12px 0;
+}
+
+.ssm-rating-badge{
+  background:#198754;
+  color:#fff;
+  padding:5px 9px;
+  border-radius:6px;
+  font-weight:bold;
+}
+
+.ssm-section{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid #eee;
+}
+
+.ssm-section h3{
+  margin:0 0 12px;
+  font-size:20px;
+}
+
+.ssm-review{
+  border-bottom:1px solid #eee;
+  padding:14px 0;
+}
+
+.ssm-review-stars{
+  color:#f5a623;
+  font-size:18px;
+}
+
+.ssm-review-photo{
+  width:85px;
+  height:85px;
+  object-fit:cover;
+  border-radius:8px;
+  margin:7px 5px 0 0;
+}
+
+.ssm-similar{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:8px;
+}
+
+.ssm-similar-card{
+  min-width:170px;
+  max-width:170px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  overflow:hidden;
+  background:#fff;
+  cursor:pointer;
+}
+
+.ssm-similar-card img{
+  width:100%;
+  height:150px;
+  object-fit:contain;
+  background:#fff;
+}
+
+.ssm-similar-info{
+  padding:9px;
+}
+
+.ssm-question{
+  padding:12px 0;
+  border-bottom:1px solid #eee;
+}
+
+.ssm-answer{
+  margin-top:7px;
+  padding:8px 10px;
+  background:#f7f7f7;
+  border-radius:7px;
+}
+
+.ssm-review-form{
+  background:#f8f8f8;
+  padding:15px;
+  border-radius:10px;
+}
+
+.ssm-review-form textarea{
+  width:100%;
+  box-sizing:border-box;
+  min-height:90px;
+}
+
+.ssm-star-buttons{
+  display:flex;
+  gap:4px;
+  margin:8px 0;
+}
+
+.ssm-star-buttons button{
+  border:0;
+  background:none;
+  font-size:30px;
+  color:#ccc;
+  cursor:pointer;
+}
+
+.ssm-star-buttons button.active{
+  color:#f5a623;
+}
+
+@media(max-width:700px){
+
+  .ssm-detail-overlay{
+    padding:0;
+  }
+
+  .ssm-detail-box{
+    margin:0;
+    min-height:100vh;
+    border-radius:0;
+  }
+
+  .ssm-detail-main-image{
+    height:330px;
+  }
+
+  .ssm-detail-title{
+    font-size:20px;
+  }
+
+  .ssm-detail-content{
+    padding:15px;
+  }
+
+  .ssm-similar-card{
+    min-width:145px;
+    max-width:145px;
+  }
+
+}
+
+</style>
+
+
+<script>
+
+let ssmDetailProduct = null;
+let ssmDetailImages = [];
+let ssmDetailImageIndex = 0;
+let ssmSelectedRating = 0;
+
+
+// =====================================================
+// GET PRODUCT ID
+// =====================================================
+
+function getProductId(product){
+
+  return String(
+    product[6] ||
+    ""
+  ).trim();
+
+}
+
+
+// =====================================================
+// GET PRODUCT IMAGES
+// =====================================================
+
+function getProductImages(product){
+
+  let images = [];
+
+  if(Array.isArray(product[9])){
+    images = product[9].filter(Boolean);
+  }
+
+  if(!images.length && product[4]){
+    images = [product[4]];
+  }
+
+  return images.slice(0,5);
+
+}
+
+
+// =====================================================
+// OPEN PRODUCT DETAILS
+// =====================================================
+
+async function openProductDetails(index){
+
+  const product = products[index];
+
+  if(!product){
+    return alert("Product nahi mila.");
+  }
+
+  ssmDetailProduct = product;
+  ssmDetailImages = getProductImages(product);
+  ssmDetailImageIndex = 0;
+
+  let old =
+    document.getElementById("ssmProductDetailModal");
+
+  if(old){
+    old.remove();
+  }
+
+  const modal =
+    document.createElement("div");
+
+  modal.id =
+    "ssmProductDetailModal";
+
+  modal.className =
+    "ssm-detail-overlay";
+
+  modal.innerHTML = `
+
+    <button
+      class="ssm-detail-close"
+      onclick="closeProductDetails()">
+      ×
+    </button>
+
+    <div class="ssm-detail-box">
+
+      <!-- IMAGE SECTION -->
+
+      <div class="ssm-detail-images">
+
+        <img
+          id="ssmDetailMainImage"
+          class="ssm-detail-main-image"
+          src="${esc(ssmDetailImages[0] || "")}"
+          alt="${esc(product[1] || "Product")}">
+
+        <div
+          id="ssmDetailThumbs"
+          class="ssm-detail-thumbs">
+        </div>
+
+      </div>
+
+
+      <!-- PRODUCT INFORMATION -->
+
+      <div class="ssm-detail-content">
+
+        <div class="ssm-detail-title">
+          ${esc(product[1] || "Product")}
+        </div>
+
+        <div style="font-size:12px;color:#777;">
+          ${esc(product[0] || "General")}
+        </div>
+
+
+        <div style="margin-top:12px;">
+
+          <span class="ssm-detail-price">
+            ₹${Number(product[2] || 0).toLocaleString("en-IN")}
+          </span>
+
+          ${
+            Number(product[3]) > Number(product[2])
+            ?
+            `
+            <span class="ssm-detail-mrp">
+              ₹${Number(product[3]).toLocaleString("en-IN")}
+            </span>
+            `
+            :
+            ""
+          }
+
+          ${
+            Number(product[3]) > Number(product[2])
+            ?
+            `
+            <span class="ssm-detail-discount">
+              ${Math.round(
+                ((Number(product[3])-Number(product[2]))
+                /Number(product[3]))*100
+              )}% OFF
+            </span>
+            `
+            :
+            ""
+          }
+
+        </div>
+
+
+        <div
+          id="ssmDetailRating"
+          class="ssm-rating-box">
+          ⭐ Loading ratings...
+        </div>
+
+
+        <div
+          id="ssmDetailStock"
+          style="margin-top:8px;font-weight:bold;">
+        </div>
+
+
+        <!-- DELIVERY -->
+
+        <div style="
+          margin-top:15px;
+          padding:12px;
+          background:#fff7e6;
+          border-radius:10px;
+        ">
+
+          🚚 <b>Delivery</b>
+
+          <div style="
+            margin-top:5px;
+            font-size:13px;
+            color:#555;
+          ">
+
+            ${
+              customerStoreName
+              ?
+              "Delivery available through " +
+              esc(customerStoreName)
+              :
+              "Delivery availability check karne ke liye location set karein."
+            }
+
+          </div>
+
+        </div>
+
+
+        <!-- DESCRIPTION -->
+
+        <div class="ssm-section">
+
+          <h3>📄 Product Description</h3>
+
+          <div style="
+            color:#555;
+            line-height:1.6;
+            white-space:pre-wrap;
+          ">
+
+            ${esc(
+              product[10] ||
+              "Product description available nahi hai."
+            )}
+
+          </div>
+
+        </div>
+
+
+        <!-- BUTTONS -->
+
+        <div style="
+          display:flex;
+          gap:10px;
+          margin-top:20px;
+        ">
+
+          <button
+            class="add"
+            style="flex:1;"
+            onclick="
+              event.stopPropagation();
+              addCart(
+                products.indexOf(ssmDetailProduct)
+              );
+            ">
+
+            🛒 Add to Cart
+
+          </button>
+
+
+          <button
+            class="primary"
+            style="flex:1;"
+            onclick="
+              event.stopPropagation();
+              closeProductDetails();
+              buyNow(
+                products.indexOf(ssmDetailProduct)
+              );
+            ">
+
+            ⚡ Buy Now
+
+          </button>
+
+        </div>
+
+
+        <!-- REVIEWS -->
+
+        <div class="ssm-section">
+
+          <h3>⭐ Ratings & Reviews</h3>
+
+          <div id="ssmReviewsSummary">
+            Loading...
+          </div>
+
+          <div id="ssmReviewsList">
+            Loading reviews...
+          </div>
+
+        </div>
+
+
+        <!-- WRITE REVIEW -->
+
+        <div class="ssm-section">
+
+          <h3>✍️ Write a Review</h3>
+
+          <div class="ssm-review-form">
+
+            <div style="font-weight:bold;">
+              Your Rating
+            </div>
+
+            <div class="ssm-star-buttons">
+
+              ${[1,2,3,4,5].map(n => `
+                <button
+                  type="button"
+                  id="ssmStar${n}"
+                  onclick="selectSSMRating(${n})">
+                  ★
+                </button>
+              `).join("")}
+
+            </div>
+
+
+            <textarea
+              id="ssmReviewText"
+              placeholder="Apna review likhein...">
+            </textarea>
+
+
+            <div style="margin-top:10px;">
+
+              <label style="font-weight:bold;">
+                📷 Product ki photo
+              </label>
+
+              <input
+                id="ssmReviewPhoto"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                style="margin-top:8px;">
+
+              <div style="
+                font-size:11px;
+                color:#777;
+                margin-top:5px;
+              ">
+                Camera se photo kheenchkar ya gallery se photo select kar sakte hain.
+              </div>
+
+            </div>
+
+
+            <button
+              class="primary"
+              style="margin-top:12px;width:100%;"
+              onclick="submitSSMReview()">
+
+              ⭐ Submit Review
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- QUESTIONS -->
+
+        <div class="ssm-section">
+
+          <h3>❓ Questions & Answers</h3>
+
+          <div style="
+            display:flex;
+            gap:7px;
+          ">
+
+            <input
+              id="ssmQuestionInput"
+              placeholder="Product ke baare me question poochein..."
+              style="margin:0;">
+
+            <button
+              class="primary"
+              onclick="submitSSMQuestion()">
+
+              Ask
+
+            </button>
+
+          </div>
+
+          <div
+            id="ssmQuestionsList"
+            style="margin-top:15px;">
+
+            Loading...
+
+          </div>
+
+        </div>
+
+
+        <!-- SIMILAR PRODUCTS -->
+
+        <div class="ssm-section">
+
+          <h3>🛍️ Similar Products</h3>
+
+          <div
+            id="ssmSimilarProducts"
+            class="ssm-similar">
+
+            Loading...
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.body.style.overflow = "hidden";
+
+  renderSSMDetailThumbnails();
+
+  const stock =
+    Number(product[5] || 0);
+
+  document.getElementById(
+    "ssmDetailStock"
+  ).innerHTML =
+    stock > 0
+      ? `✅ In Stock: ${stock}`
+      : `❌ Out of Stock`;
+
+
+  await loadSSMReviews();
+
+  await loadSSMQuestions();
+
+  loadSSMSimilarProducts();
+
+}
+
+
+// =====================================================
+// CLOSE
+// =====================================================
+
+function closeProductDetails(){
+
+  const modal =
+    document.getElementById(
+      "ssmProductDetailModal"
+    );
+
+  if(modal){
+    modal.remove();
+  }
+
+  document.body.style.overflow = "";
+
+  ssmDetailProduct = null;
+  ssmDetailImages = [];
+  ssmDetailImageIndex = 0;
+}
+
+
+// =====================================================
+// RENDER THUMBNAILS
+// =====================================================
+
+function renderSSMDetailThumbnails(){
+
+  const box =
+    document.getElementById(
+      "ssmDetailThumbs"
+    );
+
+  const main =
+    document.getElementById(
+      "ssmDetailMainImage"
+    );
+
+  if(!box || !main) return;
+
+  box.innerHTML = "";
+
+  ssmDetailImages.forEach(
+    function(img,index){
+
+      const image =
+        document.createElement("img");
+
+      image.src = img;
+
+      image.className =
+        "ssm-detail-thumb" +
+        (
+          index === ssmDetailImageIndex
+          ? " active"
+          : ""
+        );
+
+      image.onclick =
+        function(){
+
+          ssmDetailImageIndex =
+            index;
+
+          main.src =
+            ssmDetailImages[index];
+
+          renderSSMDetailThumbnails();
+
+        };
+
+      box.appendChild(image);
+
+    }
+  );
+
+}
+
+
+// =====================================================
+// DETAIL IMAGE NEXT/PREV
+// =====================================================
+
+function ssmDetailNextImage(){
+
+  if(ssmDetailImages.length <= 1){
+    return;
+  }
+
+  ssmDetailImageIndex++;
+
+  if(
+    ssmDetailImageIndex >=
+    ssmDetailImages.length
+  ){
+    ssmDetailImageIndex = 0;
+  }
+
+  renderSSMDetailThumbnails();
+
+  document.getElementById(
+    "ssmDetailMainImage"
+  ).src =
+    ssmDetailImages[
+      ssmDetailImageIndex
+    ];
+}
+
+function ssmDetailPreviousImage(){
+
+  if(ssmDetailImages.length <= 1){
+    return;
+  }
+
+  ssmDetailImageIndex--;
+
+  if(ssmDetailImageIndex < 0){
+    ssmDetailImageIndex =
+      ssmDetailImages.length - 1;
+  }
+
+  renderSSMDetailThumbnails();
+
+  document.getElementById(
+    "ssmDetailMainImage"
+  ).src =
+    ssmDetailImages[
+      ssmDetailImageIndex
+    ];
+}
+
+
+// =====================================================
+// RATING SELECT
+// =====================================================
+
+function selectSSMRating(rating){
+
+  ssmSelectedRating = rating;
+
+  for(let i=1;i<=5;i++){
+
+    const btn =
+      document.getElementById(
+        "ssmStar" + i
+      );
+
+    if(!btn) continue;
+
+    btn.classList.toggle(
+      "active",
+      i <= rating
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// LOAD REVIEWS
+// =====================================================
+
+async function loadSSMReviews(){
+
+  const productId =
+    getProductId(ssmDetailProduct);
+
+  const summary =
+    document.getElementById(
+      "ssmReviewsSummary"
+    );
+
+  const list =
+    document.getElementById(
+      "ssmReviewsList"
+    );
+
+  if(!productId){
+
+    summary.innerHTML =
+      "Rating available nahi hai.";
+
+    list.innerHTML =
+      "";
+
+    return;
+  }
+
+  try{
+
+    const snap =
+      await db
+        .collection("reviews")
+        .where(
+          "productId",
+          "==",
+          productId
+        )
+        .where(
+          "status",
+          "==",
+          "published"
+        )
+        .get();
+
+    let reviews = [];
+
+    snap.forEach(doc => {
+
+      reviews.push({
+        id:doc.id,
+        ...doc.data()
+      });
+
+    });
+
+
+    let total = 0;
+
+    reviews.forEach(
+      r => total +=
+        Number(r.rating || 0)
+    );
+
+    const average =
+      reviews.length
+      ? total / reviews.length
+      : 0;
+
+
+    summary.innerHTML = `
+
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:15px;
+        padding:12px;
+        background:#f7f7f7;
+        border-radius:10px;
+      ">
+
+        <div style="
+          font-size:35px;
+          font-weight:bold;
+        ">
+          ${average.toFixed(1)}
+        </div>
+
+        <div>
+
+          <div style="
+            color:#f5a623;
+            font-size:20px;
+          ">
+            ${getSSMStars(average)}
+          </div>
+
+          <div style="
+            color:#777;
+            font-size:13px;
+          ">
+            ${reviews.length} Reviews
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    if(!reviews.length){
+
+      list.innerHTML =
+        `<div style="
+          padding:20px 0;
+          color:#777;
+        ">
+          Abhi koi review nahi hai. Pehla review aap dein.
+        </div>`;
+
+      return;
+    }
+
+
+    reviews.sort(
+      (a,b) =>
+        getSSMTime(b.createdAt) -
+        getSSMTime(a.createdAt)
+    );
+
+
+    list.innerHTML =
+      reviews.map(
+        r => `
+
+          <div class="ssm-review">
+
+            <div>
+
+              <b>
+                ${esc(
+                  r.customerName ||
+                  "Customer"
+                )}
+              </b>
+
+              <span style="
+                color:#777;
+                font-size:12px;
+                margin-left:7px;
+              ">
+                ${formatSSMDate(r.createdAt)}
+              </span>
+
+            </div>
+
+
+            <div class="ssm-review-stars">
+              ${getSSMStars(
+                Number(r.rating || 0)
+              )}
+            </div>
+
+
+            ${
+              r.review
+              ?
+              `
+              <div style="
+                margin-top:6px;
+                line-height:1.5;
+              ">
+                ${esc(r.review)}
+              </div>
+              `
+              :
+              ""
+            }
+
+
+            ${
+              r.photoUrl
+              ?
+              `
+              <div>
+                <img
+                  src="${esc(r.photoUrl)}"
+                  class="ssm-review-photo"
+                  onclick="window.open('${esc(r.photoUrl)}','_blank')">
+              </div>
+              `
+              :
+              ""
+            }
+
+          </div>
+
+        `
+      ).join("");
+
+
+  }catch(error){
+
+    console.error(
+      "Review load error:",
+      error
+    );
+
+    summary.innerHTML =
+      "Rating load nahi ho paya.";
+
+    list.innerHTML =
+      "Reviews load nahi ho paye.";
+
+  }
+
+}
+
+
+// =====================================================
+// STARS
+// =====================================================
+
+function getSSMStars(rating){
+
+  rating =
+    Math.max(
+      0,
+      Math.min(
+        5,
+        Number(rating || 0)
+      )
+    );
+
+  const full =
+    Math.round(rating);
+
+  return (
+    "★".repeat(full) +
+    "☆".repeat(5-full)
+  );
+
+}
+
+
+// =====================================================
+// SUBMIT REVIEW
+// =====================================================
+
+async function submitSSMReview(){
+
+  const user =
+    auth.currentUser;
+
+  if(!user){
+
+    return alert(
+      "Review dene ke liye pehle login karein."
+    );
+
+  }
+
+  if(!ssmDetailProduct){
+
+    return alert(
+      "Product nahi mila."
+    );
+
+  }
+
+  if(!ssmSelectedRating){
+
+    return alert(
+      "Please rating select karein."
+    );
+
+  }
+
+  const review =
+    document.getElementById(
+      "ssmReviewText"
+    ).value.trim();
+
+  const photoInput =
+    document.getElementById(
+      "ssmReviewPhoto"
+    );
+
+  const productId =
+    getProductId(
+      ssmDetailProduct
+    );
+
+
+  if(!productId){
+
+    return alert(
+      "Product ID nahi mila."
+    );
+
+  }
+
+
+  try{
+
+    const reviewId =
+      productId + "_" + user.uid;
+
+    const existing =
+      await db
+        .collection("reviews")
+        .doc(reviewId)
+        .get();
+
+    if(existing.exists){
+
+      return alert(
+        "Aap is product par already review de chuke hain."
+      );
+
+    }
+
+
+    let photoUrl = "";
+
+
+    // PHOTO UPLOAD
+
+    if(
+      photoInput &&
+      photoInput.files &&
+      photoInput.files[0]
+    ){
+
+      const file =
+        photoInput.files[0];
+
+
+      if(file.size > 5 * 1024 * 1024){
+
+        return alert(
+          "Photo maximum 5 MB ki honi chahiye."
+        );
+
+      }
+
+
+      const path =
+        "reviewPhotos/" +
+        productId +
+        "/" +
+        user.uid +
+        "_" +
+        Date.now() +
+        "_" +
+        file.name;
+
+
+      const storageRef =
+        storage.ref(path);
+
+
+      await storageRef.put(file);
+
+
+      photoUrl =
+        await storageRef.getDownloadURL();
+
+    }
+
+
+    await db
+      .collection("reviews")
+      .doc(reviewId)
+      .set({
+
+        productId:
+          productId,
+
+        productName:
+          ssmDetailProduct[1] || "",
+
+        sellerId:
+          ssmDetailProduct[7] || "",
+
+        customerId:
+          user.uid,
+
+        customerName:
+          user.displayName ||
+          localStorage.getItem(
+            "ssm_user_name"
+          ) ||
+          "Customer",
+
+        rating:
+          Number(ssmSelectedRating),
+
+        review:
+          review,
+
+        photoUrl:
+          photoUrl,
+
+        status:
+          "published",
+
+        createdAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp()
+
+      });
+
+
+    alert(
+      "⭐ Aapka review successfully submit ho gaya."
+    );
+
+
+    ssmSelectedRating = 0;
+
+    document.getElementById(
+      "ssmReviewText"
+    ).value = "";
+
+    if(photoInput){
+      photoInput.value = "";
+    }
+
+    selectSSMRating(0);
+
+    await loadSSMReviews();
+
+
+  }catch(error){
+
+    console.error(
+      "Review submit error:",
+      error
+    );
+
+    alert(
+      "Review submit nahi ho paya.\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// QUESTIONS
+// =====================================================
+
+async function loadSSMQuestions(){
+
+  const box =
+    document.getElementById(
+      "ssmQuestionsList"
+    );
+
+  if(!box) return;
+
+  const productId =
+    getProductId(
+      ssmDetailProduct
+    );
+
+  if(!productId){
+
+    box.innerHTML =
+      "Questions available nahi hain.";
+
+    return;
+
+  }
+
+
+  try{
+
+    const snap =
+      await db
+        .collection("questions")
+        .where(
+          "productId",
+          "==",
+          productId
+        )
+        .where(
+          "status",
+          "==",
+          "published"
+        )
+        .get();
+
+
+    const questions = [];
+
+    snap.forEach(doc => {
+
+      questions.push({
+        id:doc.id,
+        ...doc.data()
+      });
+
+    });
+
+
+    questions.sort(
+      (a,b) =>
+        getSSMTime(b.createdAt) -
+        getSSMTime(a.createdAt)
+    );
+
+
+    if(!questions.length){
+
+      box.innerHTML =
+        `<div style="color:#777;">
+          Abhi koi question nahi hai.
+        </div>`;
+
+      return;
+
+    }
+
+
+    box.innerHTML =
+      questions.map(q => `
+
+        <div class="ssm-question">
+
+          <b>
+            ❓ ${esc(q.question)}
+          </b>
+
+          ${
+            q.answer
+            ?
+            `
+            <div class="ssm-answer">
+
+              <b>💬 Answer:</b><br>
+
+              ${esc(q.answer)}
+
+            </div>
+            `
+            :
+            `
+            <div style="
+              margin-top:6px;
+              color:#999;
+              font-size:12px;
+            ">
+              ⏳ Answer ka wait hai.
+            </div>
+            `
+          }
+
+        </div>
+
+      `).join("");
+
+
+  }catch(error){
+
+    console.error(
+      "Questions load error:",
+      error
+    );
+
+    box.innerHTML =
+      "Questions load nahi ho paye.";
+
+  }
+
+}
+
+
+// =====================================================
+// ASK QUESTION
+// =====================================================
+
+async function submitSSMQuestion(){
+
+  const user =
+    auth.currentUser;
+
+  if(!user){
+
+    return alert(
+      "Question poochne ke liye pehle login karein."
+    );
+
+  }
+
+
+  const input =
+    document.getElementById(
+      "ssmQuestionInput"
+    );
+
+  const question =
+    input.value.trim();
+
+
+  if(!question){
+
+    return alert(
+      "Question likhein."
+    );
+
+  }
+
+
+  const productId =
+    getProductId(
+      ssmDetailProduct
+    );
+
+
+  if(!productId){
+
+    return alert(
+      "Product ID nahi mila."
+    );
+
+  }
+
+
+  try{
+
+    await db
+      .collection("questions")
+      .add({
+
+        productId:
+          productId,
+
+        productName:
+          ssmDetailProduct[1] || "",
+
+        sellerId:
+          ssmDetailProduct[7] || "",
+
+        customerId:
+          user.uid,
+
+        customerName:
+          user.displayName ||
+          localStorage.getItem(
+            "ssm_user_name"
+          ) ||
+          "Customer",
+
+        question:
+          question,
+
+        answer:
+          "",
+
+        status:
+          "published",
+
+        createdAt:
+          firebase.firestore.FieldValue
+            .serverTimestamp()
+
+      });
+
+
+    input.value = "";
+
+    alert(
+      "❓ Question submit ho gaya."
+    );
+
+
+    await loadSSMQuestions();
+
+
+  }catch(error){
+
+    console.error(
+      "Question submit error:",
+      error
+    );
+
+    alert(
+      "Question submit nahi ho paya.\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// SIMILAR PRODUCTS
+// =====================================================
+
+function loadSSMSimilarProducts(){
+
+  const box =
+    document.getElementById(
+      "ssmSimilarProducts"
+    );
+
+  if(!box || !ssmDetailProduct){
+    return;
+  }
+
+
+  const category =
+    ssmDetailProduct[0];
+
+
+  const currentId =
+    getProductId(
+      ssmDetailProduct
+    );
+
+
+  let similar =
+    products.filter(p => {
+
+      if(
+        getProductId(p) === currentId
+      ){
+        return false;
+      }
+
+      return (
+        String(p[0]).toLowerCase() ===
+        String(category).toLowerCase()
+      );
+
+    });
+
+
+  // Same category na mile to products dikhao
+
+  if(!similar.length){
+
+    similar =
+      products.filter(
+        p =>
+          getProductId(p) !== currentId
+      );
+
+  }
+
+
+  similar =
+    similar.slice(0,10);
+
+
+  if(!similar.length){
+
+    box.innerHTML =
+      `<div style="color:#777;">
+        Similar products available nahi hain.
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    similar.map(p => {
+
+      const index =
+        products.indexOf(p);
+
+      const images =
+        getProductImages(p);
+
+      const image =
+        images[0] || "";
+
+
+      return `
+
+        <div
+          class="ssm-similar-card"
+          onclick="
+            closeProductDetails();
+            setTimeout(
+              function(){
+                openProductDetails(${index});
+              },
+              100
+            );
+          "
+        >
+
+          <img
+            src="${esc(image)}"
+            alt="${esc(p[1] || "Product")}"
+            onerror="this.style.display='none'"
+          >
+
+          <div class="ssm-similar-info">
+
+            <div style="
+              font-size:13px;
+              font-weight:600;
+              height:38px;
+              overflow:hidden;
+            ">
+              ${esc(p[1] || "Product")}
+            </div>
+
+            <div style="
+              margin-top:5px;
+              font-weight:bold;
+              color:#008b75;
+            ">
+              ₹${Number(p[2] || 0).toLocaleString("en-IN")}
+            </div>
+
+            ${
+              Number(p[3]) > Number(p[2])
+              ?
+              `
+              <div style="
+                font-size:11px;
+                color:#999;
+                text-decoration:line-through;
+              ">
+                ₹${Number(p[3]).toLocaleString("en-IN")}
+              </div>
+              `
+              :
+              ""
+            }
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+// =====================================================
+// TIME HELPERS
+// =====================================================
+
+function getSSMTime(value){
+
+  if(!value){
+    return 0;
+  }
+
+  try{
+
+    if(
+      typeof value.toMillis ===
+      "function"
+    ){
+      return value.toMillis();
+    }
+
+    if(
+      typeof value.toDate ===
+      "function"
+    ){
+      return value.toDate().getTime();
+    }
+
+    const d =
+      new Date(value);
+
+    return isNaN(d.getTime())
+      ? 0
+      : d.getTime();
+
+  }catch(e){
+
+    return 0;
+
+  }
+
+}
+
+
+function formatSSMDate(value){
+
+  const time =
+    getSSMTime(value);
+
+  if(!time){
+    return "";
+  }
+
+  return new Date(time)
+    .toLocaleDateString(
+      "en-IN",
+      {
+        day:"2-digit",
+        month:"short",
+        year:"numeric"
+      }
+    );
+
+}
+
+
+// =====================================================
+// MOBILE IMAGE SWIPE
+// =====================================================
+
+document.addEventListener(
+  "touchstart",
+  function(e){
+
+    const modal =
+      document.getElementById(
+        "ssmProductDetailModal"
+      );
+
+    if(!modal) return;
+
+    modal.dataset.touchStartX =
+      e.touches[0].clientX;
+
+  },
+  {passive:true}
+);
+
+
+document.addEventListener(
+  "touchend",
+  function(e){
+
+    const modal =
+      document.getElementById(
+        "ssmProductDetailModal"
+      );
+
+    if(!modal) return;
+
+    const start =
+      Number(
+        modal.dataset.touchStartX || 0
+      );
+
+    const end =
+      e.changedTouches[0].clientX;
+
+    const diff =
+      start - end;
+
+    if(Math.abs(diff) < 50){
+      return;
+    }
+
+    if(diff > 0){
+      ssmDetailNextImage();
+    }else{
+      ssmDetailPreviousImage();
+    }
+
+  },
+  {passive:true}
+);
+
+
+// =====================================================
+// ESC CLOSE
+// =====================================================
+
+document.addEventListener(
+  "keydown",
+  function(e){
+
+    if(
+      e.key === "Escape" &&
+      document.getElementById(
+        "ssmProductDetailModal"
+      )
+    ){
+
+      closeProductDetails();
+
+    }
+
+  }
+);
+
+</script>
 </body>
 </html>
