@@ -528,8 +528,7 @@ function renderOrder(o,type){
       0
     );
 
-
-  // ================= PAYMENT =================
+  // ================= PAYMENT STATUS =================
 
   const rawPaymentMethod =
     String(
@@ -558,58 +557,15 @@ function renderOrder(o,type){
     o.paid === true ||
     o.paymentPaid === true;
 
+  // ================= STATUS =================
+
+  const s = orderStatus(o);
+
+  // ================= PAYMENT DISPLAY =================
 
   let paymentHTML = "";
 
-  if(isCOD && !isPaid){
-
-    paymentHTML = `
-      <div class="paymentBox"
-        style="
-          margin-top:10px;
-          padding:12px;
-          border:1px solid #ddd;
-          border-radius:8px;
-          background:#fff8e1;
-        ">
-
-        <div>
-          <b>💳 Payment: COD</b>
-        </div>
-
-        <div style="margin-top:5px">
-          Amount: <b>${money(total)}</b>
-        </div>
-
-        <div style="
-          margin-top:10px;
-          display:flex;
-          gap:8px;
-          flex-wrap:wrap;
-        ">
-
-          <button
-            class="btn green"
-            data-action="cash_paid"
-            data-id="${escapeHtml(id)}">
-            💵 Cash Received
-          </button>
-
-          <button
-            class="btn blue"
-            data-action="upi_paid"
-            data-id="${escapeHtml(id)}">
-            📱 UPI Paid
-          </button>
-
-        </div>
-
-      </div>
-    `;
-
-  }
-
-  else if(isPaid){
+  if(isPaid){
 
     paymentHTML = `
       <div
@@ -621,9 +577,27 @@ function renderOrder(o,type){
           color:#176b2c;
           font-weight:bold;
         ">
-        ✅ Payment: Paid Online
+        ✅ Payment: Paid
         <br>
         Amount: ${money(total)}
+      </div>
+    `;
+
+  }
+
+  else if(isCOD){
+
+    paymentHTML = `
+      <div
+        style="
+          margin-top:10px;
+          padding:10px;
+          border-radius:8px;
+          background:#fff3cd;
+        ">
+        💳 Payment: COD
+        <br>
+        Amount: <b>${money(total)}</b>
       </div>
     `;
 
@@ -669,7 +643,6 @@ function renderOrder(o,type){
     o.lng ??
     "";
 
-
   let navigationHTML = "";
 
   if(
@@ -708,14 +681,9 @@ function renderOrder(o,type){
   }
 
 
-  // ================= STATUS =================
-
-  const s = orderStatus(o);
+  // ================= PRODUCTS =================
 
   let productHTML = "";
-
-
-  // ================= PRODUCTS =================
 
   if(items.length){
 
@@ -835,10 +803,13 @@ function renderOrder(o,type){
   }
 
 
-  // ================= ACTION BUTTONS =================
+  // =====================================================
+  // STEP-BY-STEP ACTION BUTTONS
+  // =====================================================
 
   let buttons = "";
 
+  // ================= NEW ORDER =================
 
   if(type === "new"){
 
@@ -860,8 +831,13 @@ function renderOrder(o,type){
 
   }
 
+  // ================= ONGOING =================
 
   else if(type === "ongoing"){
+
+    // -----------------------------------------
+    // STEP 1 → ACCEPTED
+    // -----------------------------------------
 
     if(s === "accepted"){
 
@@ -876,11 +852,13 @@ function renderOrder(o,type){
 
     }
 
+    // -----------------------------------------
+    // STEP 2 → PICKED UP
+    // -----------------------------------------
+
     else if(
-      [
-        "picked up",
-        "picked_up"
-      ].includes(s)
+      s === "picked up" ||
+      s === "picked_up"
     ){
 
       buttons = `
@@ -894,7 +872,79 @@ function renderOrder(o,type){
 
     }
 
-    else{
+    // -----------------------------------------
+    // STEP 3 → OUT FOR DELIVERY
+    // -----------------------------------------
+
+    else if(
+      s === "out for delivery" ||
+      s === "out_for_delivery"
+    ){
+
+      // COD unpaid → payment buttons
+      if(isCOD && !isPaid){
+
+        buttons = `
+          <div
+            style="
+              margin-top:10px;
+              padding:10px;
+              border-radius:8px;
+              background:#fff8e1;
+            ">
+
+            <b>💰 Collect Payment</b>
+
+            <div
+              style="
+                margin-top:8px;
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+              ">
+
+              <button
+                class="btn green"
+                data-action="cash_paid"
+                data-id="${escapeHtml(id)}">
+                💵 Cash Received
+              </button>
+
+              <button
+                class="btn blue"
+                data-action="upi_paid"
+                data-id="${escapeHtml(id)}">
+                📱 UPI Paid
+              </button>
+
+            </div>
+
+          </div>
+        `;
+
+      }
+
+      // Already paid → direct delivery
+      else{
+
+        buttons = `
+          <button
+            class="btn green"
+            data-action="deliver"
+            data-id="${escapeHtml(id)}">
+            ✓ Verify & Deliver
+          </button>
+        `;
+
+      }
+
+    }
+
+    // -----------------------------------------
+    // PAYMENT PAID BUT STATUS STILL OUT
+    // -----------------------------------------
+
+    else if(isPaid){
 
       buttons = `
         <button
@@ -907,7 +957,28 @@ function renderOrder(o,type){
 
     }
 
+    // -----------------------------------------
+    // UNKNOWN ONGOING STATE
+    // -----------------------------------------
 
+    else{
+
+      buttons = `
+        <div
+          style="
+            padding:10px;
+            background:#f5f5f5;
+            border-radius:8px;
+            color:#666;
+            margin-top:8px;
+          ">
+          Waiting for next step...
+        </div>
+      `;
+
+    }
+
+    // Call Customer हमेशा available
     if(phone){
 
       buttons += `
@@ -923,6 +994,8 @@ function renderOrder(o,type){
 
   }
 
+
+  // ================= FINAL CARD =================
 
   return `
     <div class="order">
@@ -980,6 +1053,8 @@ function renderOrder(o,type){
     </div>
   `;
 }
+
+
 function renderOrders(){
   const newest=orders.filter(isNew);
   const ongoing=orders.filter(isOngoing);
