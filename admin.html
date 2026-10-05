@@ -750,7 +750,7 @@ let currentAdmin={
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function money(v){return (data.settings.currency||"₹")+Number(v||0).toLocaleString("en-IN")}
 function showSection(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active")}
-  async function login(){
+async function login(){
 
   const email =
     document.getElementById("loginUser")
@@ -996,6 +996,304 @@ function showSection(id,btn){document.querySelectorAll(".section").forEach(x=>x.
     }
 
   }
+
+}
+  function startLive(){
+
+  unsubs.forEach(fn=>{
+    try{
+      if(fn) fn();
+    }catch(e){}
+  });
+
+  unsubs=[];
+
+  const storeId =
+    String(currentAdmin.storeId || "").trim();
+
+  if(!storeId){
+
+    console.error("Admin storeId missing.");
+
+    alert("Admin ke saath Store assign nahi hai.");
+
+    return;
+  }
+
+  document.getElementById(
+    "storeTitle"
+  ).textContent =
+    currentAdmin.storeName || storeId;
+
+  document.getElementById(
+    "adminStoreInfo"
+  ).textContent =
+    "🏬 Store ID: " + storeId;
+
+
+  const storeCollections = [
+    "products",
+    "orders",
+    "customers",
+    "payments",
+    "complaints",
+    "returns"
+  ];
+
+
+  storeCollections.forEach(
+    collectionName => {
+
+      const unsubscribe =
+        db
+          .collection(collectionName)
+          .where(
+            "storeId",
+            "==",
+            storeId
+          )
+          .onSnapshot(
+
+            snapshot => {
+
+              data[collectionName] =
+                snapshot.docs.map(
+                  doc => ({
+                    id:doc.id,
+                    ...doc.data()
+                  })
+                );
+
+              renderAll();
+
+            },
+
+            error => {
+
+              console.error(
+                collectionName +
+                " listener error:",
+                error
+              );
+
+            }
+
+          );
+
+      unsubs.push(unsubscribe);
+
+    }
+  );
+
+
+  const riderStoreListener =
+    db
+      .collection("deliveryPartners")
+      .where(
+        "storeId",
+        "==",
+        storeId
+      )
+      .onSnapshot(
+
+        snapshot => {
+
+          data.deliveryPartners =
+            snapshot.docs.map(
+              doc => ({
+                id:doc.id,
+                ...doc.data()
+              })
+            );
+
+          renderAll();
+
+        },
+
+        error => {
+
+          console.error(
+            "deliveryPartners listener error:",
+            error
+          );
+
+        }
+
+      );
+
+  unsubs.push(
+    riderStoreListener
+  );
+
+
+  const sellerUnsubscribe =
+    db
+      .collection("Sellers")
+      .where(
+        "storeId",
+        "==",
+        storeId
+      )
+      .onSnapshot(
+
+        snapshot => {
+
+          data.sellers =
+            snapshot.docs.map(
+              doc => ({
+                id:doc.id,
+                ...doc.data()
+              })
+            );
+
+          renderAll();
+
+        },
+
+        error => {
+
+          console.error(
+            "sellers listener error:",
+            error
+          );
+
+        }
+
+      );
+
+  unsubs.push(
+    sellerUnsubscribe
+  );
+
+
+  const categoryUnsubscribe =
+    db
+      .collection("categories")
+      .onSnapshot(
+
+        snapshot => {
+
+          data.categories =
+            snapshot.docs.map(
+              doc => ({
+                id:doc.id,
+                ...doc.data()
+              })
+            );
+
+          renderCategories();
+
+        },
+
+        error => {
+
+          console.error(
+            "categories listener error:",
+            error
+          );
+
+        }
+
+      );
+
+  unsubs.push(
+    categoryUnsubscribe
+  );
+
+
+  const storeUnsubscribe =
+    db
+      .collection("stores")
+      .doc(storeId)
+      .onSnapshot(
+
+        snapshot => {
+
+          if(!snapshot.exists){
+
+            console.error(
+              "Assigned Store not found:",
+              storeId
+            );
+
+            return;
+
+          }
+
+          const store =
+            snapshot.data();
+
+          data.settings = {
+
+            ...data.settings,
+
+            storeName:
+              store.name ||
+              store.storeName ||
+              currentAdmin.storeName,
+
+            phone:
+              store.phone || "",
+
+            email:
+              store.email || "",
+
+            commission:
+              Number(
+                store.commission || 0
+              ),
+
+            currency:"₹",
+
+            delivery:
+              Number(
+                store.deliveryCharge || 0
+              ),
+
+            address:
+              store.address || ""
+
+          };
+
+          currentAdmin.storeName =
+            data.settings.storeName;
+
+          document.getElementById(
+            "storeTitle"
+          ).textContent =
+            data.settings.storeName;
+
+          document.getElementById(
+            "adminStoreInfo"
+          ).textContent =
+            "🏬 Store ID: " +
+            storeId;
+
+          loadSettings();
+
+          renderDashboard();
+
+        },
+
+        error => {
+
+          console.error(
+            "store settings error:",
+            error
+          );
+
+        }
+
+      );
+
+  unsubs.push(
+    storeUnsubscribe
+  );
+
+
+  loadSettings();
+
+  renderAll();
 
 }
 
