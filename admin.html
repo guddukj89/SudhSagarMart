@@ -750,7 +750,7 @@ let currentAdmin={
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function money(v){return (data.settings.currency||"₹")+Number(v||0).toLocaleString("en-IN")}
 function showSection(id,btn){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active")}
-async function login(){
+  async function login(){
 
   const email =
     document.getElementById("loginUser")
@@ -765,54 +765,123 @@ async function login(){
   const msg =
     document.getElementById("loginMsg");
 
+  const btn =
+    document.querySelector(
+      '.loginbox button[onclick="login()"]'
+    );
+
   if(!email){
+
     msg.style.color="#c00";
     msg.innerText="Admin email enter karein.";
     return;
+
   }
 
   if(!password){
+
     msg.style.color="#c00";
     msg.innerText="Password enter karein.";
     return;
+
   }
+
+
+  if(btn){
+
+    btn.disabled=true;
+    btn.innerText="Checking...";
+    btn.style.opacity="0.6";
+
+  }
+
+
+  msg.style.color="#0878e8";
+  msg.innerText="Firebase se login ho raha hai...";
+
 
   try{
 
-    msg.style.color="#0878e8";
-    msg.innerText="Login ho raha hai...";
-
     /*
-    =========================================
+    =====================================
     FIREBASE AUTH LOGIN
-    =========================================
+    =====================================
     */
 
-    await auth.signInWithEmailAndPassword(
-      email,
-      password
-    );
+    const authPromise =
+      auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+
+
+    /*
+    =====================================
+    20 SECOND TIMEOUT
+    =====================================
+    */
+
+    const timeoutPromise =
+      new Promise((_,reject)=>{
+
+        setTimeout(()=>{
+
+          reject(
+            new Error(
+              "Firebase Authentication response 20 seconds se nahi aaya."
+            )
+          );
+
+        },20000);
+
+      });
+
+
+    await Promise.race([
+      authPromise,
+      timeoutPromise
+    ]);
+
+
+    /*
+    =====================================
+    AUTH SUCCESS
+    =====================================
+    */
+
+    msg.style.color="#0878e8";
+
+    msg.innerText =
+      "Firebase login successful. Admin record check ho raha hai...";
+
 
     /*
     IMPORTANT:
-    Yahan manually panel open nahi karenge.
-
-    Firebase ka onAuthStateChanged()
-    login ke baad admin + store check karega
-    aur wahi panel open karega.
+    Yahan startLive() nahi chalega.
+    onAuthStateChanged() handle karega.
     */
 
-    msg.style.color="#0878e8";
-    msg.innerText="Login successful. Panel load ho raha hai...";
 
   }catch(error){
 
     console.error(
-      "Admin login error:",
+      "========== LOGIN ERROR ==========",
       error
     );
 
+    console.error(
+      "Error Code:",
+      error.code
+    );
+
+    console.error(
+      "Error Message:",
+      error.message
+    );
+
+
     msg.style.color="#c00";
+
 
     if(
       error.code ===
@@ -820,29 +889,109 @@ async function login(){
     ){
 
       msg.innerText =
-        "Email ya password galat hai.";
+        "❌ Email ya Password galat hai.";
 
-    }else if(
+    }
+
+    else if(
+      error.code ===
+      "auth/user-not-found"
+    ){
+
+      msg.innerText =
+        "❌ Ye email Firebase Authentication me nahi mila.";
+
+    }
+
+    else if(
+      error.code ===
+      "auth/wrong-password"
+    ){
+
+      msg.innerText =
+        "❌ Password galat hai.";
+
+    }
+
+    else if(
+      error.code ===
+      "auth/invalid-email"
+    ){
+
+      msg.innerText =
+        "❌ Email format galat hai.";
+
+    }
+
+    else if(
       error.code ===
       "auth/user-disabled"
     ){
 
       msg.innerText =
-        "Firebase Auth account disabled hai.";
+        "❌ Firebase Auth account disabled hai.";
 
-    }else if(
+    }
+
+    else if(
       error.code ===
       "auth/too-many-requests"
     ){
 
       msg.innerText =
-        "Bahut baar login try hua hai. Thodi der baad try karein.";
+        "❌ Bahut baar login try hua hai. Thodi der baad try karein.";
 
-    }else{
+    }
+
+    else if(
+      error.code ===
+      "auth/network-request-failed"
+    ){
 
       msg.innerText =
-        error.message ||
-        "Admin login failed.";
+        "❌ Firebase network connection problem.";
+
+    }
+
+    else if(
+      error.code ===
+      "auth/unauthorized-domain"
+    ){
+
+      msg.innerText =
+        "❌ sudhsagarmart.online Firebase Authorized Domain me add nahi hai.";
+
+    }
+
+    else if(
+      error.message &&
+      error.message.includes(
+        "20 seconds"
+      )
+    ){
+
+      msg.innerText =
+        "❌ Firebase Authentication response nahi de raha. Firebase Auth / Authorized Domain check karein.";
+
+    }
+
+    else{
+
+      msg.innerText =
+        "❌ Login Error: " +
+        (
+          error.message ||
+          "Unknown error"
+        );
+
+    }
+
+
+    if(btn){
+
+      btn.disabled=false;
+      btn.innerText="Login";
+      btn.style.opacity="1";
 
     }
 
