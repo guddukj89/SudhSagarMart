@@ -1249,20 +1249,18 @@ $("earnToday").textContent =
         return;
       }
 
-      if(
-        ![
-          "assigned",
-          "ready for pickup"
-        ].includes(currentStatus)
-      ){
-
-        alert(
-          "⚠️ Order ka current step Accept ke liye valid nahi hai."
-        );
-
-        return;
-      }
-
+if(
+  ![
+    "assigned",
+    "confirmed",
+    "ready_for_pickup"
+  ].includes(currentStatus)
+){
+  alert(
+    "⚠️ Order ka current step Accept ke liye valid nahi hai."
+  );
+  return;
+}
 
       await updateDoc(
         doc(db,"orders",id),
