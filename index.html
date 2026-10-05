@@ -1335,161 +1335,64 @@ function renderCategories(){
      onclick="openProductDetails(${i})"
      style="cursor:pointer;">
 
-        <!-- ========================= -->
-        <!-- PRODUCT IMAGE SLIDER -->
-        <!-- ========================= -->
+ <!-- ========================= -->
+<!-- ALL PRODUCT IMAGES -->
+<!-- ========================= -->
 
-        <div
-          class="productImageSlider"
-          data-product-index="${i}"
-          style="
-            position:relative;
-            width:100%;
-            height:150px;
-            overflow:hidden;
-            background:#fff;
-            border-radius:8px;
-            touch-action:pan-y;
-          "
-        >
+<div
+  class="productImageSlider"
+  data-product-index="${i}"
+  style="
+    position:relative;
+    width:100%;
+    height:150px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    background:#fff;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:5px;
+    box-sizing:border-box;
+  "
+>
 
-          <div
-            class="productImageTrack"
-            id="productTrack_${i}"
-            style="
-              display:flex;
-              width:${imageList.length * 100}%;
-              height:100%;
-              transform:translateX(0%);
-              transition:transform .3s ease;
-            "
-          >
+  ${imageList.map((img, imgIndex) => `
 
-            ${imageList.map((img, imgIndex) => `
+    <div
+      style="
+        min-width:${imageList.length === 1 ? '100%' : 'calc((100% - 24px) / 5)'};
+        width:${imageList.length === 1 ? '100%' : 'calc((100% - 24px) / 5)'};
+        height:140px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-shrink:0;
+      "
+    >
 
-              <div
-                style="
-                  width:${100 / imageList.length}%;
-                  flex:0 0 ${100 / imageList.length}%;
-                  height:100%;
-                  display:flex;
-                  align-items:center;
-                  justify-content:center;
-                "
-              >
+      <img
+        src="${img}"
+        alt="${p[1]}"
+        onclick="event.stopPropagation(); openProductGallery(${i})"
+        style="
+          width:100%;
+          height:140px;
+          object-fit:contain;
+          cursor:pointer;
+          border-radius:8px;
+          background:#fff;
+        "
+        onerror="this.style.display='none'"
+      >
 
-                <img
-                  src="${img}"
-                  alt="${p[1]}"
-                  onclick="openProductGallery(${i})"
-                  style="
-                    width:100%;
-                    height:150px;
-                    object-fit:contain;
-                    cursor:pointer;
-                    border-radius:8px;
-                    background:#fff;
-                  "
-                  onerror="this.style.display='none'"
-                >
+    </div>
 
-              </div>
+  `).join("")}
 
-            `).join("")}
-
-          </div>
-
-
-          ${
-            imageList.length > 1
-            ? `
-
-              <!-- LEFT -->
-              <button
-                type="button"
-                onclick="productSlide(${i},-1)"
-                style="
-                  position:absolute;
-                  left:5px;
-                  top:50%;
-                  transform:translateY(-50%);
-                  width:30px;
-                  height:30px;
-                  border:0;
-                  border-radius:50%;
-                  background:rgba(0,0,0,.45);
-                  color:#fff;
-                  font-size:18px;
-                  z-index:5;
-                  cursor:pointer;
-                "
-              >
-                ‹
-              </button>
-
-
-              <!-- RIGHT -->
-              <button
-                type="button"
-                onclick="productSlide(${i},1)"
-                style="
-                  position:absolute;
-                  right:5px;
-                  top:50%;
-                  transform:translateY(-50%);
-                  width:30px;
-                  height:30px;
-                  border:0;
-                  border-radius:50%;
-                  background:rgba(0,0,0,.45);
-                  color:#fff;
-                  font-size:18px;
-                  z-index:5;
-                  cursor:pointer;
-                "
-              >
-                ›
-              </button>
-
-
-              <!-- DOTS -->
-              <div
-                style="
-                  position:absolute;
-                  bottom:5px;
-                  left:0;
-                  right:0;
-                  display:flex;
-                  justify-content:center;
-                  gap:4px;
-                  z-index:5;
-                "
-              >
-
-                ${imageList.map((img,imgIndex) => `
-
-                  <span
-                    id="productDot_${i}_${imgIndex}"
-                    style="
-                      width:6px;
-                      height:6px;
-                      border-radius:50%;
-                      background:${imgIndex === 0 ? "#c00091" : "#ccc"};
-                      display:block;
-                    "
-                  ></span>
-
-                `).join("")}
-
-              </div>
-
-            `
-            : ""
-          }
-
-        </div>
-
-
+</div>
+             
         <!-- ========================= -->
         <!-- PRODUCT INFORMATION -->
         <!-- ========================= -->
