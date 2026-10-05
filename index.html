@@ -7840,6 +7840,8 @@ function getProductImages(product){
 async function openProductDetails(index){
 
   const product = products[index];
+    console.log("PRODUCT DATA:", product);
+console.log("PRODUCT IMAGES:", getProductImages(product));
 
   if(!product){
     return alert("Product nahi mila.");
