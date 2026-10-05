@@ -4838,8 +4838,23 @@ function exportData(){const out={exportedAt:new Date().toISOString(),sellers:dat
 
 auth.onAuthStateChanged(async user => {
 
-  // Firebase Auth user nahi hai
+  console.log(
+    "AUTH STATE CHANGED:",
+    user
+  );
+
+
+  /*
+  ==========================================
+  NO FIREBASE USER
+  ==========================================
+  */
+
   if(!user){
+
+    console.log(
+      "No Firebase Auth user."
+    );
 
     document.getElementById(
       "loginPage"
@@ -4850,6 +4865,7 @@ auth.onAuthStateChanged(async user => {
     ).style.display="none";
 
     return;
+
   }
 
 
@@ -4859,9 +4875,17 @@ auth.onAuthStateChanged(async user => {
       user.uid;
 
 
-    // =========================
-    // ADMIN RECORD
-    // =========================
+    console.log(
+      "Firebase UID:",
+      uid
+    );
+
+
+    /*
+    ==========================================
+    ADMIN USER LOAD
+    ==========================================
+    */
 
     const adminSnap =
       await db
@@ -4870,11 +4894,20 @@ auth.onAuthStateChanged(async user => {
         .get();
 
 
+    console.log(
+      "adminUsers exists:",
+      adminSnap.exists
+    );
+
+
     if(!adminSnap.exists){
 
-      await auth.signOut();
+      throw new Error(
+        "adminUsers/" +
+        uid +
+        " Firebase me nahi mila."
+      );
 
-      return;
     }
 
 
@@ -4882,24 +4915,52 @@ auth.onAuthStateChanged(async user => {
       adminSnap.data();
 
 
-    // =========================
-    // ROLE CHECK
-    // =========================
+    console.log(
+      "Admin record:",
+      admin
+    );
+
+
+    /*
+    ==========================================
+    ROLE
+    ==========================================
+    */
 
     if(
-      admin.role !== "admin" ||
-      admin.active !== true
+      admin.role !== "admin"
     ){
 
-      await auth.signOut();
+      throw new Error(
+        "Admin role galat hai. Current role: " +
+        String(admin.role)
+      );
 
-      return;
     }
 
 
-    // =========================
-    // STORE CHECK
-    // =========================
+    /*
+    ==========================================
+    ACTIVE
+    ==========================================
+    */
+
+    if(
+      admin.active !== true
+    ){
+
+      throw new Error(
+        "Admin account active nahi hai."
+      );
+
+    }
+
+
+    /*
+    ==========================================
+    STORE ID
+    ==========================================
+    */
 
     const storeId =
       String(
@@ -4907,17 +4968,26 @@ auth.onAuthStateChanged(async user => {
       ).trim();
 
 
+    console.log(
+      "Admin Store ID:",
+      storeId
+    );
+
+
     if(!storeId){
 
-      await auth.signOut();
+      throw new Error(
+        "Admin record me storeId nahi hai."
+      );
 
-      return;
     }
 
 
-    // =========================
-    // STORE LOAD
-    // =========================
+    /*
+    ==========================================
+    STORE LOAD
+    ==========================================
+    */
 
     const storeSnap =
       await db
@@ -4926,11 +4996,20 @@ auth.onAuthStateChanged(async user => {
         .get();
 
 
+    console.log(
+      "Store exists:",
+      storeSnap.exists
+    );
+
+
     if(!storeSnap.exists){
 
-      await auth.signOut();
+      throw new Error(
+        "stores/" +
+        storeId +
+        " Firebase me nahi mila."
+      );
 
-      return;
     }
 
 
@@ -4938,25 +5017,41 @@ auth.onAuthStateChanged(async user => {
       storeSnap.data();
 
 
-    // =========================
-    // STORE ACTIVE CHECK
-    // =========================
+    console.log(
+      "Store record:",
+      store
+    );
 
-    if(
+
+    /*
+    ==========================================
+    STORE STATUS
+    ==========================================
+    */
+
+    const storeStatus =
       String(
         store.status || "active"
-      ).toLowerCase() !== "active"
+      ).toLowerCase();
+
+
+    if(
+      storeStatus !== "active"
     ){
 
-      await auth.signOut();
+      throw new Error(
+        "Store inactive hai. Current status: " +
+        storeStatus
+      );
 
-      return;
     }
 
 
-    // =========================
-    // RESTORE ADMIN
-    // =========================
+    /*
+    ==========================================
+    CURRENT ADMIN
+    ==========================================
+    */
 
     currentAdmin = {
 
@@ -4971,7 +5066,8 @@ auth.onAuthStateChanged(async user => {
         "",
 
       role:
-        admin.role || "admin",
+        admin.role ||
+        "admin",
 
       storeId:
         storeId,
@@ -4986,9 +5082,11 @@ auth.onAuthStateChanged(async user => {
     };
 
 
-    // =========================
-    // SESSION
-    // =========================
+    /*
+    ==========================================
+    SESSION
+    ==========================================
+    */
 
     sessionStorage.setItem(
       "ssm_admin",
@@ -5006,14 +5104,15 @@ auth.onAuthStateChanged(async user => {
     );
 
 
-    // =========================
-    // SHOW ADMIN PANEL
-    // =========================
+    /*
+    ==========================================
+    SHOW PANEL
+    ==========================================
+    */
 
     document.getElementById(
       "loginPage"
     ).style.display="none";
-
 
     document.getElementById(
       "app"
@@ -5042,9 +5141,16 @@ auth.onAuthStateChanged(async user => {
       currentAdmin.storeId;
 
 
-    // =========================
-    // START STORE DATA
-    // =========================
+    console.log(
+      "ADMIN LOGIN SUCCESS"
+    );
+
+
+    /*
+    ==========================================
+    START STORE DATA
+    ==========================================
+    */
 
     startLive();
 
@@ -5052,14 +5158,62 @@ auth.onAuthStateChanged(async user => {
   }catch(error){
 
     console.error(
-      "Admin session restore error:",
+      "========== ADMIN SESSION ERROR ==========",
       error
     );
 
 
+    /*
+    IMPORTANT:
+    Pehle turant signOut nahi karenge.
+    Actual error user ko dikhayenge.
+    */
+
+    document.getElementById(
+      "loginPage"
+    ).style.display="flex";
+
+    document.getElementById(
+      "app"
+    ).style.display="none";
+
+
+    const msg =
+      document.getElementById(
+        "loginMsg"
+      );
+
+
+    if(msg){
+
+      msg.style.color="#c00";
+
+      msg.innerText =
+        "❌ " +
+        (
+          error.message ||
+          "Admin verification failed."
+        );
+
+    }
+
+
+    /*
+    Firebase session clean
+    */
+
     try{
+
       await auth.signOut();
-    }catch(e){}
+
+    }catch(e){
+
+      console.error(
+        "SignOut error:",
+        e
+      );
+
+    }
 
 
     sessionStorage.removeItem(
@@ -5074,19 +5228,11 @@ auth.onAuthStateChanged(async user => {
       "ssm_admin_storeId"
     );
 
-
-    document.getElementById(
-      "loginPage"
-    ).style.display="flex";
-
-
-    document.getElementById(
-      "app"
-    ).style.display="none";
-
   }
 
 });
+
+
 </script>
 </body>
 </html>
