@@ -2948,7 +2948,54 @@ function loadSellerProducts(storeId = null) {
             const p = doc.data() || {};
 
             console.log("PRODUCT DATA:", doc.id, p);
+let productImages = [];
 
+if(Array.isArray(p.images)){
+
+    productImages =
+        p.images.filter(Boolean);
+
+}
+else if(
+    typeof p.images === "string" &&
+    p.images.trim()
+){
+
+    try{
+
+        const parsed =
+            JSON.parse(p.images);
+
+        if(Array.isArray(parsed)){
+
+            productImages =
+                parsed.filter(Boolean);
+
+        }else{
+
+            productImages =
+                [p.images];
+
+        }
+
+    }catch(e){
+
+        productImages =
+            [p.images];
+
+    }
+
+}
+
+if(
+    !productImages.length &&
+    p.image
+){
+
+    productImages =
+        [p.image];
+
+}
             liveProducts.push([
                 p.category || "General",
 
@@ -2961,14 +3008,9 @@ function loadSellerProducts(storeId = null) {
 
                 Number(p.mrp || p.price) || 0,
 
-                p.image ||
-                (
-                    Array.isArray(p.images)
-                        ? p.images[0]
-                        : ""
-                ) ||
-                p.imageURL ||
-                "",
+                productImages[0] ||
+p.imageURL ||
+"",
 
                 p.stock == null
                     ? 0
@@ -2982,9 +3024,7 @@ function loadSellerProducts(storeId = null) {
                 p.shopName ||
                 "Seller",
 
-                Array.isArray(p.images)
-                    ? p.images.filter(Boolean)
-                    : (p.image ? [p.image] : []),
+                productImages,
 
                 p.description ||
 p.details ||
