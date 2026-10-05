@@ -7807,24 +7807,65 @@ function getProductId(product){
 
 }
 
-
 // =====================================================
-// GET PRODUCT IMAGES
+// GET PRODUCT IMAGES - MAX 5
 // =====================================================
 
 function getProductImages(product){
 
   let images = [];
 
+  // Multiple images
   if(Array.isArray(product[9])){
-    images = product[9].filter(Boolean);
+
+    images = product[9]
+      .filter(Boolean);
+
   }
 
+  // Agar images JSON string ke form me saved hain
+  else if(typeof product[9] === "string" && product[9].trim()){
+
+    try{
+
+      const parsed =
+        JSON.parse(product[9]);
+
+      if(Array.isArray(parsed)){
+
+        images =
+          parsed.filter(Boolean);
+
+      }else{
+
+        images =
+          [product[9]];
+
+      }
+
+    }catch(e){
+
+      // Agar JSON nahi hai
+      // to single image URL maana jayega
+      images =
+        [product[9]];
+
+    }
+
+  }
+
+  // Purani single image fallback
   if(!images.length && product[4]){
-    images = [product[4]];
+
+    images =
+      [product[4]];
+
   }
 
-  return images.slice(0,5);
+  // Maximum 5 images
+  return images
+    .filter(Boolean)
+    .slice(0,5);
 
 }
 
