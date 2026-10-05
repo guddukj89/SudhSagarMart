@@ -8829,7 +8829,14 @@ async function submitSSMReview(){
     document.getElementById(
       "ssmReviewText"
     ).value.trim();
+if(review.length < 10){
 
+  return alert(
+    "Review kam se kam 10 characters ka likhein."
+  );
+
+}
+    
   const photoInput =
     document.getElementById(
       "ssmReviewPhoto"
