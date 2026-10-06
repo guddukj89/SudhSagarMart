@@ -2649,32 +2649,95 @@ async function requestAutomaticRefund(order){
 async function placeOrder(){
 
   // ===============================
-  // AUTO SELECT CUSTOMER STORE
+  // CHECK LOGIN
   // ===============================
 
-  if(!customerStoreId){
+  const currentUser =
+    firebase.auth().currentUser;
 
-    try{
+  if(!currentUser){
+    return alert("Please login first.");
+  }
+
+
+  // ===============================
+  // CHECK CART
+  // ===============================
+
+  if(!cart || !cart.length){
+    return alert("Cart is empty.");
+  }
+
+
+  // ===============================
+  // GET CHECKOUT FIELDS
+  // ===============================
+
+  const nameInput =
+    document.getElementById("coName");
+
+  const mobileInput =
+    document.getElementById("coMobile");
+
+  const addressInput =
+    document.getElementById("coAddress");
+
+  const paymentInput =
+    document.getElementById("payment");
+
+
+  if(!nameInput || !mobileInput || !addressInput){
+    return alert(
+      "Checkout delivery fields nahi mile."
+    );
+  }
+
+
+  const customerName =
+    nameInput.value.trim();
+
+  const customerMobile =
+    mobileInput.value.trim();
+
+  const customerAddress =
+    addressInput.value.trim();
+
+
+  if(
+    !customerName ||
+    !customerMobile ||
+    !customerAddress
+  ){
+    return alert(
+      "Please fill all delivery details."
+    );
+  }
+
+
+  // ===============================
+  // AUTO STORE SELECTION
+  // ===============================
+
+  try{
+
+    if(!customerStoreId){
 
       const savedLocation =
         JSON.parse(
-          localStorage.getItem("ssm_location") || "null"
+          localStorage.getItem(
+            "ssm_location"
+          ) || "null"
         );
 
-      let pincode = "";
+      let pincode =
+        savedLocation &&
+        savedLocation.pincode
+          ? String(
+              savedLocation.pincode
+            ).trim()
+          : "";
 
-      if(savedLocation){
 
-        pincode =
-          String(
-            savedLocation.pincode ||
-            ""
-          ).trim();
-
-      }
-
-      // Agar saved location me pincode nahi mila
-      // to current location se try karo
       if(!pincode){
 
         const currentLocation =
@@ -2684,52 +2747,115 @@ async function placeOrder(){
             ) || "null"
           );
 
-        if(currentLocation){
+        if(
+          currentLocation &&
+          currentLocation.pincode
+        ){
 
           pincode =
             String(
-              currentLocation.pincode ||
-              ""
+              currentLocation.pincode
             ).trim();
 
         }
 
       }
 
+
       if(pincode){
 
-        await selectCustomerStore(pincode);
+        console.log(
+          "Selecting store for pincode:",
+          pincode
+        );
+
+        await selectCustomerStore(
+          pincode
+        );
 
       }
 
-    }catch(error){
-
-      console.error(
-        "Auto store selection error:",
-        error
-      );
-
     }
+
+  }catch(error){
+
+    console.error(
+      "Store selection error:",
+      error
+    );
 
   }
 
-  // Store phir bhi nahi mila
+
+  // ===============================
+  // STORE CHECK
+  // ===============================
+
   if(!customerStoreId){
 
     return alert(
       "Delivery store select nahi hua.\n\n" +
-      "Please delivery address me valid pincode save karein."
+      "Please address save karke dobara try karein."
     );
 
   }
 
-  if(!coName.value || !coMobile.value || !coAddress.value){
+
+  // ===============================
+  // CHECK PAYMENT METHOD
+  // ===============================
+
+  if(!paymentInput){
 
     return alert(
-      "Please fill all delivery details"
+      "Payment option nahi mila."
     );
 
   }
+
+
+  const paymentMethod =
+    paymentInput.value;
+
+
+  // ===============================
+  // CHECKOUT SUMMARY
+  // ===============================
+
+  const summary =
+    getCheckoutSummary();
+
+  const total =
+    Number(summary.finalTotal || 0);
+
+
+  if(total <= 0){
+
+    return alert(
+      "Order amount valid nahi hai."
+    );
+
+  }
+
+
+  console.log(
+    "PLACE ORDER STARTED"
+  );
+
+  console.log(
+    "Customer:",
+    customerName
+  );
+
+  console.log(
+    "Payment:",
+    paymentMethod
+  );
+
+  console.log(
+    "Total:",
+    total
+  );
 
   const summary = getCheckoutSummary();
 
