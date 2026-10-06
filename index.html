@@ -2737,11 +2737,15 @@ function addCart(i){
   }
 
 }
-function buyNow(i){
+function buyNow(productOrIndex){
 
-  const p = products[i];
+  const p =
+    Array.isArray(productOrIndex)
+      ? productOrIndex
+      : products[Number(productOrIndex)];
 
   if(!p || !Array.isArray(p)){
+    console.error("BUY NOW PRODUCT INVALID:", productOrIndex);
     return alert("Product data valid nahi hai.");
   }
 
@@ -2761,19 +2765,31 @@ function buyNow(i){
 
   if(loc){
 
-    document.getElementById("coName").value =
-      loc.name || "";
+    const nameEl =
+      document.getElementById("coName");
 
-    document.getElementById("coMobile").value =
-      loc.mobile || "";
+    const mobileEl =
+      document.getElementById("coMobile");
 
-    document.getElementById("coAddress").value =
-      (loc.address || "") +
-      ", " +
-      (loc.city || "") +
-      " - " +
-      (loc.pincode || "");
+    const addressEl =
+      document.getElementById("coAddress");
 
+    if(nameEl){
+      nameEl.value = loc.name || "";
+    }
+
+    if(mobileEl){
+      mobileEl.value = loc.mobile || "";
+    }
+
+    if(addressEl){
+      addressEl.value =
+        (loc.address || "") +
+        ", " +
+        (loc.city || "") +
+        " - " +
+        (loc.pincode || "");
+    }
   }
 
   renderCheckoutSummary();
