@@ -2830,8 +2830,9 @@ let loc=JSON.parse(localStorage.getItem("ssm_location")||"null");
 if(loc){coName.value=loc.name;coMobile.value=loc.mobile;coAddress.value=loc.address+", "+loc.city+" - "+loc.pincode}
 renderCheckoutSummary();
 }
+
 // =====================================================
-// SAVE ORDER TO FIRESTORE - FIXED VERSION
+// SAVE ORDER TO FIRESTORE & PLACE ORDER - FIXED VERSION
 // =====================================================
 
 async function saveOrderToFirestore(
@@ -2839,318 +2840,203 @@ async function saveOrderToFirestore(
   status,
   paymentMethod,
   paymentData = {}
-){
-
+) {
   const user = firebase.auth().currentUser;
 
-  if(!user){
+  if (!user) {
     throw new Error("Please login first.");
   }
 
-  // -----------------------------
-  // CHECKOUT INPUTS
-  // -----------------------------
+  // Checkout inputs validation
+  const nameEl = document.getElementById("coName");
+  const mobileEl = document.getElementById("coMobile");
+  const addressEl = document.getElementById("coAddress");
 
-  const nameEl =
-    document.getElementById("coName");
-
-  const mobileEl =
-    document.getElementById("coMobile");
-
-  const addressEl =
-    document.getElementById("coAddress");
-
-  if(!nameEl || !mobileEl || !addressEl){
-    throw new Error(
-      "Checkout fields nahi mile."
-    );
+  if (!nameEl || !mobileEl || !addressEl) {
+    throw new Error("Checkout fields not found.");
   }
 
-  const customerName =
-    nameEl.value.trim();
+  const customerName = nameEl.value.trim();
+  const customerMobile = mobileEl.value.trim();
+  const customerAddress = addressEl.value.trim();
 
-  const customerMobile =
-    mobileEl.value.trim();
+  if (!customerName) throw new Error("Customer name is required.");
+  if (!customerMobile) throw new Error("Mobile number is required.");
+  if (!customerAddress) throw new Error("Delivery address is required.");
 
-  const customerAddress =
-    addressEl.value.trim();
-
-  if(!customerName){
-    throw new Error("Customer name required hai.");
+  if (!Array.isArray(cart) || !cart.length) {
+    throw new Error("Cart is empty.");
   }
 
-  if(!customerMobile){
-    throw new Error("Mobile number required hai.");
-  }
+  const summary = getCheckoutSummary();
+  if (!summary) throw new Error("Checkout summary not found.");
 
-  if(!customerAddress){
-    throw new Error("Delivery address required hai.");
-  }
-
-  // -----------------------------
-  // CART CHECK
-  // -----------------------------
-
-  if(!Array.isArray(cart) || !cart.length){
-    throw new Error("Cart empty hai.");
-  }
-
-  // -----------------------------
-  // CHECKOUT SUMMARY
-  // -----------------------------
-
-  const summary =
-    getCheckoutSummary();
-
-  if(!summary){
-    throw new Error(
-      "Checkout summary nahi mili."
-    );
-  }
-
-  const productTotal =
-    Number(summary.productTotal || 0);
-
-  const weightCharge =
-    Number(summary.weightCharge || 0);
-
-  const deliveryCharge =
-    Number(summary.deliveryCharge || 0);
-
-  const finalTotal =
-    Number(summary.finalTotal || 0);
-
-  // -----------------------------
-  // CURRENT LOCATION
-  // -----------------------------
+  const productTotal = Number(summary.productTotal || 0);
+  const weightCharge = Number(summary.weightCharge || 0);
+  const deliveryCharge = Number(summary.deliveryCharge || 0);
+  const finalTotal = Number(summary.finalTotal || 0);
 
   let currentLocation = null;
-
-  try{
-
-    currentLocation =
-      JSON.parse(
-        localStorage.getItem(
-          "ssm_current_location"
-        ) || "null"
-      );
-
-  }catch(e){
-
+  try {
+    currentLocation = JSON.parse(
+      localStorage.getItem("ssm_current_location") || "null"
+    );
+  } catch (e) {
     currentLocation = null;
-
   }
 
-  // -----------------------------
-  // ORDER ITEMS
-  // -----------------------------
+  const orderItems = cart.map(function (item) {
+    const p = item.p || [];
+    return {
+      productId: String(p[6] || ""),
+      sellerId: String(p[7] || ""),
+      sellerName: String(p[8] || ""),
+      category: String(p[0] || ""),
+      productName: String(p[1] || item.title || item.name || "Product"),
+      price: Number(p[2] || 0),
+      mrp: Number(p[3] || 0),
+      image: p[4] || "",
+      quantity: Number(item.qty || 1)
+    };
+  });
 
-  const orderItems =
-    cart.map(function(item){
-
-      const p =
-        item.p || [];
-
-      return {
-
-        productId:
-          String(p[6] || ""),
-
-        sellerId:
-          String(p[7] || ""),
-
-        sellerName:
-          String(p[8] || ""),
-
-        category:
-          String(p[0] || ""),
-
-        productName:
-          String(
-            p[1] ||
-            item.title ||
-            item.name ||
-            "Product"
-          ),
-
-        price:
-          Number(p[2] || 0),
-
-        mrp:
-          Number(p[3] || 0),
-
-        image:
-          p[4] || "",
-
-        quantity:
-          Number(item.qty || 1)
-
-      };
-
-    });
-
-  // -----------------------------
-  // STORE
-  // -----------------------------
-
-  const storeId =
-    customerStoreId ||
-    localStorage.getItem(
-      "ssm_storeId"
-    ) ||
-    "";
-
-  const storeName =
-    customerStoreName ||
-    localStorage.getItem(
-      "ssm_storeName"
-    ) ||
-    "";
-
-  // -----------------------------
-  // FIRESTORE ORDER
-  // -----------------------------
+  const storeId = customerStoreId || localStorage.getItem("ssm_storeId") || "";
+  const storeName = customerStoreName || localStorage.getItem("ssm_storeName") || "";
 
   const orderData = {
-
-    orderId:
-      orderId,
-
-    customerId:
-      user.uid,
-
-    customerUid:
-      user.uid,
-
-    customerEmail:
-      user.email || "",
-
-    customerName:
-      customerName,
-
-    customerMobile:
-      customerMobile,
-
-    mobile:
-      customerMobile,
-
-    customerAddress:
-      customerAddress,
-
-    address:
-      customerAddress,
-
-    storeId:
-      storeId,
-
-    storeName:
-      storeName,
-
-    storeDistanceKm:
-      customerStoreDistanceKm,
-
-    items:
-      orderItems,
-
-    products:
-      orderItems,
-
-    productTotal:
-      productTotal,
-
-    weightCharge:
-      weightCharge,
-
-    deliveryCharge:
-      deliveryCharge,
-
-    deliveryDistanceKm:
-      customerStoreDistanceKm,
-
-    totalAmount:
-      finalTotal,
-
-    finalTotal:
-      finalTotal,
-
-    status:
-      status,
-
-    orderStatus:
-      status,
-
-    payment:
-      paymentMethod,
-
-    paymentMethod:
-      paymentMethod,
-
-    paymentStatus:
-      paymentMethod === "Cash on Delivery"
-        ? "pending"
-        : "paid",
-
-    paymentId:
-      paymentData.paymentId || "",
-
-    razorpayPaymentId:
-      paymentData.paymentId || "",
-
-    razorpayOrderId:
-      paymentData.razorpayOrderId || "",
-
-    razorpaySignature:
-      paymentData.signature || "",
-
-    latitude:
-      currentLocation &&
-      currentLocation.lat != null
-        ? Number(currentLocation.lat)
-        : null,
-
-    longitude:
-      currentLocation &&
-      currentLocation.lng != null
-        ? Number(currentLocation.lng)
-        : null,
-
-    trackingHistory: {
-
-      [String(status).toLowerCase()
-        .replace(/\s+/g,"_")]: {
-
-        at:
-          firebase.firestore.FieldValue
-            .serverTimestamp()
-
-      }
-
-    },
-
-    createdAt:
-      firebase.firestore.FieldValue
-        .serverTimestamp(),
-
-    updatedAt:
-      firebase.firestore.FieldValue
-        .serverTimestamp()
-
+    orderId: orderId,
+    customerId: user.uid,
+    customerUid: user.uid,
+    customerEmail: user.email || "",
+    customerName: customerName,
+    customerMobile: customerMobile,
+    mobile: customerMobile,
+    customerAddress: customerAddress,
+    address: customerAddress,
+    storeId: storeId,
+    storeName: storeName,
+    storeDistanceKm: customerStoreDistanceKm,
+    items: orderItems,
+    products: orderItems,
+    productTotal: productTotal,
+    weightCharge: weightCharge,
+    deliveryCharge: deliveryCharge,
+    deliveryDistanceKm: customerStoreDistanceKm,
+    totalAmount: finalTotal,
+    finalTotal: finalTotal,
+    status: status,
+    orderStatus: status,
+    payment: paymentMethod,
+    paymentMethod: paymentMethod,
+    paymentStatus: paymentMethod === "Cash on Delivery" ? "pending" : "paid",
+    paymentId: paymentData.paymentId || "",
+    razorpayPaymentId: paymentData.paymentId || "",
+    razorpayOrderId: paymentData.razorpayOrderId || "",
+    razorpaySignature: paymentData.razorpaySignature || "",
+    currentLocation: currentLocation,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    timestamp: Date.now()
   };
 
-  await db
-    .collection("orders")
-    .doc(orderId)
-    .set(orderData);
+  // Save to Firestore
+  await db.collection("orders").doc(orderId).set(orderData);
 
-  console.log(
-    "ORDER SAVED:",
-    orderId,
-    orderData
-  );
+  // Save local history
+  orders.unshift(orderData);
+  localStorage.setItem("ssm_orders", JSON.stringify(orders));
+
+  // Reset Cart
+  cart = [];
+  localStorage.removeItem("ssm_cart");
 
   return orderData;
 }
-    
+
+// Place Order Trigger Handler
+async function placeOrder() {
+  try {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert("Please login to place an order.");
+      openAccount();
+      return;
+    }
+
+    const summary = getCheckoutSummary();
+    if (!summary || summary.finalTotal <= 0) {
+      alert("Invalid order amount.");
+      return;
+    }
+
+    const paymentSelect = document.getElementById("payment");
+    const paymentMethod = paymentSelect ? paymentSelect.value : "Cash on Delivery";
+    const generatedOrderId = "SSM_" + Date.now();
+
+    if (paymentMethod === "UPI / Online Payment") {
+      // Razorpay Checkout Integration
+      const options = {
+        key: firebaseConfig.apiKey, // Ensure Razorpay Key ID is configured
+        amount: Math.round(summary.finalTotal * 100), // Amount in paise
+        currency: "INR",
+        name: "Sudh Sagar Mart",
+        description: "Order #" + generatedOrderId,
+        image: "logo.png",
+        handler: async function (response) {
+          try {
+            await saveOrderToFirestore(
+              generatedOrderId,
+              "Placed",
+              "Online Payment",
+              {
+                paymentId: response.razorpay_payment_id,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpaySignature: response.razorpay_signature
+              }
+            );
+
+            closeModal("checkoutModal");
+            alert("✅ Payment successful! Order placed successfully.");
+            showOrders();
+          } catch (err) {
+            console.error("Order processing error after payment:", err);
+            alert("❌ Payment recorded, but failed to save order: " + err.message);
+          }
+        },
+        prefill: {
+          name: document.getElementById("coName").value,
+          contact: document.getElementById("coMobile").value,
+          email: user.email || ""
+        },
+        theme: {
+          color: "#a00080"
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.on("payment.failed", function (response) {
+        alert("❌ Payment Failed: " + response.error.description);
+      });
+      rzp.open();
+
+    } else {
+      // Cash On Delivery
+      await saveOrderToFirestore(
+        generatedOrderId,
+        "Placed",
+        "Cash on Delivery"
+      );
+
+      closeModal("checkoutModal");
+      alert("✅ Order placed successfully with Cash on Delivery!");
+      showOrders();
+    }
+
+  } catch (error) {
+    console.error("Place Order Error:", error);
+    alert("❌ Error placing order: " + error.message);
+  }
+}
+  
  // ======================================================
 // AUTOMATIC ONLINE PAYMENT REFUND
 // ======================================================
