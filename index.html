@@ -3799,15 +3799,10 @@ async function placeOrder(){
               "Bearer " + token
           },
 
-          body:
-            JSON.stringify({
-
-              amount:
-               amount: Number(data.amount)
-              orderId:
-                orderId
-
-            })
+         body: JSON.stringify({
+  amount: Math.round(total * 100),
+  orderId: orderId
+})
 
         }
       );
