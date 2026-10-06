@@ -3873,27 +3873,33 @@ async function placeOrder(){
       data
     );
 
-    if(
-      !response.ok ||
-      !data ||
-      !data.order
-    ){
+   if(
+  !response.ok ||
+  !data ||
+  data.success !== true ||
+  !data.orderId
+){
+  throw new Error(
+    data &&
+    (
+      data.error ||
+      data.message
+    )
+    ||
+    "Razorpay order create nahi hua."
+  );
+}
 
-      throw new Error(
-        data &&
-        (
-          data.error ||
-          data.message
-        )
-        ||
-        "Razorpay order create nahi hua."
-      );
+const razorpayOrder = {
+  id: data.orderId,
+  amount: data.amount,
+  currency: data.currency || "INR"
+};
 
-    }
-
-    const razorpayOrder =
-      data.order;
-
+console.log(
+  "Razorpay Order Ready:",
+  razorpayOrder
+);
     // -----------------------------------
     // RAZORPAY
     // -----------------------------------
