@@ -2852,17 +2852,10 @@ async function placeOrder(){
     paymentMethod
   );
 
-  console.log(
+    console.log(
     "Total:",
     total
   );
-
-  const summary = getCheckoutSummary();
-
-  const total = summary.finalTotal;
-
-  const paymentMethod =
-    document.getElementById("payment").value;
 
   // ===============================
   // COD
