@@ -1152,7 +1152,7 @@ function getDistanceDeliveryCharge(km){
   return 55 + Math.ceil(km - 5) * 10;
 }
 // =====================================================
-// GET CHECKOUT SUMMARY - CART PRODUCT RECOVERY FIX
+// GET CHECKOUT SUMMARY - FINAL CART RECOVERY
 // =====================================================
 
 function getCheckoutSummary(){
@@ -1168,17 +1168,18 @@ function getCheckoutSummary(){
 
     let p = null;
 
-    // -----------------------------------------
-    // 1. NORMAL CART FORMAT
-    // -----------------------------------------
+    // =========================================
+    // CART KA ORIGINAL FORMAT
+    // { p: products[i], qty: 1 }
+    // =========================================
 
     if(item && Array.isArray(item.p)){
       p = item.p;
     }
 
-    // -----------------------------------------
-    // 2. OTHER CART FORMAT
-    // -----------------------------------------
+    // =========================================
+    // AGAR PURANA FORMAT HAI
+    // =========================================
 
     if(!p && item && Array.isArray(item.product)){
       p = item.product;
@@ -1192,69 +1193,173 @@ function getCheckoutSummary(){
       p = item;
     }
 
-    // -----------------------------------------
-    // 3. PRODUCT ID
-    // -----------------------------------------
+
+    // =========================================
+    // PRODUCT ID / NAME NIKALO
+    // =========================================
 
     let productId = "";
+    let productName = "";
+    let productImage = "";
 
     if(p){
+
       productId =
         String(
           p[6] ||
           p.productId ||
           ""
         ).trim();
-    }
 
-    if(
-      !productId &&
-      item &&
-      typeof item === "object" &&
-      !Array.isArray(item)
-    ){
-
-      productId =
+      productName =
         String(
-          item.productId ||
-          item.id ||
+          p[1] ||
+          p.name ||
+          p.title ||
+          ""
+        ).trim();
+
+      productImage =
+        String(
+          p[4] ||
+          p.image ||
           ""
         ).trim();
 
     }
 
-    // -----------------------------------------
-    // 4. CURRENT PRODUCTS LIST SE RECOVER
-    // -----------------------------------------
+
+    // =========================================
+    // OBJECT FORMAT FALLBACK
+    // =========================================
 
     if(
-      (!p || !Number(p[2])) &&
-      productId &&
-      Array.isArray(products)
+      item &&
+      typeof item === "object" &&
+      !Array.isArray(item)
     ){
 
-      const found =
-        products.find(function(prod){
+      if(!productId){
 
-          if(!Array.isArray(prod)){
-            return false;
-          }
+        productId =
+          String(
+            item.productId ||
+            item.id ||
+            ""
+          ).trim();
 
-          return String(
-            prod[6] || ""
-          ).trim() === productId;
+      }
 
-        });
+      if(!productName){
 
-      if(found){
-        p = found;
+        productName =
+          String(
+            item.productName ||
+            item.name ||
+            item.title ||
+            ""
+          ).trim();
+
+      }
+
+      if(!productImage){
+
+        productImage =
+          String(
+            item.image ||
+            ""
+          ).trim();
+
       }
 
     }
 
-    // -----------------------------------------
-    // 5. PRICE
-    // -----------------------------------------
+
+    // =========================================
+    // CURRENT PRODUCTS LIST SE PRODUCT FIND
+    // =========================================
+
+    let currentProduct = null;
+
+    if(Array.isArray(products)){
+
+      // FIRST: Product ID
+      if(productId){
+
+        currentProduct =
+          products.find(function(prod){
+
+            return (
+              Array.isArray(prod) &&
+              String(prod[6] || "").trim() ===
+              productId
+            );
+
+          }) || null;
+
+      }
+
+
+      // SECOND: Product Name
+      if(!currentProduct && productName){
+
+        currentProduct =
+          products.find(function(prod){
+
+            return (
+              Array.isArray(prod) &&
+              String(prod[1] || "")
+                .trim()
+                .toLowerCase() ===
+              productName
+                .trim()
+                .toLowerCase()
+            );
+
+          }) || null;
+
+      }
+
+
+      // THIRD: Image
+      if(!currentProduct && productImage){
+
+        currentProduct =
+          products.find(function(prod){
+
+            return (
+              Array.isArray(prod) &&
+              String(prod[4] || "").trim() ===
+              productImage
+            );
+
+          }) || null;
+
+      }
+
+    }
+
+
+    // =========================================
+    // CURRENT PRODUCT MIL GAYA
+    // =========================================
+
+    if(currentProduct){
+
+      p = currentProduct;
+
+      console.log(
+        "Cart product recovered:",
+        index + 1,
+        p
+      );
+
+    }
+
+
+    // =========================================
+    // PRICE
+    // =========================================
 
     let price = 0;
 
@@ -1271,10 +1376,8 @@ function getCheckoutSummary(){
 
     }
 
-    // -----------------------------------------
-    // 6. ITEM PRICE FALLBACK
-    // -----------------------------------------
 
+    // Object item se fallback
     if(
       !price &&
       item &&
@@ -1293,9 +1396,10 @@ function getCheckoutSummary(){
 
     }
 
-    // -----------------------------------------
-    // 7. INVALID PRODUCT
-    // -----------------------------------------
+
+    // =========================================
+    // AGAR ABHI BHI PRICE NAHI MILA
+    // =========================================
 
     if(
       !Number.isFinite(price) ||
@@ -1303,27 +1407,30 @@ function getCheckoutSummary(){
     ){
 
       console.error(
-        "INVALID CART PRODUCT:",
+        "CART PRICE ERROR:",
         {
-          index:index,
-          item:item,
-          product:p,
-          productId:productId
+          cartIndex: index,
+          item: item,
+          originalProduct: p,
+          productId: productId,
+          productName: productName,
+          productImage: productImage,
+          currentProducts: products
         }
       );
 
       throw new Error(
-        "Cart me product #" +
+        "Cart ke product #" +
         (index + 1) +
-        " ka price nahi mil raha hai.\n\n" +
-        "Is product ko cart se remove karke dobara add karein."
+        " ka current product data nahi mil raha."
       );
 
     }
 
-    // -----------------------------------------
-    // 8. QUANTITY
-    // -----------------------------------------
+
+    // =========================================
+    // QUANTITY
+    // =========================================
 
     let qty = 1;
 
@@ -1346,17 +1453,18 @@ function getCheckoutSummary(){
       qty = 1;
     }
 
-    // -----------------------------------------
-    // 9. PRODUCT TOTAL
-    // -----------------------------------------
+
+    // =========================================
+    // PRODUCT TOTAL
+    // =========================================
 
     productTotal +=
       price * qty;
 
 
-    // -----------------------------------------
-    // 10. WEIGHT
-    // -----------------------------------------
+    // =========================================
+    // WEIGHT
+    // =========================================
 
     let weight = 0;
 
@@ -1384,19 +1492,25 @@ function getCheckoutSummary(){
 
     }
 
+
     let chargeable = false;
 
     if(p){
+
       chargeable =
         p.weightChargeable === true;
+
     }
 
     if(
       item &&
       item.weightChargeable === true
     ){
+
       chargeable = true;
+
     }
+
 
     if(
       chargeable &&
@@ -1411,9 +1525,9 @@ function getCheckoutSummary(){
   });
 
 
-  // -----------------------------------------
+  // =========================================
   // WEIGHT CHARGE
-  // -----------------------------------------
+  // =========================================
 
   let weightCharge = 0;
 
@@ -1432,9 +1546,9 @@ function getCheckoutSummary(){
   }
 
 
-  // -----------------------------------------
+  // =========================================
   // DELIVERY CHARGE
-  // -----------------------------------------
+  // =========================================
 
   const deliveryCharge =
     Number(
@@ -1442,9 +1556,9 @@ function getCheckoutSummary(){
     ) || 0;
 
 
-  // -----------------------------------------
+  // =========================================
   // FINAL TOTAL
-  // -----------------------------------------
+  // =========================================
 
   const finalTotal =
     productTotal +
@@ -1453,14 +1567,19 @@ function getCheckoutSummary(){
 
 
   console.log(
-    "FINAL ORDER SUMMARY:",
+    "FINAL ORDER AMOUNT:",
     {
-      productTotal,
-      chargeableWeightKg,
-      weightCharge,
-      deliveryCharge,
-      finalTotal,
-      cart
+      productTotal:
+        productTotal,
+
+      weightCharge:
+        weightCharge,
+
+      deliveryCharge:
+        deliveryCharge,
+
+      finalTotal:
+        finalTotal
     }
   );
 
