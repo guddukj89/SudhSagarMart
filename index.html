@@ -1152,17 +1152,13 @@ function getDistanceDeliveryCharge(km){
   return 55 + Math.ceil(km - 5) * 10;
 }
 // =====================================================
-// GET CHECKOUT SUMMARY - FINAL FIX
+// GET CHECKOUT SUMMARY - CART PRODUCT RECOVERY FIX
 // =====================================================
 
 function getCheckoutSummary(){
 
   if(!Array.isArray(cart) || cart.length === 0){
-
-    throw new Error(
-      "Cart empty hai."
-    );
-
+    throw new Error("Cart empty hai.");
   }
 
   let productTotal = 0;
@@ -1170,62 +1166,115 @@ function getCheckoutSummary(){
 
   cart.forEach(function(item, index){
 
-    let product = null;
+    let p = null;
 
-    // -----------------------------------
-    // PRODUCT DATA FIND
-    // -----------------------------------
+    // -----------------------------------------
+    // 1. NORMAL CART FORMAT
+    // -----------------------------------------
+
+    if(item && Array.isArray(item.p)){
+      p = item.p;
+    }
+
+    // -----------------------------------------
+    // 2. OTHER CART FORMAT
+    // -----------------------------------------
+
+    if(!p && item && Array.isArray(item.product)){
+      p = item.product;
+    }
+
+    if(!p && item && Array.isArray(item.productData)){
+      p = item.productData;
+    }
+
+    if(!p && Array.isArray(item)){
+      p = item;
+    }
+
+    // -----------------------------------------
+    // 3. PRODUCT ID
+    // -----------------------------------------
+
+    let productId = "";
+
+    if(p){
+      productId =
+        String(
+          p[6] ||
+          p.productId ||
+          ""
+        ).trim();
+    }
 
     if(
+      !productId &&
       item &&
-      Array.isArray(item.p)
+      typeof item === "object" &&
+      !Array.isArray(item)
     ){
 
-      product = item.p;
-
-    }
-    else if(
-      item &&
-      Array.isArray(item.product)
-    ){
-
-      product = item.product;
-
-    }
-    else if(
-      item &&
-      Array.isArray(item.productData)
-    ){
-
-      product = item.productData;
-
-    }
-    else if(
-      Array.isArray(item)
-    ){
-
-      product = item;
+      productId =
+        String(
+          item.productId ||
+          item.id ||
+          ""
+        ).trim();
 
     }
 
-    // -----------------------------------
-    // PRICE FIND
-    // -----------------------------------
+    // -----------------------------------------
+    // 4. CURRENT PRODUCTS LIST SE RECOVER
+    // -----------------------------------------
+
+    if(
+      (!p || !Number(p[2])) &&
+      productId &&
+      Array.isArray(products)
+    ){
+
+      const found =
+        products.find(function(prod){
+
+          if(!Array.isArray(prod)){
+            return false;
+          }
+
+          return String(
+            prod[6] || ""
+          ).trim() === productId;
+
+        });
+
+      if(found){
+        p = found;
+      }
+
+    }
+
+    // -----------------------------------------
+    // 5. PRICE
+    // -----------------------------------------
 
     let price = 0;
 
-    if(product){
+    if(p){
 
       price =
         Number(
-          product[2] ||
-          product.price ||
+          p[2] ||
+          p.price ||
+          p.salePrice ||
+          p.sellingPrice ||
           0
         );
 
     }
 
-    // Agar product array se price nahi mila
+    // -----------------------------------------
+    // 6. ITEM PRICE FALLBACK
+    // -----------------------------------------
+
     if(
       !price &&
       item &&
@@ -1244,9 +1293,37 @@ function getCheckoutSummary(){
 
     }
 
-    // -----------------------------------
-    // QUANTITY
-    // -----------------------------------
+    // -----------------------------------------
+    // 7. INVALID PRODUCT
+    // -----------------------------------------
+
+    if(
+      !Number.isFinite(price) ||
+      price <= 0
+    ){
+
+      console.error(
+        "INVALID CART PRODUCT:",
+        {
+          index:index,
+          item:item,
+          product:p,
+          productId:productId
+        }
+      );
+
+      throw new Error(
+        "Cart me product #" +
+        (index + 1) +
+        " ka price nahi mil raha hai.\n\n" +
+        "Is product ko cart se remove karke dobara add karein."
+      );
+
+    }
+
+    // -----------------------------------------
+    // 8. QUANTITY
+    // -----------------------------------------
 
     let qty = 1;
 
@@ -1265,27 +1342,31 @@ function getCheckoutSummary(){
 
     }
 
-    // -----------------------------------
-    // TOTAL
-    // -----------------------------------
+    if(qty < 1){
+      qty = 1;
+    }
+
+    // -----------------------------------------
+    // 9. PRODUCT TOTAL
+    // -----------------------------------------
 
     productTotal +=
       price * qty;
 
 
-    // -----------------------------------
-    // WEIGHT
-    // -----------------------------------
+    // -----------------------------------------
+    // 10. WEIGHT
+    // -----------------------------------------
 
     let weight = 0;
 
-    if(product){
+    if(p){
 
       weight =
         Number(
-          product.weightKg ||
+          p.weightKg ||
           0
-        );
+        ) || 0;
 
     }
 
@@ -1299,30 +1380,26 @@ function getCheckoutSummary(){
         Number(
           item.weightKg ||
           0
-        );
+        ) || 0;
 
     }
 
-    let weightChargeable = false;
+    let chargeable = false;
 
-    if(product){
-
-      weightChargeable =
-        product.weightChargeable === true;
-
+    if(p){
+      chargeable =
+        p.weightChargeable === true;
     }
 
     if(
       item &&
       item.weightChargeable === true
     ){
-
-      weightChargeable = true;
-
+      chargeable = true;
     }
 
     if(
-      weightChargeable &&
+      chargeable &&
       weight > 0
     ){
 
@@ -1331,25 +1408,12 @@ function getCheckoutSummary(){
 
     }
 
-    // Debug
-    console.log(
-      "CART ITEM",
-      index,
-      {
-        item:item,
-        product:product,
-        price:price,
-        qty:qty,
-        subtotal:price * qty
-      }
-    );
-
   });
 
 
-  // -----------------------------------
+  // -----------------------------------------
   // WEIGHT CHARGE
-  // -----------------------------------
+  // -----------------------------------------
 
   let weightCharge = 0;
 
@@ -1368,9 +1432,9 @@ function getCheckoutSummary(){
   }
 
 
-  // -----------------------------------
+  // -----------------------------------------
   // DELIVERY CHARGE
-  // -----------------------------------
+  // -----------------------------------------
 
   const deliveryCharge =
     Number(
@@ -1378,9 +1442,9 @@ function getCheckoutSummary(){
     ) || 0;
 
 
-  // -----------------------------------
+  // -----------------------------------------
   // FINAL TOTAL
-  // -----------------------------------
+  // -----------------------------------------
 
   const finalTotal =
     productTotal +
@@ -1389,20 +1453,17 @@ function getCheckoutSummary(){
 
 
   console.log(
-    "FINAL CHECKOUT AMOUNT",
+    "FINAL ORDER SUMMARY:",
     {
-      productTotal:productTotal,
-      weightCharge:weightCharge,
-      deliveryCharge:deliveryCharge,
-      finalTotal:finalTotal,
-      cart:cart
+      productTotal,
+      chargeableWeightKg,
+      weightCharge,
+      deliveryCharge,
+      finalTotal,
+      cart
     }
   );
 
-
-  // -----------------------------------
-  // IMPORTANT VALIDATION
-  // -----------------------------------
 
   if(
     !Number.isFinite(finalTotal) ||
@@ -1410,7 +1471,7 @@ function getCheckoutSummary(){
   ){
 
     throw new Error(
-      "Product price cart se nahi mil raha hai."
+      "Order amount valid nahi hai."
     );
 
   }
