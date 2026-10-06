@@ -3971,24 +3971,12 @@ console.log(
 
 }
 
-              throw new Error(
-                verifyData &&
-                (
-                  verifyData.error ||
-                  verifyData.message
-                )
-                ||
-                "Payment verification failed."
-              );
+// -----------------------------------
+// SAVE FIRESTORE ORDER
+// -----------------------------------
 
-            }
-
-            // -----------------------------------
-            // SAVE FIRESTORE ORDER
-            // -----------------------------------
-
-            await saveOrderToFirestore(
-
+await saveOrderToFirestore(
+           
               orderId,
 
               "Order Placed",
