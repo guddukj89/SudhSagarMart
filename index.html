@@ -1154,21 +1154,30 @@ function getDistanceDeliveryCharge(km){
 // =====================================================
 // GET CHECKOUT SUMMARY - FINAL FIX
 // =====================================================
+function getCheckoutSummary() {
+  let productTotal = 0;
+  let weightCharge = 0;
+  let deliveryCharge = 0;
 
-function getCheckoutSummary(){
-
-  if(!Array.isArray(cart) || cart.length === 0){
-    throw new Error("Cart empty hai.");
+  if (Array.isArray(cart) && cart.length > 0) {
+    cart.forEach(function (item) {
+      // Ensure p[2] is taken as single unit price * quantity
+      const price = Number(item.p ? item.p[2] : item.price) || 0;
+      const qty = Number(item.qty) || 1;
+      productTotal += price * qty;
+    });
   }
 
-  let productTotal = 0;
-  let chargeableWeightKg = 0;
+  // Set default fallback delivery charges if applicable
+  const finalTotal = productTotal + weightCharge + deliveryCharge;
 
-  const validCart = [];
-
-  cart.forEach(function(item, index){
-
-    let p = null;
+  return {
+    productTotal: productTotal,
+    weightCharge: weightCharge,
+    deliveryCharge: deliveryCharge,
+    finalTotal: finalTotal
+  };
+}
 
     // -----------------------------------------
     // CART PRODUCT DATA
