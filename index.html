@@ -1151,34 +1151,167 @@ function getDistanceDeliveryCharge(km){
 
   return 55 + Math.ceil(km - 5) * 10;
 }
+// =====================================================
+// GET CHECKOUT SUMMARY - FIXED
+// =====================================================
+
 function getCheckoutSummary(){
 
-  const productTotal = cart.reduce(
-    (sum, item) => sum + (Number(item.p[2]) || 0) * (Number(item.qty) || 1),
-    0
-  );
+  if(!Array.isArray(cart)){
+    throw new Error("Cart data valid nahi hai.");
+  }
 
-  const chargeableWeightKg = getChargeableWeightKg();
+  const productTotal =
+    cart.reduce(function(sum, item){
 
-  const weightCharge = getWeightCharge(chargeableWeightKg);
+      // Cart item ke andar product array
+      // normal case: item.p
+      // fallback: item khud product array ho sakta hai
+      const p =
+        Array.isArray(item && item.p)
+          ? item.p
+          : (
+              Array.isArray(item)
+                ? item
+                : []
+            );
 
-  const deliveryCharge = Number(customerStoreCharge) || 0;
+      const price =
+        Number(p[2] || 0);
+
+      const qty =
+        Number(
+          item && !Array.isArray(item)
+            ? item.qty
+            : 1
+        ) || 1;
+
+      return sum + (price * qty);
+
+    }, 0);
+
+
+  // -----------------------------------
+  // WEIGHT
+  // -----------------------------------
+
+  let chargeableWeightKg = 0;
+
+  cart.forEach(function(item){
+
+    const p =
+      Array.isArray(item && item.p)
+        ? item.p
+        : (
+            Array.isArray(item)
+              ? item
+              : []
+          );
+
+    /*
+      IMPORTANT:
+      Current product array me p[12]/p[13]
+      review/highlights ho sakte hain.
+
+      Isliye yahan weight ko blindly
+      p[12] se nahi liya ja raha.
+    */
+
+    const weight =
+      Number(
+        p.weightKg ||
+        item.weightKg ||
+        0
+      );
+
+    const chargeable =
+      p.weightChargeable === true ||
+      item.weightChargeable === true;
+
+    if(
+      chargeable &&
+      weight > 0
+    ){
+
+      const qty =
+        Number(
+          item && !Array.isArray(item)
+            ? item.qty
+            : 1
+        ) || 1;
+
+      chargeableWeightKg +=
+        weight * qty;
+
+    }
+
+  });
+
+
+  // -----------------------------------
+  // WEIGHT CHARGE
+  // -----------------------------------
+
+  let weightCharge = 0;
+
+  if(
+    typeof getWeightCharge ===
+    "function"
+  ){
+
+    weightCharge =
+      Number(
+        getWeightCharge(
+          chargeableWeightKg
+        )
+      ) || 0;
+
+  }
+
+
+  // -----------------------------------
+  // DELIVERY CHARGE
+  // -----------------------------------
+
+  const deliveryCharge =
+    Number(
+      customerStoreCharge || 0
+    );
+
+
+  // -----------------------------------
+  // FINAL TOTAL
+  // -----------------------------------
 
   const finalTotal =
     productTotal +
     weightCharge +
     deliveryCharge;
 
-  return {
-    productTotal,
-    chargeableWeightKg,
-    weightCharge,
-    deliveryCharge,
-    deliveryDistanceKm: customerStoreDistanceKm,
-    finalTotal
-  };
-}    
 
+  return {
+
+    productTotal:
+      productTotal,
+
+    chargeableWeightKg:
+      chargeableWeightKg,
+
+    weightCharge:
+      weightCharge,
+
+    deliveryCharge:
+      deliveryCharge,
+
+    deliveryDistanceKm:
+      customerStoreDistanceKm,
+
+    finalTotal:
+      finalTotal
+
+  };
+
+}
 function renderCheckoutSummary(){
 
   const summary = getCheckoutSummary();
