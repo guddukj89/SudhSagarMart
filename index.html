@@ -1152,41 +1152,31 @@ function getDistanceDeliveryCharge(km){
   return 55 + Math.ceil(km - 5) * 10;
 }
 // =====================================================
-// GET CHECKOUT SUMMARY - FINAL FIX
+// GET CHECKOUT SUMMARY - FINAL
 // =====================================================
-function getCheckoutSummary() {
-  let productTotal = 0;
-  let weightCharge = 0;
-  let deliveryCharge = 0;
+function getCheckoutSummary(){
 
-  if (Array.isArray(cart) && cart.length > 0) {
-    cart.forEach(function (item) {
-      // Ensure p[2] is taken as single unit price * quantity
-      const price = Number(item.p ? item.p[2] : item.price) || 0;
-      const qty = Number(item.qty) || 1;
-      productTotal += price * qty;
-    });
+  let productTotal = 0;
+  let chargeableWeightKg = 0;
+
+  if(!Array.isArray(cart) || !cart.length){
+    throw new Error(
+      "Cart me valid product data nahi hai."
+    );
   }
 
-  // Set default fallback delivery charges if applicable
-  const finalTotal = productTotal + weightCharge + deliveryCharge;
+  const validCart = [];
 
-  return {
-    productTotal: productTotal,
-    weightCharge: weightCharge,
-    deliveryCharge: deliveryCharge,
-    finalTotal: finalTotal
-  };
-}
+  cart.forEach(function(item, index){
 
-    // -----------------------------------------
-    // CART PRODUCT DATA
-    // -----------------------------------------
+    let p = null;
 
+    // Product array
     if(item && Array.isArray(item.p)){
       p = item.p;
     }
 
+    // Alternative product data
     if(!p && item && Array.isArray(item.product)){
       p = item.product;
     }
@@ -1199,14 +1189,11 @@ function getCheckoutSummary() {
       p = item;
     }
 
-    // -----------------------------------------
-    // INVALID OLD CART ITEM
-    // -----------------------------------------
-
+    // Invalid product
     if(!p || !Array.isArray(p) || p.length < 3){
 
       console.warn(
-        "Invalid cart item removed:",
+        "Invalid cart item:",
         index,
         item
       );
@@ -1214,45 +1201,18 @@ function getCheckoutSummary() {
       return;
     }
 
-    // -----------------------------------------
-    // PRODUCT INFORMATION
-    // -----------------------------------------
+    // Product price
+    let price = Number(p[2]) || 0;
 
+    // Product ID
     const productId =
       String(p[6] || "").trim();
 
+    // Product name
     const productName =
-      String(
-        p[1] ||
-        p.name ||
-        p.title ||
-        "Product"
-      ).trim();
+      String(p[1] || "").trim();
 
-    const productImage =
-      String(
-        p[4] ||
-        p.image ||
-        ""
-      ).trim();
-
-    // -----------------------------------------
-    // PRICE
-    // -----------------------------------------
-
-    let price =
-      Number(
-        p[2] ||
-        p.price ||
-        p.salePrice ||
-        p.sellingPrice ||
-        0
-      );
-
-    // -----------------------------------------
-    // CURRENT PRODUCTS LIST SE RECOVER
-    // -----------------------------------------
-
+    // Agar price invalid ho to products list se recover
     if(
       (!Number.isFinite(price) || price <= 0) &&
       Array.isArray(products)
@@ -1260,7 +1220,6 @@ function getCheckoutSummary() {
 
       let recovered = null;
 
-      // Product ID
       if(productId){
 
         recovered =
@@ -1274,7 +1233,6 @@ function getCheckoutSummary() {
 
       }
 
-      // Product name
       if(!recovered && productName){
 
         recovered =
@@ -1285,22 +1243,7 @@ function getCheckoutSummary() {
                 .trim()
                 .toLowerCase() ===
               productName
-                .trim()
                 .toLowerCase();
-
-          }) || null;
-
-      }
-
-      // Image
-      if(!recovered && productImage){
-
-        recovered =
-          products.find(function(prod){
-
-            return Array.isArray(prod) &&
-              String(prod[4] || "").trim() ===
-              productImage;
 
           }) || null;
 
@@ -1309,15 +1252,7 @@ function getCheckoutSummary() {
       if(recovered){
 
         p = recovered;
-
-        price =
-          Number(
-            p[2] ||
-            p.price ||
-            p.salePrice ||
-            p.sellingPrice ||
-            0
-          );
+        price = Number(p[2]) || 0;
 
         console.log(
           "Cart product recovered:",
@@ -1328,10 +1263,7 @@ function getCheckoutSummary() {
 
     }
 
-    // -----------------------------------------
-    // FINAL PRICE CHECK
-    // -----------------------------------------
-
+    // Final price validation
     if(
       !Number.isFinite(price) ||
       price <= 0
@@ -1340,22 +1272,16 @@ function getCheckoutSummary() {
       console.error(
         "Invalid cart product:",
         {
-          index: index,
-          item: item,
-          product: p,
-          productId: productId,
-          productName: productName,
-          productImage: productImage
+          index:index,
+          item:item,
+          product:p
         }
       );
 
       return;
     }
 
-    // -----------------------------------------
-    // QUANTITY
-    // -----------------------------------------
-
+    // Quantity
     let qty =
       Number(
         item.qty ||
@@ -1367,23 +1293,11 @@ function getCheckoutSummary() {
       qty = 1;
     }
 
-    // -----------------------------------------
-    // PRODUCT TOTAL
-    // -----------------------------------------
-
+    // Product total
     productTotal +=
       price * qty;
 
-    // -----------------------------------------
-    // WEIGHT
-    // -----------------------------------------
-
-    // IMPORTANT:
-    // Product array ke [12] aur [13] ko
-    // weight mat samjho.
-    // Current product structure me ye review/highlight
-    // fields ho sakte hain.
-
+    // Optional weight data
     let weight = 0;
     let chargeable = false;
 
@@ -1432,21 +1346,15 @@ function getCheckoutSummary() {
 
     }
 
-    // -----------------------------------------
-    // VALID CART ITEM
-    // -----------------------------------------
-
+    // Valid cart item
     validCart.push({
-      p: p,
-      qty: qty
+      p:p,
+      qty:qty
     });
 
   });
 
-  // -----------------------------------------
-  // INVALID ITEMS REMOVE
-  // -----------------------------------------
-
+  // Remove invalid items
   if(validCart.length !== cart.length){
 
     cart = validCart;
@@ -1456,16 +1364,9 @@ function getCheckoutSummary() {
       JSON.stringify(cart)
     );
 
-    console.log(
-      "Invalid cart items automatically removed."
-    );
-
   }
 
-  // -----------------------------------------
-  // NO VALID PRODUCT
-  // -----------------------------------------
-
+  // No valid product
   if(
     !cart.length ||
     productTotal <= 0
@@ -1477,10 +1378,7 @@ function getCheckoutSummary() {
 
   }
 
-  // -----------------------------------------
-  // WEIGHT CHARGE
-  // -----------------------------------------
-
+  // Weight charge
   const weightCharge =
     typeof getWeightCharge === "function"
       ? Number(
@@ -1490,19 +1388,13 @@ function getCheckoutSummary() {
         ) || 0
       : 0;
 
-  // -----------------------------------------
-  // DELIVERY CHARGE
-  // -----------------------------------------
-
+  // Delivery charge
   const deliveryCharge =
     Number(
       customerStoreCharge || 0
     ) || 0;
 
-  // -----------------------------------------
-  // FINAL TOTAL
-  // -----------------------------------------
-
+  // Final amount
   const finalTotal =
     productTotal +
     weightCharge +
@@ -1522,11 +1414,11 @@ function getCheckoutSummary() {
   console.log(
     "FINAL ORDER AMOUNT:",
     {
-      productTotal,
-      chargeableWeightKg,
-      weightCharge,
-      deliveryCharge,
-      finalTotal
+      productTotal:productTotal,
+      chargeableWeightKg:chargeableWeightKg,
+      weightCharge:weightCharge,
+      deliveryCharge:deliveryCharge,
+      finalTotal:finalTotal
     }
   );
 
