@@ -2686,34 +2686,131 @@ function applyAvailabilityFilter(type){
 }
 function addCart(i){
 
-    const existing =
-        cart.find(x => x.p[1] === products[i][1]);
+  const p = products[i];
 
-    if(existing){
+  // Product valid hai ya nahi
+  if(!p || !Array.isArray(p)){
 
-        existing.qty += 1;
+    console.error(
+      "Invalid product:",
+      i,
+      p
+    );
 
-        alert(
-            products[i][1] +
-            " ki quantity 1 badh gayi."
-        );
+    return alert(
+      "Product data valid nahi hai."
+    );
 
-    }else{
+  }
 
-        cart.push({
-            p: products[i],
-            qty: 1
-        });
+  // Product ID check
+  const productId =
+    String(p[6] || "").trim();
 
-        alert(
-            products[i][1] +
-            " cart me add ho gaya."
-        );
+  if(!productId){
 
-    }
+    console.error(
+      "Product ID missing:",
+      p
+    );
 
-    save();
-    renderCart();
+    return alert(
+      "Product ID nahi mila."
+    );
+
+  }
+
+  // Product name
+  const productName =
+    String(
+      p[1] || "Product"
+    ).trim();
+
+
+  // -----------------------------------------
+  // EXISTING CART ITEM FIND
+  // -----------------------------------------
+
+  const existing =
+    cart.find(function(x){
+
+      if(
+        !x ||
+        !Array.isArray(x.p)
+      ){
+        return false;
+      }
+
+      return String(
+        x.p[6] || ""
+      ).trim() === productId;
+
+    });
+
+
+  // -----------------------------------------
+  // ALREADY IN CART
+  // -----------------------------------------
+
+  if(existing){
+
+    existing.qty =
+      Number(existing.qty || 1) + 1;
+
+    alert(
+      productName +
+      " ki quantity 1 badh gayi."
+    );
+
+  }
+
+  // -----------------------------------------
+  // NEW CART ITEM
+  // -----------------------------------------
+
+  else{
+
+    cart.push({
+
+      p: p,
+
+      qty: 1
+
+    });
+
+    alert(
+      productName +
+      " cart me add ho gaya."
+    );
+
+  }
+
+
+  // -----------------------------------------
+  // SAVE CART
+  // -----------------------------------------
+
+  localStorage.setItem(
+    "ssm_cart",
+    JSON.stringify(cart)
+  );
+
+
+  // -----------------------------------------
+  // RENDER PRODUCTS
+  // -----------------------------------------
+
+  if(
+    typeof renderProducts ===
+    "function"
+  ){
+
+    renderProducts(
+      products
+    );
+
+  }
+
 }
  function buyNow(i){
 
