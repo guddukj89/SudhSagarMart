@@ -3803,8 +3803,7 @@ async function placeOrder(){
             JSON.stringify({
 
               amount:
-                Math.round(total),
-
+               amount: Number(data.amount)
               orderId:
                 orderId
 
