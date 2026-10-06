@@ -2762,18 +2762,20 @@ async function placeOrder(){
       }
 
 
-      if(pincode){
+if(pincode){
 
-        console.log(
-          "Selecting store for pincode:",
-          pincode
-        );
+  alert("PINCODE MILA: " + pincode);
 
-        await selectCustomerStore(
-          pincode
-        );
+  await selectCustomerStore(
+    pincode
+  );
 
-      }
+  alert(
+    "STORE CHECK COMPLETE\nStore ID: " +
+    (customerStoreId || "EMPTY")
+  );
+
+}
 
     }
 
