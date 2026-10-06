@@ -3953,13 +3953,23 @@ console.log(
               verifyData
             );
 
-            if(
-              !verifyResponse.ok ||
-              (
-                verifyData &&
-                verifyData.success === false
-              )
-            ){
+           if(
+  !verifyResponse.ok ||
+  !verifyData ||
+  verifyData.success !== true
+){
+
+  throw new Error(
+    verifyData &&
+    (
+      verifyData.error ||
+      verifyData.message
+    )
+    ||
+    "Payment verification failed."
+  );
+
+}
 
               throw new Error(
                 verifyData &&
@@ -4212,14 +4222,15 @@ console.log(
         );
 
         alert(
-          "❌ Payment failed.\n\n" +
-          (
-            response &&
-            response.error &&
-            response.error.description
-          ) ||
-          "Payment complete nahi hua."
-        );
+  "❌ Payment failed.\n\n" +
+  (
+    response &&
+    response.error &&
+    response.error.description
+      ? response.error.description
+      : "Payment complete nahi hua."
+  )
+);
 
         buttons.forEach(function(btn){
 
