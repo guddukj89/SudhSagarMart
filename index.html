@@ -3587,8 +3587,8 @@ async function placeOrder(){
           },
 
          body: JSON.stringify({
-  amount: Math.round(total * 100),
-  orderId: orderId
+    amount: Math.round(total),
+    orderId: orderId
 })
 
         }
