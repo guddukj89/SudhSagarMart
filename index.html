@@ -4697,8 +4697,49 @@ async function showOrders(){
           order.paymentMode ||
           "Cash on Delivery";
 
-      const total =
-        Number(order.total || order.amount || 0);
+    let total = Number(order.total || order.amount || 0);
+
+if(total <= 0 && Array.isArray(order.items)){
+  total = order.items.reduce(function(sum, item){
+
+    const price = Number(
+      item.price ||
+      item.sellingPrice ||
+      item.amount ||
+      0
+    );
+
+    const quantity = Number(
+      item.quantity ||
+      item.qty ||
+      1
+    );
+
+    return sum + (price * quantity);
+
+  }, 0);
+}
+
+if(total <= 0 && Array.isArray(order.products)){
+  total = order.products.reduce(function(sum, item){
+
+    const price = Number(
+      item.price ||
+      item.sellingPrice ||
+      item.amount ||
+      0
+    );
+
+    const quantity = Number(
+      item.quantity ||
+      item.qty ||
+      1
+    );
+
+    return sum + (price * quantity);
+
+  }, 0);
+}
 
       let date = "";
 
