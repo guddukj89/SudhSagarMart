@@ -2812,39 +2812,46 @@ function addCart(i){
   }
 
 }
- function buyNow(i){
+function buyNow(i){
 
-    cart = [{
-        p: products[i],
-        qty: 1
-    }];
+  const p = products[i];
 
-    save();
+  if(!p || !Array.isArray(p)){
+    return alert("Product data valid nahi hai.");
+  }
 
-    openModal("checkoutModal");
+  cart = [{
+    p: p,
+    qty: 1
+  }];
 
-    let loc =
-        JSON.parse(
-            localStorage.getItem("ssm_location") || "null"
-        );
+  save();
 
-    if(loc){
+  openModal("checkoutModal");
 
-        document.getElementById("coName").value =
-            loc.name || "";
+  const loc =
+    JSON.parse(
+      localStorage.getItem("ssm_location") || "null"
+    );
 
-        document.getElementById("coMobile").value =
-            loc.mobile || "";
+  if(loc){
 
-        document.getElementById("coAddress").value =
-            (loc.address || "") +
-            ", " +
-            (loc.city || "") +
-            " - " +
-            (loc.pincode || "");
+    document.getElementById("coName").value =
+      loc.name || "";
 
-    }
+    document.getElementById("coMobile").value =
+      loc.mobile || "";
 
+    document.getElementById("coAddress").value =
+      (loc.address || "") +
+      ", " +
+      (loc.city || "") +
+      " - " +
+      (loc.pincode || "");
+
+  }
+
+  renderCheckoutSummary();
 }
  function toggleWishlist(i){
     let index=wishlist.findIndex(x=>x[1]===products[i][1]);
