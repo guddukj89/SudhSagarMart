@@ -6126,90 +6126,400 @@ function deleteSellerProduct(index){
 
 
 // ======================================
-// SELLER ORDERS
+// SELLER ORDERS - FIREBASE
 // ======================================
 
-function sellerOrders(){
+async function sellerOrders(){
 
   const content =
     document.getElementById("sellerDashboardContent");
 
   if(!content) return;
 
-  const ordersData = JSON.parse(
-    localStorage.getItem("ssm_orders") || "[]"
-  );
+  const seller = firebase.auth().currentUser;
+
+  if(!seller){
+    content.innerHTML = `
+      <p style="color:#d00">
+        Pehle seller login karein.
+      </p>
+    `;
+    return;
+  }
+
+  const sellerId = seller.uid;
 
   content.innerHTML = `
-
     <h3>🛒 Seller Orders</h3>
+    <p style="color:#777">
+      Orders load ho rahe hain...
+    </p>
+  `;
 
-    ${
-      ordersData.length
-      ?
-      ordersData.map(o=>`
+  try{
 
-        <div style="
-          border:1px solid #ddd;
-          padding:12px;
-          border-radius:10px;
-          margin:10px 0;
-        ">
+    const db = firebase.firestore();
 
-          <b>Order ID:</b> ${o.id || "-"}<br>
+    // --------------------------------------
+    // FIREBASE SE SELLER KE ORDERS
+    // --------------------------------------
 
-          <b>Total:</b> ₹${o.total || 0}<br>
+    const ordersMap = new Map();
 
-          <b>Status:</b> ${o.status || "Order Placed"}<br>
-          ${
-  canCustomerCancelOrder(o)
-  ?
-  `<button
-    onclick="cancelCustomerOrder('${o.id}')"
-    style="
-      margin-top:10px;
-      background:#d32f2f;
-      color:white;
-      border:0;
-      padding:8px 14px;
-      border-radius:6px;
-      font-weight:600;
-      cursor:pointer;
-    ">
-    Cancel Order
-  </button>`
-  :
-  ""
-}
-${`
-  <button
-    onclick="trackCustomerOrder('${o.id}')"
-    style="
-      margin-top:10px;
-      background:#1976d2;
-      color:white;
-      border:0;
-      padding:8px 14px;
-      border-radius:6px;
-      font-weight:600;
-      cursor:pointer;
-    "
-  >
-    📦 Track Order
-  </button>
-`}
-          <b>Payment:</b> ${o.payment || "-"}
+    // New orders:
+    // sellerIds array me seller UID
+    try{
 
-        </div>
+      const snap1 = await db
+        .collection("orders")
+        .where("sellerIds", "array-contains", sellerId)
+        .get();
 
-      `).join("")
-      :
-      `<p style="color:#777">
-        Abhi koi order nahi hai.
-      </p>`
+      snap1.forEach(doc => {
+        ordersMap.set(doc.id, {
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+    }catch(error){
+
+      console.warn(
+        "sellerIds query failed:",
+        error
+      );
+
     }
 
-  `;
+
+    // --------------------------------------
+    // OLD / SINGLE SELLER ORDERS
+    // --------------------------------------
+
+    try{
+
+      const snap2 = await db
+        .collection("orders")
+        .where("sellerId", "==", sellerId)
+        .get();
+
+      snap2.forEach(doc => {
+        ordersMap.set(doc.id, {
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+    }catch(error){
+
+      console.warn(
+        "sellerId query failed:",
+        error
+      );
+
+    }
+
+
+    // --------------------------------------
+    // ARRAY KO SORT KARO
+    // --------------------------------------
+
+    const ordersData =
+      Array.from(ordersMap.values());
+
+    ordersData.sort((a,b) => {
+
+      const ta =
+        a.createdAt &&
+        a.createdAt.toMillis
+          ? a.createdAt.toMillis()
+          : 0;
+
+      const tb =
+        b.createdAt &&
+        b.createdAt.toMillis
+          ? b.createdAt.toMillis()
+          : 0;
+
+      return tb - ta;
+
+    });
+
+
+    // --------------------------------------
+    // KOI ORDER NAHI
+    // --------------------------------------
+
+    if(!ordersData.length){
+
+      content.innerHTML = `
+        <h3>🛒 Seller Orders</h3>
+
+        <div style="
+          padding:15px;
+          border:1px solid #ddd;
+          border-radius:10px;
+          color:#777;
+        ">
+          Abhi aapke kisi product ka order nahi aaya hai.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    // --------------------------------------
+    // ORDERS DISPLAY
+    // --------------------------------------
+
+    content.innerHTML = `
+      <h3>🛒 Seller Orders</h3>
+
+      ${ordersData.map(order => {
+
+        const allItems =
+          Array.isArray(order.items)
+            ? order.items
+            : (
+                Array.isArray(order.products)
+                  ? order.products
+                  : []
+              );
+
+
+        // Sirf current seller ke products
+        const sellerItems =
+          allItems.filter(item =>
+            String(item.sellerId || "") ===
+            String(sellerId)
+          );
+
+
+        // Agar item me sellerId nahi mila
+        // lekin order ka sellerId current seller hai
+        const finalItems =
+          sellerItems.length
+            ? sellerItems
+            : (
+                String(order.sellerId || "") ===
+                String(sellerId)
+                  ? allItems
+                  : []
+              );
+
+
+        if(!finalItems.length){
+          return "";
+        }
+
+
+        // Seller ke products ka total
+        const sellerTotal =
+          finalItems.reduce(
+            (sum,item) =>
+              sum +
+              (
+                Number(item.price || 0) *
+                Number(item.quantity || 1)
+              ),
+            0
+          );
+
+
+        const orderStatus =
+          order.orderStatus ||
+          order.status ||
+          "Order Placed";
+
+
+        const payment =
+          order.paymentMethod ||
+          order.payment ||
+          "-";
+
+
+        const orderDate =
+          order.createdAt &&
+          order.createdAt.toDate
+            ? order.createdAt.toDate()
+                .toLocaleString("en-IN")
+            : (
+                order.time ||
+                "-"
+              );
+
+
+        return `
+
+          <div style="
+            border:1px solid #ddd;
+            padding:15px;
+            border-radius:12px;
+            margin:12px 0;
+            background:#fff;
+            box-shadow:0 2px 6px rgba(0,0,0,.06);
+          ">
+
+            <div style="
+              font-weight:700;
+              font-size:16px;
+              margin-bottom:8px;
+            ">
+              🧾 Order ID:
+              ${order.orderId || order.id || "-"}
+            </div>
+
+
+            <div style="
+              margin-bottom:8px;
+            ">
+              <b>Customer:</b>
+              ${order.customerName || "-"}
+            </div>
+
+
+            <div style="
+              margin-bottom:8px;
+            ">
+              <b>Mobile:</b>
+              ${order.customerMobile ||
+                order.mobile ||
+                "-"}
+            </div>
+
+
+            <div style="
+              margin-bottom:8px;
+            ">
+              <b>Address:</b>
+              ${order.customerAddress ||
+                order.address ||
+                "-"}
+            </div>
+
+
+            <hr>
+
+
+            <b>📦 Your Products:</b>
+
+            <div style="
+              margin-top:8px;
+            ">
+
+              ${finalItems.map(item => `
+
+                <div style="
+                  padding:10px;
+                  margin:7px 0;
+                  background:#f7f7f7;
+                  border-radius:8px;
+                ">
+
+                  <b>
+                    ${item.productName || "Product"}
+                  </b>
+
+                  <br>
+
+                  Price:
+                  ₹${Number(item.price || 0)}
+
+                  <br>
+
+                  Quantity:
+                  ${Number(item.quantity || 1)}
+
+                  <br>
+
+                  Item Total:
+                  ₹${
+                    Number(item.price || 0) *
+                    Number(item.quantity || 1)
+                  }
+
+                </div>
+
+              `).join("")}
+
+            </div>
+
+
+            <hr>
+
+
+            <div>
+              <b>Seller Total:</b>
+              ₹${sellerTotal}
+            </div>
+
+
+            <div style="
+              margin-top:6px;
+            ">
+              <b>Order Status:</b>
+              ${orderStatus}
+            </div>
+
+
+            <div style="
+              margin-top:6px;
+            ">
+              <b>Payment:</b>
+              ${payment}
+            </div>
+
+
+            <div style="
+              margin-top:6px;
+              color:#777;
+              font-size:13px;
+            ">
+              <b>Order Time:</b>
+              ${orderDate}
+            </div>
+
+          </div>
+
+        `;
+
+      }).join("")}
+
+    `;
+
+
+  }catch(error){
+
+    console.error(
+      "SELLER ORDERS LOAD ERROR:",
+      error
+    );
+
+    content.innerHTML = `
+
+      <h3>🛒 Seller Orders</h3>
+
+      <div style="
+        padding:15px;
+        border:1px solid #f00;
+        border-radius:10px;
+        color:#d00;
+      ">
+
+        Orders load nahi ho paye.
+
+        <br><br>
+
+        <b>Error:</b>
+        ${error.message || error}
+
+      </div>
+
+    `;
+
+  }
+
 }
     // ==========================================
 // CUSTOMER LIVE DELIVERY BOY TRACKING
