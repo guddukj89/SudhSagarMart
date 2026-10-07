@@ -6923,50 +6923,6 @@ function sellerProfile(){
   `;
 }
 
-// ===============================
-// DELETE ACCOUNT
-// ===============================
-function deleteAccount(){
-
-    closeMenu();
-
-    if(
-        !confirm(
-            "Kya aap account delete karna chahte hain?"
-        )
-    ){
-        return;
-    }
-    localStorage.removeItem("ssm_cart");
-    localStorage.removeItem("ssm_orders");
-    localStorage.removeItem("ssm_wishlist");
-    localStorage.removeItem("ssm_location");
-    localStorage.removeItem("ssm_current_location");
-
-    cart=[];
-    orders=[];
-    wishlist=[];
-
-    if(auth.currentUser){
-
-        auth.currentUser
-            .delete()
-            .catch(function(error){
-
-                console.log(error);
-
-            });
-
-    }
-
-    alert(
-        "Account data delete kar diya gaya."
-    );
-
-    location.reload();
-
-}
-
 
 // ===============================
 // MENU
