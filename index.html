@@ -2640,15 +2640,114 @@ function addCart(i){
 }
 function buyNow(productOrIndex){
 
-  const p =
-    Array.isArray(productOrIndex)
-      ? productOrIndex
-      : products[Number(productOrIndex)];
+  let p = null;
 
-  if(!p || !Array.isArray(p)){
-    console.error("BUY NOW PRODUCT INVALID:", productOrIndex);
-    return alert("Product data valid nahi hai.");
+  // -----------------------------------
+  // 1. DIRECT PRODUCT ARRAY
+  // -----------------------------------
+
+  if(Array.isArray(productOrIndex)){
+
+    p = productOrIndex;
+
   }
+
+  // -----------------------------------
+  // 2. PRODUCT OBJECT
+  // -----------------------------------
+
+  else if(
+    productOrIndex &&
+    typeof productOrIndex === "object"
+  ){
+
+    p = productOrIndex;
+
+  }
+
+  // -----------------------------------
+  // 3. INDEX
+  // -----------------------------------
+
+  else{
+
+    const index =
+      Number(productOrIndex);
+
+    if(
+      Number.isInteger(index) &&
+      index >= 0 &&
+      index < products.length
+    ){
+
+      p = products[index];
+
+    }
+
+  }
+
+  // -----------------------------------
+  // VALIDATION
+  // -----------------------------------
+
+  if(
+    !p ||
+    !Array.isArray(p)
+  ){
+
+    console.error(
+      "BUY NOW PRODUCT INVALID:",
+      productOrIndex,
+      p
+    );
+
+    return alert(
+      "Product data valid nahi hai."
+    );
+
+  }
+
+  const productId =
+    String(p[6] || "").trim();
+
+  const productName =
+    String(p[1] || "Product").trim();
+
+  const productPrice =
+    Number(p[2] || 0);
+
+  console.log(
+    "BUY NOW PRODUCT:",
+    {
+      productId: productId,
+      productName: productName,
+      productPrice: productPrice,
+      product: p
+    }
+  );
+
+  if(!productId){
+
+    return alert(
+      "Product ID nahi mila."
+    );
+
+  }
+
+  if(
+    !Number.isFinite(productPrice) ||
+    productPrice <= 0
+  ){
+
+    return alert(
+      "Product price valid nahi hai."
+    );
+
+  }
+
+  // -----------------------------------
+  // ONLY SELECTED PRODUCT
+  // -----------------------------------
 
   cart = [{
     p: p,
@@ -2657,44 +2756,92 @@ function buyNow(productOrIndex){
 
   save();
 
-  openModal("checkoutModal");
+  console.log(
+    "BUY NOW CART:",
+    cart
+  );
 
-  const loc =
-    JSON.parse(
-      localStorage.getItem("ssm_location") || "null"
-    );
+  // -----------------------------------
+  // OPEN CHECKOUT
+  // -----------------------------------
+
+  openModal(
+    "checkoutModal"
+  );
+
+  // -----------------------------------
+  // LOAD SAVED LOCATION
+  // -----------------------------------
+
+  let loc = null;
+
+  try{
+
+    loc =
+      JSON.parse(
+        localStorage.getItem(
+          "ssm_location"
+        ) || "null"
+      );
+
+  }catch(error){
+
+    loc = null;
+
+  }
 
   if(loc){
 
     const nameEl =
-      document.getElementById("coName");
+      document.getElementById(
+        "coName"
+      );
 
     const mobileEl =
-      document.getElementById("coMobile");
+      document.getElementById(
+        "coMobile"
+      );
 
     const addressEl =
-      document.getElementById("coAddress");
+      document.getElementById(
+        "coAddress"
+      );
 
     if(nameEl){
-      nameEl.value = loc.name || "";
+
+      nameEl.value =
+        loc.name || "";
+
     }
 
     if(mobileEl){
-      mobileEl.value = loc.mobile || "";
+
+      mobileEl.value =
+        loc.mobile || "";
+
     }
 
     if(addressEl){
+
       addressEl.value =
         (loc.address || "") +
         ", " +
         (loc.city || "") +
         " - " +
         (loc.pincode || "");
+
     }
+
   }
 
+  // -----------------------------------
+  // RENDER CORRECT PRODUCT TOTAL
+  // -----------------------------------
+
   renderCheckoutSummary();
+
 }
+    
  function toggleWishlist(i){
     let index=wishlist.findIndex(x=>x[1]===products[i][1]);
 
