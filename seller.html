@@ -1701,100 +1701,35 @@ async function loadSeller(){
 
   let snap = null;
 
-  const phone =
-    currentUser?.phoneNumber || "";
-
-  // 1. Mobile number se seller find karo
-  if(phone){
-
-    try{
-console.log("SELLER LOOKUP PHONE:", phone);
-      const normalizedPhone =
-  phone.replace(/\D/g, "").slice(-10);
-
-console.log(
-  "SELLER LOOKUP PHONE:",
-  phone,
-  normalizedPhone
-);
-
-// Pehle mobileE164 se search
-const q = await db
-  .collection("Sellers")
-  .where(
-    "mobileE164",
-    "==",
-    "+91" + normalizedPhone
-  )
-  .limit(1)
-  .get();
-
-if(!q.empty){
-
-  snap = q.docs[0];
-
-}else{
-
-  // Purane seller accounts ke liye mobile field se search
-  const qOld = await db
-    .collection("Sellers")
-    .where(
-      "mobile",
-      "==",
-      normalizedPhone
-    )
-    .limit(1)
-    .get();
-
-  if(!qOld.empty){
-    snap = qOld.docs[0];
+  if(!currentUser){
+    return false;
   }
 
-}
+  try{
 
-    }catch(e){
+    // Seller ki apni UID document hi read karo
+    const uidSnap = await db
+      .collection("Sellers")
+      .doc(currentUser.uid)
+      .get();
 
-      console.error(
-        "Seller mobile lookup failed:",
-        e
-      );
+    if(uidSnap.exists){
+
+      snap = uidSnap;
 
     }
 
-  }
-
-  // 2. Agar mobile se nahi mila to UID se try karo
-  if(!snap && currentUser?.uid){
-
-    try{
-
-      const uidSnap =
-        await db
-          .collection("Sellers")
-          .doc(currentUser.uid)
-          .get();
-
-      if(uidSnap.exists){
-        snap = uidSnap;
-      }
-
-   }catch(e){
+  }catch(e){
 
     console.error(
       "Seller UID lookup failed:",
       e
     );
 
-    alert(
-      "Seller Firebase lookup error:\n\n" +
-      (e.message || e)
-    );
-
-}
-
+    throw e;
   }
 
-  // 3. Seller data set karo
+  // Seller data set
   if(snap && snap.exists){
 
     sellerData = {
@@ -1804,14 +1739,16 @@ if(!q.empty){
 
   }
 
-  // 4. Seller nahi mila
+  // Seller nahi mila
   if(!sellerData){
 
     sellerData = {
-      uid: currentUser?.uid || "",
-      email: currentUser?.email || "",
-      mobile: phone.replace("+91",""),
-      mobileE164: phone,
+      uid: currentUser.uid,
+      email: currentUser.email || "",
+      mobile: currentUser.phoneNumber
+        ? currentUser.phoneNumber.replace("+91","")
+        : "",
+      mobileE164: currentUser.phoneNumber || "",
       shopName: "Seller Shop",
       ownerName: "Seller",
       name: "Seller",
@@ -1822,22 +1759,24 @@ if(!q.empty){
 
   }
 
-  const setText=(id,v)=>{
-    const el =
-      document.getElementById(id);
+  const setText = (id,v) => {
 
-    if(el)
-      el.textContent =
-        v ?? "";
+    const el = document.getElementById(id);
+
+    if(el){
+      el.textContent = v ?? "";
+    }
+
   };
 
-  const setValue=(id,v)=>{
-    const el =
-      document.getElementById(id);
+  const setValue = (id,v) => {
 
-    if(el)
-      el.value =
-        v ?? "";
+    const el = document.getElementById(id);
+
+    if(el){
+      el.value = v ?? "";
+    }
+
   };
 
   setText(
@@ -1848,7 +1787,7 @@ if(!q.empty){
   setText(
     "sideEmail",
     sellerData.email ||
-    currentUser?.email ||
+    currentUser.email ||
     ""
   );
 
@@ -1872,7 +1811,7 @@ if(!q.empty){
   setValue(
     "accEmail",
     sellerData.email ||
-    currentUser?.email ||
+    currentUser.email ||
     ""
   );
 
@@ -1953,7 +1892,10 @@ if(!q.empty){
 
   }
 
+  return !!snap;
 }
+
+
   async function loadSellerStores(){
 
   const select =
