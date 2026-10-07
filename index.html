@@ -9571,8 +9571,12 @@ console.log("PRODUCT IMAGES:", getProductImages(product));
             style="flex:1;"
             onclick="
               event.stopPropagation();
-              closeProductDetails();
-              buyNow(ssmDetailProduct);
+
+const selectedProduct = ssmDetailProduct;
+
+closeProductDetails();
+
+buyNow(selectedProduct);;
             ">
 
             ⚡ Buy Now
