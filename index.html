@@ -7715,19 +7715,6 @@ function openLegalPolicies(){
     closeMenu();
     openTerms();
 }
-function submitSeller(){
-    const name = document.getElementById("sellerName").value.trim();
-    const shop = document.getElementById("shopName").value.trim();
-    const mobile = document.getElementById("sellerMobile").value.trim();
-    
-    if(!name || !shop || !mobile){
-        return alert("Please fill all required seller details.");
-    }
-    
-    document.getElementById("sellerMsg").innerText = "✅ Application submitted for review!";
-    document.getElementById("sellerMsg").style.color = "#278a43";
-    setTimeout(() => closeModal("sellerModal"), 1500);
-}
 
 function deleteAccount(){
     closeMenu();
