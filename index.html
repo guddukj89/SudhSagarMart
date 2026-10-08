@@ -2988,6 +2988,52 @@ async function saveOrderToFirestore(
 
   // Save to Firestore
   await db.collection("orders").doc(orderId).set(orderData);
+ // ===============================
+// SELLER NEW ORDER NOTIFICATION
+// ===============================
+
+const sellerIdsForNotification = [
+  ...new Set(
+    orderItems
+      .map(item => item.sellerId)
+      .filter(Boolean)
+  )
+];
+
+for(const sellerId of sellerIdsForNotification){
+
+  await db.collection("notifications").add({
+
+    sellerId: sellerId,
+
+    type: "NEW_ORDER",
+
+    title: "🛒 New Order Received",
+
+    message:
+      `New order #${orderId} received from ${coName.value.trim() || "Customer"}. Total ₹${finalTotal}.`,
+
+    orderId: orderId,
+
+    customerName:
+      coName.value.trim() || "Customer",
+
+    customerMobile:
+      coMobile.value.trim(),
+
+    total:
+      Number(finalTotal || 0),
+
+    status: "unread",
+
+    read: false,
+
+    createdAt:
+      firebase.firestore.FieldValue.serverTimestamp()
+
+  });
+
+}
 
   // Save local history
   orders.unshift(orderData);
