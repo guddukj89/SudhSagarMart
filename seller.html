@@ -2123,8 +2123,8 @@ function startRealtime(){
           title:"🛒 New Order Received",
 
           message:
-            `Order #${o.orderId||o.orderNo||o.id} - ` +
-            `${money(o.amount??o.total??0)}`
+         Order #${o.orderId || o.orderNo || o.id} -  +
+${money(o.sellerSubtotal ?? o.amount ?? o.total ?? o.finalTotal ?? o.totalAmount ?? o.productTotal ?? 0)}   
 
         });
 
