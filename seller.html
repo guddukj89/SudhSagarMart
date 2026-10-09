@@ -2552,9 +2552,16 @@ function renderOrders(){
             )}
           </td>
 
-          <td>
-            ${money(o.amount??o.total??0)}
-          </td>
+        <td>
+  ${money(
+    o.sellerSubtotal ??
+    o.amount ??
+    o.total ??
+    o.finalTotal ??
+    o.totalAmount ??
+    0
+  )}
+</td>
 
           <td>
             <b>${esc(
