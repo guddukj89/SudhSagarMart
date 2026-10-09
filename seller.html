@@ -2116,19 +2116,21 @@ function startRealtime(){
           ...change.doc.data()
         };
 
-        showSellerOrderAlert({
-
-          type:"new_order",
-
-          title:"🛒 New Order Received",
-
+              showSellerOrderAlert({
+          type: "new_order",
+          title: "🛒 New Order Received",
           message:
-         Order #${o.orderId || o.orderNo || o.id} -  +
-${money(o.sellerSubtotal ?? o.amount ?? o.total ?? o.finalTotal ?? o.totalAmount ?? o.productTotal ?? 0)}   
-
+            "Order #" + (o.orderId || o.orderNo || o.id) + " - " +
+            money(
+              o.sellerSubtotal ??
+              o.amount ??
+              o.total ??
+              o.finalTotal ??
+              o.totalAmount ??
+              o.productTotal ??
+              0
+            )
         });
-
-      });
 
     }
 
