@@ -2952,6 +2952,13 @@ async function saveOrderToFirestore(
   const storeName = customerStoreName || localStorage.getItem("ssm_storeName") || "";
 
   const orderData = {
+      sellerIds: [
+  ...new Set(
+    orderItems
+      .map(item => item.sellerId)
+      .filter(Boolean)
+  )
+],
     orderId: orderId,
     customerId: user.uid,
     customerUid: user.uid,
