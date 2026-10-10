@@ -2105,22 +2105,25 @@ function startRealtime(){
     renderPayments();
 
     // Naya order aane par seller alert
-    if(!orderFirstLoad){
+       // Naya order aane par seller alert
+    if (!orderFirstLoad) {
 
-      changes.forEach(change=>{
+      changes.forEach(change => {
 
-        if(change.type !== "added") return;
+        if (change.type !== "added") return;
 
-        const o={
-          id:change.doc.id,
+        const o = {
+          id: change.doc.id,
           ...change.doc.data()
         };
 
-              showSellerOrderAlert({
+        showSellerOrderAlert({
           type: "new_order",
           title: "🛒 New Order Received",
           message:
-            "Order #" + (o.orderId || o.orderNo || o.id) + " - " +
+            "Order #" +
+            (o.orderId || o.orderNo || o.id) +
+            " - " +
             money(
               o.sellerSubtotal ??
               o.amount ??
@@ -2132,12 +2135,12 @@ function startRealtime(){
             )
         });
 
+      });
+
     }
 
-    // Purane orders par first load me ring nahi
-    orderFirstLoad=false;
-
-  },
+    // First load complete
+    orderFirstLoad = false;
 
   "Orders"
 );
