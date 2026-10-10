@@ -2923,6 +2923,8 @@ async function saveOrderToFirestore(
   const weightCharge = Number(summary.weightCharge || 0);
   const deliveryCharge = Number(summary.deliveryCharge || 0);
   const finalTotal = Number(summary.finalTotal || 0);
+   console.log("CHECKOUT SUMMARY:", summary);
+console.log("FINAL TOTAL FOR NOTIFICATION:", finalTotal); 
 
   let currentLocation = null;
   try {
