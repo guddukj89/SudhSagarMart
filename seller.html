@@ -2111,7 +2111,7 @@ function startRealtime() {
 
   // ORDERS
   listen(
-    db.collection("orders").where("sellerId", "==", uid),
+  db.collection("orders").where("sellerIds", "array-contains", uid),
     snap => {
       const changes = snap.docChanges();
 
