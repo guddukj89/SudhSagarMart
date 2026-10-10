@@ -2751,9 +2751,16 @@ function renderOrders(){
     o.paymentStatus ||
     "Pending";
 
-  const total =
-    Number(o.amount ?? o.total ?? o.totalAmount ?? 0);
-
+const total = Number(
+  o.sellerSubtotal ??
+  o.amount ??
+  o.total ??
+  o.finalTotal ??
+  o.totalAmount ??
+  o.productTotal ??
+  0
+);
+   
   // ================= DELIVERY PARTNER =================
 
   const deliveryAccepted =
@@ -3204,9 +3211,15 @@ window.sellerReadyForPack = async function(id){
     o.status ||
     o.orderStatus ||
     "Pending";
-
-  const total =
-    Number(o.amount ?? o.total ?? 0);
+const total = Number(
+  o.sellerSubtotal ??
+  o.amount ??
+  o.total ??
+  o.finalTotal ??
+  o.totalAmount ??
+  o.productTotal ??
+  0
+);
 
   const items =
     Array.isArray(o.items)
