@@ -3573,7 +3573,15 @@ async function updateOrderStatus(id,status){
 }
   
 function getCommissionRate(){const n=Number(sellerData?.commission??sellerData?.commissionRate??10);return Math.max(0,Math.min(100,n))/100;}
-function calcFinance(){let gross=0,commission=0,deliveredGross=0;ordersCache.forEach(o=>{const amount=Number(o.amount??o.total??0);gross+=amount;const st=String(o.status||o.orderStatus||"").toLowerCase();if(st==="delivered"){deliveredGross+=amount;commission+=Number(o.commission??amount*getCommissionRate());}});let paid=0;paymentsCache.forEach(p=>{if(String(p.status||"").toLowerCase()==="paid")paid+=Number(p.amount||0);});const net=Math.max(0,deliveredGross-commission),pending=Math.max(0,net-paid);return {gross,commission,deliveredGross,paid,net,pending};}
+function calcFinance(){let gross=0,commission=0,deliveredGross=0;ordersCache.forEach(o=>{const amount = Number(
+  o.sellerSubtotal ??
+  o.amount ??
+  o.total ??
+  o.finalTotal ??
+  o.totalAmount ??
+  o.productTotal ??
+  0
+);gross+=amount;const st=String(o.status||o.orderStatus||"").toLowerCase();if(st==="delivered"){deliveredGross+=amount;commission+=Number(o.commission??amount*getCommissionRate());}});let paid=0;paymentsCache.forEach(p=>{if(String(p.status||"").toLowerCase()==="paid")paid+=Number(p.amount||0);});const net=Math.max(0,deliveredGross-commission),pending=Math.max(0,net-paid);return {gross,commission,deliveredGross,paid,net,pending};}
 function renderPayments(){
   const f=calcFinance();
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
