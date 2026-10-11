@@ -2133,36 +2133,7 @@ function startRealtime() {
       renderEarnings();
       renderPayments();
 
-      if (!orderFirstLoad) {
-        changes.forEach(change => {
-          if (change.type !== "added") return;
-
-          const order = {
-            id: change.doc.id,
-            ...change.doc.data()
-          };
-
-          const amount =
-            order.sellerSubtotal ??
-            order.amount ??
-            order.total ??
-            order.finalTotal ??
-            order.totalAmount ??
-            order.productTotal ??
-            0;
-
-          showSellerOrderAlert({
-            type: "new_order",
-            title: "🛒 New Order Received",
-            message:
-              "Order #" +
-              (order.orderId || order.orderNo || order.id) +
-              " - " +
-              money(amount)
-          });
-        });
-      }
-
+      
       orderFirstLoad = false;
     },
     "Orders"
