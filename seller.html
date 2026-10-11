@@ -3959,16 +3959,47 @@ async function confirmSellerOrder(notificationId, orderId){
       "Pending"
     ).toLowerCase();
 
-    if(
-      currentStatus !== "order placed" &&
-      currentStatus !== "pending"
-    ){
-      return alert(
-        "Ye order ab confirm nahi kiya ja sakta.\n\n" +
-        "Current Status: " +
-        (order.status || order.orderStatus)
-      );
+
+if (
+  currentStatus === "confirmed" ||
+  currentStatus === "ready for pack" ||
+  currentStatus === "ready for pickup" ||
+  currentStatus === "packed" ||
+  currentStatus === "shipped" ||
+  currentStatus === "delivered"
+) {
+  if (notificationId) {
+    try {
+      await db.collection("notifications")
+        .doc(notificationId)
+        .update({
+          status: "read",
+          action: "confirmed",
+          readAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (e) {
+      console.error("Notification update error:", e);
     }
+  }
+
+  return alert(
+    "Yeh order pehle se " +
+    (order.status || order.orderStatus) +
+    " hai. Dobara confirm karne ki zaroorat nahi hai."
+  );
+}
+
+if (
+  currentStatus !== "order placed" &&
+  currentStatus !== "pending" &&
+  currentStatus !== "placed"
+) {
+  return alert(
+    "Is order ko ab confirm nahi kar sakte.\n\nCurrent Status: " +
+    (order.status || order.orderStatus || "Unknown")
+  );
+}
+
 
     await orderRef.update({
 
