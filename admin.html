@@ -3087,15 +3087,22 @@ function loadOrderRiders(selectedId = "") {
         );
 
       const accountStatus =
-        String(
-          r.accountStatus ||
-          ""
-        ).toLowerCase();
+  String(
+    r.accountStatus ||
+    ""
+  ).toLowerCase();
 
-      return (
-        riderStore === storeId &&
-        accountStatus === "approved"
-      );
+const dutyStatus =
+  String(
+    r.dutyStatus ||
+    "offline"
+  ).toLowerCase();
+
+return (
+  riderStore === storeId &&
+  accountStatus === "approved" &&
+  dutyStatus === "online"
+);
 
     });
 
