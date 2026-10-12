@@ -2065,15 +2065,18 @@ async function submitKYC(){
   finally{btn.disabled=false;}
 }
 
-
 function startRealtime() {
   if (!currentUser) {
     console.error("Seller login nahi hai.");
     return;
   }
 
+  // Purane Firebase listeners hatao
+  clearListeners();
+
   orderFirstLoad = true;
   notificationFirstLoad = true;
+
 
   const uid = currentUser.uid;
 
