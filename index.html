@@ -3016,7 +3016,9 @@ const sellerIdsForNotification = [
 
 for(const sellerId of sellerIdsForNotification){
 
-  await db.collection("notifications").add({
+await db.collection("notifications")
+  .doc(orderId + "_" + sellerId)
+  .set({
 
     sellerId: sellerId,
 
