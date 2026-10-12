@@ -1251,18 +1251,25 @@ $("earnToday").textContent =
         return;
       }
 
+
 if(
   ![
     "assigned",
     "confirmed",
-    "ready_for_pickup"
-  ].includes(currentStatus)
+    "ready_for_pickup",
+    "order placed",
+    "order_placed",
+    "placed"
+  ].includes(
+    String(currentStatus || "").trim().toLowerCase()
+  )
 ){
   alert(
     "⚠️ Order ka current step Accept ke liye valid nahi hai."
   );
   return;
 }
+
 
       await updateDoc(
         doc(db,"orders",id),
