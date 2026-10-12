@@ -3322,15 +3322,23 @@ async function updateOrderStatus(id,status){
       snap.data();
 
     // Seller ownership check
-    if(
-      order.sellerId &&
-      String(order.sellerId) !==
+    const isSellerOrder =
+  Array.isArray(order.sellerIds) &&
+  order.sellerIds.includes(currentUser.uid);
+
+const ownsItem =
+  Array.isArray(order.items) &&
+  order.items.some(
+    item =>
+      String(item.sellerId || "") ===
       String(currentUser.uid)
-    ){
-      return alert(
-        "❌ Aap is order ko update nahi kar sakte."
-      );
-    }
+  );
+
+if (!isSellerOrder && !ownsItem) {
+  return alert(
+    "❌ Aap is order ko update nahi kar sakte."
+  );
+}
 
     const currentStatus =
       String(
