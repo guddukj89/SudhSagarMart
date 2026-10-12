@@ -3450,10 +3450,16 @@ async function saveOrder(){
         deliveryBoyPhone:
           riderPhone,
 
-        deliveryAssignmentStatus:
-          riderId
-            ? "Assigned"
-            : "Unassigned",
+        deliveryAssignmentStatus: riderId ? "Assigned" : "Unassigned",
+
+deliveryAssignmentId: riderId
+  ? (crypto.randomUUID
+      ? crypto.randomUUID()
+      : Date.now() + "_" + riderId)
+  : "",
+
+deliveryReassignmentState: "none",
+riderAccepted: false,
 
         updatedAt:
           firebase.firestore.FieldValue
@@ -3597,11 +3603,16 @@ async function saveOrder(){
       deliveryBoyPhone:
         riderPhone,
 
-      deliveryAssignmentStatus:
-        riderId
-          ? "Assigned"
-          : "Unassigned",
+      deliveryAssignmentStatus: riderId ? "Assigned" : "Unassigned",
 
+deliveryAssignmentId: riderId
+  ? (crypto.randomUUID
+      ? crypto.randomUUID()
+      : Date.now() + "_" + riderId)
+  : "",
+
+deliveryReassignmentState: "none",
+riderAccepted: false,
       storeId:
         currentAdmin.storeId,
 
