@@ -3416,7 +3416,42 @@ async function saveOrder(){
 
       const oldOrder =
         snap.data();
+// Assigned order ka status/rider Admin nahi badlega
+const alreadyAssigned =
+  !!String(oldOrder.deliveryBoyId || "").trim();
 
+if(alreadyAssigned){
+
+  const currentRiderId =
+    String(oldOrder.deliveryBoyId || "");
+
+  if(
+    String(riderId || "") !== currentRiderId
+  ){
+
+    alert(
+      "Ye order pehle se Delivery Partner ko assigned hai. Rider change karne ke liye alag reassignment process use karein."
+    );
+
+    return;
+  }
+
+  const currentStatus =
+    String(
+      oldOrder.orderStatus ||
+      oldOrder.status ||
+      "Order Placed"
+    );
+
+  if(status !== currentStatus){
+
+    alert(
+      "Assigned order ka status Admin change nahi kar sakta. Status Delivery Partner update karega."
+    );
+
+    return;
+  }
+}
 
       // ================= STORE SECURITY =================
 
