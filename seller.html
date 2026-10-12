@@ -4069,9 +4069,15 @@ function renderCustomers(){
 
     map[key].orders++;
 
-    map[key].total += Number(
-      o.amount ?? o.total ?? 0
-    );
+map[key].total += Number(
+  o.sellerSubtotal ??
+  o.amount ??
+  o.total ??
+  o.finalTotal ??
+  o.totalAmount ??
+  o.productTotal ??
+  0
+);
   });
 
   const rows=Object.values(map);
