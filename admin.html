@@ -3843,9 +3843,10 @@ function editOrder(id){
       statusMap[normalized] ||
       "Order Placed";
 
+const isAssigned =
+  !!String(order.deliveryBoyId || "").trim();
 
-    statusSelect.disabled =
-      false;
+statusSelect.disabled = isAssigned;
 
   }
 
@@ -3862,10 +3863,10 @@ function editOrder(id){
 
   if(riderSelect){
 
-    riderSelect.disabled =
-      false;
+  riderSelect.disabled =
+    !!String(order.deliveryBoyId || "").trim();
 
-  }
+}
 
 
   // ================= SHOW FORM =================
