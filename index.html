@@ -3009,7 +3009,7 @@ console.log("FINAL TOTAL FOR NOTIFICATION:", finalTotal);
 const sellerIdsForNotification = [
   ...new Set(
     orderItems
-      .map(item => item.sellerId)
+      .map(item => String(item.sellerId || "").trim())
       .filter(Boolean)
   )
 ];
