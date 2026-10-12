@@ -3027,15 +3027,13 @@ await db.collection("notifications")
     title: "🛒 New Order Received",
 
     message:
-      `New order #${orderId} received from ${coName.value.trim() || "Customer"}. Total ₹${finalTotal}.`,
+  `New order #${orderId} received from ${customerName}. Total ₹${finalTotal}.`,
 
-    orderId: orderId,
+orderId: orderId,
 
-    customerName:
-      coName.value.trim() || "Customer",
+customerName: customerName,
 
-    customerMobile:
-      coMobile.value.trim(),
+customerMobile: customerMobile,
 
     total:
       Number(finalTotal || 0),
