@@ -520,13 +520,15 @@ function renderOrder(o,type){
     o.address ||
     "Address not available";
 
-  const total =
-    Number(
-      o.total ??
-      o.grandTotal ??
-      o.amount ??
-      0
-    );
+const total = Number(
+  o.sellerSubtotal ??
+  o.amount ??
+  o.total ??
+  o.grandTotal ??
+  o.finalTotal ??
+  o.totalAmount ??
+  0
+);
 
   // ================= PAYMENT STATUS =================
 
