@@ -1734,6 +1734,12 @@ function setDutyUI(on){
 async function toggleDuty(){
   if(!partnerId) return toast("Partner account not ready");
   const next=partnerData.dutyStatus!=="online";
+  
+if(next){
+  toast("Pehle slot book karein aur store par QR scan karein.");
+  return;
+}
+  
   try{
     await setDoc(doc(db,"deliveryPartners",partnerId),{dutyStatus:next?"online":"offline",dutyUpdatedAt:serverTimestamp()},{merge:true});
     partnerData.dutyStatus=next?"online":"offline";
