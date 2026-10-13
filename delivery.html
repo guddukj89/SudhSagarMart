@@ -2124,5 +2124,62 @@ onAuthStateChanged(auth,async user=>{
 
 });
 </script>
+
+<!-- SUDH SAGAR MART: DELIVERY PARTNER SLOT BOOKING -->
+<section id="riderSlotSection" class="rider-slot-card">
+  <h2>Delivery Partner Slot Booking</h2>
+  <p id="riderSlotStatus">Apna delivery slot book karein.</p>
+
+  <label for="riderSlotDate">Date</label>
+  <input type="date" id="riderSlotDate" required>
+
+  <label for="riderSlotTime">Available Slot</label>
+  <select id="riderSlotTime" required>
+    <option value="">Slot select karein</option>
+    <option value="morning">Morning — 8 AM to 12 PM</option>
+    <option value="afternoon">Afternoon — 12 PM to 4 PM</option>
+    <option value="evening">Evening — 4 PM to 8 PM</option>
+  </select>
+
+  <button id="bookRiderSlotBtn" type="button">
+    Book My Slot
+  </button>
+
+  <div id="riderSlotResult" role="status"></div>
+</section>
+
+<style>
+.rider-slot-card {
+  max-width: 480px;
+  margin: 20px auto;
+  padding: 18px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  color: #222;
+}
+.rider-slot-card h2 { font-size: 21px; }
+.rider-slot-card label {
+  display: block;
+  margin-top: 14px;
+}
+.rider-slot-card input,
+.rider-slot-card select,
+.rider-slot-card button {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+}
+.rider-slot-card button {
+  border: 0;
+  border-radius: 8px;
+  background: #087f45;
+  color: white;
+  font-weight: bold;
+}
+</style>
+
+  
 </body>
 </html>
