@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudh Sagar Mart - Live QR Panel</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
+header{background:#0878e8;color:white;padding:18px;font-size:20px;font-weight:bold}
+main{max-width:480px;margin:22px auto;padding:12px}
+.card{background:white;padding:20px;border-radius:16px;box-shadow:0 3px 14px #0001;margin-bottom:15px}
+label{display:block;font-size:13px;font-weight:bold;margin:12px 0 6px}
+input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px}
+button{width:100%;padding:13px;border:0;border-radius:9px;font-weight:bold;font-size:15px;margin-top:12px}
+#liveBtn{background:#15803d;color:white}
+#qr{display:flex;justify-content:center;min-height:220px;align-items:center;margin:18px 0}
+.status{padding:10px;border-radius:8px;background:#fee2e2;color:#991b1b;text-align:center;font-weight:bold}
+.note{font-size:12px;color:#64748b;line-height:1.6}
+</style>
+</head>
+<body>
+<header>🏪 Sudh Sagar Mart — Store QR Panel</header>
+<main>
+  <div class="card">
+    <h2>Live QR Attendance</h2>
+    <label>Store ID</label>
+    <input id="storeId" placeholder="Apni Store ID daalein">
+
+    <div id="status" class="status">LIVE OFF</div>
+    <button id="liveBtn">▶ LIVE START</button>
+
+    <div id="qr">Live ON karne par QR yahan dikhega</div>
+    <div style="text-align:center">
+      <b id="countdown">—</b>
+      <p id="updated">QR abhi band hai</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Kaise kaam karega?</h3>
+    <p class="note">
+      1. Store ID daalein.<br>
+      2. LIVE START karein.<br>
+      3. Live QR har 5 second mein refresh hoga.<br>
+      4. Rider Delivery Panel se scan karega.<br>
+      5. LIVE OFF karne par naye scans band honge.
+    </p>
+    <p class="note">
+      Security: Yeh abhi panel ka frontend prototype hai.
+      Iska QR local demo data se banta hai. Isse asli
+      attendance verify nahi hogi. Real use se pehle server-issued
+      token, authentication aur Firestore validation jodna zaroori hai.
+    </p>
+  </div>
+</main>
+
+<script>
+let live = false;
+let intervalId = null;
+let remaining = 5;
+
+const liveBtn = document.getElementById("liveBtn");
+const statusBox = document.getElementById("status");
+const qrBox = document.getElementById("qr");
+const countdown = document.getElementById("countdown");
+const updated = document.getElementById("updated");
+const storeInput = document.getElementById("storeId");
+
+function makeDemoQR(){
+  const storeId = storeInput.value.trim();
+
+  if(!storeId){
+    alert("Pehle Store ID daalein.");
+    stopLive();
+    return;
+  }
+
+  qrBox.innerHTML = "";
+
+  // DEMO ONLY: real attendance token nahi hai.
+  const demoPayload = JSON.stringify({
+    type: "SSM_QR_DEMO",
+    storeId: storeId,
+    nonce: crypto.randomUUID(),
+    createdAt: Date.now()
+  });
+
+  new QRCode(qrBox, {
+    text: demoPayload,
+    width: 210,
+    height: 210,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  remaining = 5;
+  updated.textContent =
+    "Demo QR updated: " + new Date().toLocaleTimeString();
+}
+
+function startLive(){
+  if(!storeInput.value.trim()){
+    alert("Pehle Store ID daalein.");
+    return;
+  }
+
+  live = true;
+  statusBox.textContent = "LIVE ON — DEMO";
+  statusBox.style.background = "#dcfce7";
+  statusBox.style.color = "#166534";
+  liveBtn.textContent = "■ LIVE STOP";
+  liveBtn.style.background = "#b91c1c";
+
+  makeDemoQR();
+
+  intervalId = setInterval(() => {
+    if(!live) return;
+
+    remaining--;
+    countdown.textContent = "Next QR in " + remaining + " sec";
+
+    if(remaining <= 0){
+      makeDemoQR();
+    }
+  }, 1000);
+}
+
+function stopLive(){
+  live = false;
+  clearInterval(intervalId);
+  intervalId = null;
+
+  statusBox.textContent = "LIVE OFF";
+  statusBox.style.background = "#fee2e2";
+  statusBox.style.color = "#991b1b";
+  liveBtn.textContent = "▶ LIVE START";
+  liveBtn.style.background = "#15803d";
+  qrBox.textContent = "Live band hai";
+  countdown.textContent = "—";
+  updated.textContent = "QR abhi band hai";
+}
+
+liveBtn.addEventListener("click", () => {
+  if(live){
+    stopLive();
+  }else{
+    startLive();
+  }
+});
+</script>
+</body>
+</html>
