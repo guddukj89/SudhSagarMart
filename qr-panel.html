@@ -148,6 +148,309 @@ liveBtn.addEventListener("click", () => {
     startLive();
   }
 });
+
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const admin = require("firebase-admin");
+const crypto = require("crypto");
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+const db = admin.firestore();
+const FieldValue = admin.firestore.FieldValue;
+const Timestamp = admin.firestore.Timestamp;
+
+// ------------------------------------------
+// HELPERS
+// ------------------------------------------
+
+function hashToken(token) {
+  return crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+}
+
+async function requireAdmin(request) {
+  if (!request.auth) {
+    throw new HttpsError(
+      "unauthenticated",
+      "Please login first."
+    );
+  }
+
+  const uid = request.auth.uid;
+
+  const adminDoc = await db
+    .collection("admins")
+    .doc(uid)
+    .get();
+
+  if (
+    request.auth.token.admin !== true &&
+    !adminDoc.exists
+  ) {
+    throw new HttpsError(
+      "permission-denied",
+      "Admin access required."
+    );
+  }
+
+  return uid;
+}
+
+// ------------------------------------------
+// 1. STORE QR LIVE ON / OFF
+// ------------------------------------------
+
+exports.setStoreQrLive = onCall(async (request) => {
+  await requireAdmin(request);
+
+  const storeId = String(
+    request.data?.storeId || ""
+  ).trim();
+
+  const live = request.data?.live;
+
+  if (!storeId || typeof live !== "boolean") {
+    throw new HttpsError(
+      "invalid-argument",
+      "storeId and live status are required."
+    );
+  }
+
+  await db
+    .collection("storeQrSessions")
+    .doc(storeId)
+    .set(
+      {
+        storeId: storeId,
+        live: live,
+        updatedAt: FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    );
+
+  return {
+    success: true,
+    storeId: storeId,
+    live: live
+  };
+});
+
+// ------------------------------------------
+// 2. GENERATE A SHORT-LIVED QR TOKEN
+// Call this every 5 seconds while LIVE.
+// ------------------------------------------
+
+exports.getStoreQrToken = onCall(async (request) => {
+  await requireAdmin(request);
+
+  const storeId = String(
+    request.data?.storeId || ""
+  ).trim();
+
+  if (!storeId) {
+    throw new HttpsError(
+      "invalid-argument",
+      "storeId is required."
+    );
+  }
+
+  const sessionRef = db
+    .collection("storeQrSessions")
+    .doc(storeId);
+
+  const sessionSnap = await sessionRef.get();
+
+  if (
+    !sessionSnap.exists ||
+    sessionSnap.data().live !== true
+  ) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Store QR is OFF."
+    );
+  }
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = hashToken(token);
+  const expiresAtMs = Date.now() + 15000;
+
+  await db
+    .collection("storeQrTokens")
+    .doc(tokenHash)
+    .create({
+      storeId: storeId,
+      used: false,
+      createdAt: FieldValue.serverTimestamp(),
+      expiresAt: Timestamp.fromMillis(expiresAtMs)
+    });
+
+  return {
+    success: true,
+    storeId: storeId,
+    token: token,
+    expiresAt: expiresAtMs
+  };
+});
+
+// ------------------------------------------
+// 3. VALIDATE SCANNED QR
+// Prevent reuse and duplicate queue entries.
+// ------------------------------------------
+
+exports.validateStoreQrScan = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
+      "unauthenticated",
+      "Rider login required."
+    );
+  }
+
+  const uid = request.auth.uid;
+
+  const token = String(
+    request.data?.token || ""
+  ).trim();
+
+  const storeId = String(
+    request.data?.storeId || ""
+  ).trim();
+
+  if (!token || !storeId) {
+    throw new HttpsError(
+      "invalid-argument",
+      "QR token and storeId are required."
+    );
+  }
+
+  const riderRef = db
+    .collection("deliveryPartners")
+    .doc(uid);
+
+  const tokenRef = db
+    .collection("storeQrTokens")
+    .doc(hashToken(token));
+
+  const sessionRef = db
+    .collection("storeQrSessions")
+    .doc(storeId);
+
+  const queueQuery = db
+    .collection("storeRiderQueue")
+    .where("riderId", "==", uid)
+    .where("storeId", "==", storeId)
+    .where("status", "==", "waiting")
+    .limit(1);
+
+  return db.runTransaction(async (tx) => {
+    // Read all required documents before writing.
+    const riderSnap = await tx.get(riderRef);
+    const tokenSnap = await tx.get(tokenRef);
+    const sessionSnap = await tx.get(sessionRef);
+    const queueSnap = await tx.get(queueQuery);
+
+    if (!riderSnap.exists) {
+      throw new HttpsError(
+        "permission-denied",
+        "Rider profile not found."
+      );
+    }
+
+    if (!tokenSnap.exists || !sessionSnap.exists) {
+      throw new HttpsError(
+        "failed-precondition",
+        "QR token is invalid."
+      );
+    }
+
+    const rider = riderSnap.data();
+    const qr = tokenSnap.data();
+    const session = sessionSnap.data();
+
+    if (session.live !== true) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Store QR is OFF."
+      );
+    }
+
+    if (qr.storeId !== storeId) {
+      throw new HttpsError(
+        "permission-denied",
+        "QR belongs to another store."
+      );
+    }
+
+    if (
+      qr.used === true ||
+      !qr.expiresAt ||
+      qr.expiresAt.toMillis() <= Date.now()
+    ) {
+      throw new HttpsError(
+        "failed-precondition",
+        "QR has expired or was already used."
+      );
+    }
+
+    if (rider.storeId !== storeId) {
+      throw new HttpsError(
+        "permission-denied",
+        "Rider is not assigned to this store."
+      );
+    }
+
+    if (rider.activeOrderId) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Complete your active order first."
+      );
+    }
+
+    if (!queueSnap.empty) {
+      throw new HttpsError(
+        "already-exists",
+        "Rider is already waiting in this queue."
+      );
+    }
+
+    const queueRef = db
+      .collection("storeRiderQueue")
+      .doc();
+
+    // Mark token as used and create queue entry atomically.
+    tx.update(tokenRef, {
+      used: true,
+      usedBy: uid,
+      usedAt: FieldValue.serverTimestamp()
+    });
+
+    tx.create(queueRef, {
+      riderId: uid,
+      storeId: storeId,
+      status: "waiting",
+      joinedAt: FieldValue.serverTimestamp()
+    });
+
+    tx.set(
+      riderRef,
+      {
+        queueJoinedAt: FieldValue.serverTimestamp(),
+        lastQrScanAt: FieldValue.serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    return {
+      success: true,
+      message: "Rider added to store queue.",
+      queueId: queueRef.id
+    };
+  });
+});
+  
 </script>
 </body>
 </html>
