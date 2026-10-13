@@ -5586,5 +5586,96 @@ auth.onAuthStateChanged(async user => {
 
 
 </script>
+
+<!-- SUDH SAGAR MART: STORE QR ATTENDANCE -->
+<section id="storeQrAdminPanel" style="max-width:600px;margin:20px auto;padding:20px;background:#fff;border:1px solid #ddd;border-radius:12px;font-family:Arial,sans-serif">
+  <h2>Store QR Attendance</h2>
+  <p>Store ka live QR control</p>
+
+  <label for="qrStoreId">Store ID</label>
+  <input id="qrStoreId" value="MANER001"
+    style="width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:6px">
+
+  <button id="qrLiveStart"
+    style="width:100%;padding:12px;background:#087f3e;color:white;border:0;border-radius:6px">
+    LIVE START
+  </button>
+
+  <button id="qrLiveStop"
+    style="width:100%;padding:12px;margin-top:8px;background:#c00;color:white;border:0;border-radius:6px">
+    LIVE STOP
+  </button>
+
+  <p id="qrAdminStatus">Firebase connection ka intezar hai.</p>
+  <div id="qrAdminImage" style="text-align:center;margin-top:15px"></div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(async function () {
+  const startBtn = document.getElementById("qrLiveStart");
+  const stopBtn = document.getElementById("qrLiveStop");
+  const storeInput = document.getElementById("qrStoreId");
+  const status = document.getElementById("qrAdminStatus");
+  const qrBox = document.getElementById("qrAdminImage");
+
+  const baseUrl =
+    "https://asia-south1-sudhsagarmart.cloudfunctions.net/";
+
+  async function callQrFunction(functionName) {
+    if (!window.firebase || !firebase.auth) {
+      throw new Error("Firebase Auth admin.html mein initialize nahi hai.");
+    }
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      throw new Error("Pehle Super Admin mein login karein.");
+    }
+
+    const storeId = storeInput.value.trim();
+    if (!storeId) throw new Error("Store ID daalein.");
+
+    const idToken = await user.getIdToken();
+
+    const response = await fetch(baseUrl + functionName, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + idToken
+      },
+      body: JSON.stringify({ storeId })
+    });
+
+    const data = await response.json();
+    if (!response.ok || data.success === false) {
+      throw new Error(data.error || data.message || "QR request fail hua.");
+    }
+    return data;
+  }
+
+  startBtn.onclick = async function () {
+    try {
+      status.textContent = "LIVE start ho raha hai...";
+      await callQrFunction("setStoreQrLive");
+      status.textContent = "LIVE START request successful.";
+    } catch (error) {
+      status.textContent = "Error: " + error.message;
+    }
+  };
+
+  stopBtn.onclick = async function () {
+    try {
+      status.textContent = "LIVE stop ho raha hai...";
+      await callQrFunction("setStoreQrLive");
+      status.textContent =
+        "Request bhej di gayi. Backend mein LIVE OFF action verify karna hoga.";
+    } catch (error) {
+      status.textContent = "Error: " + error.message;
+    }
+  };
+})();
+</script>
+
+  
 </body>
 </html>
