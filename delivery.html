@@ -2129,6 +2129,70 @@ onAuthStateChanged(auth,async user=>{
   }
 
 });
+async function bookRiderSlot() {
+  const date = $("riderSlotDate").value;
+  const slot = $("riderSlotTime").value;
+  const result = $("riderSlotResult");
+  const button = $("bookRiderSlotBtn");
+
+  if (!currentUser) {
+    result.textContent = "Pehle Delivery Partner login karein.";
+    return;
+  }
+
+  if (!date || !slot) {
+    result.textContent = "Date aur slot dono select karein.";
+    return;
+  }
+
+  if (!partnerId) {
+    result.textContent = "Partner account load nahi hua. Page refresh karein.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Booking ho rahi hai...";
+  result.textContent = "";
+
+  try {
+    const bookingId = `${date}_${slot}_${partnerId}`;
+    const bookingRef = doc(db, "deliverySlotBookings", bookingId);
+    const existing = await getDoc(bookingRef);
+
+    if (existing.exists()) {
+      result.textContent = "Aap is slot ko pehle hi book kar chuke hain.";
+      return;
+    }
+
+    await setDoc(bookingRef, {
+      partnerId: partnerId,
+      partnerName: partnerData.name || partnerData.fullName || "",
+      storeId: partnerStoreId || "",
+      storeName: partnerStoreName || "",
+      date: date,
+      slot: slot,
+      status: "booked",
+      createdAt: serverTimestamp()
+    });
+
+    result.textContent = "Slot booking successful!";
+    $("riderSlotStatus").textContent =
+      `Booked: ${date} — ${slot}`;
+
+    toast("Delivery slot book ho gaya.");
+
+  } catch (error) {
+    console.error("Slot booking error:", error);
+    result.textContent =
+      "Booking nahi hui. Firebase permissions aur connection check karein.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Book My Slot";
+  }
+}
+
+$("bookRiderSlotBtn").addEventListener("click", bookRiderSlot);
+  
 </script>
 
 <!-- SUDH SAGAR MART: DELIVERY PARTNER SLOT BOOKING -->
