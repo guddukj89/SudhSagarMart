@@ -5588,94 +5588,143 @@ auth.onAuthStateChanged(async user => {
 </script>
 
 <!-- SUDH SAGAR MART: STORE QR ATTENDANCE -->
-<section id="storeQrAdminPanel" style="max-width:600px;margin:20px auto;padding:20px;background:#fff;border:1px solid #ddd;border-radius:12px;font-family:Arial,sans-serif">
+<section id="storeQrAdminPanel"
+  style="max-width:600px;margin:20px auto;padding:20px;background:#fff;border:1px solid #ddd;border-radius:12px;font-family:Arial,sans-serif">
+
   <h2>Store QR Attendance</h2>
   <p>Store ka live QR control</p>
 
   <label for="qrStoreId">Store ID</label>
-  <input id="qrStoreId" value="MANER001"
+  <input id="qrStoreId" type="text"
     style="width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:6px">
 
-  <button id="qrLiveStart"
+  <button id="qrLiveStart" type="button"
     style="width:100%;padding:12px;background:#087f3e;color:white;border:0;border-radius:6px">
     LIVE START
   </button>
 
-  <button id="qrLiveStop"
+  <button id="qrLiveStop" type="button"
     style="width:100%;padding:12px;margin-top:8px;background:#c00;color:white;border:0;border-radius:6px">
     LIVE STOP
   </button>
 
-  <p id="qrAdminStatus">Firebase connection ka intezar hai.</p>
+  <p id="qrAdminStatus">Admin login ka intezar hai.</p>
   <div id="qrAdminImage" style="text-align:center;margin-top:15px"></div>
 </section>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-(async function () {
+(function () {
   const startBtn = document.getElementById("qrLiveStart");
   const stopBtn = document.getElementById("qrLiveStop");
   const storeInput = document.getElementById("qrStoreId");
   const status = document.getElementById("qrAdminStatus");
-  const qrBox = document.getElementById("qrAdminImage");
 
-  const baseUrl =
-    "https://asia-south1-sudhsagarmart.cloudfunctions.net/";
+  // Existing admin.html ke Firebase objects use honge.
+  if (typeof auth === "undefined" || typeof db === "undefined") {
+    status.textContent = "Firebase Auth/Firestore initialize nahi hua.";
+    return;
+  }
 
-  async function callQrFunction(functionName) {
-    if (!window.firebase || !firebase.auth) {
-      throw new Error("Firebase Auth admin.html mein initialize nahi hai.");
-    }
-
-    const user = firebase.auth().currentUser;
+  // Logged-in admin ke assigned store se ID bharna.
+  auth.onAuthStateChanged(async function (user) {
     if (!user) {
-      throw new Error("Pehle Super Admin mein login karein.");
+      status.textContent = "Pehle Super Admin login karein.";
+      return;
     }
 
+    try {
+      const adminSnap = await db.collection("adminUsers").doc(user.uid).get();
+
+      if (!adminSnap.exists) {
+        status.textContent = "Admin record nahi mila.";
+        return;
+      }
+
+      const adminData = adminSnap.data() || {};
+      storeInput.value = String(adminData.storeId || "").trim();
+
+      if (!storeInput.value) {
+        status.textContent = "Admin account mein storeId set nahi hai.";
+        return;
+      }
+
+      status.textContent = "Store ID load ho gayi: " + storeInput.value;
+    } catch (error) {
+      console.error(error);
+      status.textContent = "Store ID load nahi hui: " + error.message;
+    }
+  });
+
+  async function setQrLive(isLive) {
+    const user = auth.currentUser;
     const storeId = storeInput.value.trim();
-    if (!storeId) throw new Error("Store ID daalein.");
+
+    if (!user) {
+      throw new Error("Pehle Super Admin login karein.");
+    }
+
+    if (!storeId) {
+      throw new Error("Store ID nahi mili.");
+    }
 
     const idToken = await user.getIdToken();
 
-    const response = await fetch(baseUrl + functionName, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + idToken
-      },
-      body: JSON.stringify({ storeId })
-    });
+    const response = await fetch(
+      "https://asia-south1-sudhsagarmart.cloudfunctions.net/setStoreQrLive",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + idToken
+        },
+        body: JSON.stringify({
+          storeId: storeId,
+          isLive: isLive,
+          live: isLive
+        })
+      }
+    );
 
-    const data = await response.json();
-    if (!response.ok || data.success === false) {
-      throw new Error(data.error || data.message || "QR request fail hua.");
+    const result = await response.json();
+
+    if (!response.ok || result.success === false) {
+      throw new Error(result.error || result.message || "QR status update fail hua.");
     }
-    return data;
+
+    return result;
   }
 
-  startBtn.onclick = async function () {
-    try {
-      status.textContent = "LIVE start ho raha hai...";
-      await callQrFunction("setStoreQrLive");
-      status.textContent = "LIVE START request successful.";
-    } catch (error) {
-      status.textContent = "Error: " + error.message;
-    }
-  };
+  startBtn.addEventListener("click", async function () {
+    startBtn.disabled = true;
+    status.textContent = "QR LIVE start ho raha hai...";
 
-  stopBtn.onclick = async function () {
     try {
-      status.textContent = "LIVE stop ho raha hai...";
-      await callQrFunction("setStoreQrLive");
-      status.textContent =
-        "Request bhej di gayi. Backend mein LIVE OFF action verify karna hoga.";
+      await setQrLive(true);
+      status.textContent = "LIVE START request successful. Backend status verify karein.";
     } catch (error) {
+      console.error(error);
       status.textContent = "Error: " + error.message;
+    } finally {
+      startBtn.disabled = false;
     }
-  };
+  });
+
+  stopBtn.addEventListener("click", async function () {
+    stopBtn.disabled = true;
+    status.textContent = "QR LIVE stop ho raha hai...";
+
+    try {
+      await setQrLive(false);
+      status.textContent = "LIVE STOP request successful. Backend status verify karein.";
+    } catch (error) {
+      console.error(error);
+      status.textContent = "Error: " + error.message;
+    } finally {
+      stopBtn.disabled = false;
+    }
+  });
 })();
 </script>
-
   
 </body>
 </html>
