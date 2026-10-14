@@ -2192,7 +2192,77 @@ async function bookRiderSlot() {
 }
 
 $("bookRiderSlotBtn").addEventListener("click", bookRiderSlot);
-  
+async function startRiderQrScan() {
+  const status = $("riderQrStatus");
+  const reader = $("riderQrReader");
+
+  if (!currentUser || !partnerId) {
+    status.textContent = "Pehle Delivery Partner login karein.";
+    return;
+  }
+
+  if (riderQrScanner) {
+    status.textContent = "QR scanner pehle se chal raha hai.";
+    return;
+  }
+
+  try {
+    riderQrScanner = new Html5Qrcode("riderQrReader");
+    status.textContent = "Camera khul raha hai...";
+
+    await riderQrScanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 230, height: 230 } },
+      async (decodedText) => {
+        try {
+          const payload = JSON.parse(decodedText);
+
+          if (!payload.token || !payload.storeId) {
+            status.textContent = "Yeh valid Store QR nahi hai.";
+            return;
+          }
+
+          await riderQrScanner.stop();
+          riderQrScanner.clear();
+          riderQrScanner = null;
+
+          status.textContent = "QR verify ho raha hai...";
+
+          const result = await validateStoreQrScan({
+            token: payload.token,
+            storeId: payload.storeId
+          });
+
+          status.textContent =
+            result.data?.message || "Store check-in successful!";
+          toast("Store QR check-in successful!");
+        } catch (error) {
+          console.error("QR scan error:", error);
+          status.textContent =
+            error.message || "QR verify nahi hua. Dobara scan karein.";
+
+          if (riderQrScanner) {
+            try {
+              await riderQrScanner.stop();
+              riderQrScanner.clear();
+            } catch (_) {}
+            riderQrScanner = null;
+          }
+        }
+      },
+      () => {}
+    );
+
+    status.textContent = "Store ka LIVE QR camera ke saamne rakhein.";
+  } catch (error) {
+    console.error("Camera error:", error);
+    status.textContent =
+      "Camera nahi khula. Browser camera permission allow karein.";
+    riderQrScanner = null;
+  }
+}
+
+$("startRiderQrBtn").addEventListener("click", startRiderQrScan);  
 </script>
 
 <!-- SUDH SAGAR MART: DELIVERY PARTNER SLOT BOOKING -->
