@@ -2218,6 +2218,19 @@ $("bookRiderSlotBtn").addEventListener("click", bookRiderSlot);
   <button id="bookRiderSlotBtn" type="button">
     Book My Slot
   </button>
+  <div id="riderQrSection" style="margin-top:16px">
+  <h3>Store QR Check-in</h3>
+  <p id="riderQrStatus">
+    Slot book karne ke baad store par QR scan karein.
+  </p>
+  <button id="startRiderQrBtn" type="button"
+    class="btn green">
+    📷 Scan Store QR
+  </button>
+  <div id="riderQrReader"
+    style="width:100%;max-width:400px;margin-top:12px">
+  </div>
+</div>
 
   <div id="riderSlotResult" role="status"></div>
 </section>
