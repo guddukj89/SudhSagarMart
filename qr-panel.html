@@ -192,13 +192,15 @@ button{width:100%;padding:13px;border:0;border-radius:9px;font-weight:bold;font-
 
     functions = firebase.app().functions("asia-south1");
 
-    firebase.auth().onAuthStateChanged(user => {
-      if(user){
-        status("Firebase connected. Admin permission check karein.", true);
-      }else{
-        status("Admin login zaroori hai. Pehle admin.html se login karein.");
-      }
-    });
+  
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    status("Firebase login mila. LIVE START dabayein.", true);
+  } else {
+    status("Is QR panel mein Firebase login nahi mila. Pehle isi panel par login karna hoga.");
+  }
+});
+
 
     $("start").addEventListener("click", startLive);
     $("stop").addEventListener("click", stopLive);
