@@ -5781,15 +5781,38 @@ auth.onAuthStateChanged(async user => {
     }
   });
 
-  if (window.firebase && firebase.auth) {
-    firebase.auth().onAuthStateChanged(function (user) {
-      if (user) loadStore();
-      else showStatus("Pehle Super Admin login karein.");
-    });
-  } else {
-    showStatus("Firebase SDK initialize nahi hua.");
+
+firebase.auth().onAuthStateChanged(async user => {
+  if (!user) {
+    status("Admin login nahi mila. Pehle isi website par login karein.");
+    return;
   }
-})();
+
+  try {
+    const tokenResult = await user.getIdTokenResult(true);
+    const db = firebase.firestore();
+
+    const adminSnap = await db
+      .collection("adminUsers")
+      .doc(user.uid)
+      .get();
+
+    if (
+      tokenResult.claims.admin !== true &&
+      !adminSnap.exists
+    ) {
+      status("Admin record nahi mila. Permission check karein.");
+      return;
+    }
+
+    status("Login mila. LIVE START dabakar backend test karein.", true);
+
+  } catch (error) {
+    console.error(error);
+    status("Admin check error: " + error.message);
+  }
+});
+
 </script>
   
 </body>
