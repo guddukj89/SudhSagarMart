@@ -1,456 +1,213 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sudh Sagar Mart - Live QR Panel</title>
+<title>Sudh Sagar Mart - Store QR Panel</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
-header{background:#0878e8;color:white;padding:18px;font-size:20px;font-weight:bold}
+header{background:#0878e8;color:white;padding:16px;font-weight:bold}
 main{max-width:480px;margin:22px auto;padding:12px}
 .card{background:white;padding:20px;border-radius:16px;box-shadow:0 3px 14px #0001;margin-bottom:15px}
 label{display:block;font-size:13px;font-weight:bold;margin:12px 0 6px}
 input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px}
-button{width:100%;padding:13px;border:0;border-radius:9px;font-weight:bold;font-size:15px;margin-top:12px}
-#liveBtn{background:#15803d;color:white}
-#qr{display:flex;justify-content:center;min-height:220px;align-items:center;margin:18px 0}
-.status{padding:10px;border-radius:8px;background:#fee2e2;color:#991b1b;text-align:center;font-weight:bold}
+button{width:100%;padding:13px;border:0;border-radius:9px;font-weight:bold;font-size:15px;margin-top:12px;color:white}
+#start{background:#15803d}
+#stop{background:#b91c1c}
+#status{padding:10px;border-radius:8px;background:#fee2e2;color:#991b1b;text-align:center;font-weight:bold;margin-top:12px}
+#qr{display:flex;justify-content:center;align-items:center;min-height:230px;margin:18px 0;overflow-wrap:anywhere}
 .note{font-size:12px;color:#64748b;line-height:1.6}
 </style>
 </head>
 <body>
 <header>🏪 Sudh Sagar Mart — Store QR Panel</header>
+
 <main>
-  <div class="card">
-    <h2>Live QR Attendance</h2>
-    <label>Store ID</label>
-    <input id="storeId" placeholder="Apni Store ID daalein">
+<div class="card">
+<h2>Live QR Attendance</h2>
 
-    <div id="status" class="status">LIVE OFF</div>
-    <button id="liveBtn">▶ LIVE START</button>
+<label>Store ID</label>
+<input id="storeId" value="MANER0001" autocomplete="off">
 
-    <div id="qr">Live ON karne par QR yahan dikhega</div>
-    <div style="text-align:center">
-      <b id="countdown">—</b>
-      <p id="updated">QR abhi band hai</p>
-    </div>
-  </div>
+<div id="status">Firebase connection check ho raha hai...</div>
 
-  <div class="card">
-    <h3>Kaise kaam karega?</h3>
-    <p class="note">
-      1. Store ID daalein.<br>
-      2. LIVE START karein.<br>
-      3. Live QR har 5 second mein refresh hoga.<br>
-      4. Rider Delivery Panel se scan karega.<br>
-      5. LIVE OFF karne par naye scans band honge.
-    </p>
-    <p class="note">
-      Security: Yeh abhi panel ka frontend prototype hai.
-      Iska QR local demo data se banta hai. Isse asli
-      attendance verify nahi hogi. Real use se pehle server-issued
-      token, authentication aur Firestore validation jodna zaroori hai.
-    </p>
-  </div>
+<button id="start">▶ LIVE START</button>
+<button id="stop">■ LIVE STOP</button>
+
+<div id="qr">LIVE START karne par QR dikhega</div>
+<div id="updated" class="note">QR abhi band hai</div>
+</div>
+
+<div class="card">
+<h3>Kaise kaam karega?</h3>
+<p class="note">
+1. Admin login karein.<br>
+2. LIVE START dabayein.<br>
+3. Server se milne wala QR token har 5 second mein refresh hoga.<br>
+4. LIVE STOP par naye QR tokens band honge.
+</p>
+</div>
 </main>
 
 <script>
-let live = false;
-let intervalId = null;
-let remaining = 5;
-
-const liveBtn = document.getElementById("liveBtn");
-const statusBox = document.getElementById("status");
-const qrBox = document.getElementById("qr");
-const countdown = document.getElementById("countdown");
-const updated = document.getElementById("updated");
-const storeInput = document.getElementById("storeId");
-
-function makeDemoQR(){
-  const storeId = storeInput.value.trim();
-
-  if(!storeId){
-    alert("Pehle Store ID daalein.");
-    stopLive();
-    return;
-  }
-
-  qrBox.innerHTML = "";
-
-  // DEMO ONLY: real attendance token nahi hai.
-  const demoPayload = JSON.stringify({
-    type: "SSM_QR_DEMO",
-    storeId: storeId,
-    nonce: crypto.randomUUID(),
-    createdAt: Date.now()
-  });
-
-  new QRCode(qrBox, {
-    text: demoPayload,
-    width: 210,
-    height: 210,
-    correctLevel: QRCode.CorrectLevel.M
-  });
-
-  remaining = 5;
-  updated.textContent =
-    "Demo QR updated: " + new Date().toLocaleTimeString();
-}
-
-function startLive(){
-  if(!storeInput.value.trim()){
-    alert("Pehle Store ID daalein.");
-    return;
-  }
-
-  live = true;
-  statusBox.textContent = "LIVE ON — DEMO";
-  statusBox.style.background = "#dcfce7";
-  statusBox.style.color = "#166534";
-  liveBtn.textContent = "■ LIVE STOP";
-  liveBtn.style.background = "#b91c1c";
-
-  makeDemoQR();
-
-  intervalId = setInterval(() => {
-    if(!live) return;
-
-    remaining--;
-    countdown.textContent = "Next QR in " + remaining + " sec";
-
-    if(remaining <= 0){
-      makeDemoQR();
-    }
-  }, 1000);
-}
-
-function stopLive(){
-  live = false;
-  clearInterval(intervalId);
-  intervalId = null;
-
-  statusBox.textContent = "LIVE OFF";
-  statusBox.style.background = "#fee2e2";
-  statusBox.style.color = "#991b1b";
-  liveBtn.textContent = "▶ LIVE START";
-  liveBtn.style.background = "#15803d";
-  qrBox.textContent = "Live band hai";
-  countdown.textContent = "—";
-  updated.textContent = "QR abhi band hai";
-}
-
-liveBtn.addEventListener("click", () => {
-  if(live){
-    stopLive();
-  }else{
-    startLive();
-  }
-});
-
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const admin = require("firebase-admin");
-const crypto = require("crypto");
-
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
-
-const db = admin.firestore();
-const FieldValue = admin.firestore.FieldValue;
-const Timestamp = admin.firestore.Timestamp;
-
-// ------------------------------------------
-// HELPERS
-// ------------------------------------------
-
-function hashToken(token) {
-  return crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
-}
-
-async function requireAdmin(request) {
-  if (!request.auth) {
-    throw new HttpsError(
-      "unauthenticated",
-      "Please login first."
-    );
-  }
-
-  const uid = request.auth.uid;
-
-  const adminDoc = await db
-    .collection("admins")
-    .doc(uid)
-    .get();
-
-  if (
-    request.auth.token.admin !== true &&
-    !adminDoc.exists
-  ) {
-    throw new HttpsError(
-      "permission-denied",
-      "Admin access required."
-    );
-  }
-
-  return uid;
-}
-
-// ------------------------------------------
-// 1. STORE QR LIVE ON / OFF
-// ------------------------------------------
-
-exports.setStoreQrLive = onCall(async (request) => {
-  await requireAdmin(request);
-
-  const storeId = String(
-    request.data?.storeId || ""
-  ).trim();
-
-  const live = request.data?.live;
-
-  if (!storeId || typeof live !== "boolean") {
-    throw new HttpsError(
-      "invalid-argument",
-      "storeId and live status are required."
-    );
-  }
-
-  await db
-    .collection("storeQrSessions")
-    .doc(storeId)
-    .set(
-      {
-        storeId: storeId,
-        live: live,
-        updatedAt: FieldValue.serverTimestamp()
-      },
-      { merge: true }
-    );
-
-  return {
-    success: true,
-    storeId: storeId,
-    live: live
+(function(){
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTwfL2U5ME9qzXBHQOWLwY9yGt93SjuGU",
+    authDomain: "sudhsagarmart.firebaseapp.com",
+    projectId: "sudhsagarmart",
+    storageBucket: "sudhsagarmart.firebasestorage.app",
+    messagingSenderId: "682379938859",
+    appId: "1:682379938859:web:4cb3581fd0de81f4e72e6e"
   };
-});
 
-// ------------------------------------------
-// 2. GENERATE A SHORT-LIVED QR TOKEN
-// Call this every 5 seconds while LIVE.
-// ------------------------------------------
+  const $ = id => document.getElementById(id);
+  let functions = null;
+  let live = false;
+  let timer = null;
+  let busy = false;
 
-exports.getStoreQrToken = onCall(async (request) => {
-  await requireAdmin(request);
-
-  const storeId = String(
-    request.data?.storeId || ""
-  ).trim();
-
-  if (!storeId) {
-    throw new HttpsError(
-      "invalid-argument",
-      "storeId is required."
-    );
+  function status(message, ok=false){
+    $("status").textContent = message;
+    $("status").style.background = ok ? "#dcfce7" : "#fee2e2";
+    $("status").style.color = ok ? "#166534" : "#991b1b";
   }
 
-  const sessionRef = db
-    .collection("storeQrSessions")
-    .doc(storeId);
-
-  const sessionSnap = await sessionRef.get();
-
-  if (
-    !sessionSnap.exists ||
-    sessionSnap.data().live !== true
-  ) {
-    throw new HttpsError(
-      "failed-precondition",
-      "Store QR is OFF."
-    );
+  function stopTimer(){
+    live = false;
+    if(timer) clearInterval(timer);
+    timer = null;
   }
 
-  const token = crypto.randomBytes(32).toString("hex");
-  const tokenHash = hashToken(token);
-  const expiresAtMs = Date.now() + 15000;
+  async function call(name, data){
+    const result = await functions.httpsCallable(name)(data);
+    return result.data;
+  }
 
-  await db
-    .collection("storeQrTokens")
-    .doc(tokenHash)
-    .create({
-      storeId: storeId,
-      used: false,
-      createdAt: FieldValue.serverTimestamp(),
-      expiresAt: Timestamp.fromMillis(expiresAtMs)
+  async function refreshQR(){
+    if(!live || busy) return;
+    busy = true;
+
+    try{
+      const storeId = $("storeId").value.trim();
+      const data = await call("getStoreQrToken", {storeId});
+
+      if(!live) return;
+
+      $("qr").innerHTML = "";
+
+      const payload = JSON.stringify({
+        type: "SSM_STORE_QR",
+        storeId: data.storeId,
+        token: data.token
+      });
+
+      new QRCode($("qr"), {
+        text: payload,
+        width: 210,
+        height: 210,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      $("updated").textContent =
+        "Firebase QR refreshed: " + new Date().toLocaleTimeString();
+
+      status("LIVE ON — Firebase QR", true);
+    }catch(error){
+      console.error(error);
+      status("QR error: " + (error.message || error));
+    }finally{
+      busy = false;
+    }
+  }
+
+  async function startLive(){
+    if(live) return;
+
+    const user = firebase.auth().currentUser;
+    const storeId = $("storeId").value.trim();
+
+    if(!user){
+      status("Pehle admin login karein.");
+      return;
+    }
+    if(!storeId){
+      status("Store ID bharna zaroori hai.");
+      return;
+    }
+
+    $("start").disabled = true;
+
+    try{
+      await call("setStoreQrLive", {storeId, live:true});
+
+      live = true;
+      await refreshQR();
+
+      timer = setInterval(refreshQR, 5000);
+    }catch(error){
+      console.error(error);
+      stopTimer();
+      status("LIVE START error: " + (error.message || error));
+    }finally{
+      $("start").disabled = false;
+    }
+  }
+
+  async function stopLive(){
+    stopTimer();
+    $("stop").disabled = true;
+
+    try{
+      const user = firebase.auth().currentUser;
+
+      if(user){
+        await call("setStoreQrLive", {
+          storeId: $("storeId").value.trim(),
+          live: false
+        });
+      }
+
+      $("qr").textContent = "LIVE OFF — QR band hai";
+      $("updated").textContent = "QR abhi band hai";
+      status("LIVE OFF", true);
+    }catch(error){
+      console.error(error);
+      status("STOP error: " + (error.message || error));
+    }finally{
+      $("stop").disabled = false;
+    }
+  }
+
+  try{
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+    functions = firebase.app().functions("asia-south1");
+
+    firebase.auth().onAuthStateChanged(user => {
+      if(user){
+        status("Firebase connected. Admin permission check karein.", true);
+      }else{
+        status("Admin login zaroori hai. Pehle admin.html se login karein.");
+      }
     });
 
-  return {
-    success: true,
-    storeId: storeId,
-    token: token,
-    expiresAt: expiresAtMs
-  };
-});
+    $("start").addEventListener("click", startLive);
+    $("stop").addEventListener("click", stopLive);
 
-// ------------------------------------------
-// 3. VALIDATE SCANNED QR
-// Prevent reuse and duplicate queue entries.
-// ------------------------------------------
-
-exports.validateStoreQrScan = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError(
-      "unauthenticated",
-      "Rider login required."
-    );
+  }catch(error){
+    console.error(error);
+    status("Firebase init error: " + (error.message || error));
   }
-
-  const uid = request.auth.uid;
-
-  const token = String(
-    request.data?.token || ""
-  ).trim();
-
-  const storeId = String(
-    request.data?.storeId || ""
-  ).trim();
-
-  if (!token || !storeId) {
-    throw new HttpsError(
-      "invalid-argument",
-      "QR token and storeId are required."
-    );
-  }
-
-  const riderRef = db
-    .collection("deliveryPartners")
-    .doc(uid);
-
-  const tokenRef = db
-    .collection("storeQrTokens")
-    .doc(hashToken(token));
-
-  const sessionRef = db
-    .collection("storeQrSessions")
-    .doc(storeId);
-
-  const queueQuery = db
-    .collection("storeRiderQueue")
-    .where("riderId", "==", uid)
-    .where("storeId", "==", storeId)
-    .where("status", "==", "waiting")
-    .limit(1);
-
-  return db.runTransaction(async (tx) => {
-    // Read all required documents before writing.
-    const riderSnap = await tx.get(riderRef);
-    const tokenSnap = await tx.get(tokenRef);
-    const sessionSnap = await tx.get(sessionRef);
-    const queueSnap = await tx.get(queueQuery);
-
-    if (!riderSnap.exists) {
-      throw new HttpsError(
-        "permission-denied",
-        "Rider profile not found."
-      );
-    }
-
-    if (!tokenSnap.exists || !sessionSnap.exists) {
-      throw new HttpsError(
-        "failed-precondition",
-        "QR token is invalid."
-      );
-    }
-
-    const rider = riderSnap.data();
-    const qr = tokenSnap.data();
-    const session = sessionSnap.data();
-
-    if (session.live !== true) {
-      throw new HttpsError(
-        "failed-precondition",
-        "Store QR is OFF."
-      );
-    }
-
-    if (qr.storeId !== storeId) {
-      throw new HttpsError(
-        "permission-denied",
-        "QR belongs to another store."
-      );
-    }
-
-    if (
-      qr.used === true ||
-      !qr.expiresAt ||
-      qr.expiresAt.toMillis() <= Date.now()
-    ) {
-      throw new HttpsError(
-        "failed-precondition",
-        "QR has expired or was already used."
-      );
-    }
-
-    if (rider.storeId !== storeId) {
-      throw new HttpsError(
-        "permission-denied",
-        "Rider is not assigned to this store."
-      );
-    }
-
-    if (rider.activeOrderId) {
-      throw new HttpsError(
-        "failed-precondition",
-        "Complete your active order first."
-      );
-    }
-
-    if (!queueSnap.empty) {
-      throw new HttpsError(
-        "already-exists",
-        "Rider is already waiting in this queue."
-      );
-    }
-
-    const queueRef = db
-      .collection("storeRiderQueue")
-      .doc();
-
-    // Mark token as used and create queue entry atomically.
-    tx.update(tokenRef, {
-      used: true,
-      usedBy: uid,
-      usedAt: FieldValue.serverTimestamp()
-    });
-
-    tx.create(queueRef, {
-      riderId: uid,
-      storeId: storeId,
-      status: "waiting",
-      joinedAt: FieldValue.serverTimestamp()
-    });
-
-    tx.set(
-      riderRef,
-      {
-        queueJoinedAt: FieldValue.serverTimestamp(),
-        lastQrScanAt: FieldValue.serverTimestamp()
-      },
-      { merge: true }
-    );
-
-    return {
-      success: true,
-      message: "Rider added to store queue.",
-      queueId: queueRef.id
-    };
-  });
-});
-  
+})();
 </script>
 </body>
 </html>
