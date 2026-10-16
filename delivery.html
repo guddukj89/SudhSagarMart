@@ -2191,6 +2191,12 @@ async function bookRiderSlot() {
 
   } catch (error) {
     console.error("Slot booking error:", error);
+    alert(
+  "Slot booking error: " +
+  (error.code || "") +
+  " " +
+  (error.message || error)
+);
     result.textContent =
       "Booking nahi hui. Firebase permissions aur connection check karein.";
   } finally {
