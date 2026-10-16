@@ -5781,15 +5781,13 @@ auth.onAuthStateChanged(async user => {
     }
   });
 
-
 firebase.auth().onAuthStateChanged(async user => {
   if (!user) {
-    status("Admin login nahi mila. Pehle isi website par login karein.");
+    showStatus("Admin login nahi mila. Pehle Super Admin login karein.");
     return;
   }
 
   try {
-    const tokenResult = await user.getIdTokenResult(true);
     const db = firebase.firestore();
 
     const adminSnap = await db
@@ -5797,19 +5795,39 @@ firebase.auth().onAuthStateChanged(async user => {
       .doc(user.uid)
       .get();
 
-    if (
-      tokenResult.claims.admin !== true &&
-      !adminSnap.exists
-    ) {
-      status("Admin record nahi mila. Permission check karein.");
+    if (!adminSnap.exists) {
+      showStatus("Admin record nahi mila.");
       return;
     }
 
-    status("Login mila. LIVE START dabakar backend test karein.", true);
+    const adminData = adminSnap.data();
+
+    if (
+      adminData.role !== "admin" ||
+      adminData.active !== true
+    ) {
+      showStatus("Admin account inactive hai ya permission nahi hai.");
+      return;
+    }
+
+    const assignedStoreId = String(
+      adminData.storeId || ""
+    ).trim();
+
+    if (!assignedStoreId) {
+      showStatus("Admin account mein storeId nahi hai.");
+      return;
+    }
+
+    storeInput.value = assignedStoreId;
+
+    showStatus(
+      "Admin verified. Store: " + assignedStoreId
+    );
 
   } catch (error) {
     console.error(error);
-    status("Admin check error: " + error.message);
+    showStatus("Admin check error: " + error.message);
   }
 });
 
