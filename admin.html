@@ -5819,7 +5819,9 @@ firebase.auth().onAuthStateChanged(async user => {
       return;
     }
 
-    storeInput.value = assignedStoreId;
+   storeInput.value = String(
+  currentAdmin?.storeId || assignedStoreId || ""
+).trim();
 
     showStatus(
       "Admin verified. Store: " + assignedStoreId
