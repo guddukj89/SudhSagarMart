@@ -193,23 +193,42 @@ button{width:100%;padding:13px;border:0;border-radius:9px;font-weight:bold;font-
     functions = firebase.app().functions("asia-south1");
 
   
-firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    status("Firebase login mila. LIVE START dabayein.", true);
-  } else {
-    status("Is QR panel mein Firebase login nahi mila. Pehle isi panel par login karna hoga.");
-  }
+firebase.auth().setPersistence(
+  firebase.auth.Auth.Persistence.LOCAL
+).then(() => {
+  firebase.auth().onAuthStateChanged(async user => {
+    if (!user) {
+      status("Admin login nahi mila. Admin Panel mein login karke isi domain par QR Panel kholein.");
+      return;
+    }
+
+    try {
+      const tokenResult = await user.getIdTokenResult(true);
+      const db = firebase.firestore();
+
+      const adminSnap = await db
+        .collection("adminUsers")
+        .doc(user.uid)
+        .get();
+
+      if (
+        tokenResult.claims.admin !== true &&
+        !adminSnap.exists
+      ) {
+        status("Admin record nahi mila. Permission check karein.");
+        return;
+      }
+
+      status("Login mila. LIVE START dabayein.");
+    } catch (error) {
+      console.error(error);
+      status("Admin check error: " + error.message);
+    }
+  });
+}).catch(error => {
+  console.error(error);
+  status("Firebase Auth error: " + error.message);
 });
-
-
-    $("start").addEventListener("click", startLive);
-    $("stop").addEventListener("click", stopLive);
-
-  }catch(error){
-    console.error(error);
-    status("Firebase init error: " + (error.message || error));
-  }
-})();
 </script>
 </body>
 </html>
