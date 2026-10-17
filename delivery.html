@@ -2189,17 +2189,14 @@ async function bookRiderSlot() {
 
     toast("Delivery slot book ho gaya.");
 
-  } catch (error) {
-    console.error("Slot booking error:", error);
-    alert(
-  "Slot booking error: " +
-  (error.code || "") +
-  " " +
-  (error.message || error)
-);
-    result.textContent =
-      "Booking nahi hui. Firebase permissions aur connection check karein.";
-  } finally {
+} catch (error) {
+  console.error("Slot booking error:", error.code, error.message);
+
+  result.textContent =
+    "Error: " + (error.code || "") + " - " + error.message;
+} finally {
+
+
     button.disabled = false;
     button.textContent = "Book My Slot";
   }
